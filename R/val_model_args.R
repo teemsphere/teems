@@ -9,6 +9,8 @@
     var_omit = c("NULL", "character")
 
   )
+  
+  a$var_omit <- tolower(a$var_omit)
 
   .check_arg_class(
     args_list = a,

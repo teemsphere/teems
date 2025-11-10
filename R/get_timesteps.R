@@ -4,13 +4,21 @@
 #' @noRd
 .get_timesteps <- function(paths,
                            cmf_path,
-                           timestep_header) {
+                           timestep_header,
+                           call) {
   t0 <- readRDS(paths$metadata)$reference_year
+
+  # there is an inconsequential error on math parsing (avoided with quiet = T) on this pass with inaccurate implicit statement at end
+  model <- .process_tablo(tab_file = paths$tab,
+                          quiet = TRUE,
+                          call = call)
+  timestep_coeff <- model$name[match(.o_timestep_header(), model$header)]
   timestep_file <- .get_output_paths(
     cmf_path = cmf_path,
     which = "coefficient",
-    select = .o_timestep_header()
+    select = timestep_coeff
   )
+
   timesteps <- data.table::fread(timestep_file, skip = 1, col.names = timestep_header)
   timesteps <- timesteps[!is.na(get(timestep_header))]
   timesteps[, CYRS := t0 + timesteps[, 1]]

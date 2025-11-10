@@ -85,18 +85,22 @@ ems_deploy <- function(data,
   sets <- .finalize_sets(
     sets = data[purrr::map_lgl(data, inherits, "set")],
     set_extract = subset(model, type == "Set"),
+    coeff_extract = subset(model, type == "Coefficient"),
     time_steps = attr(data, "time_steps"),
     reference_year = metadata$reference_year,
     call = call,
-    data_call = attr(data, "call")
+    data_call = attr(data, "call"),
+    model_call = attr(model, "call")
   )
   v <- .validate_deploy_args(
     a = args_list,
     sets = sets,
-    call = call
+    call = call,
+    data_call = attr(data, "call")
   )
   closure <- .validate_closure(
     closure = v$closure,
+    var_omit = attr(v$model, "var_omit"),
     sets = sets,
     var_extract = subset(model, type == "Variable"),
     call = call
@@ -156,15 +160,7 @@ ems_deploy <- function(data,
     .ems_write,
     write_dir = v$write_dir
   )
-  dir.create(file.path(v$write_dir, "out", "sets"),
-    recursive = TRUE
-  )
-  dir.create(file.path(v$write_dir, "out", "coefficients"),
-    recursive = TRUE
-  )
-  dir.create(file.path(v$write_dir, "out", "variables", "bin"),
-    recursive = TRUE
-  )
+  .out_mkdir(write_dir = v$write_dir)
   .diagnostic_output(
     tab_path = tab_path,
     cmf_path = cmf_path,

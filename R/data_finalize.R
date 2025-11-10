@@ -15,10 +15,7 @@
     1
   )]
 
-  # data <- lapply(data,
-  #                .custom_mod,
-  #                sets = sets)
-  if (any(grepl("\\(intertemporal\\)", sets$qualifier_list))) {
+  if (attr(sets, "intertemporal")) {
     int_sets <- subset(
       sets,
       grepl("\\(intertemporal\\)", sets$qualifier_list),
@@ -49,9 +46,10 @@
     n_timestep_header <- .o_n_timestep_header()
     timestep_header <- .o_timestep_header()
     n_timestep <- data.table::data.table(Value = length(attr(sets, "time_steps")))
-    class(n_timestep) <- c(.o_n_timestep_header(), "dat", class(n_timestep))
+    class(n_timestep) <- c(n_timestep_header, "dat", class(n_timestep))
 
-    t_header_set <- purrr::pluck(model, "ls_upper_idx", timestep_header)
+    timestep_coeff <- model$name[match(timestep_header, model$header)]
+    t_header_set <- purrr::pluck(model, "ls_upper_idx", timestep_coeff)
     timesteps <- data.table::data.table(
       with(sets$ele, get(t_header_set)),
       attr(sets, "time_steps")
@@ -80,7 +78,6 @@
     }
 
     if (!expected %=% nrow(dt)) {
-      browser()
       .cli_action(data_err$data_set_mismatch,
         action = "abort",
         call = call

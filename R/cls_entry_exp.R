@@ -1,5 +1,5 @@
 #' @importFrom purrr pluck map
-#' @importFrom data.table CJ setnames as.data.table fintersect
+#' @importFrom data.table CJ setkey setnames fintersect
 #' 
 #' @keywords internal
 #' @noRd
@@ -60,7 +60,7 @@
       call = call
     )
   }
-  
+
   attr(cls_entry, "comp") <- unlist(entry_ele)
   attr(cls_entry, "ele") <- entry_ele
   return(cls_entry)
@@ -72,7 +72,6 @@
                                  var_extract,
                                  sets,
                                  call) {
-
   entry_mixed <- sub(")", "", purrr::pluck(strsplit(cls_entry, "\\("), 1, 2))
   entry_mixed <- strsplit(entry_mixed, ",")[[1]]
   var_sets <- purrr::pluck(var_extract, "ls_upper_idx", attr(cls_entry, "var_name"))

@@ -1,5 +1,5 @@
 #' @importFrom purrr map2
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .advance_remainder <- function(remainder,

@@ -26,7 +26,7 @@
     }
   )
   
-  sets_out$setname <- toupper(sets_out$setname)
+  sets_out$setname <- sets_out$setname
   names(sets_out$ele) <- sets_out$setname
   return(sets_out)
 }

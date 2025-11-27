@@ -1,5 +1,5 @@
 #' @importFrom rlang is_integerish
-#' @importFrom data.table data.table setnames setkeyv
+#' @importFrom data.table data.table setnames setkeyv setattr
 #' @importFrom purrr map2 map_chr
 #' 
 #' @keywords internal
@@ -69,12 +69,12 @@
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
       expected <- as.integer(prod(lengths(dt_sets)))
-      attr(dt, "dim_sizes") <- lengths(dt_sets)
-      attr(dt, "dimen") <- paste(lengths(dt_sets), collapse = " ")
+      data.table::setattr(dt, "dim_sizes", lengths(dt_sets))
+      data.table::setattr(dt, "dimen", paste(lengths(dt_sets), collapse = " "))
     } else {
       expected <- 1L
-      attr(dt, "dim_sizes") <- expected
-      attr(dt, "dimen") <- as.character(expected)
+      data.table::setattr(dt, "dim_sizes", expected)
+      data.table::setattr(dt, "dimen", as.character(expected))
     }
 
     if (!expected %=% nrow(dt)) {
@@ -93,7 +93,7 @@
     data,
     r_idx,
     function(dt, id) {
-      attr(dt, "file") <- model$file[id]
+      data.table::setattr(dt, "file", model$file[id])
       if (!grepl("integer", model$qualifier_list[id])) {
         type <- "Real"
       } else {
@@ -120,7 +120,7 @@
         paste0('"', model$label[id], '";')
       )
 
-      attr(dt, "lead") <- lead
+      data.table::setattr(dt, "lead", lead)
       return(dt)
     }
   )
@@ -145,6 +145,7 @@
         "LongName",
         paste0('"', model$label[id], '";')
       )
+
       attr(s, "lead") <- lead
       attr(s, "file") <- model$file[id]
       class(s) <- c("set", class(s))

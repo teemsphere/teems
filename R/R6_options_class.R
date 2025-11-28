@@ -1,3 +1,5 @@
+#' @importFrom R6 R6Class
+#' 
 #' @noRd
 #' @keywords internal
 options_class <- R6::R6Class(

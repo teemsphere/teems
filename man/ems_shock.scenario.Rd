@@ -19,7 +19,7 @@ based on set and time step selection.}
 \item{...}{Future extension.}
 }
 \description{
-\code{ems_shock.custom()} loads scenario shocks for
+\code{ems_shock.scenario()} loads scenario shocks for
 processing as well as conducts a series of compatibility
 checks. A scenario shock is one which allows for granular
 control over heterogenous shocks that are allocated on a

@@ -8,11 +8,11 @@
 #'
 #' @inheritParams ems_solve
 #' 
-#' @param type Character length 1, type of data to parse (default
+#' @param which Character length 1, type of data to parse (default
 #'   includes all). Choices:
+#'   * `"all"`: All model variables and coefficients
 #'   * `"variable"`: Percentage change values for model variables
-#'   * `"coefficient"`: Absolute values for model coefficients
-#'   * `"inputdata"`: Merged pre- and post-model basedata values
+#'   * `"coefficient"`: Values for model coefficients
 #' @param name Character vector, a subset of the selected type
 #'   filtered by name.
 #'

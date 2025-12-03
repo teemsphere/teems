@@ -20,7 +20,8 @@
 #' @noRd
 #' @export
 .custom_mod.ETRE <- function(arr,
-                             i_data) {
+                             i_data,
+                             ...) {
   if (.o_expand_ETRE()) {
     if (attr(i_data, "metadata")$data_format %=% "v6.2") {
       endowments <- i_data$H6

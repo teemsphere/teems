@@ -11,35 +11,6 @@
 #' @export
 .header2v7.default <- function(input,
                                ...) {
-  browser()
-}
-
-#' @method .header2v7 dat
-#' @keywords internal
-#' @noRd
-#' @export
-.header2v7.dat <- function(input,
-                           ...) {
-  input <- .names_rename(input = input)
-  return(input)
-}
-
-#' @method .header2v7 par
-#' @keywords internal
-#' @noRd
-#' @export
-.header2v7.par <- function(input,
-                           ...) {
-  input <- .names_rename(input = input)
-  return(input)
-}
-
-#' @method .header2v7 set
-#' @keywords internal
-#' @noRd
-#' @export
-.header2v7.set <- function(input,
-                           ...) {
   input <- .names_rename(input = input)
   return(input)
 }
@@ -148,7 +119,8 @@
 #' @noRd
 #' @export
 .header2v7.EVOA <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
 
   classes <- class(input)
   VFM_arr <- i_data$VFM
@@ -178,7 +150,8 @@
 #' @noRd
 #' @export
 .header2v7.ESBD <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -194,7 +167,8 @@
 #' @noRd
 #' @export
 .header2v7.ESBM <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -210,7 +184,8 @@
 #' @noRd
 #' @export
 .header2v7.ETRE <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -226,7 +201,8 @@
 #' @noRd
 #' @export
 .header2v7.ESBT <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   input <- .drop_CGDS(input = input)
   classes <- class(input)
   input <- .add_REG(
@@ -243,7 +219,8 @@
 #' @noRd
 #' @export
 .header2v7.ESBV <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   input <- .drop_CGDS(input = input)
   classes <- class(input)
   input <- .add_REG(

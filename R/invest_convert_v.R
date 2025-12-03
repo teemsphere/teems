@@ -9,8 +9,10 @@
 #' @method .convert_invest_v v7.0
 #' @keywords internal
 #' @noRd
+#' @export
 .convert_invest_v.v7.0 <- function(input,
-                              CGDS_data) {
+                                   CGDS_data,
+                                   ...) {
 
   arr_names <- names(dimnames(input))
   CGDS_dim <- c(dim(CGDS_data), 1)
@@ -29,8 +31,10 @@
 #' @method .convert_invest_v v6.2
 #' @keywords internal
 #' @noRd
+#' @export
 .convert_invest_v.v6.2 <- function(input,
-                                   new_h) {
+                                   new_h,
+                                   ...) {
 
   classes <- class(input)
   classes[1] <- new_h

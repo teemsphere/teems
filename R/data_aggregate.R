@@ -10,11 +10,14 @@
   UseMethod(".aggregate_data")
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .aggregate_data dat
 #' @export
 .aggregate_data.dat <- function(dt,
                                 sets,
-                                ndigits) {
+                                ndigits,
+                                ...) {
   xval_col <- colnames(dt)[!colnames(dt) %in% "Value"]
   dt <- .map_data(dt = dt, sets = sets, col = xval_col)
   if (any(duplicated(xval_col))) {
@@ -30,11 +33,14 @@
   return(dt)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .aggregate_data par
 #' @export
 .aggregate_data.par <- function(dt,
                                 sets,
-                                ndigits) {
+                                ndigits,
+                                ...) {
   xval_col <- colnames(dt)[!colnames(dt) %in% c("Value", "omega", "sigma")]
   dt <- .map_data(dt = dt, sets = sets, col = xval_col)
   if (any(duplicated(xval_col))) {
@@ -62,6 +68,8 @@
   return(dt)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .aggregate_data set
 #' @export
 .aggregate_data.set <- function(dt,

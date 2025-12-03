@@ -10,7 +10,8 @@
 #' @noRd
 #' @export
 .header2v6.default <- function(input,
-                               i_data) {
+                               i_data,
+                               ...) {
   NextMethod()
 }
 
@@ -19,7 +20,8 @@
 #' @noRd
 #' @export
 .header2v6.dat <- function(input,
-                           i_data) {
+                           i_data,
+                           ...) {
   
   input <- .names_rename(input = input)
   return(input)
@@ -30,7 +32,8 @@
 #' @noRd
 #' @export
 .header2v6.par <- function(input,
-                           i_data) {
+                           i_data,
+                           ...) {
   v6col <- unlist(subset(
     coeff_conversion,
     v7.0header %in% class(input)[1],
@@ -81,7 +84,8 @@
 #' @noRd
 #' @export
 .header2v6.set <- function(input,
-                           i_data) {
+                           i_data,
+                           ...) {
   input <- .names_rename(input = input)
   return(input)
 }
@@ -91,7 +95,8 @@
 #' @noRd
 #' @export
 .header2v6.VDFB <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
 
   classes <- class(input)
   input <- .convert_invest_v(input = input,
@@ -106,7 +111,8 @@
 #' @noRd
 #' @export
 .header2v6.VDFP <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .convert_invest_v(input = input,
                              CGDS_data = i_data[["VDIP"]])
@@ -120,7 +126,8 @@
 #' @noRd
 #' @export
 .header2v6.VMFB <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .convert_invest_v(input = input,
                              CGDS_data = i_data[["VMIB"]])
@@ -134,7 +141,8 @@
 #' @noRd
 #' @export
 .header2v6.VMFP <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   input <- .convert_invest_v(input = input,
                              CGDS_data = i_data[["VMIP"]])
@@ -216,7 +224,8 @@
 #' @noRd
 #' @export
 .header2v6.ISEP <- function(input,
-                            i_data) {
+                            i_data,
+                            ...) {
   classes <- class(input)
   arr_dimnames <- dimnames(input)
   arr_names <- names(arr_dimnames)

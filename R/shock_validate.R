@@ -41,6 +41,11 @@
 #' @export
 .validate_shock.default <- function(shock,
                                     call) {
+
+  shock["..."] <- NULL
+  class(shock) <- c(shock$type, class(shock))
+  shock$type <- NULL
+  
   checklist <- list(
     var = "character",
     input = c("character", "data.frame")

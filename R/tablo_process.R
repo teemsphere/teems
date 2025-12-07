@@ -28,13 +28,13 @@
     tab = tab,
     call = call
   )
-
-  ele_names <- subset(
-    extract$set,
-    is.na(header) & qualifier_list == "(non_intertemporal)" & is.na(comp1) & is.na(comp2),
-    definition,
-    1
-  )
+  
+  ele_names <- extract$set[with(extract$set,
+    expr = {is.na(header) &
+            qualifier_list == "(non_intertemporal)" &
+            is.na(comp1) &
+            is.na(comp2)}
+    ), ]$definition
 
   if (any(purrr::map_lgl(
     ele_names,
@@ -89,8 +89,8 @@
     )
 
     n_var <- nrow(var_extract)
-    n_eq <- nrow(subset(math_extract, math_extract$type %in% "Equation"))
-    n_form <- nrow(subset(math_extract, math_extract$type %in% "Formula"))
+    n_eq <- nrow(math_extract[math_extract$type %in% "Equation",])
+    n_form <- nrow(math_extract[math_extract$type %in% "Formula",])
     n_coeff <- nrow(coeff_extract)
     n_sets <- nrow(extract$set)
 
@@ -121,15 +121,15 @@
 
   tab$row_id <- NULL
   tab$type <- tools::toTitleCase(tolower(tab$type))
-  tab <- subset(tab, type != "Write")
+  tab <- tab[tolower(tab$type) != "write",]
   # drop File used for output, need a separate fun arg for this
-  tab <- subset(tab, !(type == "File" & grepl("(new)", tab, ignore.case = )))
+  tab <- tab[!(tolower(tab$type) == "file" & grepl("(new)", tab$tab, ignore.case = TRUE)),]
 
   if (any(tab$header %in% .o_full_exclude())) {
     x_header <- intersect(tab$header, .o_full_exclude())
     for (h in unique(x_header)) {
       x_coeff <- tab$name[match(h, tab$header)]
-      tab <- subset(tab, !grepl(x_coeff, tab))
+      tab <- tab[!grepl(x_coeff, tab$tab),]
     }
   }
 

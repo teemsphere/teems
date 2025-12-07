@@ -7,7 +7,8 @@
                           tab_file,
                           cls_file,
                           write_dir) {
-  input_names <- paste0(unique(subset(model, !is.na(file), file, 1)))
+
+  input_names <- paste0(unique(model[!is.na(model$file), "file"][[1]]))
   input_files <- file.path(write_dir, paste0(input_names, ".txt"))
   names(input_files) <- input_names
 
@@ -22,7 +23,7 @@
     paste("shock", paste0("\"", shf_path, "\"", ";"))
   )
 
-  set_names <- subset(model, type == "Set", name, 1)
+  set_names <- model[model$type == "Set", "name"][[1]]
   set_writeout <- paste(
     "outdata",
     paste0('"', set_names, '"'),
@@ -39,7 +40,7 @@
     )
   )
 
-  coeff_names <- subset(model, type == "Coefficient", name, 1)
+  coeff_names <- model[model$type == "Coefficient", "name"][[1]]
   coeff_writeout <- paste(
     "outdata",
     paste0('"', coeff_names, '"'),

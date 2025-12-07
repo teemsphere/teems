@@ -1,5 +1,5 @@
 #' @importFrom data.table data.table fsetdiff funion fintersect
-#' @importFrom purrr pmap map map_chr map_lgl
+#' @importFrom purrr pmap map map_chr map_lgl pluck
 #' @importFrom stats na.omit
 #' 
 #' @keywords internal
@@ -110,18 +110,8 @@
       ),
       function(m, d, c1, c2) {
         if (is.null(m)) {
-          x <- subset(
-            set_extract,
-            name %in% c1,
-            mapping,
-            1
-          )[[1]]
-          y <- subset(
-            set_extract,
-            name %in% c2,
-            mapping,
-            1
-          )[[1]]
+          x <- purrr::pluck(set_extract[set_extract$name %in% c1, "mapping"], 1, 1)
+          y <- purrr::pluck(set_extract[set_extract$name %in% c2, "mapping"], 1, 1)
           if (any(is.null(x), is.null(y))) {
             return(NULL)
           } else if (grepl("\\+", d)) {

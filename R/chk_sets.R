@@ -7,7 +7,6 @@
                         model_dir,
                         set_path,
                         call) {
-
   sets <- .unite_csvs(
     target = "set_csvs",
     paths = bin_csv_paths
@@ -50,6 +49,6 @@
   }
 
   names(sets$ele) <- sets$setname
-  sets <- subset(sets, select = ele, drop = 1)
-  return(sets)
+
+  return(sets$ele)
 }

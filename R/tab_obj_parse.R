@@ -5,7 +5,9 @@
 .parse_tab_obj <- function(extract,
                            obj_type,
                            call) {
-  obj <- subset(extract, tolower(type) == obj_type)
+
+  obj <- extract[tolower(extract$type) == obj_type,]
+
   obj$remainder <- purrr::map_chr(
     obj$remainder,
     function(r) {
@@ -152,7 +154,7 @@
 
 
   if (obj_type %=% "coefficient") {
-    r <- subset(extract, tolower(type) == "read")
+    r <- extract[tolower(extract$type) == "read",]
 
     if (!all(grepl("from file", tolower(r$remainder)))) {
       .cli_action(model_err$missing_file,
@@ -196,9 +198,19 @@
   obj$subsets <- NA
   
   # some permutations not yet utilized
-  obj <- subset(obj,
-    select = c(type, name, label, qualifier_list, ls_upper_idx, ls_mixed_idx, header, file, definition, subsets, comp1, comp2, row_id)
-  )
+  obj <- obj[, c("type",
+                 "name",
+                 "label",
+                 "qualifier_list",
+                 "ls_upper_idx",
+                 "ls_mixed_idx",
+                 "header",
+                 "file",
+                 "definition",
+                 "subsets",
+                 "comp1",
+                 "comp2",
+                 "row_id")]
 
   return(obj)
 }

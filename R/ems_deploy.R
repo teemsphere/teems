@@ -84,8 +84,8 @@ ems_deploy <- function(data,
   attr(metadata, "file") <- "metadata.rds"
   sets <- .finalize_sets(
     sets = data[purrr::map_lgl(data, inherits, "set")],
-    set_extract = subset(model, type == "Set"),
-    coeff_extract = subset(model, type == "Coefficient"),
+    set_extract = model[model$type == "Set",],
+    coeff_extract = model[model$type == "Coefficient",],
     time_steps = attr(data, "time_steps"),
     reference_year = metadata$reference_year,
     call = call,
@@ -102,7 +102,7 @@ ems_deploy <- function(data,
     closure = v$closure,
     var_omit = attr(v$model, "var_omit"),
     sets = sets,
-    var_extract = subset(model, type == "Variable"),
+    var_extract = model[model$type == "Variable",],
     call = call
   )
   closure <- .finalize_closure(
@@ -110,7 +110,7 @@ ems_deploy <- function(data,
     swap_out = v$swap_out,
     closure = closure,
     sets = sets,
-    var_extract = subset(model, type == "Variable"),
+    var_extract = model[model$type == "Variable",],
     call = call
   )
   if (!is.null(v$shock)) {
@@ -119,7 +119,7 @@ ems_deploy <- function(data,
       shock_file = v$shock_file,
       closure = closure,
       sets = sets,
-      var_extract = subset(model, type == "Variable")
+      var_extract = model[model$type == "Variable",]
     )
   } else {
     shocks <- structure(NA,

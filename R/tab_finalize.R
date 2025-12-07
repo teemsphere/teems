@@ -1,8 +1,9 @@
 #' @keywords internal
 #' @noRd
 .finalize_tab <- function(model) {
-  set_extract <- subset(model, type == "Set")
-  coeff_extract <- subset(model, type == "Coefficient")
+
+  set_extract <- model[model$type == "Set",]
+  coeff_extract <- model[model$type == "Coefficient",]
 
   set_extract$name <- toupper(set_extract$name)
   set_writeout <- paste(

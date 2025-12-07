@@ -13,8 +13,9 @@
                               sets,
                               var_extract,
                               call) {
+
   closure_file <- attr(closure, "file")
-  closure <- subset(closure, !grepl("!", closure))
+  closure <- closure[!grepl("!", closure)]
   temp <- gsub("\\([^)]*\\)", "", closure)
 
   closure <- unlist(purrr::map2(
@@ -29,7 +30,7 @@
     }
   ))
 
-  closure <- subset(closure, !closure %in% var_omit)
+  closure <- closure[!closure %in% var_omit]
   cls_var <- purrr::map_chr(strsplit(closure, "\\("), 1)
 
   if (!all(cls_var %in% var_extract$name)) {

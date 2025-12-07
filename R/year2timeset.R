@@ -7,12 +7,11 @@
 #' @keywords internal
 .year2time_set <- function(raw_shock,
                            sets,
+                           int_set_names,
                            value,
                            call) {
-  time_set_upper <- intersect(
-    raw_shock$ls_upper,
-    subset(sets, qualifier_list == "(intertemporal)", name, 1)
-  )
+
+  time_set_upper <- intersect(raw_shock$ls_upper, int_set_names)
   time_set <- raw_shock$ls_mixed[match(time_set_upper, raw_shock$ls_upper)]
   CYRS <- attr(sets, "CYRS")
   if (!all(value$Year %in% CYRS$Value)) {

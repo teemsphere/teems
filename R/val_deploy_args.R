@@ -20,7 +20,7 @@
     checklist = checklist,
     call = call
   )
-  
+
   if (!a$write_dir %=% tools::R_user_dir("teems", "cache")) {
     a$write_dir <- normalizePath(a$write_dir)
     if (!dir.exists(a$write_dir)) {
@@ -42,10 +42,7 @@
   )
 
   if (attr(sets, "intertemporal")) {
-    int_sets <- subset(a$model,
-                       qualifier_list == "(intertemporal)",
-                       name,
-                       1)
+    int_sets <- a$model[which(a$model$qualifier_list == "(intertemporal)"), "name"][[1]]
   } else {
     int_sets <- NULL
   }
@@ -55,7 +52,7 @@
     a$shock <- lapply(
       a$shock,
       .check_shock,
-      var_extract = subset(a$model, type %in% "Variable"),
+      var_extract = a$model[a$model$type == "Variable",],
       int_sets = int_sets,
       call = call
     )
@@ -79,7 +76,7 @@
     a$swap_in <- .expand_ele(input = a$swap_in, nested = TRUE)
     a$swap_in <- lapply(a$swap_in,
       .check_swap,
-      var_extract = subset(a$model, type %in% "Variable"),
+      var_extract = a$model[a$model$type == "Variable",],
       sets = sets,
       call = call
     )
@@ -89,7 +86,7 @@
     a$swap_out <- .expand_ele(input = a$swap_out, nested = TRUE)
     a$swap_out <- lapply(a$swap_out,
       .check_swap,
-      var_extract = subset(a$model, type %in% "Variable"),
+      var_extract = a$model[a$model$type == "Variable",],
       sets = sets,
       call = call
     )
@@ -109,8 +106,8 @@
       call = call
     )
   }
-  
-  non_int_req <- setdiff(subset(a$model, !is.na(header), header, 1),
+
+  non_int_req <- setdiff(a$model[!is.na(a$model$header), "header"][[1]],
                          c(.o_n_timestep_header(), .o_timestep_header()))
   
   if (any(!non_int_req %in% names(data))) {

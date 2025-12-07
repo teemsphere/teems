@@ -12,11 +12,14 @@
                                       closure,
                                       sets,
                                       ...) {
+
   value <- raw_shock$input
-  value <- subset(value, Year %in% attr(sets, "CYRS")$Value)
+  value <- value[value$Year %in% attr(sets, "CYRS")$Value]
+  int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
   list2env(.year2time_set(raw_shock = raw_shock,
                           sets = sets,
                           value = value,
+                          int_set_names = int_set_names,
                           call = call),
            envir = environment())
 
@@ -44,13 +47,8 @@
                            sets = sets$mapping,
                            ndigits = .o_ndigits())
 
-  int_sets <- subset(sets,
-                     qualifier_list == "(intertemporal)",
-                     name,
-                     1)
-  
   # some grep should be which
-  int_col <- which(colnames(value) %in% int_sets)
+  int_col <- which(colnames(value) %in% int_set_names)
   data.table::setnames(value, raw_shock$ls_upper, raw_shock$ls_mixed)
   non_int_col <- colnames(value)[-c(int_col, ncol(value))]
   int_col <- colnames(value)[int_col]

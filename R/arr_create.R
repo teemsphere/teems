@@ -5,11 +5,8 @@
                           ...) {
 
   set_env <- list(...)
-  sets <- unlist(subset(
-    coeff_conversion,
-    v7.0header == input,
-    v7.0set
-  ))
+  sets <- unlist(coeff_conversion[coeff_conversion$v7.0header %in% input,
+                                  "v7.0set"])
 
   sets <- with(set_env, mget(sets))
   arr <- array(

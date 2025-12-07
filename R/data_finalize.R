@@ -9,19 +9,12 @@
                            model,
                            write_dir,
                            call) {
-  data <- data[names(data) %in% subset(
-    model, type == "Coefficient" & !is.na(file),
-    header,
-    1
-  )]
+
+  model_coeff <- model[model$type == "Coefficient" & !is.na(model$file), "header"][[1]]
+  data <- data[names(data) %in% model_coeff]
 
   if (attr(sets, "intertemporal")) {
-    int_sets <- subset(
-      sets,
-      grepl("\\(intertemporal\\)", sets$qualifier_list),
-      ele,
-      1
-    )
+    int_sets <- sets[grepl("\\(intertemporal\\)", sets$qualifier_list), "ele"][[1]]
 
     l_idx <- match(names(data), model$header)
     data <- purrr::map2(
@@ -125,11 +118,8 @@
     }
   )
 
-  sets <- sets[sets$name %in% subset(
-    model, type == "Set" & !is.na(file),
-    name,
-    1
-  ), "ele"][[1]]
+  model_sets <- model[model$type == "Set" & !is.na(model$file), "name"][[1]]
+  sets <- sets[sets$name %in% model_sets, "ele"][[1]]
 
   r_idx <- match(names(sets), model$name)
   sets <- purrr::map2(

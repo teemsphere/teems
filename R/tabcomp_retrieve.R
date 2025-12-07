@@ -10,6 +10,7 @@
     tab_file = tab_path,
     call = call
   )
+
   extract <- tibble::tibble(
     type = purrr::map_chr(strsplit(tab, split = " ", perl = TRUE), 1),
     remainder = sub("^\\S+\\s*", "", tab)
@@ -30,12 +31,7 @@
     )
   }
 
-  file_state <- subset(
-    extract,
-    type == "File",
-    remainder,
-    1
-  )
+  file_state <- extract[extract$type == "File", "remainder"][[1]]
   input_files <- trimws(purrr::map_chr(strsplit(
     file_state[!grepl("\\(new\\)", file_state)],
     "#"

@@ -10,14 +10,10 @@
 #' @noRd
 #' @export
 .convert_GTAPdb.v6.2 <- function(i_data) {
-  
   metadata <- attr(i_data, "metadata")
-  missing_par <- subset(
-    coeff_conversion,
-    is.na(x = v6.2header) & data_type == "par",
-    v7.0header,
-    1
-  )
+  missing_par <- coeff_conversion[is.na(coeff_conversion$v6.2header) &
+                                  coeff_conversion$data_type == "par",
+                                  "v7.0header"]
   missing_par <- purrr::map(missing_par, function(p) {
     class(p) <- c(p, class(p))
     return(p)
@@ -39,12 +35,7 @@
   ACTS <- i_data$H2
   class(ACTS)[1:2] <- "ACTS"
   i_data[["ACTS"]] <- ACTS
-  keep_set <- subset(
-    set_conversion,
-    !is.na(v7.0header),
-    v7.0header,
-    1
-  )
+  keep_set <- set_conversion[!is.na(set_conversion$v7.0header), "v7.0header"]
   
   i_data <- i_data[purrr::map_lgl(i_data, function(h) {
     if (inherits(h, "set")) {
@@ -71,22 +62,11 @@
 #' @export
 .convert_GTAPdb.v7.0 <- function(i_data) {
   metadata <- attr(i_data, "metadata")
-  drop_par <- subset(
-    coeff_conversion,
-    is.na(v6.2header) & data_type == "par",
-    v7.0header,
-    1
-  )
+  drop_par <- coeff_conversion[is.na(coeff_conversion$v6.2header) & coeff_conversion$data_type == "par", "v7.0header"]
 
   i_data <- i_data[!names(i_data) %in% drop_par]
   i_data <- lapply(i_data, .header2v6, i_data = i_data)
-  drop_dat <- subset(
-    coeff_conversion,
-    is.na(v6.2header) & data_type == "dat",
-    v7.0header,
-    1
-  )
-
+  drop_dat <- coeff_conversion[is.na(coeff_conversion$v6.2header) & coeff_conversion$data_type == "dat", "v7.0header"]
   i_data <- i_data[!names(i_data) %in% drop_dat]
 
   CGDS_COMM <- structure("CGDS",
@@ -94,12 +74,7 @@
   )
 
   i_data[["H9"]] <- CGDS_COMM
-  keep_set <- subset(
-    set_conversion,
-    !is.na(v6.2header),
-    v6.2header,
-    1
-  )
+  keep_set <- set_conversion[!is.na(set_conversion$v6.2header), "v6.2header"]
 
   i_data <- i_data[purrr::map_lgl(i_data, function(h) {
     if (inherits(h, "set")) {

@@ -13,10 +13,8 @@
       call = call
     )
   }
-  bin_sets <- subset(
-    bin_sets,
-    setname %in% tab_set_names
-  )
+
+  bin_sets <- bin_sets[bin_sets$setname %in% tab_set_names,]
   r_idx <- match(bin_sets$setname, tab_set_names)
   if (!all(purrr::map2_lgl(
     tab_sets[r_idx],

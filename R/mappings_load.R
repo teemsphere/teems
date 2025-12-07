@@ -13,18 +13,11 @@
   )
 
   if (metadata$data_format %=% "v6.2") {
-    set_mappings$MARG_COMM <- subset(
-      set_mappings$TRAD_COMM,
-      set_mappings$TRAD_COMM[, 1][[1]] %in% .o_margin_sectors()
-    )
-
+    set_mappings$MARG_COMM <- set_mappings$TRAD_COMM[set_mappings$TRAD_COMM[, 1][[1]] %in% .o_margin_sectors(), ]
     CGDS <- data.table::data.table("zcgds", "zcgds")
     set_mappings$PROD_COMM <- data.table::rbindlist(list(set_mappings$TRAD_COMM, CGDS), use.names = FALSE)
   } else if (metadata$data_format %=% "v7.0") {
-    set_mappings$MARG <- subset(
-      set_mappings$COMM,
-      set_mappings$COMM[, 1][[1]] %in% .o_margin_sectors()
-    )
+    set_mappings$MARG <- set_mappings$COMM[set_mappings$COMM[, 1][[1]] %in% .o_margin_sectors(), ]
   }
 
   if (!is.null(time_steps)) {
@@ -35,6 +28,6 @@
     )
     attr(set_mappings, "time_steps") <- time_steps
   }
-  
+
   return(set_mappings)
 }

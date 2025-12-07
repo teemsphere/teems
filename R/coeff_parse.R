@@ -9,6 +9,7 @@
                          sets,
                          time_steps,
                          call) {
+
   ls_data <- lapply(paths, readLines)
 
   list_coeff <- lapply(
@@ -34,14 +35,8 @@
     ls_data = transposed[[4]]
   )
 
-  coeff_extract <- subset(
-    coeff_extract,
-    name %in% gsub(
-      ".csv",
-      "",
-      basename(paths)
-    )
-  )
+  coeff_names <- gsub(".csv", "", basename(paths))
+  coeff_extract <- coeff_extract[coeff_extract$name %in% coeff_names, ]
 
   if (!all(coeff_extract$name %in% coeff_tib$name)) {
     .cli_action(
@@ -142,6 +137,6 @@
     )
   }
 
-  coeff_tib <- subset(coeff_tib, select = c(name, label, dat))
+  coeff_tib <- coeff_tib[, c("name", "label", "dat")]
   return(coeff_tib)
 }

@@ -34,11 +34,13 @@
 .header2v6.par <- function(input,
                            i_data,
                            ...) {
-  v6col <- unlist(subset(
-    coeff_conversion,
-    v7.0header %in% class(input)[1],
-    v6.2set
-  ))
+
+  v6col <- coeff_conversion[coeff_conversion$v7.0header %in% class(input)[[1]], "v6.2set"]
+  if (!length(v6col) %=% 0L) {
+    v6col <- v6col[[1]]
+  } else {
+    v6col <- NULL
+  }
 
   classes <- class(input)
   

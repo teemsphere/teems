@@ -5,7 +5,8 @@
 #' @noRd
 .parse_tab_maths <- function(tab_extract,
                              call) {
-  maths <- subset(tab_extract, tolower(type) %in% c("equation", "formula"))
+
+  maths <- tab_extract[tolower(tab_extract$type) %in% c("equation", "formula"),]
 
   maths$name <- unlist(purrr::map2(
     maths$type,

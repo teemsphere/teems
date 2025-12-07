@@ -5,7 +5,8 @@
 #' @noRd
 .parse_tab_sets <- function(tab_extract,
                             call) {
-  sets <- subset(tab_extract, tolower(type) %in% "set")
+
+  sets <- tab_extract[tolower(tab_extract$type) %in% "set",]
   sets$type <- "Set"
   sets$qualifier_list <- ifelse(
     substr(sets$remainder, 1, 1) == "(",
@@ -226,7 +227,7 @@
   sets$comp1 <- purrr::map_chr(sets$comp, 1)
   sets$comp2 <- purrr::map_chr(sets$comp, purrr::pluck, 2, .default = NA)
 
-  subsets <- subset(tab_extract, tolower(type) %in% "subset")
+  subsets <- tab_extract[tolower(tab_extract$type) %in% "subset",]
   if (any(grepl(pattern = "\\(by numbers\\)", subsets$remainder))) {
     .cli_action(
       msg = "Subset '(by numbers)' argument not supported.",
@@ -272,13 +273,12 @@
   }
 
   names(sets$subsets) <- sets$name
-  existing_subsets <- subset(sets, select = subsets, drop = 1)
 
   for (i in 1:nrow(sets)) {
     nm <- sets$name[i]
-    e_ss <- existing_subsets[[nm]]
+    e_ss <- sets$subsets[[nm]]
     if (!all(is.na(e_ss))) {
-      ss <- with(existing_subsets, mget(e_ss))
+      ss <- with(sets$subsets, mget(e_ss))
       while (!all(is.na(ss))) {
         ss <- unlist(ss[!is.na(ss)], use.names = FALSE)
         sets$subsets[i] <- list(unique(c(sets$subsets[[i]], ss)))
@@ -295,7 +295,20 @@
   
   sets$ls_upper_idx <- NA
   sets$ls_mixed_idx <- NA
-  sets <- subset(sets, select = c(type, name, label, qualifier_list, ls_upper_idx, ls_mixed_idx, header, file, definition, subsets, comp1, comp2, row_id))
+  sets <- sets[, c("type",
+                   "name",
+                   "label",
+                   "qualifier_list",
+                   "ls_upper_idx",
+                   "ls_mixed_idx",
+                   "header",
+                   "file",
+                   "definition",
+                   "subsets",
+                   "comp1",
+                   "comp2",
+                   "row_id")]
+  
   # other checks should include
   # le/ge/lt/gt in the RHS of formula
   # summation in formula headers

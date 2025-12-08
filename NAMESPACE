@@ -3,6 +3,8 @@
 S3method(.aggregate_data,dat)
 S3method(.aggregate_data,par)
 S3method(.aggregate_data,set)
+S3method(.check_set_map,internal)
+S3method(.check_set_map,user)
 S3method(.check_shock,custom)
 S3method(.check_shock,scenario)
 S3method(.check_shock,uniform)

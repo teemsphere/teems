@@ -311,8 +311,6 @@ list(
         "The internal mapping selected: {.val {set_map}}, for set {.val {map_name}} does not exist.",
         "Available internal mappings for {.val {map_name}} include {.val {available_map_names}}"
       ),
-      missing_ele_ext_mapping = "The set mapping for {.val {map_name}} is missing mappings for {.val {missing_ele}}.",
-      no_ele_ext_mapping = "No required elements were found for the {.field {data_format}} set {.val {map_name}} indicating an invalid set name.",
       no_internal_mapping = "No internal mappings were found for the set {.field {map_name}}.",
       extra_input = "If {.arg eqm_input} is provided, {.arg dat_input}, {.arg par_input}, and {.arg set_input} arguments are unnecessary.",
       invalid_set_qual = "Invalid set qualifier detected: {.val {invalid_qual}}.",
@@ -346,8 +344,16 @@ list(
   }),
   tar_target(set_err, {
     list(
+      missing_data = "There is no loaded set data which corresponds to the loaded set map: {.field {map_name}}.",
+      invalid_user_input = "The set mapping loaded for {.field {map_name}} does not contain both an origin element column and a mapping column.",
+      missing_ele_mapping = "The set mapping loaded for {.field {map_name}} is missing mappings for {.val {missing_ele}}.",
       while_loop = "Construction of dependent sets has failed on: {null_sets}.",
       invalid_plus = "The set operator `+` was used where there are overlapping set elements {.field {d}}, violating the condition that the sets be disjoint."
+    )
+  }),
+  tar_target(set_wrn, {
+    list(
+      invalid_user_input = "The set mapping loaded for {.field {map_name}} contains more than 2 columns. Only the first (origin element) and second (mapped element) columns will be utilized."
     )
   }),
   tar_target(cls_err, {

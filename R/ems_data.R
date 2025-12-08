@@ -123,9 +123,10 @@ ems_data <- function(dat_input,
   if (convert_format) {
     i_data <- .convert_GTAPdb(i_data = i_data)
   }
-  
+
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,
+    set_data = i_data[purrr::map_lgl(i_data, inherits, "set")],
     time_steps = time_steps,
     metadata = attr(i_data, "metadata"),
     call = call

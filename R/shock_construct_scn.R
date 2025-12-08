@@ -12,7 +12,9 @@
                                       closure,
                                       sets,
                                       ...) {
-
+  # NSE
+  Value <- NULL
+  
   value <- raw_shock$input
   value <- value[value$Year %in% attr(sets, "CYRS")$Value]
   int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
@@ -53,10 +55,10 @@
   non_int_col <- colnames(value)[-c(int_col, ncol(value))]
   int_col <- colnames(value)[int_col]
   
-  value[, Value := {
+  value[, let(Value = {
     baseline <- Value[get(int_col) == 0]
     (Value - baseline) / baseline * 100
-  }, by = non_int_col]
+  }), by = non_int_col]
 
 
   raw_shock$input <- value

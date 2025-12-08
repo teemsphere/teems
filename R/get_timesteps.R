@@ -21,7 +21,7 @@
 
   timesteps <- data.table::fread(timestep_file, skip = 1, col.names = timestep_header)
   timesteps <- timesteps[!is.na(get(timestep_header))]
-  timesteps[, CYRS := t0 + timesteps[, 1]]
-  timesteps[, all_time := seq(0, nrow(timesteps) - 1)]
+  timesteps[, let(CYRS = t0 + timesteps[, 1])]
+  timesteps[, let(all_time = seq(0, nrow(timesteps) - 1))]
   return(timesteps)
 }

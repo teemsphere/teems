@@ -1,4 +1,4 @@
-#' @importFrom data.table fsetdiff copy fsetequal
+#' @importFrom data.table fsetdiff copy fsetequal `:=`
 #' @importFrom purrr list_flatten map2_lgl compact map_chr
 #' 
 #' @keywords internal
@@ -71,7 +71,7 @@
 
     diff_dt <- lapply(diff_dt, function(subset) {
       if (!all(is.na(subset))) {
-        replacement <- paste0("\"", unlist(unique(subset[, ..set_name])), "\"")
+        replacement <- paste0("\"", unlist(unique(subset[, set_name, with = FALSE])), "\"")
         colnames(x = subset) <- gsub(
           pattern = set_name,
           replacement = replacement,
@@ -83,7 +83,7 @@
 
     full_dt <- lapply(full_dt, function(subset) {
       if (!all(is.na(subset))) {
-        replacement <- paste0("\"", unlist(unique(subset[, ..set_name])), "\"")
+        replacement <- paste0("\"", unlist(unique(subset[, set_name, with = FALSE])), "\"")
         colnames(subset) <- gsub(
           pattern = set_name,
           replacement = replacement,

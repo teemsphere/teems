@@ -22,7 +22,7 @@
     .f = function(row_id, l) {
       start <- row_id + 1
       stop <- row_id + l
-      set_ele[seq(start, stop), mapped_ele]
+      set_ele[seq(start, stop), "mapped_ele"][[1]]
     }
   )
   

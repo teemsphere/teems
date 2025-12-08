@@ -5,6 +5,9 @@
 .weight_param <- function(i_data,
                           data_format) {
 
+  # NSE
+  omega <- Value <- NULL
+  
   weight_map <- switch(data_format,
                        "v6.2" = param_weights$v6.2,
                        "v7.0" = param_weights$v7.0)
@@ -32,8 +35,8 @@
       ls_w <- weights[w_headers]
       sets <- colnames(h)[!colnames(h) %in% "Value"]
       w <- data.table::rbindlist(lapply(ls_w, function(weight) {
-        weight[, .(Value = sum(Value)), by = sets]
-      }))[, .(omega = sum(Value)), by = sets]
+        weight[, list(Value = sum(Value)), by = sets]
+      }))[, list(omega = sum(Value)), by = sets]
       h <- merge(h, w, sets)
       h[, let(sigma = Value * omega)]
     }

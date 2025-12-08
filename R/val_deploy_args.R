@@ -1,4 +1,7 @@
-#' @importFrom tibble is_tibble
+#' @importFrom tools R_user_dir
+#' 
+#' @keywords internal
+#' @noRd
 .validate_deploy_args <- function(a,
                                   sets,
                                   call,
@@ -110,8 +113,8 @@
   non_int_req <- setdiff(a$model[!is.na(a$model$header), "header"][[1]],
                          c(.o_n_timestep_header(), .o_timestep_header()))
   
-  if (any(!non_int_req %in% names(data))) {
-    missing_headers <- setdiff(non_int_req, names(data))
+  if (any(!non_int_req %in% names(a$data))) {
+    missing_headers <- setdiff(non_int_req, names(a$data))
     # add inform about how to load aux data
     .cli_action(data_err$missing_header,
       action = "abort",

@@ -53,23 +53,23 @@
     )
   }
   
-  if (!is.null(a$unaggregated_input)) {
-    a$unaggregated_input <- .prep_input_data(
-      data = a$unaggregated_input,
-      data_class = c("character", "data.frame"),
-      call = call
-    )
-
-  }
+  # if (!is.null(a$unaggregated_input)) {
+  #   a$unaggregated_input <- .prep_input_data(
+  #     data = a$unaggregated_input,
+  #     data_class = c("character", "data.frame"),
+  #     call = call
+  #   )
+  # 
+  # }
   
-  if (!is.null(a$aggregated_input)) {
-    a$aggregated_input <- .prep_input_data(
-      data = a$aggregated_input,
-      data_class = c("character", "data.frame", "numeric"),
-      call
-    )
-
-  }
+  # if (!is.null(a$aggregated_input)) {
+  #   a$aggregated_input <- .prep_input_data(
+  #     data = a$aggregated_input,
+  #     data_class = c("character", "data.frame", "numeric"),
+  #     call
+  #   )
+  # 
+  # }
 
   if (!is.null(a$target_format)) {
     target_format <- a$target_format

@@ -1,7 +1,7 @@
 #' @importFrom data.table fread as.data.table setnames CJ fsetequal fsetdiff rbindlist
 #' @importFrom purrr pluck list_flatten
 #' @importFrom tibble tibble
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output combn
 #' 
 #' @noRd
 #' @keywords internal
@@ -13,8 +13,10 @@
                                     sets,
                                     ...) {
 
+  # NSE
+  Value <- NULL
+  
   ndigits <- .o_ndigits()
-
   value <- raw_shock$input
 
   if ("Year" %in% raw_shock$set) {
@@ -42,12 +44,12 @@
       }
     }
 
-    value[, Value := format(
+    value[, let(Value = format(
       round(Value, ndigits),
       trim = TRUE,
       nsmall = ndigits,
       scientific = FALSE
-    )]
+    ))]
 
     data.table::setorder(value)
     new_classes <- append(class(raw_shock), "full_set", after = 1)
@@ -88,7 +90,7 @@
         data.table::setnames(all_exo_parts, new = key_names)
         if (!nrow(data.table::fsetdiff(value[, !"Value"], all_exo_parts)) %=% 0L) {
           x_exo_parts <- data.table::fsetdiff(
-            value[, ..key_names],
+            value[, key_names, with = FALSE],
             all_exo_parts
           )
           x_exo_parts <- trimws(utils::capture.output(print(x_exo_parts)))
@@ -105,7 +107,7 @@
     set_combn <- list()
     key_cols <- names(set_ele)
     for (size in 1:length(key_cols)) {
-      col_combinations <- combn(key_cols,
+      col_combinations <- utils::combn(key_cols,
         m = size,
         simplify = FALSE
       )
@@ -148,12 +150,12 @@
           ss[match(names(ele), raw_shock$ls_upper)] <- paste0("\"", ele, "\"")
           shk$value <- shk$value[, -c(col), with = FALSE]
           data.table::setorder(shk$value)
-          shk$value[, Value := format(
+          shk$value[, let(Value = format(
             round(Value, ndigits),
             trim = TRUE,
             nsmall = ndigits,
             scientific = FALSE
-          )]
+          ))]
 
           new_classes <- append(class(raw_shock), "full_set", after = 1)
           lead <- paste(
@@ -181,12 +183,12 @@
     }
 
     if (!nrow(value) %=% 0L) {
-      value[, Value := format(
+      value[, let(Value = format(
         round(Value, ndigits),
         trim = TRUE,
         nsmall = ndigits,
         scientific = FALSE
-      )]
+      ))]
 
       value <- paste(
         "Shock",

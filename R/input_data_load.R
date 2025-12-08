@@ -34,7 +34,7 @@
   
   if (!inherits(set, "set")) {
     inferred_type <- attr(set, "data_type")
-    .cli_action(dat_err$invalid_set_har,
+    .cli_action(data_err$invalid_set_har,
                 action = "abort",
                 call = call
     )

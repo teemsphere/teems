@@ -70,7 +70,7 @@
 
   data_dt <- purrr::map(vars$cofname, function(nm) {
     sets <- vars$dt[[nm]]
-    dt_data <- data_dt[which(var == nm)]
+    dt_data <- data_dt[data_dt$var == nm,]
     dt <- cbind(sets, dt_data[, -c("r_idx", "var")])
     return(dt)
   })
@@ -127,7 +127,7 @@
         data.table::setnames(dt, new = c(mixed_col, "Value"))
         data.table::setkeyv(dt, cols = mixed_col)
       } else {
-        dt[, null_set := NULL]
+        dt[, let(null_set = NULL)]
       }
     }
   )

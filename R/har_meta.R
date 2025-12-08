@@ -24,7 +24,7 @@
 
   if (data_type %=% "dat") {
     if (is.null(DVER)) {
-      .cli_action(data$err$wrong_input,
+      .cli_action(data_err$wrong_input,
         action = "abort",
         call = call
       )

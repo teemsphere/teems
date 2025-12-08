@@ -10,6 +10,9 @@
                            write_dir,
                            call) {
 
+  # NSE
+  Value <- NULL
+  
   model_coeff <- model[model$type == "Coefficient" & !is.na(model$file), "header"][[1]]
   data <- data[names(data) %in% model_coeff]
 
@@ -28,7 +31,7 @@
         if (any(names(int_sets) %in% full_sets)) {
           int_set <- intersect(names(int_sets), full_sets)
           nonint_set <- full_sets[!full_sets %in% int_set]
-          dt <- dt[, .(with(int_sets, get(int_set)), Value), by = nonint_set]
+          dt <- dt[, list(with(int_sets, get(int_set)), Value), by = nonint_set]
           data.table::setnames(dt, new = c(full_sets, "Value"))
           data.table::setkeyv(dt, cols = full_sets)
         }
@@ -94,14 +97,14 @@
       }
 
       if (type %=% "Real" && !rlang::is_integerish(dt$Value)) {
-        dt[, Value := format(
+        dt[, let(Value = format(
           round(Value, ndigits),
           trim = TRUE,
           nsmall = ndigits,
           scientific = FALSE
-        )]
+        ))]
       } else {
-        dt[, Value := as.integer(Value)]
+        dt[, let(Value = as.integer(Value))]
       }
 
       lead <- paste(

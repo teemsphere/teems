@@ -3,10 +3,10 @@
 #'
 #' @keywords internal
 #' @noRd
-.parse_tab_sets <- function(tab_extract,
+.parse_tab_sets <- function(extract,
                             call) {
 
-  sets <- tab_extract[tolower(tab_extract$type) %in% "set",]
+  sets <- extract[tolower(extract$type) %in% "set",]
   sets$type <- "Set"
   sets$qualifier_list <- ifelse(
     substr(sets$remainder, 1, 1) == "(",
@@ -227,7 +227,7 @@
   sets$comp1 <- purrr::map_chr(sets$comp, 1)
   sets$comp2 <- purrr::map_chr(sets$comp, purrr::pluck, 2, .default = NA)
 
-  subsets <- tab_extract[tolower(tab_extract$type) %in% "subset",]
+  subsets <- extract[tolower(extract$type) %in% "subset",]
   if (any(grepl(pattern = "\\(by numbers\\)", subsets$remainder))) {
     .cli_action(
       msg = "Subset '(by numbers)' argument not supported.",

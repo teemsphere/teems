@@ -3,6 +3,7 @@
 #' @importFrom cli cli_h1 cli_dl cli_fmt
 #'
 #' @keywords internal
+#' @note This will become a method for "process_model"
 #' @noRd
 .process_tablo <- function(tab_file,
                            var_omit = NULL,
@@ -82,12 +83,12 @@
     )
   }
 
-  if (.o_verbose() && !quiet) {
-    math_extract <- .parse_tab_maths(
-      tab_extract = extract$model,
-      call = call
-    )
+  math_extract <- .parse_tab_maths(
+    extract = extract$model,
+    call = call
+  )
 
+  if (.o_verbose() && !quiet) {
     n_var <- nrow(var_extract)
     n_eq <- nrow(math_extract[math_extract$type %in% "Equation",])
     n_form <- nrow(math_extract[math_extract$type %in% "Formula",])
@@ -103,6 +104,11 @@
       "Sets" = n_sets
     ))
   }
+  
+  read_extract <- .parse_tab_read(
+    extract = extract$model,
+    call = call
+  )
 
   tab <- paste0(tab, ";")
   tab <- tibble::tibble(
@@ -110,7 +116,7 @@
     row_id = seq(1, length(tab))
   )
 
-  tab_parsed <- rbind(var_extract, coeff_extract, extract$set)
+  tab_parsed <- rbind(var_extract, coeff_extract, extract$set, math_extract, read_extract)
   tab <- tibble::as_tibble(merge(tab_parsed, tab, by = "row_id", all = TRUE))
   tab <- tab[order(tab$row_id), ]
 
@@ -124,6 +130,7 @@
   tab <- tab[tolower(tab$type) != "write",]
   # drop File used for output, need a separate fun arg for this
   tab <- tab[!(tolower(tab$type) == "file" & grepl("(new)", tab$tab, ignore.case = TRUE)),]
+  # potentially handle postsim here or simply throw error
 
   if (any(tab$header %in% .o_full_exclude())) {
     x_header <- intersect(tab$header, .o_full_exclude())
@@ -132,12 +139,12 @@
       tab <- tab[!grepl(x_coeff, tab$tab),]
     }
   }
-
-  tab <- structure(tab,
-    tab_file = tab_file,
-    var_omit = var_omit,
-    class = c("model", class(tab))
-  )
+  
+  if (inherits(tab_file, "teems_model")) {
+    attr(tab, "tab_file") <- paste0(class(tab_file)[[2]], ".tab")
+  } else {
+    attr(tab, "tab_file") <- basename(tab_file)
+  }
 
   return(tab)
 }

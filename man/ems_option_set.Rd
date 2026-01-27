@@ -20,13 +20,6 @@ This value is passed to the \code{format()} nsmall argument and
 \code{TRUE}). If \code{FALSE}, no check on shock element
 endogenous/exogenous status is conducted.}
 
-\item{post_set_check}{Logical of length 1 (default is \code{TRUE}).
-If \code{FALSE}, no post model check is conducted between the
-sets as written out from the Tablo file and solver set
-binaries. If a Tablo file with no set writeout is used
-(e.g., custom file in in-situ solve mode), this option must
-be set to \code{FALSE}.}
-
 \item{timestep_header}{A character vector length 1 (default is
 \code{"YEAR"}). Coefficient containing a numeric vector of
 timestep intervals. For novel intertemporal models - modify
@@ -53,7 +46,7 @@ converted to a percentage. 4 digit precision will be
 compared against this threshold, generating a warning if it
 is not met.}
 
-\item{expand_ETRE}{Logical of length 1 (default is \code{TRUE}). If
+\item{expand_ETRE}{Logical of length 1 (default \code{TRUE}). If
 \code{FALSE}, no expansion to the ETRE (ETRAE) data header are
 carried out. When \code{TRUE}, if ETRE header data does not
 contain the full endowment set, missing tuples will be added
@@ -63,6 +56,11 @@ are not consistent across databases regarding inclusion of
 non-sluggish endowments, leading to issues with the ETRAE
 coefficient which is read-in with the full set of
 endowments.}
+
+\item{write_sub_dir}{A character vector (default \code{"teems"}).
+Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a base
+directory for model files, \code{"write_sub_dir"} sets the name
+of the subdirectory within the base directory.}
 }
 \description{
 placeholder

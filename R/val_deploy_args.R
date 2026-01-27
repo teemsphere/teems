@@ -4,17 +4,17 @@
 #' @noRd
 .validate_deploy_args <- function(a,
                                   sets,
+                                  model_headers,
                                   call,
                                   data_call) {
 
   checklist <- list(
-    data = "list",
+    .data = "list",
     model = "data.frame",
     shock = c("NULL", "list"),
     swap_in = c("NULL", "character", "list"),
     swap_out = c("NULL", "character", "list"),
     write_dir = "character",
-    closure_file = c("NULL", "character"),
     shock_file = c("NULL", "character")
   )
 
@@ -24,25 +24,8 @@
     call = call
   )
 
-  if (!a$write_dir %=% tools::R_user_dir("teems", "cache")) {
-    a$write_dir <- normalizePath(a$write_dir)
-    if (!dir.exists(a$write_dir)) {
-      .cli_action(deploy_err$invalid_write_dir,
-        action = "abort",
-        call = call
-      )
-    }
-
-    a$write_dir <- file.path(a$write_dir, "teems")
-  }
-
-  unlink(a$write_dir,
-    recursive = TRUE
-  )
-
-  dir.create(a$write_dir,
-    recursive = TRUE
-  )
+  a$write_dir <- .check_write_dir(write_dir = a$write_dir,
+                                  call = call)
 
   if (attr(sets, "intertemporal")) {
     int_sets <- a$model[which(a$model$qualifier_list == "(intertemporal)"), "name"][[1]]
@@ -60,20 +43,6 @@
       call = call
     )
   }
-
-  if (!is.null(a$closure_file)) {
-    a$closure_file <- .check_input(
-      file = a$closure_file,
-      valid_ext = "cls",
-      call = call
-    )
-  }
-
-  a$closure <- .load_closure(
-    closure_file = a$closure_file,
-    tab_file = attr(a$model, "tab_file"),
-    call = call
-  )
 
   if (!is.null(a$swap_in)) {
     a$swap_in <- .expand_ele(input = a$swap_in, nested = TRUE)
@@ -110,11 +79,15 @@
     )
   }
 
-  non_int_req <- setdiff(a$model[!is.na(a$model$header), "header"][[1]],
+  non_int_req <- setdiff(a$model[!is.na(a$model$header), ]$header,
                          c(.o_n_timestep_header(), .o_timestep_header()))
   
-  if (any(!non_int_req %in% names(a$data))) {
-    missing_headers <- setdiff(non_int_req, names(a$data))
+  if (!is.null(model_headers)) {
+    non_int_req <- setdiff(non_int_req, model_headers)
+  }
+  
+  if (any(!non_int_req %in% names(a$.data))) {
+    missing_headers <- setdiff(non_int_req, names(a$.data))
     # add inform about how to load aux data
     .cli_action(data_err$missing_header,
       action = "abort",

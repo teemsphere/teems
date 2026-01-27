@@ -2,7 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^data-raw$
-^local$
 .Rhistory
 ^README\.Rmd$
 ^beta$

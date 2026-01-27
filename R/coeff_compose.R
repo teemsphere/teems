@@ -4,11 +4,11 @@
 #' 
 #' @keywords internal
 #' @noRd
-.parse_coeff <- function(paths,
-                         coeff_extract,
-                         sets,
-                         time_steps,
-                         call) {
+.compose_coeff <- function(paths,
+                           coeff_extract,
+                           sets,
+                           time_steps,
+                           call) {
 
   ls_data <- lapply(paths, readLines)
 
@@ -138,5 +138,6 @@
   }
 
   coeff_tib <- coeff_tib[, c("name", "label", "dat")]
+  coeff_tib <- tibble::add_column(coeff_tib, type = "coefficient", .after = "label")
   return(coeff_tib)
 }

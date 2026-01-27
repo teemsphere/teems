@@ -15,8 +15,8 @@ targets::tar_option_set(
 targets::tar_source("./data-raw/R")
 
 list(
-  tar_target(db_version, c("v9", "v10", "v11")),
-  tar_target(data_format, c("v6.2", "v7.0")),
+  tar_target(db_version, c("GTAPv9", "GTAPv10", "GTAPv11")),
+  tar_target(data_format, c("GTAPv6", "GTAPv7")),
   # mapping related --------------------------------------------------
   tar_target(mapping_files, {
     list.files(
@@ -49,13 +49,17 @@ list(
     })
   }),
   tar_target(internal_tab, {
-    tabs <- purrr::map2(tab_files, tab_names, function(tab, nme) {
+    tabs <- purrr::pmap(list(tab_files,
+                             tab_names,
+                             internal_cls),
+                        function(tab, nme, cls) {
       tab <- readChar(con = tab, nchars = file.info(tab)[["size"]])
-      class(tab) <- nme
+      attr(tab, "closure") <- cls
+      class(tab) <- c("teems_model", nme, class(tab))
       return(tab)
     })
 
-    names(x = tabs) <- tab_names
+    names(tabs) <- tab_names
     return(tabs)
   }),
   tar_target(tab_qual, {
@@ -77,7 +81,7 @@ list(
 
   # parameter related ------------------------------------------------
   # static ===========================================================
-  tar_target(v6.2_weights, {
+  tar_target(GTAPv6_weights, {
     list(
       ESBD = c("VDPA", "VIPA", "VDGA", "VIGA", "VDFA", "VIFA"),
       ESBM = c("VIPA", "VIGA", "VIFA"),
@@ -87,7 +91,7 @@ list(
       SUBP = c("VDPA", "VIPA")
     )
   }),
-  tar_target(v7.0_weights, {
+  tar_target(GTAPv7_weights, {
     list(
       ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP"),
       ESBM = c("VMPP", "VMGP", "VMFP"),
@@ -99,7 +103,7 @@ list(
     )
   }),
   tar_target(param_weights, {
-    list(v6.2 = v6.2_weights, v7.0 = v7.0_weights)
+    list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights)
   }),
 
   # closures ---------------------------------------------------------
@@ -132,7 +136,7 @@ list(
     names(x = cls) <- cls_names
     return(cls)
   }),
-  # v6.2 <> v7 conversion
+  # v6 <> v7 conversion
   tar_target(
     GTAPv7_manual,
     "./data-raw/Corong and Tsigas - 2017 - The Standard GTAP Model, Version 7.pdf",
@@ -143,21 +147,21 @@ list(
     set_table <- tabulapdf::extract_tables(file = GTAPv7_manual, pages = 83)
     c_names <- c("name", "header", "description")
 
-    v6.2_sets <- set_table[[1]][, c(1:4)]
-    colnames(x = v6.2_sets) <- c("idx", paste0("v6.2", c_names))
-    v7.0_sets <- set_table[[1]][, c(5:8)]
-    colnames(x = v7.0_sets) <- c("idx", paste0("v7.0", c_names))
+    GTAPv6_sets <- set_table[[1]][, c(1:4)]
+    colnames(x = GTAPv6_sets) <- c("idx", paste0("GTAPv6", c_names))
+    GTAPv7_sets <- set_table[[1]][, c(5:8)]
+    colnames(x = GTAPv7_sets) <- c("idx", paste0("GTAPv7", c_names))
 
     # always inconsistencies in GTAP outputs
-    v7.0_sets[5:13, "idx"] <- 5:13
-    v7.0_sets[12:13, "idx"] <- 13:14
+    GTAPv7_sets[5:13, "idx"] <- 5:13
+    GTAPv7_sets[12:13, "idx"] <- 13:14
 
-    sets <- merge(v6.2_sets, v7.0_sets, by = "idx", all = TRUE)
+    sets <- merge(GTAPv6_sets, GTAPv7_sets, by = "idx", all = TRUE)
   }),
   tar_target(param_conversion, {
     param_table <- tabulapdf::extract_tables(file = GTAPv7_manual, pages = 84)
 
-    v7.0_param <- param_table[[1]][, c(5:8)]
+    GTAPv7_param <- param_table[[1]][, c(5:8)]
 
     # missing ESBQ
     ESBQ <- tibble::tibble(
@@ -166,36 +170,36 @@ list(
       "COMM*REG",
       "1/CES elasticity for commodity sourcing"
     )
-    colnames(x = ESBQ) <- colnames(x = v7.0_param)
+    colnames(x = ESBQ) <- colnames(x = GTAPv7_param)
 
     # missing ESBI
     # ESBI <- tibble::tibble(15, "ESBI", "REG", "Investment expenditure CES elasticity")
-    # colnames(x = ESBI) <- colnames(x = v7.0_param)
+    # colnames(x = ESBI) <- colnames(x = v7_param)
 
-    v7.0_param <- rbind(v7.0_param, ESBQ)
+    GTAPv7_param <- rbind(GTAPv7_param, ESBQ)
 
-    v7.0_param <- .table_fix(
+    GTAPv7_param <- .table_fix(
       single = c(11, 12, 27),
       double = c(1, 3, 5, 7, 9, 13, 15, 17, 19, 25),
       trebble = c(19, 22),
-      table = v7.0_param,
-      prefix = "v7.0",
+      table = GTAPv7_param,
+      prefix = "GTAPv7",
       data_type = "par"
     )
 
-    v7.0_param[10:14, "idx"] <- 11:15
+    GTAPv7_param[10:14, "idx"] <- 11:15
 
-    v6.2_param <- param_table[[1]][, c(1:4)]
+    GTAPv6_param <- param_table[[1]][, c(1:4)]
 
-    v6.2_param <- .table_fix(
+    GTAPv6_param <- .table_fix(
       single = c(11, 12),
       double = c(1, 3, 5, 7, 9, 13, 15, 17),
-      table = v6.2_param,
-      prefix = "v6.2",
+      table = GTAPv6_param,
+      prefix = "GTAPv6",
       data_type = "par"
     )
 
-    param <- merge(v6.2_param, v7.0_param, by = "idx", all = TRUE)
+    param <- merge(GTAPv6_param, GTAPv7_param, by = "idx", all = TRUE)
     param[["data_type"]] <- "par"
     return(param)
   }),
@@ -204,36 +208,36 @@ list(
 
     coeff_table <- data.table::rbindlist(l = coeff_table)
 
-    v7.0_coeff <- coeff_table[, c(4:6)]
+    GTAPv7_coeff <- coeff_table[, c(4:6)]
     double <- c(3, 18, 20, 22, 24, 26, 30, 32, 35, 37, 41, 49, 51, 54)
-    single <- setdiff(seq(1, nrow(v7.0_coeff)), double)
-    NAs <- which(is.na(v7.0_coeff[, 1]))
+    single <- setdiff(seq(1, nrow(GTAPv7_coeff)), double)
+    NAs <- which(is.na(GTAPv7_coeff[, 1]))
     single <- setdiff(single, NAs)
-    v7.0_coeff <- .table_fix(
+    GTAPv7_coeff <- .table_fix(
       single = single,
       double = double,
-      table = v7.0_coeff,
-      prefix = "v7.0",
+      table = GTAPv7_coeff,
+      prefix = "GTAPv7",
       data_type = "dat"
     )
 
-    v6.2_coeff <- coeff_table[, c(1:3)]
+    GTAPv6_coeff <- coeff_table[, c(1:3)]
     double <- c(18, 20, 22, 24, 26, 30, 32, 35, 37, 41)
-    single <- setdiff(seq(1, nrow(v6.2_coeff)), double)
+    single <- setdiff(seq(1, nrow(GTAPv6_coeff)), double)
 
-    NAs <- which(is.na(v6.2_coeff[, 1]))
+    NAs <- which(is.na(GTAPv6_coeff[, 1]))
     single <- setdiff(single, NAs)
-    v6.2_coeff <- .table_fix(
+    GTAPv6_coeff <- .table_fix(
       single = single,
       double = double,
-      table = v6.2_coeff,
-      prefix = "v6.2",
+      table = GTAPv6_coeff,
+      prefix = "GTAPv6",
       data_type = "dat"
     )
 
-    coeff <- merge(v6.2_coeff, v7.0_coeff, by = "idx", all = TRUE)
-    coeff[["v6.2set"]] <- NA
-    coeff[["v7.0set"]] <- NA
+    coeff <- merge(GTAPv6_coeff, GTAPv7_coeff, by = "idx", all = TRUE)
+    coeff[["GTAPv6set"]] <- NA
+    coeff[["GTAPv7set"]] <- NA
     coeff[["data_type"]] <- "dat"
     return(coeff)
   }),
@@ -246,13 +250,7 @@ list(
       class = "{.arg {arg_name}} must be a {.or {check}}, not {.obj_type_friendly {arg}}.",
       dir_not_file = "A filepath is expected, not the directory {.file {file}}.",
       no_file = "Cannot open file {.file {file}}: No such file.",
-      invalid_file = "{.arg {arg}} must be a {.or {.val {valid_ext}}} file, not {?a/an} {.val {file_ext}} file.",
-      invalid_internal = c(
-        "The specified internal {file_type} file: {.val {file}} is not supported.",
-        "Currently supported {file_type} files include: {.val {valid_internal_files}}.",
-        "Alternatively, path to a user-provided {file_type} file is supported (e.g., \"/my/{file_type}/path.{ext}\")",
-        "Note that user-provided {file_type} files may need to be modified for compatibility with various {.pkg teems} functions."
-      )
+      invalid_file = "{.arg {arg}} must be a {.or {.val {valid_ext}}} file, not {?a/an} {.val {file_ext}} file."
     )
   }),
   tar_target(gen_wrn, {
@@ -277,7 +275,8 @@ list(
   }),
   tar_target(data_err, {
     list(
-      missing_tar = "If {.arg target_format} is provided for conversion, a Tablo file of the desired target format must be provided.",
+      invalid_target = c("Invalid {.arg target_format}.",
+      "Valid target formats currently include: {.val {valid_formats}}."),
       invalid_convert = "The HAR file provided for {.arg dat_input} is already of the {.arg target_format} {.val {target_format}}.",
       # missing_tab = "If {.arg time_steps} is provided for a dynamic model, a Tablo file must be provided.",
       wrong_input = "It appears that a non-dat file has been provided as a  {.arg dat_input}.",
@@ -293,16 +292,17 @@ list(
     )
   }),
   tar_target(data_wrn, {
-    list(time_steps = "The initial timestep provided is neither {.val {as.numeric(0)}} nor the reference year corresponding to the {.field dat} file loaded: {.val {t0}}.")
+    list(time_steps = "The initial timestep provided is neither {.val {as.numeric(0)}} nor the reference year corresponding to the {.field dat} file loaded: {.val {t0}}.",
+         unnecessary_cvrt = "The retrieved data format is identical to the {.arg target_format} specified. No conversion will take place.")
   }),
   tar_target(load_err, {
     list(
       # nested_class = "Input data must be provided as a {.or {data_class}}, not {.obj_type_friendly {errant_class}}.",
       invalid_input = "The input header provided {.field {nme}} is not among loaded data headers: {.field {existing_headers}}.",
       no_val_col = "Input data for the header {.field {nme}} does contain {.val Value} as the final column.",
-      unagg_missing_tup = "{n_missing_tuples} tuple{?s} in the provided input file for {.val {nme}} were missing: {.field {missing_tuples}}.",
-      unagg_missing_col = c(
-        "Input data for the header {.field {nme}} does not contain all required columns (sets).",
+      agg_missing_tup = "{tup$n} tuple{?s} in the provided input file for {.val {nme}} were missing: {.field {tup$missing}}.",
+      injection_missing_col = c(
+        "Input data for the coefficient {.field {nme}} does not contain all required columns (sets).",
         "The required columns are {.field {req_col}}."
       ),
       missing_eqm_input = "If {.arg eqm_input} is not provided, both {.arg dat_input} and {.arg par_input} are required inputs.",
@@ -330,6 +330,17 @@ list(
   }),
   tar_target(model_err, {
     list(
+      invalid_internal = c(
+        "The internal Tablo file specified: {.val {file}} is not supported.",
+        "Currently supported internal Tablo files include: {.field {valid_internal_files}}.",
+        "Alternatively, path to a user-provided Tablo file can be supplied (e.g., \"/my/{file_type}/path.tab\").",
+        "Note that user-provided model files may need to be modified for compatibility with various {.pkg teems} functions."
+      ),
+      invalid_coeff = "The data input provided {.arg {nme}} is not declared as a coefficient.",
+      invalid_read = "Partial Read statements are not supported.",
+      invalid_mod = "{.arg nme} is neither read in nor appearing on the LHS of a formula.",
+      invalid_numeric = c("Numeric value directly assigned must be length one.",
+                          "Use a {.code data.frame} with the appropriate sets to assign multiple heterogeneous numeric values to a coefficient."),
       unsupported_tab = "Unsupported Tablo declarations detected: {.val {unsupported}}.",
       invalid_int_header = c(
         "The {header_descr} required is currently set as {.val {timestep_header}} but this header is not loaded within the Tablo file.",
@@ -340,7 +351,7 @@ list(
     )
   }),
   tar_target(deploy_err, {
-    list(invalid_write_dir = "The path provided for {.arg write_dir}, {.path {a$write_dir}}, does not exist.")
+    list(invalid_write_dir = "The path provided for {.arg write_dir}, {.path {write_dir}}, does not exist.")
   }),
   tar_target(set_err, {
     list(
@@ -358,12 +369,6 @@ list(
   }),
   tar_target(cls_err, {
     list(
-      invalid_internal = c(
-        "The closure file inferred from the provided {.arg tab_file}: {.val {file}} does not exist.",
-        "Currently supported internal {file_type} files are available for: {.val {valid_internal_files}}.",
-        "Alternatively, path to a user-provided {file_type} file is supported (e.g., \"/my/{file_type}/path.{ext}\")",
-        "Note that user-provided {file_type} files may need to be modified for compatibility with various {.pkg teems} functions."
-      ),
       no_var = "{l_var} variable{?s} from the closure file not present in the Tablo file: {.val {var_discrepancy}}.",
       no_cls = "A closure file must be provided when a user-provided Tablo file has been supplied.",
       entry_type = "The following closure entries have not been classified properly: {invalid_entry}.",
@@ -440,8 +445,9 @@ list(
   }),
   tar_target(solve_err, {
     list(
-      missing_dots = "All input files must be passed as {.arg ...} under the `in-situ solve` method (i.e., when {.arg cmf_file} is not provided and the pipeline is bypassed).",
-      insitu_missing_input = "The Tablo file provided indicates that the following files are required: {.val {req_files}} however one or more appear to not have been provided: {.val {missing_files}}.",
+      no_insitu_inputs = c("No input files have been loaded.",
+                                "All input files must be passed as named arguments using {.arg ...} under the {.emph in-situ solve} method."),
+      missing_insitu_inputs = "The Tablo file provided indicates that the following files are required: {.val {req_inputs}} however one or more appear to not have been provided: {.val {missing_files}}.",
       insitu_no_file = "One or more input files provided does not exist: {.val {nonexist_files}}.",
       x_integerish = "{.arg {arg}} must be integer-like.",
       invalid_length = "{.arg {arg}} must be an integer-like numeric of length 1.",
@@ -537,5 +543,18 @@ list(
       overwrite = TRUE,
       internal = TRUE
     )
+  }),
+  # exported data ====================================================
+  tar_target(models, {
+      purrr::walk(names(internal_tab), function(name) {
+        temp_env <- new.env()
+        assign(name, internal_tab[[name]], envir = temp_env)
+        save(
+          list = name,
+          file = file.path(getwd(), "data", paste0(name, ".rda")),
+          envir = temp_env,
+          compress = "bzip2"
+        )
+    })
   })
 )

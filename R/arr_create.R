@@ -1,12 +1,12 @@
 #' @keywords internal
 #' @noRd
-.create_v7arr <- function(input,
-                          value,
-                          ...) {
+.create_GTAPv7arr <- function(input,
+                              value,
+                              ...) {
 
   set_env <- list(...)
-  sets <- unlist(coeff_conversion[coeff_conversion$v7.0header %in% input,
-                                  "v7.0set"])
+  sets <- unlist(coeff_conversion[coeff_conversion$GTAPv7header %in% input,
+                                  "GTAPv7set"])
 
   sets <- with(set_env, mget(sets))
   arr <- array(
@@ -15,6 +15,6 @@
     dimnames = sets
   )
 
-  class(arr) <- c(input, "par", "v7.0", class(arr))
+  class(arr) <- c(input, "par", "GTAPv7", class(arr))
   return(arr)
 }

@@ -9,13 +9,13 @@
   omega <- Value <- NULL
   
   weight_map <- switch(data_format,
-                       "v6.2" = param_weights$v6.2,
-                       "v7.0" = param_weights$v7.0)
+                       "GTAPv6" = param_weights$GTAPv6,
+                       "GTAPv7" = param_weights$GTAPv7)
 
   weight_headers <- gsub("-", "", unique(unlist(weight_map)))
   weights <- data.table::copy(i_data[names(i_data) %in% weight_headers])
 
-  if (data_format %=% "v7.0") {
+  if (data_format %=% "GTAPv7") {
     data.table::setnames(weights$ISEP, old = "COMM", new = "ACTS")
   }
 

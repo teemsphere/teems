@@ -1,24 +1,24 @@
 #' @keywords internal
 #' @noRd
-.v7_new_header <- function(input,
+.GTAPv7_header <- function(input,
                            ...) {
-  UseMethod(".v7_new_header")
+  UseMethod(".GTAPv7_header")
 }
 
-#' @method .v7_new_header default
+#' @method .GTAPv7_header default
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.default <- function(input,
+.GTAPv7_header.default <- function(input,
                                    ...) {
   return(NULL)
 }
 
-#' @method .v7_new_header VDFM
+#' @method .GTAPv7_header VDFM
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.VDFM <- function(input,
+.GTAPv7_header.VDFM <- function(input,
                                 ...) {
   input <- .convert_invest_v(
     input = input,
@@ -28,11 +28,11 @@
   return(input)
 }
 
-#' @method .v7_new_header VDFA
+#' @method .GTAPv7_header VDFA
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.VDFA <- function(input,
+.GTAPv7_header.VDFA <- function(input,
                                 ...) {
   input <- .convert_invest_v(
     input = input,
@@ -42,11 +42,11 @@
   return(input)
 }
 
-#' @method .v7_new_header VIFM
+#' @method .GTAPv7_header VIFM
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.VIFM <- function(input,
+.GTAPv7_header.VIFM <- function(input,
                                 ...) {
   input <- .convert_invest_v(
     input = input,
@@ -56,11 +56,11 @@
   return(input)
 }
 
-#' @method .v7_new_header VIFA
+#' @method .GTAPv7_header VIFA
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.VIFA <- function(input,
+.GTAPv7_header.VIFA <- function(input,
                                 ...) {
   input <- .convert_invest_v(
     input = input,
@@ -70,25 +70,26 @@
   return(input)
 }
 
-#' @method .v7_new_header ISEP
+#' @method .GTAPv7_header ISEP
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ISEP <- function(input,
+.GTAPv7_header.ISEP <- function(input,
                                 ...) {
+
   PROD_dim <- which(names(dimnames(input)) %in% "PROD_COMM")
   input <- input[, -dim(input)[PROD_dim], , ]
   input <- input * -1
-  class(input) <- c("CSEP", "dat", "v6.2", class(input))
+  class(input) <- c("CSEP", "dat", "GTAPv6", class(input))
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .v7_new_header TVOM
+#' @method .GTAPv7_header TVOM
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.TVOM <- function(input,
+.GTAPv7_header.TVOM <- function(input,
                                 REG,
                                 COMM,
                                 ACTS,
@@ -120,19 +121,19 @@
   }
   MAKS <- MAKB + MAKS
 
-  class(MAKB) <- c("MAKB", "dat", "v7.0", class(MAKB))
-  class(MAKS) <- c("MAKS", "dat", "v7.0", class(MAKS))
+  class(MAKB) <- c("MAKB", "dat", "GTAPv7", class(MAKB))
+  class(MAKS) <- c("MAKS", "dat", "GTAPv7", class(MAKS))
   return(list(MAKB, MAKS))
 }
 
-#' @method .v7_new_header ESBG
+#' @method .GTAPv7_header ESBG
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ESBG <- function(input,
+.GTAPv7_header.ESBG <- function(input,
                                 REG,
                                 ...) {
-  input <- .create_v7arr(
+  input <- .create_GTAPv7arr(
     input = input,
     value = 1,
     REG = REG
@@ -140,15 +141,15 @@
   return(input)
 }
 
-#' @method .v7_new_header ETRQ
+#' @method .GTAPv7_header ETRQ
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ETRQ <- function(input,
+.GTAPv7_header.ETRQ <- function(input,
                                 REG,
                                 ACTS,
                                 ...) {
-  input <- .create_v7arr(
+  input <- .create_GTAPv7arr(
     input = input,
     value = -5,
     REG = REG,
@@ -158,14 +159,14 @@
   return(input)
 }
 
-#' @method .v7_new_header ESBS
+#' @method .GTAPv7_header ESBS
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ESBS <- function(input,
+.GTAPv7_header.ESBS <- function(input,
                                 MARG,
                                 ...) {
-  input <- .create_v7arr(
+  input <- .create_GTAPv7arr(
     input = input,
     value = 1,
     MARG = MARG
@@ -173,15 +174,15 @@
   return(input)
 }
 
-#' @method .v7_new_header ESBC
+#' @method .GTAPv7_header ESBC
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ESBC <- function(input,
+.GTAPv7_header.ESBC <- function(input,
                                 REG,
                                 ACTS,
                                 ...) {
-  input <- .create_v7arr(
+  input <- .create_GTAPv7arr(
     input = input,
     value = 0,
     REG = REG,
@@ -191,15 +192,15 @@
   return(input)
 }
 
-#' @method .v7_new_header ESBQ
+#' @method .GTAPv7_header ESBQ
 #' @keywords internal
 #' @noRd
 #' @export
-.v7_new_header.ESBQ <- function(input,
+.GTAPv7_header.ESBQ <- function(input,
                                 REG,
                                 COMM,
                                 ...) {
-  input <- .create_v7arr(
+  input <- .create_GTAPv7arr(
     input = input,
     value = 0,
     REG = REG,

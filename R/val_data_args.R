@@ -5,23 +5,21 @@
 #' @keywords internal
 .validate_data_args <- function(a,
                                 call) {
-  
+  a$... <- NULL
   if (length(a$set_mappings) %=% 0L) {
     .cli_action(load_err$missing_set_mappings,
                 action = "abort",
                 call = call
     )
   }
-  
+
   checklist <- list(
     dat_input = "character",
     par_input = "character",
     set_input = "character",
     time_steps = c("NULL", "numeric"),
     aux_input = c("NULL", "character"),
-    # unaggregated_input = c("NULL", "character", "list"),
-    # aggregated_input = c("NULL", "character", "list"),
-    convert_format = "logical",
+    target_format = c("NULL", "character"),
     set_mappings = "list"
   )
 
@@ -72,16 +70,11 @@
   # }
 
   if (!is.null(a$target_format)) {
-    target_format <- a$target_format
-    a$target_format <- rlang::arg_match(
-      arg = target_format,
-      values = c("v6.2", "v7.0")
-    )
-    if (is.null(a$tab_file)) {
-      .cli_action(data_err$missing_tar,
-        action = "abort",
-        call = call
-      )
+    valid_formats <- c("GTAPv6", "GTAPv7")
+    if (!a$target_format %in% valid_formats) {
+      .cli_action(invalid_target,
+                  action = c("abort", "inform"),
+                  call = call)
     }
   }
 

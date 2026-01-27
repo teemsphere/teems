@@ -7,24 +7,11 @@
 
 #' @keywords internal
 #' @noRd
-#' @method .ems_write dat
+#' @method .ems_write default
 #' @export
-.ems_write.dat <- function(input,
-                           write_dir,
-                           ...) {
-  .ragged_write(
-    input = input,
-    write_dir = write_dir
-  )
-}
-
-#' @keywords internal
-#' @noRd
-#' @method .ems_write par
-#' @export
-.ems_write.par <- function(input,
-                           write_dir,
-                           ...) {
+.ems_write.default <- function(input,
+                               write_dir,
+                               ...) {
   .ragged_write(
     input = input,
     write_dir = write_dir
@@ -133,7 +120,8 @@
 .ems_write.list <- function(input,
                             write_dir,
                             ...) {
-  
+
+  class(input) <- c("teems_metadata", class(input))
   write_path <- file.path(write_dir, attr(input, "file"))
   saveRDS(input, write_path)
   

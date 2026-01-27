@@ -3,10 +3,10 @@
 #' @keywords internal
 #' @note Replace all sapply with purrr::map
 #' @noRd
-.parse_tab_maths <- function(tab_extract,
+.parse_tab_maths <- function(extract,
                              call) {
 
-  maths <- tab_extract[tolower(tab_extract$type) %in% c("equation", "formula"),]
+  maths <- extract[tolower(extract$type) %in% c("equation", "formula"),]
 
   maths$name <- unlist(purrr::map2(
     maths$type,
@@ -110,7 +110,7 @@
     return(return_comp)
   })
 
-  maths$math <- purrr::map_chr(maths$remainder, function(r) {
+  maths$definition <- purrr::map_chr(maths$remainder, function(r) {
     return_comp <- regmatches(
       r,
       regexec(
@@ -129,8 +129,28 @@
   })
 
 
-  maths$LHS <- trimws(purrr::map_chr(purrr::map(maths$math, strsplit, split = "="), purrr::pluck, 1, 1))
-  maths$RHS <- trimws(purrr::map_chr(purrr::map(maths$math, strsplit, split = "="), purrr::pluck, 1, 2))
+  maths$comp1 <- trimws(purrr::map_chr(purrr::map(maths$definition, strsplit, split = "="), purrr::pluck, 1, 1))
+  maths$comp2 <- trimws(purrr::map_chr(purrr::map(maths$definition, strsplit, split = "="), purrr::pluck, 1, 2))
 
+  maths$ls_upper_idx <- NA
+  maths$ls_mixed_idx <- NA
+  maths$header <- NA
+  maths$file <- NA
+  maths$subsets <- NA
+
+  maths <- maths[, c("type",
+                     "name",
+                     "label",
+                     "qualifier_list",
+                     "ls_upper_idx",
+                     "ls_mixed_idx",
+                     "header",
+                     "file",
+                     "definition",
+                     "subsets",
+                     "comp1",
+                     "comp2",
+                     "row_id")]
+  
   return(maths)
 }

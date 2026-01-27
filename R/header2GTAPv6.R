@@ -1,41 +1,39 @@
 #' @keywords internal
 #' @noRd
-.header2v6 <- function(input,
-                       ...) {
-  UseMethod(".header2v6")
+.header2GTAPv6 <- function(input,
+                           ...) {
+  UseMethod(".header2GTAPv6")
 }
 
-#' @method .header2v6 default
+#' @method .header2GTAPv6 default
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.default <- function(input,
-                               i_data,
-                               ...) {
+.header2GTAPv6.default <- function(input,
+                                   i_data,
+                                   ...) {
   NextMethod()
 }
 
-#' @method .header2v6 dat
+#' @method .header2GTAPv6 dat
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.dat <- function(input,
-                           i_data,
-                           ...) {
-  
+.header2GTAPv6.dat <- function(input,
+                               i_data,
+                               ...) {
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 par
+#' @method .header2GTAPv6 par
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.par <- function(input,
-                           i_data,
-                           ...) {
-
-  v6col <- coeff_conversion[coeff_conversion$v7.0header %in% class(input)[[1]], "v6.2set"]
+.header2GTAPv6.par <- function(input,
+                               i_data,
+                               ...) {
+  v6col <- coeff_conversion[coeff_conversion$GTAPv7header %in% class(input)[[1]], "GTAPv6set"]
   if (!length(v6col) %=% 0L) {
     v6col <- v6col[[1]]
   } else {
@@ -43,13 +41,13 @@
   }
 
   classes <- class(input)
-  
+
   if (!anyNA(v6col) && !is.null(v6col)) {
     orig_dim_names <- names(dimnames(input))
-    r_idx <- match(orig_dim_names, set_conversion$v7.0name)
+    r_idx <- match(orig_dim_names, set_conversion$GTAPv7name)
     cnvrt_dim_names <- ifelse(is.na(r_idx),
       orig_dim_names,
-      set_conversion$v6.2name[r_idx]
+      set_conversion$GTAPv6name[r_idx]
     )
 
     drop_dim <- cnvrt_dim_names[!cnvrt_dim_names %in% v6col]
@@ -75,103 +73,97 @@
 
     names(dimnames(input)) <- v6col
   }
-  
+
   class(input) <- unique(c(classes, class(input)))
-  class(input)[3] <- "v6.2"
+  class(input)[3] <- "GTAPv6"
   return(input)
 }
 
-#' @method .header2v6 set
+#' @method .header2GTAPv6 set
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.set <- function(input,
-                           i_data,
-                           ...) {
+.header2GTAPv6.set <- function(input,
+                               i_data,
+                               ...) {
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 VDFB
+#' @method .header2GTAPv6 VDFB
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.VDFB <- function(input,
-                            i_data,
-                            ...) {
-
+.header2GTAPv6.VDFB <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
-  input <- .convert_invest_v(input = input,
-                             CGDS_data = i_data[["VDIB"]])
+  input <- .convert_invest_v(
+    input = input,
+    CGDS_data = i_data[["VDIB"]]
+  )
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 VDFP
+#' @method .header2GTAPv6 VDFP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.VDFP <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv6.VDFP <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
-  input <- .convert_invest_v(input = input,
-                             CGDS_data = i_data[["VDIP"]])
+  input <- .convert_invest_v(
+    input = input,
+    CGDS_data = i_data[["VDIP"]]
+  )
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 VMFB
+#' @method .header2GTAPv6 VMFB
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.VMFB <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv6.VMFB <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
-  input <- .convert_invest_v(input = input,
-                             CGDS_data = i_data[["VMIB"]])
+  input <- .convert_invest_v(
+    input = input,
+    CGDS_data = i_data[["VMIB"]]
+  )
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 VMFP
+#' @method .header2GTAPv6 VMFP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.VMFP <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv6.VMFP <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
-  input <- .convert_invest_v(input = input,
-                             CGDS_data = i_data[["VMIP"]])
+  input <- .convert_invest_v(
+    input = input,
+    CGDS_data = i_data[["VMIP"]]
+  )
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v6 EVFB
+#' @method .header2GTAPv6 EVFB
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.EVFB <- function(input,
-                            ...) {
-  classes <- class(input)
-  input <- .convert_invest_e(input = input)
-  class(input) <- unique(c(classes, class(input)))
-  input <- .names_rename(input = input)
-  return(input)
-}
-
-#' @method .header2v6 EVFP
-#' @keywords internal
-#' @noRd
-#' @export
-.header2v6.EVFP <- function(input,
-                            ...) {
+.header2GTAPv6.EVFB <- function(input,
+                                ...) {
   classes <- class(input)
   input <- .convert_invest_e(input = input)
   class(input) <- unique(c(classes, class(input)))
@@ -179,12 +171,12 @@
   return(input)
 }
 
-#' @method .header2v6 FBEP
+#' @method .header2GTAPv6 EVFP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.FBEP <- function(input,
-                            ...) {
+.header2GTAPv6.EVFP <- function(input,
+                                ...) {
   classes <- class(input)
   input <- .convert_invest_e(input = input)
   class(input) <- unique(c(classes, class(input)))
@@ -192,12 +184,12 @@
   return(input)
 }
 
-#' @method .header2v6 FTRV
+#' @method .header2GTAPv6 FBEP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.FTRV <- function(input,
-                            ...) {
+.header2GTAPv6.FBEP <- function(input,
+                                ...) {
   classes <- class(input)
   input <- .convert_invest_e(input = input)
   class(input) <- unique(c(classes, class(input)))
@@ -205,12 +197,25 @@
   return(input)
 }
 
-#' @method .header2v6 EVOS
+#' @method .header2GTAPv6 FTRV
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.EVOS <- function(input,
-                            ...) {
+.header2GTAPv6.FTRV <- function(input,
+                                ...) {
+  classes <- class(input)
+  input <- .convert_invest_e(input = input)
+  class(input) <- unique(c(classes, class(input)))
+  input <- .names_rename(input = input)
+  return(input)
+}
+
+#' @method .header2GTAPv6 EVOS
+#' @keywords internal
+#' @noRd
+#' @export
+.header2GTAPv6.EVOS <- function(input,
+                                ...) {
   classes <- class(input)
   arr_names <- names(dimnames(input))
   sum_dim <- "ACTS"
@@ -221,13 +226,13 @@
   return(input)
 }
 
-#' @method .header2v6 ISEP
+#' @method .header2GTAPv6 ISEP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v6.ISEP <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv6.ISEP <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
   arr_dimnames <- dimnames(input)
   arr_names <- names(arr_dimnames)

@@ -11,12 +11,6 @@
 #' @param check_shock_status Logical of length 1 (default is
 #'   `TRUE`). If `FALSE`, no check on shock element
 #'   endogenous/exogenous status is conducted.
-#' @param post_set_check Logical of length 1 (default is `TRUE`).
-#'   If `FALSE`, no post model check is conducted between the
-#'   sets as written out from the Tablo file and solver set
-#'   binaries. If a Tablo file with no set writeout is used
-#'   (e.g., custom file in in-situ solve mode), this option must
-#'   be set to `FALSE`.
 #' @param timestep_header A character vector length 1 (default is
 #'   `"YEAR"`). Coefficient containing a numeric vector of
 #' timestep intervals. For novel intertemporal models - modify
@@ -38,7 +32,7 @@
 #'   converted to a percentage. 4 digit precision will be
 #'   compared against this threshold, generating a warning if it
 #'   is not met.
-#' @param expand_ETRE Logical of length 1 (default is `TRUE`). If
+#' @param expand_ETRE Logical of length 1 (default `TRUE`). If
 #'   `FALSE`, no expansion to the ETRE (ETRAE) data header are
 #'   carried out. When `TRUE`, if ETRE header data does not
 #'   contain the full endowment set, missing tuples will be added
@@ -48,6 +42,10 @@
 #'   non-sluggish endowments, leading to issues with the ETRAE
 #'   coefficient which is read-in with the full set of
 #'   endowments.
+#' @param write_sub_dir A character vector (default `"teems"`).
+#'   Where [`ems_deploy()`] `"write_dir"` specifies a base
+#'   directory for model files, `"write_sub_dir"` sets the name
+#'   of the subdirectory within the base directory.
 #' @export
 ems_option_set <- function(...) {
   dots <- list(...)
@@ -67,7 +65,8 @@ ems_option_set <- function(...) {
                    "docker_tag",
                    "margin_sectors",
                    "accuracy_threshold",
-                   "expand_ETRE")
+                   "expand_ETRE",
+                   "write_sub_dir")
   
   invalid_names <- setdiff(names(dots), valid_names)
   if (length(invalid_names) > 0) {
@@ -85,10 +84,6 @@ ems_option_set <- function(...) {
   
   if ("check_shock_status" %in% names(dots)) {
     ems_options$set_check_shock_status(dots$check_shock_status)
-  }
-  
-  if ("post_set_check" %in% names(dots)) {
-    ems_options$set_post_set_check(dots$post_set_check)
   }
   
   if ("timestep_header" %in% names(dots)) {
@@ -119,13 +114,16 @@ ems_option_set <- function(...) {
     ems_options$set_expand_ETRE(dots$expand_ETRE)
   }
   
+  if ("write_sub_dir" %in% names(dots)) {
+    ems_options$set_write_sub_dir(dots$write_sub_dir)
+  }
+  
   # Validate all options after setting
   ems_options$validate()
   
   invisible(NULL)
 }
 
-# Get current options (like tar_option_get)
 #' @export
 ems_option_get <- function(name = NULL) {
   if (is.null(name)) {
@@ -138,7 +136,6 @@ ems_option_get <- function(name = NULL) {
          verbose = ems_options$get_verbose(),
          ndigits = ems_options$get_ndigits(),
          check_shock_status = ems_options$get_check_shock_status(),
-         post_set_check = ems_options$get_post_set_check(),
          timestep_header = ems_options$get_timestep_header(),
          n_timestep_header = ems_options$get_n_timestep_header(),
          full_exclude = ems_options$get_full_exclude(),
@@ -146,11 +143,11 @@ ems_option_get <- function(name = NULL) {
          margin_sectors = ems_options$get_margin_sectors(),
          accuracy_threshold = ems_options$get_accuracy_threshold(),
          expand_ETRE = ems_options$get_expand_ETRE(),
+         write_sub_dir = ems_options$get_write_sub_dir(),
          stop("Unknown option: ", name)
   )
 }
 
-# Reset options (like tar_option_reset)
 #' @export
 ems_option_reset <- function() {
   ems_options$reset()

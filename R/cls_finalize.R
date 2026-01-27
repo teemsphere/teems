@@ -3,11 +3,11 @@
 .finalize_closure <- function(swap_in,
                               swap_out,
                               closure,
+                              closure_file,
                               sets,
                               var_extract,
                               call) {
 
-  closure_file <- attr(closure, "file")
   if (!is.null(swap_in)) {
     swap_in <- .classify_cls(
       closure = swap_in,
@@ -51,6 +51,5 @@
 
   attr(closure, "file") <- closure_file
   class(closure) <- c("closure", class(closure))
-
   return(closure)
 }

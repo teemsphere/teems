@@ -11,7 +11,7 @@
 #' @export
 .shock_preload.character <- function(input,
                                      type) {
-
+browser()
   input <- .check_input(
     file = input,
     valid_ext = "csv",

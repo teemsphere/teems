@@ -1,15 +1,13 @@
-#' @importFrom purrr map_chr
-#' 
 #' @keywords internal
 #' @noRd
 .load_closure <- function(closure_file,
-                          tab_file,
+                          model_input,
                           call) {
 
   if (is.null(closure_file)) {
-    if (inherits(tab_file, "internal")) {
-    closure <- internal_cls[[tab_file]]
-    closure_file <- paste0(tab_file, ".cls")
+    if (inherits(model_input, "teems_model")) {
+    closure <- attr(model_input, "closure")
+    closure_file <- paste0(class(model_input)[[2]], ".cls")
     } else {
       .cli_action(cls_err$no_cls,
                   action = "abort",

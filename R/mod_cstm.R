@@ -23,9 +23,9 @@
                              i_data,
                              ...) {
   if (.o_expand_ETRE()) {
-    if (attr(i_data, "metadata")$data_format %=% "v6.2") {
+    if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
       endowments <- i_data$H6
-    } else if (attr(i_data, "metadata")$data_format %=% "v7.0") {
+    } else if (attr(i_data, "metadata")$data_format %=% "GTAPv7") {
       endowments <- i_data$ENDW
     }
     

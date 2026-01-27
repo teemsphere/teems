@@ -24,9 +24,9 @@
 
   if (is.null(metadata$data_format)) {
     data_format <- switch(metadata$database_version,
-      "v9" = "v6.2",
-      "v10" = "v6.2",
-      "v11" = "v7.0"
+      "GTAPv9" = "GTAPv6",
+      "GTAPv10" = "GTAPv6",
+      "GTAPv11" = "GTAPv7"
     )
   } else {
     data_format <- metadata$data_format
@@ -40,11 +40,11 @@
     set_data = set_data
   )
 
-  if (data_format %=% "v6.2") {
+  if (data_format %=% "GTAPv6") {
     set_mappings$MARG_COMM <- set_mappings$TRAD_COMM[set_mappings$TRAD_COMM[, 1][[1]] %in% .o_margin_sectors(), ]
     CGDS <- data.table::data.table("zcgds", "zcgds")
     set_mappings$PROD_COMM <- data.table::rbindlist(list(set_mappings$TRAD_COMM, CGDS), use.names = FALSE)
-  } else if (data_format %=% "v7.0") {
+  } else if (data_format %=% "GTAPv7") {
     set_mappings$MARG <- set_mappings$COMM[set_mappings$COMM[, 1][[1]] %in% .o_margin_sectors(), ]
   }
   

@@ -46,8 +46,8 @@
 #' @export
 ems_shock <- function(var,
                       type = c("uniform", "custom", "scenario"),
-                      ...)
-{
+                      ...
+) {
   if (missing(var)) {.cli_missing(var)}
   if (missing(type)) {.cli_missing(type)}
   class(type) <- rlang::arg_match(type)

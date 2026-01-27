@@ -1,36 +1,46 @@
+.read_input <- function(input,
+                        data_format = NULL,
+                        data_type = NULL,
+                        attach_metadata = FALSE,
+                        call = NULL) {
+  UseMethod(".read_input")
+}
+
 #' @details Function modified from
 #'   https://rdrr.io/github/USDA-ERS/MTED-HARr/src/R/read_har.r
 #'
 #' @importFrom purrr pluck
+#' @method .read_input har
+#' @export
 #' @keywords internal
 #' @noRd
-.read_har <- function(con,
-                      data_format = NULL,
-                      data_type = NULL,
-                      attach_metadata = FALSE,
-                      call = NULL) {
+.read_input.har <- function(input,
+                            data_format = NULL,
+                            data_type = NULL,
+                            attach_metadata = FALSE,
+                            call = NULL) {
   # cut this down to essentials
   # Open the file
-  if (is.character(con)) {
-    con <- file(con, "rb")
+  if (is.character(input)) {
+    input <- file(input, "rb")
   }
 
   # map connection to data type (GTAP database file naming is inconsistent across releases)
-  full_har_path <- normalizePath(path = summary(object = con)[["description"]])
+  full_har_path <- normalizePath(path = summary(object = input)[["description"]])
 
   # Read all bytes into a vector
   cf <- raw()
-  while (length(a <- readBin(con, raw(), n = 1e9)) > 0) {
+  while (length(a <- readBin(input, raw(), n = 1e9)) > 0) {
     cf <- c(cf, a)
   }
 
   # Read until you hit the end of the file
-  while (length(charRead <- readBin(con, raw())) > 0) {
+  while (length(charRead <- readBin(input, raw())) > 0) {
     cf <- c(cf, charRead)
   }
 
   # Close the file
-  close(con)
+  close(input)
 
   implied_data_type <- .har_match(con = full_har_path)
   har_file <- basename(path = full_har_path)
@@ -395,13 +405,13 @@
   # manually pull out set names for pre v11
   # no telling how robust this is
   if (implied_data_type %=% "set") {
-    if (metadata$database_version %in% c("v9", "v10")) {
+    if (metadata$database_version %in% c("GTAPv9", "GTAPv10")) {
       purrr::pluck(headers, "H1", "name") <- trimws(rawToChar(headers$H1$records[[2]][14:19]))
       purrr::pluck(headers, "H2", "name") <- trimws(rawToChar(headers$H2$records[[2]][14:25]))
       purrr::pluck(headers, "H6", "name") <- trimws(rawToChar(headers$H6$records[[2]][14:25]))
       purrr::pluck(headers, "H9", "name") <- trimws(rawToChar(headers$H9$records[[2]][14:25]))
       purrr::pluck(headers, "MARG", "name") <- trimws(rawToChar(headers$MARG$records[[2]][14:25]))
-    } else if (metadata$database_version %=% "v11") {
+    } else if (metadata$database_version %=% "GTAPv11") {
       headers <- lapply(headers, function(h) {
         h$name <- h$header
         return(h)
@@ -422,15 +432,15 @@
     function(h) {
       header <- h$header
       name <- h$name
-      h <- h$data
-      if (!is.null(h)) {
+      .data <- h$data
+      if (!is.null(.data)) {
         if (is.null(name)) {
-          class(h) <- c(header, data_type, data_format, class(h))
+          class(.data) <- c(header, data_type, data_format, class(.data))
         } else {
-          class(h) <- c(header, name, data_type, data_format, class(h))
+          class(.data) <- c(header, name, data_type, data_format, class(.data))
         }
       }
-      return(h)
+      return(.data)
     }
   )
 

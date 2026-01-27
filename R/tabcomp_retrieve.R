@@ -4,8 +4,9 @@
 #' @keywords internal
 #' @noRd
 .retrieve_tab_comp <- function(tab_path,
-                               which,
+                               type,
                                call) {
+
   tab <- .check_tab_file(
     tab_file = tab_path,
     call = call
@@ -17,20 +18,27 @@
   )
 
   extract$row_id <- seq(1, nrow(extract))
-  if (which %=% "variable") {
-    comp_extract <- .parse_tab_obj(
+  
+  parse_variable <- type %in% c("variable", "all")
+  parse_coefficient <- type %in% c("coefficient", "all")
+  comp_extract <- list()
+  
+  if (parse_variable) {
+    comp_extract$variable <- .parse_tab_obj(
       extract = extract,
       obj_type = "variable",
       call = call
     )
-  } else if (which %=% "coefficient") {
-    comp_extract <- .parse_tab_obj(
+  } 
+  
+  if (parse_coefficient) {
+    comp_extract$coefficient <- .parse_tab_obj(
       extract = extract,
       obj_type = "coefficient",
       call = call
     )
   }
-
+  
   file_state <- extract[extract$type == "File", "remainder"][[1]]
   input_files <- trimws(purrr::map_chr(strsplit(
     file_state[!grepl("\\(new\\)", file_state)],

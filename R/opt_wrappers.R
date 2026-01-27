@@ -12,10 +12,6 @@
   ems_option_get("check_shock_status")
 }
 
-.o_post_set_check <- function() {
-  ems_option_get("post_set_check")
-}
-
 .o_timestep_header <- function() {
   ems_option_get("timestep_header")
 }
@@ -42,4 +38,8 @@
 
 .o_expand_ETRE <- function() {
   ems_option_get("expand_ETRE")
+}
+
+.o_write_sub_dir <- function() {
+  ems_option_get("write_sub_dir")
 }

@@ -1,67 +1,66 @@
 #' @keywords internal
 #' @noRd
-.header2v7 <- function(input,
-                       ...) {
-  UseMethod(".header2v7")
+.header2GTAPv7 <- function(input,
+                           ...) {
+  UseMethod(".header2GTAPv7")
 }
 
-#' @method .header2v7 default
+#' @method .header2GTAPv7 default
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.default <- function(input,
-                               ...) {
+.header2GTAPv7.default <- function(input,
+                                   ...) {
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v7 VDFM
+#' @method .header2GTAPv7 VDFM
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.VDFM <- function(input,
-                            ...) {
+.header2GTAPv7.VDFM <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
 }
 
-#' @method .header2v7 VDFA
+#' @method .header2GTAPv7 VDFA
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.VDFA <- function(input,
-                            ...) {
+.header2GTAPv7.VDFA <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
 }
 
-#' @method .header2v7 VIFM
+#' @method .header2GTAPv7 VIFM
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.VIFM <- function(input,
-                            ...) {
+.header2GTAPv7.VIFM <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
 }
 
-#' @method .header2v7 VIFA
+#' @method .header2GTAPv7 VIFA
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.VIFA <- function(input,
-                            ...) {
+.header2GTAPv7.VIFA <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
 }
 
-#' @method .header2v7 ISEP
+#' @method .header2GTAPv7 ISEP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ISEP <- function(input,
-                            ...) {
-
+.header2GTAPv7.ISEP <- function(input,
+                                ...) {
   classes <- class(input)
   input <- input[, length(dimnames(input)$PROD_COMM), , ]
   input <- input * -1
@@ -70,67 +69,66 @@
   return(input)
 }
 
-#' @method .header2v7 EVFA
+#' @method .header2GTAPv7 EVFA
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.EVFA <- function(input,
-                            ...) {
+.header2GTAPv7.EVFA <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v7 VFM
+#' @method .header2GTAPv7 VFM
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.VFM <- function(input,
-                            ...) {
+.header2GTAPv7.VFM <- function(input,
+                               ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v7 FBEP
+#' @method .header2GTAPv7 FBEP
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.FBEP <- function(input,
-                            ...) {
+.header2GTAPv7.FBEP <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v7 FTRV
+#' @method .header2GTAPv7 FTRV
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.FTRV <- function(input,
-                            ...) {
+.header2GTAPv7.FTRV <- function(input,
+                                ...) {
   input <- .drop_CGDS(input)
   input <- .names_rename(input = input)
   return(input)
 }
 
-#' @method .header2v7 EVOA
+#' @method .header2GTAPv7 EVOA
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.EVOA <- function(input,
-                            i_data,
-                            ...) {
-
+.header2GTAPv7.EVOA <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
   VFM_arr <- i_data$VFM
   VFM_arr <- VFM_arr[, -length(dimnames(VFM_arr)[[2]]), ]
   VFM_arr_dimnames <- dimnames(VFM_arr)
   VFM_arr_total <- apply(VFM_arr, c(1, 3), sum)
-  
-  phi_arr <- array( 0, dim(VFM_arr), dimnames(VFM_arr))
+
+  phi_arr <- array(0, dim(VFM_arr), dimnames(VFM_arr))
   new_arr <- array(0, dim(VFM_arr), dimnames(VFM_arr))
-  
+
   # calculate percentage along REG,ENDW and use share with EVOA
   for (i in 1:length(VFM_arr_dimnames$ENDW_COMM)) {
     for (k in 1:length(VFM_arr_dimnames$REG)) {
@@ -145,13 +143,13 @@
   return(input)
 }
 
-#' @method .header2v7 ESBD
+#' @method .header2GTAPv7 ESBD
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ESBD <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv7.ESBD <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -162,13 +160,13 @@
   return(input)
 }
 
-#' @method .header2v7 ESBM
+#' @method .header2GTAPv7 ESBM
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ESBM <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv7.ESBM <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -179,13 +177,13 @@
   return(input)
 }
 
-#' @method .header2v7 ETRE
+#' @method .header2GTAPv7 ETRE
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ETRE <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv7.ETRE <- function(input,
+                                i_data,
+                                ...) {
   classes <- class(input)
   input <- .add_REG(
     input = input,
@@ -196,13 +194,13 @@
   return(input)
 }
 
-#' @method .header2v7 ESBT
+#' @method .header2GTAPv7 ESBT
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ESBT <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv7.ESBT <- function(input,
+                                i_data,
+                                ...) {
   input <- .drop_CGDS(input = input)
   classes <- class(input)
   input <- .add_REG(
@@ -214,13 +212,13 @@
   return(input)
 }
 
-#' @method .header2v7 ESBV
+#' @method .header2GTAPv7 ESBV
 #' @keywords internal
 #' @noRd
 #' @export
-.header2v7.ESBV <- function(input,
-                            i_data,
-                            ...) {
+.header2GTAPv7.ESBV <- function(input,
+                                i_data,
+                                ...) {
   input <- .drop_CGDS(input = input)
   classes <- class(input)
   input <- .add_REG(

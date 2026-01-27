@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .get_output_paths <- function(cmf_path,
-                              which,
+                              type,
                               select = NULL,
                               call) {
 
@@ -23,6 +23,11 @@
   }
 
   metadata_path <- file.path(model_dir, "metadata.rds")
+  
+  if (!file.exists(metadata_path) || !inherits(readRDS(metadata_path), "teems_metadata")) {
+    metadata_path <- NULL
+  }
+  
   bin_csv_paths <- list.files(
     path = file.path(
       model_dir,
@@ -41,21 +46,17 @@
     )
   }
 
-  if (.o_post_set_check()) {
-    set_paths <- list.files(
-      path = file.path(
-        model_dir,
-        "out",
-        "sets"
-      ),
-      pattern = "csv",
-      full.names = TRUE
-    )
-  } else {
-    set_paths <- NULL
-  }
+  set_paths <- list.files(
+    path = file.path(
+      model_dir,
+      "out",
+      "sets"
+    ),
+    pattern = "csv",
+    full.names = TRUE
+  )
 
-  if (which %=% "coefficient") {
+  if (type %in% c("all", "coefficient")) {
     coeff_paths <- list.files(
       path = file.path(
         model_dir,
@@ -67,12 +68,12 @@
     )
 
     if (!is.null(select)) {
-      return(grep(select, coeff_paths, value = TRUE))
+      coeff_paths <- coeff_paths[tools::file_path_sans_ext(basename(coeff_paths)) %in% select]
     }
   } else {
     coeff_paths <- NULL
   }
-  
+
   paths <- list(
     tab = tab_path,
     model = model_dir,

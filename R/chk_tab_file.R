@@ -2,8 +2,8 @@
 #' @noRd
 .check_tab_file <- function(tab_file,
                             call) {
-  if (inherits(tab_file, "internal")) {
-    tab <- internal_tab[[tab_file]]
+  if (inherits(tab_file, "teems_model")) {
+    tab <- tab_file
   } else {
     tab <- readChar(
       tab_file,

@@ -1,27 +1,27 @@
 #' @importFrom rlang is_integerish
-#' @importFrom data.table data.table setnames setkeyv setattr
-#' @importFrom purrr map2 map_chr
-#' 
+#' @importFrom data.table data.table setnames setkeyv setattr is.data.table
+#' @importFrom purrr map2 map_chr map_lgl
+#'
 #' @keywords internal
 #' @noRd
-.finalize_data <- function(data,
+.finalize_data <- function(.data,
                            sets,
                            model,
                            write_dir,
-                           call) {
-
+                           call,
+                           model_call) {
   # NSE
   Value <- NULL
-  
+
   model_coeff <- model[model$type == "Coefficient" & !is.na(model$file), "header"][[1]]
-  data <- data[names(data) %in% model_coeff]
+  .data <- .data[names(.data) %in% model_coeff]
 
   if (attr(sets, "intertemporal")) {
     int_sets <- sets[grepl("\\(intertemporal\\)", sets$qualifier_list), "ele"][[1]]
 
-    l_idx <- match(names(data), model$header)
-    data <- purrr::map2(
-      data,
+    l_idx <- match(names(.data), model$header)
+    .data <- purrr::map2(
+      .data,
       l_idx,
       function(dt, id) {
         full_sets <- model$ls_upper_idx[[id]]
@@ -57,10 +57,23 @@
     names(append) <- purrr::map_chr(append, function(c) {
       class(c)[[1]]
     })
-    data <- c(data, append)
+    .data <- c(.data, append)
   }
 
-  data <- lapply(data, function(dt) {
+  if (any(purrr::map_lgl(attributes(model), data.table::is.data.table))) {
+    .data <- .inject_agg_input(
+      .data = .data,
+      sets = sets,
+      model = model,
+      call = model_call
+    )
+
+    names(.data) <- purrr::map_chr(.data, function(d) {
+      class(d)[[1]]
+    })
+  }
+
+  .data <- lapply(.data, function(dt) {
     if (!colnames(dt) %=% "Value") {
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
@@ -82,11 +95,11 @@
     return(dt)
   })
 
-  r_idx <- match(names(data), model$header)
+  r_idx <- match(names(.data), model$header)
   ndigits <- .o_ndigits()
 
-  data <- purrr::map2(
-    data,
+  .data <- purrr::map2(
+    .data,
     r_idx,
     function(dt, id) {
       data.table::setattr(dt, "file", model$file[id])
@@ -146,6 +159,6 @@
     }
   )
 
-  data <- c(data, sets)
-  return(data)
+  .data <- c(.data, sets)
+  return(.data)
 }

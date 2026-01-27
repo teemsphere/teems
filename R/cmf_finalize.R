@@ -23,43 +23,12 @@
     paste("shock", paste0("\"", shf_path, "\"", ";"))
   )
 
-  set_names <- model[model$type == "Set", "name"][[1]]
-  set_writeout <- paste(
-    "outdata",
-    paste0('"', set_names, '"'),
-    paste0(
-      '"',
-      file.path(
-        write_dir,
-        "out",
-        "sets",
-        paste0(set_names, ".csv")
-      ),
-      '"',
-      ";"
-    )
-  )
-
-  coeff_names <- model[model$type == "Coefficient", "name"][[1]]
-  coeff_writeout <- paste(
-    "outdata",
-    paste0('"', coeff_names, '"'),
-    paste0(
-      '"',
-      file.path(
-        write_dir,
-        "out",
-        "coefficients",
-        paste0(coeff_names, ".csv")
-      ),
-      '"',
-      ";"
-    )
-  )
+  writeout <- .writeout(model = model,
+                        write_dir = write_dir)
 
   input_data <- paste(
     "iodata",
-    paste0('"', names(x = input_files), '"'),
+    paste0('"', names(input_files), '"'),
     paste0('"', input_files, '";')
   )
 
@@ -73,8 +42,7 @@
     input_data,
     cmf_comp,
     var_output,
-    set_writeout,
-    coeff_writeout
+    writeout
   )
 
   cmf <- purrr::map_chr(cmf, function(c) {

@@ -1,5 +1,21 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# teems <img src="man/figures/logo.png" align="right" height="139" alt="" />
+
+Computable general equilibrium models provide insights into an incredibly wide range of topics from trade to the environment. Putting together and running model runs is a difficult and time-consuming process. The `teems` package addresses these obstacles while providing a reproducible and fast platform for CGE model runs.
 # teems R package
-[![License](https://img.shields.io/badge/License-GPL-blue.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 <!-- [![Version](https://img.shields.io/badge/version-0.9-green.svg)](https://github.com/username/repo/releases) -->
 
 Beta version 0.0.0.98 - use with caution, currently under development!

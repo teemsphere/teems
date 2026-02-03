@@ -1,10 +1,26 @@
 .read_input <- function(input,
-                        data_format = NULL,
-                        data_type = NULL,
+                        data_type,
+                        metadata = NULL,
                         attach_metadata = FALSE,
                         call = NULL) {
   UseMethod(".read_input")
 }
+
+#' @importFrom data.table fread
+#' @method .read_input csv
+#' @export
+#' @keywords internal
+#' @noRd
+.read_input.csv <- function(input,
+                            data_type,
+                            metadata = NULL,
+                            attach_metadata = FALSE,
+                            call = NULL) {
+
+  input <- data.table::fread(input)
+  return(input)
+}
+
 
 #' @details Function modified from
 #'   https://rdrr.io/github/USDA-ERS/MTED-HARr/src/R/read_har.r
@@ -15,18 +31,14 @@
 #' @keywords internal
 #' @noRd
 .read_input.har <- function(input,
-                            data_format = NULL,
-                            data_type = NULL,
+                            data_type,
+                            metadata = NULL,
                             attach_metadata = FALSE,
                             call = NULL) {
-  # cut this down to essentials
-  # Open the file
+
   if (is.character(input)) {
     input <- file(input, "rb")
   }
-
-  # map connection to data type (GTAP database file naming is inconsistent across releases)
-  full_har_path <- normalizePath(path = summary(object = input)[["description"]])
 
   # Read all bytes into a vector
   cf <- raw()
@@ -41,9 +53,6 @@
 
   # Close the file
   close(input)
-
-  implied_data_type <- .har_match(con = full_har_path)
-  har_file <- basename(path = full_har_path)
 
   if (cf[1] == 0xfd) {
     currentHeader <- ""
@@ -388,13 +397,13 @@
     }
   }
 
-  if (attach_metadata || implied_data_type %=% "set") {
+  if (attach_metadata) {
     DREL <- purrr::pluck(headers, "DREL", "data")
     DVER <- purrr::pluck(headers, "DVER", "data")
     metadata <- .har_meta(
       DREL = DREL,
       DVER = DVER,
-      data_type = implied_data_type
+      data_type = data_type
     )
 
     metadata[["full_database_version"]] <- metadata[["database_version"]]
@@ -404,27 +413,23 @@
 
   # manually pull out set names for pre v11
   # no telling how robust this is
-  if (implied_data_type %=% "set") {
-    if (metadata$database_version %in% c("GTAPv9", "GTAPv10")) {
-      purrr::pluck(headers, "H1", "name") <- trimws(rawToChar(headers$H1$records[[2]][14:19]))
-      purrr::pluck(headers, "H2", "name") <- trimws(rawToChar(headers$H2$records[[2]][14:25]))
-      purrr::pluck(headers, "H6", "name") <- trimws(rawToChar(headers$H6$records[[2]][14:25]))
-      purrr::pluck(headers, "H9", "name") <- trimws(rawToChar(headers$H9$records[[2]][14:25]))
-      purrr::pluck(headers, "MARG", "name") <- trimws(rawToChar(headers$MARG$records[[2]][14:25]))
-    } else if (metadata$database_version %=% "GTAPv11") {
-      headers <- lapply(headers, function(h) {
-        h$name <- h$header
-        return(h)
-      })
-    }
-  }
-  
-  if (is.null(data_type)) {
-    data_type <- implied_data_type
-  }
-
-  if (is.null(data_format)) {
-    data_format <- metadata$data_format
+  if (data_type %=% "set") {
+    switch(metadata$database_version,
+           "GTAPv9" = ,
+           "GTAPv10" = {
+             purrr::pluck(headers, "H1", "name") <- trimws(rawToChar(headers$H1$records[[2]][14:19]))
+             purrr::pluck(headers, "H2", "name") <- trimws(rawToChar(headers$H2$records[[2]][14:25]))
+             purrr::pluck(headers, "H6", "name") <- trimws(rawToChar(headers$H6$records[[2]][14:25]))
+             purrr::pluck(headers, "H9", "name") <- trimws(rawToChar(headers$H9$records[[2]][14:25]))
+             purrr::pluck(headers, "MARG", "name") <- trimws(rawToChar(headers$MARG$records[[2]][14:25]))
+           },
+           "GTAPv11" = {
+             headers <- lapply(headers, function(h) {
+               h$name <- h$header
+               return(h)
+             })
+           }
+    )
   }
 
   headers <- lapply(
@@ -435,9 +440,9 @@
       .data <- h$data
       if (!is.null(.data)) {
         if (is.null(name)) {
-          class(.data) <- c(header, data_type, data_format, class(.data))
+          class(.data) <- c(header, data_type, metadata$data_format, class(.data))
         } else {
-          class(.data) <- c(header, name, data_type, data_format, class(.data))
+          class(.data) <- c(header, name, data_type, metadata$data_format, class(.data))
         }
       }
       return(.data)

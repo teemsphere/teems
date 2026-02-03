@@ -501,11 +501,18 @@ list(
       missing_sets = "Set information missing from binary outputs: {.field {x_sets}}."
     )
   }),
-  tar_target(check_wrn, {
-    list(var_baseline = "Range across all variables is {.val {all_range}}, rather than the expected {.val 0}.")
-  }),
-  tar_target(check_err, {
-    list(missing_coeff = "Input coefficient headers missing from output: {.field {x_coeff}}.")
+  # tar_target(check_wrn, {
+  #   list(var_baseline = "Range across all variables is {.val {all_range}}, rather than the expected {.val 0}.")
+  # }),
+  # tar_target(check_err, {
+  #   list(missing_coeff = "Input coefficient headers missing from output: {.field {x_coeff}}.")
+  # }),
+  tar_target(aux_err, {
+    list(#missing_input = "No valid inputs have been provided to {.arg ...}.",
+         invalid_input = "{.arg {header}} must be a {.or {check}}, not {.obj_type_friendly {input}}.",
+         missing_col = "The data provided to {.arg {header}} does not contain a {.val Value} column.")
+         # invalid_data_type = c("The name provided {.arg {name}} is not a recognized data type.",
+         #                       "Valid data types include {.val {valid_data_type}}."))
   }),
   # internal data ====================================================
   tar_target(internal_data, {
@@ -518,6 +525,7 @@ list(
       internal_cls,
       set_conversion,
       coeff_conversion,
+      aux_err,
       gen_info,
       gen_wrn,
       gen_err,
@@ -538,8 +546,9 @@ list(
       solve_wrn,
       solve_info,
       compose_err,
-      check_wrn,
-      check_err,
+      aux_err,
+      # check_wrn,
+      # check_err,
       overwrite = TRUE,
       internal = TRUE
     )

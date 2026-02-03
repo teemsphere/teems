@@ -36,7 +36,7 @@ employed (default is \code{NULL}). Input format can be either the
 chronological years of steps including initial reference
 year or steps from t0.}
 
-\item{aux_input}{Character vector of length 1 (default is
+\item{aux_input}{Object created with \code{\link[=ems_aux]{ems_aux()}}, (default is
 \code{NULL}), file name in working directory or path to a data
 input containing auxiliary coefficient data. Coefficients
 will be sorted into parameter and non-parameter lists.

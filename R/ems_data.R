@@ -20,7 +20,7 @@
 #'   employed (default is `NULL`). Input format can be either the
 #'   chronological years of steps including initial reference
 #'   year or steps from t0.
-#' @param aux_input Character vector of length 1 (default is
+#' @param aux_input Object created with [`ems_aux()`], (default is
 #'   `NULL`), file name in working directory or path to a data
 #'   input containing auxiliary coefficient data. Coefficients
 #'   will be sorted into parameter and non-parameter lists.

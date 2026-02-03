@@ -36,6 +36,8 @@
   return(dt)
 }
 
+#' @importFrom rlang is_integerish
+#' @importFrom data.table setkeyv
 #' @keywords internal
 #' @noRd
 #' @method .aggregate_data par
@@ -74,6 +76,8 @@
   return(dt)
 }
 
+#' @importFrom data.table setkey setnames
+#' @importFrom purrr pluck
 #' @keywords internal
 #' @noRd
 #' @method .aggregate_data set

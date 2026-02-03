@@ -27,6 +27,7 @@
   return(file)
 }
 
+#' @importFrom tools file_ext
 #' @keywords internal
 #' @noRd
 #' @method .check_file user
@@ -57,7 +58,8 @@
     )
   }
 
-  classes <- c(valid_ext, class(file))
+  ext <- tools::file_ext(file)
+  classes <- c(ext, class(file))
   file <- normalizePath(file)
   class(file) <- classes
   return(file)

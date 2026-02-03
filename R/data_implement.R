@@ -16,9 +16,11 @@
     target_format = v$target_format,
     call = call
   )
+
   if (!is.null(v$target_format)) {
     i_data <- .convert_data(i_data = i_data)
   }
+  
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,
     set_data = i_data[purrr::map_lgl(i_data, inherits, "set")],

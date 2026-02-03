@@ -11,6 +11,7 @@
 
   dat <- .read_input(
     input = dat_input,
+    data_type = "dat",
     attach_metadata = TRUE
   )
   metadata <- attr(dat, "metadata")
@@ -23,11 +24,13 @@
   }
   par <- .read_input(
     input = par_input,
-    data_format = metadata$data_format
+    data_type = "par",
+    metadata = metadata
   )
   set <- .read_input(
     input = set_input,
-    data_format = metadata$data_format
+    data_type = "set",
+    metadata = metadata
   )
 
   if (!inherits(dat, "dat")) {

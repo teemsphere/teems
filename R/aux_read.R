@@ -11,23 +11,23 @@
                                  header,
                                  data_type,
                                  call) {
-  col_nmes <- colnames(input)
-
-  if (!"Value" %in% col_nmes) {
-    .cli_action(aux_err$missing_col,
-      action = "abort",
-      call = call
-    )
-  }
-  x_val_col <- col_nmes[!col_nmes %in% "Value"]
-
-  if (!inherits(input, "data.table")) {
-    data.table::setDT(input, key = x_val_col)
-  } else {
-    data.table::setkeyv(input, x_val_col)
-  }
-
   if (!data_type %=% "set") {
+    col_nmes <- colnames(input)
+
+    if (!"Value" %in% col_nmes) {
+      .cli_action(aux_err$missing_col,
+        action = "abort",
+        call = call
+      )
+    }
+    x_val_col <- col_nmes[!col_nmes %in% "Value"]
+    dimnames <- purrr::map(x_val_col, function(c) {
+      unique(input[[c]])
+    })
+    dim <- lengths(dimnames)
+    names(dimnames) <- x_val_col
+
+    input <- array(input$Value, dim = dim, dimnames = dimnames)
     class(input) <- c(header, data_type, class(input))
   } else {
     class(input) <- c(header, header, data_type, class(input))
@@ -35,6 +35,8 @@
   return(input)
 }
 
+#' @importFrom tools file_path_sans_ext
+#' @importFrom purrr  map
 #' @method .read_aux character
 #' @export
 .read_aux.character <- function(input,

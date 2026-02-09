@@ -27,7 +27,7 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Depends: 
-    R (>= 4.1.0)
+    R (>= 4.3.0)
 LazyData: true
 Config/testthat/edition: 3
 SystemRequirements: Docker

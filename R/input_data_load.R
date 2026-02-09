@@ -7,7 +7,8 @@
                              set_input,
                              aux_input,
                              target_format,
-                             call) {
+                             data_call,
+                             aux_call) {
 
   dat <- .read_input(
     input = dat_input,
@@ -19,7 +20,7 @@
   if (metadata$data_format %=% target_format) {
     .cli_action(data_wrn$unnecessary_cvrt,
       action = "warn",
-      call = call
+      data_call = data_call
     )
   }
   par <- .read_input(
@@ -37,7 +38,7 @@
     inferred_type <- attr(dat, "data_type")
     .cli_action(data_err$invalid_dat_har,
                 action = "abort",
-                call = call
+                call = data_call
     )
   }
   
@@ -45,7 +46,7 @@
     inferred_type <- attr(par, "data_type")
     .cli_action(data_err$invalid_par_har,
                 action = "abort",
-                call = call
+                call = data_call
     )
   }
   
@@ -53,19 +54,17 @@
     inferred_type <- attr(set, "data_type")
     .cli_action(data_err$invalid_set_har,
                 action = "abort",
-                call = call
+                call = data_call
     )
   }
   
   i_data <- c(set, par, dat)
   
   if (!is.null(aux_input)) {
-    aux <- .read_input(
-      input = aux_input,
-      data_format = metadata$data_format
-    )
-
-    i_data <- c(i_data, aux)
+    i_data <- .merge_aux(aux_input = aux_input,
+                         i_data = i_data,
+                         aux_call = aux_call,
+                         data_call = data_call)
   }
   
   i_data <- i_data[!names(i_data) %in% .o_full_exclude()]
@@ -97,7 +96,7 @@
   .check_database_version(
     vetted = c("GTAPv9A", "GTAPv10A", "GTAPv11c"),
     provided = metadata$full_database_version,
-    call = call
+    call = data_call
   )
   
   if (.o_verbose()) {

@@ -38,13 +38,10 @@
 ems_aux <- function(dat = NULL,
                     par = NULL,
                     set = NULL)
-ems_aux <- function(dat = NULL,
-                    par = NULL,
-                    set = NULL)
 {
 args_list <- mget(names(formals()))
 call <- match.call()
 aux <- .implement_aux(args_list = args_list,
-                        call = call)
+                      call = call)
 aux
 }

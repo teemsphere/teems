@@ -6,7 +6,7 @@
   UseMethod(".read_input")
 }
 
-#' @importFrom data.table fread
+#' @importFrom utils read.csv
 #' @method .read_input csv
 #' @export
 #' @keywords internal
@@ -17,7 +17,7 @@
                             attach_metadata = FALSE,
                             call = NULL) {
 
-  input <- data.table::fread(input)
+  input <- utils::read.csv(input)
   return(input)
 }
 

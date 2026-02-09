@@ -18,7 +18,7 @@
     par_input = "character",
     set_input = "character",
     time_steps = c("NULL", "numeric"),
-    aux_input = c("NULL", "character"),
+    aux_input = c("NULL", "list"),
     target_format = c("NULL", "character"),
     set_mappings = "list"
   )
@@ -44,13 +44,6 @@
     call = call
   )
   
-  if (!is.null(a$aux_input)) {
-    a$aux_input <- .check_input(a$aux_input,
-                                valid_ext = "har",
-                                call = call
-    )
-  }
-
   if (!is.null(a$target_format)) {
     valid_formats <- c("GTAPv6", "GTAPv7")
     if (!a$target_format %in% valid_formats) {

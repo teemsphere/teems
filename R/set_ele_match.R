@@ -25,8 +25,7 @@
       set_ele[seq(start, stop), "mapped_ele"][[1]]
     }
   )
-  
-  sets_out$setname <- sets_out$setname
+
   names(sets_out$ele) <- sets_out$setname
   return(sets_out)
 }

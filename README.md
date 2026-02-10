@@ -102,6 +102,7 @@ Full documentation is available at
 
 | Repository | Description |
 |:-----------|:------------|
+| [teems-models](https://github.com/teemsphere/teems-models) | Vetted models and their standard closures |
 | [teems-solver](https://github.com/teemsphere/teems-solver) | C/Fortran optimization solver (Docker) |
 | [teems-scripts](https://github.com/teemsphere/teems-scripts) | Example scripts for GTAP model versions |
 | [teems-mappings](https://github.com/teemsphere/teems-mappings) | Regional and sectoral aggregation mappings |

@@ -8,7 +8,8 @@ ems_compose(
   cmf_path,
   type = c("all", "variable", "coefficient"),
   name = NULL,
-  minimal = FALSE
+  minimal = FALSE,
+  .parsed = NULL
 )
 }
 \arguments{

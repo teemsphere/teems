@@ -7,27 +7,53 @@
 ems_aux(dat = NULL, par = NULL, set = NULL)
 }
 \arguments{
-\item{dat}{Auxiliary inputs for non-parameter coefficients (default \code{NULL}).}
+\item{dat}{Auxiliary inputs for non-parameter coefficients
+(default \code{NULL}).}
 
-\item{par}{Auxiliary inputs for parameters coefficients (default \code{NULL}).}
+\item{par}{Auxiliary inputs for parameters coefficients
+(default \code{NULL}).}
 
 \item{set}{Auxiliary inputs for sets (default \code{NULL}).}
+}
+\value{
+A list object ready for input into the \code{"aux_input"}
+argument of \code{\link[=ems_data]{ems_data()}}
 }
 \description{
 \code{ems_aux()} loads and prepares data for input
 into the \code{ems_data()} function.
 }
-\section{Input Format}{
-
-Each parameter (\code{dat}, \code{par}, \code{set}) accepts a list with elements in one of
-these formats:
+\section{Input structure}{
+ CSV inputs must contain all tuples
+associated with an unaggregated header. These will be
+subject to checks and aggregated according to data type and set mappings
+provided in \code{\link[=ems_data]{ems_data()}}.
 \itemize{
-\item \strong{Data frame}: A named list where the name corresponds to the header
-and value is a data frame or extension (tibble, data.table).
-\item \strong{CSV file}: A named list where the name corresponds to the header
-and value is a file path to a CSV.
-\item \strong{HAR file}: An unnamed character vector with the path to a GTAP
-header array file.
+\item \code{"dat"} Inputs undergo simple sum aggregation.
+\item \code{"par"} Inputs undergo mean aggregation.
+\item \code{"set"} Inputs are subsetted.
 }
 }
 
+\section{Input Format}{
+ Each parameter (\code{dat}, \code{par}, \code{set})
+accepts a list with list elements in one of the following
+formats:
+\itemize{
+\item \strong{Data frame}: A named list where the name corresponds to
+the header and value is a data frame or extension (tibble,
+data.table).
+\item \strong{CSV file}: A named list where the name corresponds to
+the header and value is a file path to a CSV.
+\item \strong{HAR file}: An unnamed character vector with the path to
+a GTAP header array file.
+}
+}
+
+\examples{
+# example code
+
+}
+\seealso{
+\code{\link[=ems_data]{ems_data()}} for using the output of this function.
+}

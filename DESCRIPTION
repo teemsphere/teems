@@ -24,7 +24,9 @@ Imports:
     rlang (>= 1.1.6),
     R6 (>= 2.6.1),
     tibble (>= 3.3.0)
-Suggests: 
+LinkingTo:
+    cpp11
+Suggests:
     testthat (>= 3.0.0)
 Depends: 
     R (>= 4.3.0)

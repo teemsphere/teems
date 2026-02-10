@@ -128,10 +128,12 @@ elapsed_time <- system.time(system(cmds$solve))
                   solve_cmd = cmds$solve,
                   paths = paths,
                   call = call)
-system(cmds$sol_parse, ignore.stdout = TRUE)
+sol_prefix <- file.path(paths$run, "out", "variables", "bin", "sol.")
+parsed <- .parse_solution(sol_prefix)
 if (!suppress_outputs) {
 output <- ems_compose(cmf_path = cmf_path,
-                      type = "all")
+                      type = "all",
+                      .parsed = parsed)
 return(output)
 }
 return(invisible(NULL))

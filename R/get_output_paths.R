@@ -28,18 +28,8 @@
     metadata_path <- NULL
   }
   
-  bin_csv_paths <- list.files(
-    path = file.path(
-      model_dir,
-      "out",
-      "variables",
-      "bin"
-    ),
-    pattern = "csvs",
-    full.names = TRUE
-  )
-
-  if (bin_csv_paths %=% character(0)) {
+  sol_mds <- file.path(model_dir, "out", "variables", "bin", "sol.mds")
+  if (!file.exists(sol_mds)) {
     .cli_action(compose_err$x_var_out,
       action = "abort",
       call = call
@@ -78,7 +68,6 @@
     tab = tab_path,
     model = model_dir,
     metadata = metadata_path,
-    bin_csv = bin_csv_paths,
     coeff = coeff_paths,
     sets = set_paths
   )

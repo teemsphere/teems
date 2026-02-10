@@ -6,6 +6,7 @@
                              comp_extract,
                              name,
                              paths,
+                             parsed,
                              sets,
                              time_steps,
                              minimal,
@@ -14,16 +15,12 @@
   compose_variable <- type %in% c("variable", "all")
   compose_coefficient <- type %in% c("coefficient", "all")
   output <- list()
-  
+
   if (compose_variable) {
-    var_union <- .unite_csvs(
-      target = "var_csvs",
-      paths = paths$bin_csv,
-      call = call
-    )
+    var_union <- parsed$var_union
 
     output$variable <- .compose_var(
-      paths = paths$bin_csv,
+      xc = parsed$xc,
       var_extract = comp_extract$variable,
       vars = var_union,
       sets = sets,

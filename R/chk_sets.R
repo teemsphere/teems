@@ -3,18 +3,15 @@
 #' 
 #' @keywords internal
 #' @noRd
-.check_sets <- function(bin_csv_paths,
+.check_sets <- function(parsed,
                         model_dir,
                         set_path,
                         minimal,
                         call) {
-  sets <- .unite_csvs(
-    target = "set_csvs",
-    paths = bin_csv_paths
-  )
-  sets <- .match_set_ele(
+  sets <- parsed$set_union
+  sets <- .match_set_ele_parsed(
     sets_out = sets,
-    paths = bin_csv_paths
+    setele_dt = parsed$setele
   )
 
   if (!minimal) {

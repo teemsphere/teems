@@ -4,7 +4,7 @@
 #' 
 #' @keywords internal
 #' @noRd
-.compose_var <- function(paths,
+.compose_var <- function(xc,
                          var_extract,
                          vars,
                          sets,
@@ -48,12 +48,7 @@
 
   names(vars$dt) <- vars$cofname
 
-  data_file <- list.files(grep("bin_csvs", paths, value = TRUE), full.names = TRUE)
-
-  data_dt <- data.table::fread(data_file,
-    header = FALSE,
-    skip = 1
-  )
+  data_dt <- xc
 
   if (!all(lapply(vars$dt, nrow) == vars$matsize) ||
     !sum(unlist(lapply(vars$dt, nrow))) %=% nrow(data_dt)) {

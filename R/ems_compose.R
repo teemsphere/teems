@@ -45,7 +45,8 @@
 ems_compose <- function(cmf_path,
                         type = c("all", "variable", "coefficient"),
                         name = NULL,
-                        minimal = FALSE) 
+                        minimal = FALSE,
+                        .parsed = NULL)
 {
 call <- match.call()
 type <- rlang::arg_match(arg = type)
@@ -55,8 +56,12 @@ paths <- .get_output_paths(
   select = name,
   call = call
 )
+if (is.null(.parsed)) {
+  sol_prefix <- file.path(paths$model, "out", "variables", "bin", "sol.")
+  .parsed <- .parse_solution(sol_prefix)
+}
 sets <- .check_sets(
-  bin_csv_paths = paths$bin_csv,
+  parsed = .parsed,
   model_dir = paths$model,
   set_path = paths$sets,
   minimal = minimal,
@@ -93,6 +98,7 @@ output <- .retrieve_output(
   comp_extract = comp_extract,
   name = name,
   paths = paths,
+  parsed = .parsed,
   sets = sets,
   time_steps = timesteps,
   minimal = minimal,

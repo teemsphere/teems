@@ -86,9 +86,6 @@ results <- ems_solve(cmf_path = cmf_path,
                      solution_method = "mod_midpoint")
 ```
 
-See the [teems-scripts](https://github.com/teemsphere/teems-scripts) repository
-for complete worked examples.
-
 ## Data requirements
 
 TEEMS works with [GTAP](https://www.gtap.agecon.purdue.edu/) FlexAgg data.
@@ -104,7 +101,6 @@ Full documentation is available at
 |:-----------|:------------|
 | [teems-models](https://github.com/teemsphere/teems-models) | Vetted models and their standard closures |
 | [teems-solver](https://github.com/teemsphere/teems-solver) | C/Fortran optimization solver (Docker) |
-| [teems-scripts](https://github.com/teemsphere/teems-scripts) | Example scripts for GTAP model versions |
 | [teems-mappings](https://github.com/teemsphere/teems-mappings) | Regional and sectoral aggregation mappings |
 | [teems-manual](https://github.com/teemsphere/teems-manual) | Full package documentation |
 

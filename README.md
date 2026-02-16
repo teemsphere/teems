@@ -40,7 +40,7 @@ Docker-based solving --- all from R.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("teemsphere/teems-R@v0.0.0.98")
+remotes::install_github("teemsphere/teems-R@v0.0.0.99")
 ```
 
 If the installation fails citing a missing package, install that package first

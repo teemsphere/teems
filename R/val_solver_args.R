@@ -18,7 +18,7 @@
     )
   }
 
-  if (!as.integer(length(n_tasks)) %=% 1L) {
+  if (as.integer(length(n_tasks)) %!=% 1L) {
     arg <- "n_tasks"
     .cli_action(solve_err$invalid_length,
       action = "abort",
@@ -34,7 +34,7 @@
     )
   }
 
-  if (!as.integer(length(n_subintervals)) %=% 1L) {
+  if (as.integer(length(n_subintervals)) %!=% 1L) {
     arg <- "n_subintervals"
     .cli_action(solve_err$invalid_length,
       action = "abort",

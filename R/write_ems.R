@@ -5,30 +5,26 @@
   UseMethod(".ems_write")
 }
 
-#' @method .ems_write dat
+#' @keywords internal
+#' @noRd
+#' @method .ems_write default
 #' @export
-.ems_write.dat <- function(input,
-                           write_dir) {
+.ems_write.default <- function(input,
+                               write_dir,
+                               ...) {
   .ragged_write(
     input = input,
     write_dir = write_dir
   )
 }
 
-#' @method .ems_write par
-#' @export
-.ems_write.par <- function(input,
-                           write_dir) {
-  .ragged_write(
-    input = input,
-    write_dir = write_dir
-  )
-}
-
+#' @keywords internal
+#' @noRd
 #' @method .ems_write set
 #' @export
 .ems_write.set <- function(input,
-                           write_dir) {
+                           write_dir,
+                           ...) {
   write_path <- file.path(write_dir, paste0(attr(input, "file"), ".txt"))
 
   cat(attr(input, "lead"),
@@ -51,19 +47,25 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .ems_write tab
 #' @export
 .ems_write.tab <- function(input,
-                           write_dir) {
+                           write_dir,
+                           ...) {
   write_path <- file.path(write_dir, attr(input, "file"))
   writeLines(input, write_path)
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .ems_write closure
 #' @export
 .ems_write.closure <- function(input,
-                               write_dir) {
+                               write_dir,
+                               ...) {
   write_path <- file.path(write_dir, attr(input, "file"))
 
   input <- .format_closure(
@@ -78,21 +80,26 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .ems_write cmf
 #' @export
-.ems_write.cmf <- function(input) {
+.ems_write.cmf <- function(input,
+                           ...) {
   write_path <- attr(input, "write_path")
   writeLines(input,
     con = write_path
   )
-  class(write_path) <- "cmf"
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .ems_write shock
 #' @export
 .ems_write.shock <- function(input,
-                             write_dir) {
+                             write_dir,
+                             ...) {
 
   write_path <- file.path(write_dir, attr(input, "file"))
     for (shk in input) {
@@ -105,11 +112,15 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .ems_write list
 #' @export
 .ems_write.list <- function(input,
-                            write_dir) {
-  
+                            write_dir,
+                            ...) {
+
+  class(input) <- c("teems_metadata", class(input))
   write_path <- file.path(write_dir, attr(input, "file"))
   saveRDS(input, write_path)
   

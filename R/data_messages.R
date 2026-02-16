@@ -8,19 +8,23 @@
       metadata,
       rlang::current_env()
     )
-    .cli_action(gen_info$dat,
-      action = rep(x = "inform", 3)
+    .cli_action(data_info$dat,
+      action = rep("inform", 3)
     )
   }
 }
 
+#' @importFrom utils packageVersion
+#' 
+#' @noRd
+#' @keywords internal
 .check_database_version <- function(vetted,
                                     provided,
                                     call,
                                     quiet) {
   if (!provided %in% vetted) {
-    teems_version <- packageVersion("teems")
-    .cli_action(gen_wrn$db_version,
+    teems_version <- utils::packageVersion("teems")
+    .cli_action(data_wrn$db_version,
                 action = c("warn", "inform"),
                 call = call
     )

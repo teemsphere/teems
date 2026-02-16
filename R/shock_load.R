@@ -7,6 +7,24 @@
                         sets,
                         var_extract) {
 
+  # still clunky
+  if (any(any(purrr::map_lgl(shocks, \(shk) {
+    "Year" %in% colnames(shk$input)
+  })))) {
+    int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
+    shocks <- lapply(
+      shocks,
+      \(shk) {
+        if ("Year" %in% colnames(shk$input)) {
+          shk <- .year2time_set(shk = shk,
+                                sets = sets,
+                                int_set_names = int_set_names)
+        }
+        return(shk)
+      }
+    )
+  }
+
   final_shocks <- lapply(
     X = shocks,
     FUN = function(shk) {

@@ -1,31 +1,27 @@
 #' @importFrom rlang is_integerish
-#' @importFrom data.table data.table setnames setkeyv
-#' @importFrom purrr map2 map_chr
-#' 
+#' @importFrom data.table data.table setnames setkeyv setattr is.data.table
+#' @importFrom purrr map2 map_chr map_lgl map_int pluck
+#'
 #' @keywords internal
 #' @noRd
-.finalize_data <- function(data,
+.finalize_data <- function(.data,
                            sets,
                            model,
                            write_dir,
-                           call) {
-  data <- data[names(data) %in% subset(
-    model, type == "Coefficient" & !is.na(file),
-    header,
-    1
-  )]
+                           call,
+                           model_call) {
+  # NSE
+  Value <- NULL
+
+  model_coeff <- model[model$type == "Coefficient" & !is.na(model$file), "header"][[1]]
+  .data <- .data[names(.data) %in% model_coeff]
 
   if (attr(sets, "intertemporal")) {
-    int_sets <- subset(
-      sets,
-      grepl("\\(intertemporal\\)", sets$qualifier_list),
-      ele,
-      1
-    )
+    int_sets <- sets[grepl("\\(intertemporal\\)", sets$qualifier_list), "ele"][[1]]
 
-    l_idx <- match(names(data), model$header)
-    data <- purrr::map2(
-      data,
+    l_idx <- match(names(.data), model$header)
+    .data <- purrr::map2(
+      .data,
       l_idx,
       function(dt, id) {
         full_sets <- model$ls_upper_idx[[id]]
@@ -35,7 +31,7 @@
         if (any(names(int_sets) %in% full_sets)) {
           int_set <- intersect(names(int_sets), full_sets)
           nonint_set <- full_sets[!full_sets %in% int_set]
-          dt <- dt[, .(with(int_sets, get(int_set)), Value), by = nonint_set]
+          dt <- dt[, list(with(int_sets, get(int_set)), Value), by = nonint_set]
           data.table::setnames(dt, new = c(full_sets, "Value"))
           data.table::setkeyv(dt, cols = full_sets)
         }
@@ -61,24 +57,37 @@
     names(append) <- purrr::map_chr(append, function(c) {
       class(c)[[1]]
     })
-    data <- c(data, append)
+    .data <- c(.data, append)
   }
 
-  data <- lapply(data, function(dt) {
-    if (!colnames(dt) %=% "Value") {
+  if (any(purrr::map_lgl(attributes(model), data.table::is.data.table))) {
+    .data <- .inject_agg_input(
+      .data = .data,
+      sets = sets,
+      model = model,
+      call = model_call
+    )
+
+    names(.data) <- purrr::map_chr(.data, function(d) {
+      class(d)[[1]]
+    })
+  }
+
+  .data <- lapply(.data, function(dt) {
+    if (colnames(dt) %!=% "Value") {
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
       expected <- as.integer(prod(lengths(dt_sets)))
-      attr(dt, "dim_sizes") <- lengths(dt_sets)
-      attr(dt, "dimen") <- paste(lengths(dt_sets), collapse = " ")
+      data.table::setattr(dt, "dim_sizes", lengths(dt_sets))
+      data.table::setattr(dt, "dimen", paste(lengths(dt_sets), collapse = " "))
     } else {
       expected <- 1L
-      attr(dt, "dim_sizes") <- expected
-      attr(dt, "dimen") <- as.character(expected)
+      data.table::setattr(dt, "dim_sizes", expected)
+      data.table::setattr(dt, "dimen", as.character(expected))
     }
 
-    if (!expected %=% nrow(dt)) {
-      .cli_action(data_err$data_set_mismatch,
+    if (expected %!=% nrow(dt)) {
+      .cli_action(deploy_err$data_set_mismatch,
         action = "abort",
         call = call
       )
@@ -86,14 +95,14 @@
     return(dt)
   })
 
-  r_idx <- match(names(data), model$header)
+  r_idx <- match(names(.data), model$header)
   ndigits <- .o_ndigits()
 
-  data <- purrr::map2(
-    data,
+  .data <- purrr::map2(
+    .data,
     r_idx,
     function(dt, id) {
-      attr(dt, "file") <- model$file[id]
+      data.table::setattr(dt, "file", model$file[id])
       if (!grepl("integer", model$qualifier_list[id])) {
         type <- "Real"
       } else {
@@ -101,14 +110,14 @@
       }
 
       if (type %=% "Real" && !rlang::is_integerish(dt$Value)) {
-        dt[, Value := format(
+        dt[, let(Value = format(
           round(Value, ndigits),
           trim = TRUE,
           nsmall = ndigits,
           scientific = FALSE
-        )]
+        ))]
       } else {
-        dt[, Value := as.integer(Value)]
+        dt[, let(Value = as.integer(Value))]
       }
 
       lead <- paste(
@@ -120,16 +129,13 @@
         paste0('"', model$label[id], '";')
       )
 
-      attr(dt, "lead") <- lead
+      data.table::setattr(dt, "lead", lead)
       return(dt)
     }
   )
 
-  sets <- sets[sets$name %in% subset(
-    model, type == "Set" & !is.na(file),
-    name,
-    1
-  ), "ele"][[1]]
+  model_sets <- model[model$type == "Set" & !is.na(model$file), "name"][[1]]
+  sets <- sets[sets$name %in% model_sets, "ele"][[1]]
 
   r_idx <- match(names(sets), model$name)
   sets <- purrr::map2(
@@ -145,6 +151,7 @@
         "LongName",
         paste0('"', model$label[id], '";')
       )
+
       attr(s, "lead") <- lead
       attr(s, "file") <- model$file[id]
       class(s) <- c("set", class(s))
@@ -152,6 +159,6 @@
     }
   )
 
-  data <- c(data, sets)
-  return(data)
+  .data <- c(.data, sets)
+  return(.data)
 }

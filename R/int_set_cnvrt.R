@@ -38,6 +38,8 @@
   return(mapping)
 }
 
+#' @keywords internal
+#' @noRd
 .convert_p_term <- function(term,
                             n_timestep,
                             n_timestep_coeff) {

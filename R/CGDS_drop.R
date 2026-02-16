@@ -8,6 +8,6 @@
   PROD_ele <- arr_dimnames[[PROD_dim]]
   arr_indices[[PROD_dim]] <- -length(PROD_ele)
   input <- do.call("[", c(list(input), arr_indices))
-  class(input) <- unique(classes, class(input))
+  class(input) <- unique(c(classes, class(input))) 
   return(input)
 }

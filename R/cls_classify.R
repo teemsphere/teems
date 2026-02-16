@@ -1,12 +1,11 @@
-#' @importFrom tibble tibble
-#' @importFrom purrr pluck pmap
+#' @importFrom purrr map map_lgl
 #' 
 #' @keywords internal
 #' @noRd
 .classify_cls <- function(closure,
-                          sets) {
+                          sets,
+                          call) {
 
-  #set_pattern <- paste(toupper(sets$name), collapse = "|")
   set_pattern <- paste(sets$name, collapse = "|")
   closure <- purrr::map(closure, function(c) {
     var_name <- strsplit(c, "\\(")[[1]][1]
@@ -27,9 +26,9 @@
               var_name = var_name,
               class = new_class)
   })
-  
-  if (any(is.na(purrr::map(closure, inherits, "NA")))) {
-    invalid_entry <- closure[is.na(purrr::map(closure, attr, "type"))]
+
+  if (any(purrr::map_lgl(closure, inherits, "NA"))) {
+    invalid_entry <- closure[purrr::map_lgl(closure, inherits, "NA")]
     .cli_action(cls_err$entry_type,
                 action = "abort",
                 call = call)

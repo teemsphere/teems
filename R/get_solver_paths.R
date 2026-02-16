@@ -16,7 +16,9 @@
   docker_run_dir <- "/opt/teems"
   docker_cmf_path <- sub(pattern = dirname(path = cmf_path),
                          replacement = docker_run_dir,
-                         x = cmf_path)
+                         x = cmf_path,
+                         fixed = TRUE)
+  
   paths <- list(cmf = unname(obj = cmf_path),
                 run = run_dir,
                 diag_out = diagnostic_out,

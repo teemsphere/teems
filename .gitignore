@@ -1,6 +1,4 @@
-*.Rproj.user
-*.Rhistory
-*.Rproj
 .Rproj.user
-_targets.yaml
-_targets/
+.Rhistory
+*.Rproj
+*_targets*

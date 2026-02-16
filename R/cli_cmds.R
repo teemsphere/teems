@@ -60,7 +60,7 @@
 }
 
 .cli_missing <- function(arg) {
-  if (!arg %=% "...") {
+  if (arg %!=% "...") {
     arg <- deparse(substitute(arg))
   }
   call <- rlang::trace_back()$call[[1]]

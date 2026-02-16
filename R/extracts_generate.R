@@ -10,10 +10,10 @@
     remainder = sub("^\\S+\\s*", "", tab)
   )
 
-  extract$row_id <- seq(1, nrow(extract))
+  extract$row_id <- seq_len(nrow(extract))
 
   set_extract <- .parse_tab_sets(
-    tab_extract = extract,
+    extract = extract,
     call = call
   )
 

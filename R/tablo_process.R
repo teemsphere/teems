@@ -3,6 +3,7 @@
 #' @importFrom cli cli_h1 cli_dl cli_fmt
 #'
 #' @keywords internal
+#' @note This will become a method for "process_model"
 #' @noRd
 .process_tablo <- function(tab_file,
                            var_omit = NULL,
@@ -14,6 +15,27 @@
     tab_file = tab_file,
     call = call
   )
+
+  if (!is.null(var_omit)) {
+    extract <- .generate_extracts(
+      tab = tab,
+      call = call
+    )
+
+    var_extract <- .parse_tab_obj(
+      extract = extract$model,
+      obj_type = "variable",
+      call = call
+    )
+
+    if (!all(var_omit %in% var_extract$name)) {
+      invalid_var <- setdiff(var_omit, var_extract$name)
+      .cli_action(model_err$invalid_var_omit,
+        action = "abort",
+        call = call
+      )
+    }
+  }
 
   if (!is.null(var_omit)) {
     for (var in unique(var_omit)) {
@@ -28,13 +50,13 @@
     tab = tab,
     call = call
   )
-
-  ele_names <- subset(
-    extract$set,
-    is.na(header) & qualifier_list == "(non_intertemporal)" & is.na(comp1) & is.na(comp2),
-    definition,
-    1
-  )
+  
+  ele_names <- extract$set[with(extract$set,
+    expr = {is.na(header) &
+            qualifier_list == "(non_intertemporal)" &
+            is.na(comp1) &
+            is.na(comp2)}
+    ), ]$definition
 
   if (any(purrr::map_lgl(
     ele_names,
@@ -82,35 +104,43 @@
     )
   }
 
-  if (.o_verbose() && !quiet) {
-    math_extract <- .parse_tab_maths(
-      tab_extract = extract$model,
-      call = call
-    )
+  math_extract <- .parse_tab_maths(
+    extract = extract$model,
+    call = call
+  )
 
+  if (.o_verbose() && !quiet) {
     n_var <- nrow(var_extract)
-    n_eq <- nrow(subset(math_extract, math_extract$type %in% "Equation"))
-    n_form <- nrow(subset(math_extract, math_extract$type %in% "Formula"))
+    n_eq <- nrow(math_extract[math_extract$type %in% "Equation",])
+    n_form <- nrow(math_extract[math_extract$type %in% "Formula",])
     n_coeff <- nrow(coeff_extract)
     n_sets <- nrow(extract$set)
 
-    cli::cli_h1("Tablo file summary statistics:")
-    cli::cli_dl(c(
-      "Variables" = n_var,
-      "Equations" = n_eq,
-      "Coefficients" = n_coeff,
-      "Formulas" = n_form,
-      "Sets" = n_sets
-    ))
+    model_summary <- cli::cli_fmt({
+      cli::cli_h1("Model summary:")
+      cli::cli_dl(c(
+        "Variables" = n_var,
+        "Equations" = n_eq,
+        "Coefficients" = n_coeff,
+        "Formulas" = n_form,
+        "Sets" = n_sets
+      ))
+    })
   }
-
-  tab <- paste0(tab, ";")
-  tab <- tibble::tibble(
-    tab = tab,
-    row_id = seq(1, length(tab))
+  
+  read_extract <- .parse_tab_read(
+    extract = extract$model,
+    call = call
   )
 
-  tab_parsed <- rbind(var_extract, coeff_extract, extract$set)
+  tab <- paste0(tab, ";")
+
+  tab <- tibble::tibble(
+    tab = tab,
+    row_id = seq_along(tab)
+  )
+
+  tab_parsed <- rbind(var_extract, coeff_extract, extract$set, math_extract, read_extract)
   tab <- tibble::as_tibble(merge(tab_parsed, tab, by = "row_id", all = TRUE))
   tab <- tab[order(tab$row_id), ]
 
@@ -121,23 +151,23 @@
 
   tab$row_id <- NULL
   tab$type <- tools::toTitleCase(tolower(tab$type))
-  tab <- subset(tab, type != "Write")
+  tab <- tab[tolower(tab$type) != "write",]
   # drop File used for output, need a separate fun arg for this
-  tab <- subset(tab, !(type == "File" & grepl("(new)", tab, ignore.case = )))
+  tab <- tab[!(tolower(tab$type) == "file" & grepl("(new)", tab$tab, ignore.case = TRUE)),]
+  # potentially handle postsim here or simply throw error
 
   if (any(tab$header %in% .o_full_exclude())) {
     x_header <- intersect(tab$header, .o_full_exclude())
     for (h in unique(x_header)) {
       x_coeff <- tab$name[match(h, tab$header)]
-      tab <- subset(tab, !grepl(x_coeff, tab))
+      tab <- tab[!grepl(x_coeff, tab$tab),]
     }
   }
-
-  tab <- structure(tab,
-    tab_file = tab_file,
-    var_omit = var_omit,
-    class = c("model", class(tab))
-  )
-
+  
+  if (.o_verbose() && !quiet) {
+    attr(tab, "model_summary") <- model_summary
+  }
+  
+  attr(tab, "tab_file") <- basename(tab_file)
   return(tab)
 }

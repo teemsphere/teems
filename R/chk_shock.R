@@ -1,7 +1,5 @@
-#' @importFrom purrr pluck
-#' @importFrom data.table fread fwrite setcolorder
-#'
 #' @keywords internal
+#' @noRd
 .check_shock <- function(shock,
                          var_extract,
                          int_sets,
@@ -21,6 +19,10 @@
   UseMethod(".check_shock", shock)
 }
 
+#' @importFrom purrr pluck
+#' 
+#' @keywords internal
+#' @noRd
 #' @method .check_shock uniform
 #' @export
 .check_shock.uniform <- function(shock,
@@ -31,7 +33,7 @@
   shock <- .unpack_shock(shock = shock, call = call)
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
 
-  if (!shock$subset %=% NA) {
+  if (shock$subset %!=% NA) {
     sets <- names(shock$subset)
     if (!is.null(int_sets)) {
       if (any(grepl(pattern = "Year", sets))) {
@@ -75,6 +77,8 @@
   return(shock)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .check_shock custom
 #' @export
 .check_shock.custom <- function(shock,
@@ -92,6 +96,8 @@
   return(shock)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .check_shock scenario
 #' @export
 .check_shock.scenario <- function(shock,

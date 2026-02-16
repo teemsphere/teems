@@ -50,7 +50,11 @@
 #'                               
 #' @export
 ems_swap <- function(var,
-                     ...) {
+                     ...
+) {
+if (missing(var)) {
+  .cli_missing(var)
+}
 if (!missing(...)) {
   subset <- list(...)
   breadth <- "partial"

@@ -10,102 +10,115 @@ ems_data(
   set_input,
   time_steps = NULL,
   aux_input = NULL,
-  convert_format = FALSE,
+  target_format = NULL,
   ...
 )
 }
 \arguments{
-\item{dat_input}{Character of length 1, file name in working
-directory or path to a GTAP data "dat" HAR file. Input
-containing basedata coefficient data.}
+\item{dat_input}{Character vector of length 1, file name in
+working directory or path to a data input containing
+basedata coefficient data. Currently supports GTAP "dat" HAR
+files.}
 
-\item{par_input}{Character of length 1, file name in working
-directory or path to a GTAP parameter "par" HAR file. Input
-containing parameter coefficient data.}
+\item{par_input}{Character vector of length 1, file name in
+working directory or path to a data input containing
+parameter coefficient data. Currently supports GTAP "par"
+HAR files.}
 
-\item{set_input}{Character of length 1, file name in working
-directory or path to a GTAP set "set" HAR file. Input
-containing set elements and attributes.}
+\item{set_input}{Character vector of length 1, file name in
+working directory or path to a data input containing set
+elements and attributes. Currently supports GTAP "set" HAR
+files.}
 
 \item{time_steps}{Integer vector of variable length with
 initial value 0 or reference year corresponding to database
 employed (default is \code{NULL}). Input format can be either the
-chronological years of steps including initial reference
-year or steps from t0. For example, \code{c(2017, 2018, 2020, 2022)} is identical to \code{c(c(0, 1, 3, 5))}.}
+chronological years of steps including initial reference year
+or steps from t0.}
 
-\item{aux_input}{Under development. Character of length 1,
-file name in working directory or path to a GTAP HAR file.
-Input containing auxillary coefficient data. Coefficients
-will be sorted into parameter and non-parameter lists.}
+\item{aux_input}{List created with \code{\link[=ems_aux]{ems_aux()}}, (default is
+\code{NULL}). Auxiliary data to be loaded either to replace
+existing headers or as additional headers.}
 
-\item{convert_format}{Logical of length 1 (default is
-\code{FALSE}). If \code{TRUE}, bidirectional conversion of data between
-GTAP v6.2 and v7.0 formats will be carried out.}
+\item{target_format}{Character vector of length 1 (default is
+\code{NULL}). If not \code{NULL}, data will be converted to the target
+format. Currently supports "GTAPv6" and "GTAPv7".}
 
-\item{...}{A named pairlist assigning either externally
-provided mappings (path to CSV) or internally available
-mappings to model sets that are read in (not constructed via
-any set operation defined in the model file). See
+\item{...}{A named pairlist assigning set mappings to model
+sets that are read in (not constructed via any set operation
+defined in the model file). Set mappings can be selected
+from a range of internally available options or provided by
+the user.
+\itemize{
+\item Internal mapping: character vector of length 1 corresponding to an
+internally available mapping
+\item User-provided mapping: Character vector of length 1, file
+name in working directory or path to a .csv file.
+}
+
+See
 \href{https://github.com/teems-org/teems-mappings/}{teems-mappings}
 for internally available mappings and formatting for
 user-provided mappings.}
 }
 \value{
-A list of data.tables ready for input into the
+A list of data tables ready for input into the
 \code{"data"} argument of \code{\link[=ems_deploy]{ems_deploy()}}
 }
 \description{
 \code{ems_data()} loads and prepares data for use
-within a CGE model run as well as converts GTAP databases
-between v6.2 and v7.0 formats.
+within a CGE model run.
 }
 \examples{
 \dontrun{
 # Static models (no data conversion)
-v62_data <- ems_data(dat_input = "path/to/v62_data/v10A/flexagg10AY14/gsddat.har",
-                     par_input = "path/to/v62_data/v10A/flexagg10AY14/gsdpar.har",
-                     set_input = "path/to/v62_data/v10A/flexagg10AY14/gsdset.har",
-                     REG = "big3",
-                     TRAD_COMM = "macro_sector",
-                     ENDW_COMM = "labor_agg")
+v6_data <- ems_data(dat_input = "path/to/v6_data/v10A/flexagg10AY14/gsddat.har",
+                    par_input = "path/to/v6_data/v10A/flexagg10AY14/gsdpar.har",
+                    set_input = "path/to/v6_data/v10A/flexagg10AY14/gsdset.har",
+                    REG = "big3",
+                    TRAD_COMM = "macro_sector",
+                    ENDW_COMM = "labor_agg")
 
-v70_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
-                     par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
-                     set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
-                     REG = "AR5",
-                     COMM = "agriculture",
-                     ACTS = "agriculture",
-                     ENDW = "labor_diff")
+v7_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
+                    par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
+                    set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
+                    REG = "AR5",
+                    COMM = "agriculture",
+                    ACTS = "agriculture",
+                    ENDW = "labor_diff")
                      
-# Data format conversion
-v62_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
-                     par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
-                     set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
-                     REG = "WB7",
-                     TRAD_COMM = "manufacturing",
-                     ENDW_COMM = "full",
-                     convert_format = TRUE)
+# Data format conversion with user-provided REG mapping
+v6_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
+                    par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
+                    set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
+                    REG = "path/to/user/mapping/WB7.csv",
+                    TRAD_COMM = "manufacturing",
+                    ENDW_COMM = "full",
+                    target_format = "GTAPv6")
 
 # Intertemporal model (explicit time steps)
-data <- ems_data(dat_input = "path/to/v62_data/v10A/flexagg10AY14/gsddat.har",
-                 par_input = "path/to/v62_data/v10A/flexagg10AY14/gsdpar.har",
-                 set_input = "path/to/v62_data/v10A/flexagg10AY14/gsdset.har",
-                 REG = "WB23",
-                 TRAD_COMM = "services",
-                 ENDW_COMM = "labor_agg",
-                 time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16))
+int_data <- ems_data(dat_input = "path/to/v6_data/v10A/flexagg10AY14/gsddat.har",
+                     par_input = "path/to/v6_data/v10A/flexagg10AY14/gsdpar.har",
+                     set_input = "path/to/v6_data/v10A/flexagg10AY14/gsdset.har",
+                     REG = "WB23",
+                     TRAD_COMM = "services",
+                     ENDW_COMM = "labor_agg",
+                     time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16))
  
 # Intertemporal model (chronological time steps)
-data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
-                 par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
-                 set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
-                 REG = "R32",
-                 COMM = "medium",
-                 ACTS = "medium",
-                 ENDW = "labor_diff",
-                 time_steps = c(2017, 2018, 2020, 2022, 2024, 2026, 2028, 2030))                       
+int_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har",
+                     par_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfpar.har",
+                     set_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfset.har",
+                     REG = "R32",
+                     COMM = "medium",
+                     ACTS = "medium",
+                     ENDW = "labor_diff",
+                     time_steps = c(2017, 2018, 2020, 2022, 2024, 2026, 2028, 2030))                       
 }           
 }
 \seealso{
-\code{\link[=ems_deploy]{ems_deploy()}} for using the output of this function.
+\code{\link[=ems_aux]{ems_aux()}} preparing auxiliary input data.
+
+\code{\link[=ems_deploy]{ems_deploy()}} for using the output of this
+function.
 }

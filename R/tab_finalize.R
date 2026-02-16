@@ -1,8 +1,9 @@
 #' @keywords internal
 #' @noRd
 .finalize_tab <- function(model) {
-  set_extract <- subset(model, type == "Set")
-  coeff_extract <- subset(model, type == "Coefficient")
+
+  set_extract <- model[model$type == "Set",]
+  coeff_extract <- model[model$type == "Coefficient",]
 
   set_extract$name <- toupper(set_extract$name)
   set_writeout <- paste(
@@ -41,19 +42,13 @@
   tab <- paste(
     c(
       model$tab,
-      "\n#!< File and Write statements follow >!#\n",
       set_writeout,
       coeff_writeout
     ),
     collapse = "\n"
   )
-
-  if (inherits(attr(model, "tab_file"), "internal")) {
-    attr(tab, "file") <- paste0(attr(model, "tab_file"), ".tab")
-  } else {
-    attr(tab, "file") <- basename(attr(model, "tab_file"))
-  }
-
+  
+  attr(tab, "file") <- attr(model, "tab_file")
   class(tab) <- c("tab", class(tab))
   return(tab)
 }

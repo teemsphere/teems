@@ -1,47 +1,17 @@
 #' @importFrom purrr map
+#' @importFrom utils capture.output
 #' 
 #' @keywords internal
-#' @note Move to S3 to skip checks on internal closures
 #' @noRd
 .validate_closure <- function(closure,
-                              var_omit,
-                              swap_in,
-                              swap_out,
-                              shock,
-                              shock_file,
                               sets,
                               var_extract,
                               call) {
-  closure_file <- attr(closure, "file")
-  closure <- subset(closure, !grepl("!", closure))
-  temp <- gsub("\\([^)]*\\)", "", closure)
 
-  closure <- unlist(purrr::map2(
-    closure,
-    temp,
-    function(cls, t) {
-      if (grepl("\\s", t)) {
-        strsplit(t, " ")
-      } else {
-        cls
-      }
-    }
-  ))
-
-  closure <- subset(closure, !closure %in% var_omit)
-  cls_var <- purrr::map_chr(strsplit(closure, "\\("), 1)
-
-  if (!all(cls_var %in% var_extract$name)) {
-    var_discrepancy <- setdiff(tolower(cls_var), tolower(var_extract$name))
-    l_var <- length(var_discrepancy)
-    .cli_action(cls_err$no_var,
-      action = "abort",
-      call = call
-    )
-  }
   closure <- .classify_cls(
     closure = closure,
-    sets = sets
+    sets = sets,
+    call = call
   )
 
   closure <- lapply(closure,
@@ -59,7 +29,7 @@
     if (any(duplicated(over_check))) {
       overlap <- over_check[duplicated(over_check)]
       n_overlap <- nrow(overlap)
-      overlap <- capture.output(print(overlap))[-c(1, 2)]
+      overlap <- utils::capture.output(print(overlap))[-c(1, 2)]
       .cli_action(swap_err$overlap_ele,
         action = "abort",
         call = call
@@ -67,6 +37,5 @@
     }
   }
 
-  attr(closure, "file") <- closure_file
   return(closure)
 }

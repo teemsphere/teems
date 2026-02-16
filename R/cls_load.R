@@ -1,34 +1,28 @@
-#' @importFrom purrr map_chr
-#' 
 #' @keywords internal
 #' @noRd
 .load_closure <- function(closure_file,
-                          tab_file,
+                          model_input,
                           call) {
-
   if (is.null(closure_file)) {
-    if (inherits(tab_file, "internal")) {
-    closure <- internal_cls[[tab_file]]
-    closure_file <- paste0(tab_file, ".cls")
-    } else {
-      .cli_action(cls_err$no_cls,
-                  action = "abort",
-                  call = call)
-    }
-  } else {
-    closure <- readLines(closure_file)
-    closure_file <- basename(closure_file)
+    .cli_action(cls_err$no_cls,
+      action = "abort",
+      call = call
+    )
   }
+
+  closure <- readLines(closure_file)
+  closure_file <- basename(closure_file)
 
   closure <- gsub(";", "", closure)
   closure <- closure[closure != ""]
-  
+
   if (!any(grepl("exogenous", closure[[1]], ignore.case = TRUE)) ||
-      !any(grepl("rest endogenous", closure[[length(closure)]], ignore.case = TRUE))) {
+    !any(grepl("rest endogenous", closure[[length(closure)]], ignore.case = TRUE))) {
     # add examples
     .cli_action(cls_err$missing_specification,
-                action = "abort",
-                call = call)
+      action = "abort",
+      call = call
+    )
   }
 
   closure <- sub("exogenous", "", closure, ignore.case = TRUE)

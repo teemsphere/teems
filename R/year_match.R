@@ -13,7 +13,7 @@
   if (any(stnd_names %in% names(int_sets))) {
     TIMEt <- colnames(data)[which(stnd_names %in% names(int_sets))]
     r_idx <- match(data[[TIMEt]], time_steps$all_time)
-    data[, Year := time_steps$CYRS[r_idx]]
+    data[, let(Year = time_steps$CYRS[r_idx])]
     return(data)
   } else {
     return(data)

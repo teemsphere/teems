@@ -2,9 +2,21 @@
 % Please edit documentation in R/ems_options.R
 \name{ems_option_set}
 \alias{ems_option_set}
-\title{options}
+\title{Set advanced package options}
 \usage{
-ems_option_set(...)
+ems_option_set(
+  verbose = NULL,
+  ndigits = NULL,
+  check_shock_status = NULL,
+  timestep_header = NULL,
+  n_timestep_header = NULL,
+  full_exclude = NULL,
+  docker_tag = NULL,
+  margin_sectors = NULL,
+  accuracy_threshold = NULL,
+  expand_ETRE = NULL,
+  write_sub_dir = NULL
+)
 }
 \arguments{
 \item{verbose}{Logical of length 1 (default is \code{TRUE}). If
@@ -19,13 +31,6 @@ This value is passed to the \code{format()} nsmall argument and
 \item{check_shock_status}{Logical of length 1 (default is
 \code{TRUE}). If \code{FALSE}, no check on shock element
 endogenous/exogenous status is conducted.}
-
-\item{post_set_check}{Logical of length 1 (default is \code{TRUE}).
-If \code{FALSE}, no post model check is conducted between the
-sets as written out from the Tablo file and solver set
-binaries. If a Tablo file with no set writeout is used
-(e.g., custom file in in-situ solve mode), this option must
-be set to \code{FALSE}.}
 
 \item{timestep_header}{A character vector length 1 (default is
 \code{"YEAR"}). Coefficient containing a numeric vector of
@@ -53,17 +58,28 @@ converted to a percentage. 4 digit precision will be
 compared against this threshold, generating a warning if it
 is not met.}
 
-\item{expand_ETRE}{Logical of length 1 (default is \code{TRUE}). If
+\item{expand_ETRE}{Logical of length 1 (default \code{TRUE}). If
 \code{FALSE}, no expansion to the ETRE (ETRAE) data header are
 carried out. When \code{TRUE}, if ETRE header data does not
 contain the full endowment set, missing tuples will be added
 with value -1e-05. The sluggish endowment set will be
-replace with the general endowment set. ETRE header elements
-are not consistent across databases regarding inclusion of
-non-sluggish endowments, leading to issues with the ETRAE
-coefficient which is read-in with the full set of
+replaced with the general endowment set. ETRE header
+elements are not consistent across databases regarding
+inclusion of non-sluggish endowments, leading to issues with
+the ETRAE coefficient which is read-in with the full set of
 endowments.}
+
+\item{write_sub_dir}{A character vector (default \code{"teems"}).
+Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a base
+directory for model files, \code{"write_sub_dir"} sets the name
+of the subdirectory within the base directory.}
 }
 \description{
-placeholder
+\code{ems_option_set()} allows the user to customize
+advanced options.
+}
+\seealso{
+\code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.
+
+\code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.
 }

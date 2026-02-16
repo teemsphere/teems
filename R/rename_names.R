@@ -10,7 +10,7 @@
 #' @export
 .names_rename.default <- function(input) {
   origin <- class(input)[3]
-  target <- ifelse(inherits(input, "v7.0"), "v6.2", "v7.0")
+  target <- ifelse(inherits(input, "GTAPv7"), "GTAPv6", "GTAPv7")
   id <- match(class(input)[1], coeff_conversion[[paste0(origin, "header")]])
 
 
@@ -47,9 +47,11 @@
 #' @method .names_rename set
 #' @keywords internal
 #' @noRd
+#' @export
 .names_rename.set <- function(input) {
+
   origin <- class(input)[4]
-  target <- ifelse(inherits(input, "v7.0"), "v6.2", "v7.0")
+  target <- ifelse(inherits(input, "GTAPv7"), "GTAPv6", "GTAPv7")
 
   id <- match(class(input)[1], set_conversion[[paste0(origin, "header")]])
   if (!is.na(id)) {

@@ -41,6 +41,11 @@
 #' @export
 .validate_shock.default <- function(shock,
                                     call) {
+
+  shock["..."] <- NULL
+  class(shock) <- c(shock$type, class(shock))
+  shock$type <- NULL
+  
   checklist <- list(
     var = "character",
     input = c("character", "data.frame")
@@ -54,7 +59,8 @@
 
   shock$input <- .shock_preload(
     input = shock$input,
-    type = class(shock)[[1]]
+    type = class(shock)[[1]],
+    call = call
   )
 
   shock$set <- colnames(shock$input)[!colnames(shock$input) %in% "Value"]

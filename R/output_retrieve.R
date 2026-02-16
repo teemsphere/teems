@@ -1,38 +1,49 @@
-#' @importFrom purrr pluck map_lgl
+#' @importFrom purrr pluck
 #' 
 #' @keywords internal
 #' @noRd
-.retrieve_output <- function(type,
+.retrieve_output <- function(var_tbl,
+                             var_data,
+                             type,
                              comp_extract,
                              name,
                              paths,
+                             parsed,
                              sets,
                              time_steps,
+                             minimal,
                              call) {
 
-  if (type %=% "variable") {
-    var_union <- .unite_csvs(
-      target = "var_csvs",
-      paths = paths$bin_csv,
-      call = call
-    )
+  compose_variable <- type %in% c("variable", "all")
+  compose_coefficient <- type %in% c("coefficient", "all")
+  output <- list()
 
-    output <- .parse_var(
-      paths = paths$bin_csv,
-      var_extract = comp_extract,
-      vars = var_union,
+  if (compose_variable) {
+    output$variable <- .compose_var(
+      data_dt = var_data,
+      var_extract = comp_extract$variable,
+      vars = var_tbl,
       sets = sets,
       time_steps = time_steps,
+      minimal = minimal,
       call = call
     )
-  } else if (type %=% "coefficient") {
-    output <- .parse_coeff(
+  }
+  
+  if (compose_coefficient) {
+    output$coefficient <- .compose_coeff(
       paths = paths$coeff,
-      coeff_extract = comp_extract,
+      coeff_extract = comp_extract$coefficient,
       sets = sets,
       time_steps = time_steps,
       call = call
     )
+  }
+  
+  if (type == "all") {
+    output <- rbind(output$variable, output$coefficient)
+  } else {
+    output <- output[[1]]
   }
 
   if (!is.null(name)) {

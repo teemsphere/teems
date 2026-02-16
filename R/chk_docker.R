@@ -2,7 +2,6 @@
 #' @noRd
 .check_docker <- function(image_name,
                           call) {
-
   docker_installed <- system("docker --version", ignore.stdout = TRUE, ignore.stderr = TRUE) == 0
   if (!docker_installed) {
     .cli_action(solve_err$docker_installed,
@@ -22,10 +21,10 @@
   }
 
   image_present <- system(paste("docker images -q", shQuote(image_name)), intern = TRUE)
-  if (!length(image_present) > 0) {
+  if (!(length(image_present) > 0)) {
     .cli_action(solve_err$docker_x_image,
       action = "abort",
-      url = "https://github.com/teems-org/teems-solver",
+      url = "https://github.com/teemsphere/teems-solver",
       hyperlink = "teems-solver repository",
       call = call
     )

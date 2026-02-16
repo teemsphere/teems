@@ -4,69 +4,87 @@
 \alias{ems_model}
 \title{Load general model specifications}
 \usage{
-ems_model(tab_file, var_omit = NULL)
+ems_model(model_input, closure_file, var_omit = NULL, ...)
 }
 \arguments{
-\item{tab_file}{Character of length 1, path to a local Tablo
-model file or selection of an internal Tablo file. See
+\item{model_input}{Input containing the model. Character
+vector of length 1, file name in working directory or path
+to a .tab file. See
 \href{https://github.com/teems-org/teems-models}{teems-models}
-for internally available Tablo files as well as compatible
-Tablo file formatting.}
+for vetted model inputs and compatible Tablo file
+formatting.}
+
+\item{closure_file}{A character of length 1 (default is
+\code{NULL}). File name in working directory or path to a ".cls"
+closure file. See
+\href{https://github.com/teems-org/teems-models}{teems-models}
+for formatting of closure files.}
 
 \item{var_omit}{A character vector (default is \code{NULL}).
 Variables that to be substituted with \code{0} within the Tablo
 model file and removed from the designated closure (if
 present).}
+
+\item{...}{A named pairlist assigning aggregation-specific
+values to model coefficients. The LHS must correspond to a
+model coefficient declared within \code{"model_input"}. The RHS
+is the value to be assigned and may be either a numeric
+length 1, a data frame or data frame extension (e..g,
+tibble, data table), or path to a CSV file.
+
+If a numeric length 1 is provided to a non-binary
+coefficient or coefficient with a set affiliation, all set
+combinations will be assigned this uniform value. Data frame
+equivalent and CSV inputs must contain all set
+aggregation-specific elements to be replaced (with sets as
+columns) as well as a "Value" column with new values. This
+replacement will be subject to structure checks according to
+set aggregations specified in \code{\link[=ems_data]{ems_data()}}.
+
+Note that set names in any loaded data must be provided as
+the model-specific concatenation of the standard set name
+plus the variable-specific index. For example, the standard
+set name "REG" with subindex "r" would be "REGr".}
 }
 \value{
-A tibble contained the parsed Tablo model file for
-input to the \code{"model"} argument of \code{\link[=ems_deploy]{ems_deploy()}}.
+A tibble with attributes containing the parsed model
+input for use within the \code{"model"} argument of
+\code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_model()} loads general model specifications,
-conducts pre-pipeline checks, and determines temporal
-dynamics. The output of this function is a required input to
-the \code{"model_config"} argument within the \code{\link[=ems_deploy]{ems_deploy()}}
-function.
-}
-\details{
-\code{ems_model()} return values have no purpose used in
-isolation and
-are rather combined with user inputs in other \code{teems} package functions
-within \code{\link[=ems_deploy]{ems_deploy()}} to produce a path-dependent pipeline resulting in
-solver-ready input files for \code{\link[=ems_solve]{ems_solve()}}.
+\code{ems_model} loads the model and its closure,
+conducts pre-deployment checks, determines temporal
+dynamics, and allows for the loading of aggregated data. The
+output of this function is a required input to the \code{"model"}
+argument of the \code{\link[=ems_deploy]{ems_deploy()}} function.
 }
 \examples{
-# v6.2 format model with variable omission
-model <- ems_model(
-tab_file = "GTAPv6.2",
-var_omit = c(
-  "atall",
-  "tfd",
-  "avaall",
-  "tf",
-  "tfm",
-  "tgd",
-  "tgm",
-  "tpd",
-  "tpm"
-))
+# simple model load
+model_input <- ems_example("GTAPv7.tab",file.path("models", "GTAPv7"))
+closure_file <- ems_example("GTAPv7.cls",file.path("models", "GTAPv7"))
+model <- ems_model(model_input = model_input,
+                   closure_file = closure_file)
 
-# v7.0 format model with variable omission
-model <- ems_model(
-  tab_file = "GTAP-REv1",
-  var_omit = c(
-    "atall",
-    "avaall",
-    "tfe",
-    "tfm",
-    "tgd",
-    "tgm",
-    "tid",
-    "tim"))
-    
+# model load with variable omission
+# uniform numeric value applied to KAPPA coefficient
+# heterogeneous values allocated to SUBPAR via data frame
+model_input <- ems_example("GTAP_RE.tab",file.path("models", "GTAP_RE"))
+closure_file <- ems_example("GTAP_RE.cls",file.path("models", "GTAP_RE"))
+COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")
+REGr <- c("usa", "chn", "row")
+ALLTIMEt <- seq_len(5)
+
+SUBPAR <- expand.grid(COMMc = COMMc,
+                      REGr = REGr,
+                      ALLTIMEt = ALLTIMEt)
+SUBPAR$Value <- runif(nrow(SUBPAR))
+model <- ems_model(model_input = model_input,
+                   closure_file = model_input,
+                   var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
+                   KAPPA = 0.03,
+                   SUBPAR = SUBPAR)
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
-function.
+function as well as conducting any closure swaps.
 }

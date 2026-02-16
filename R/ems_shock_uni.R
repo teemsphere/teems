@@ -35,17 +35,17 @@
 #'
 #' @export
 ems_shock.uniform <- function(var,
+                              type = "uniform",
                               value,
-                              ...) {
+                              ...)
+{
   call <- rlang::trace_back()$call[[1]]
   if (!missing(...)) {
-    subset <- list(...)[names(list(...)) != "type"]
+    subset <- list(...)
     if (length(subset) > 0 && (is.null(names(subset)) || any(names(subset) == ""))) {
       .cli_action(shk_err$uni_named_lst,
-        shk_infm$uni_named_lst,
-        action = c("abort", "inform"),
-        url = shk_url$type,
-        hyperlink = NULL
+        shk_err$uni_named_lst,
+        action = "abort"
       )
     }
   } else {
@@ -56,7 +56,7 @@ ems_shock.uniform <- function(var,
     input = value,
     subset = subset
   )
-  class(shock) <- c("uniform", class(shock))
+  class(shock) <- c(type, class(shock))
   config <- .validate_shock(shock = shock, call = call)
   config
 }

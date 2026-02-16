@@ -1,21 +1,22 @@
-#' @importFrom purrr pmap map2
+#' @importFrom purrr pwalk
 #' @importFrom rlang cnd_signal
 #' 
 #' @keywords internal
+#' @noRd
 .check_arg_class <- function(args_list,
                              checklist,
                              call) {
 
   withCallingHandlers(
-    purrr::pmap(
+    purrr::pwalk(
       list(
         args_list,
-        names(x = args_list),
+        names(args_list),
         checklist,
-        names(x = checklist)
+        names(checklist)
       ),
       function(arg, arg_name, checks, check_name) {
-        if (!arg_name %=% check_name) {
+        if (arg_name %!=% check_name) {
           .cli_action(
             msg = "Check missing from checklist",
             action = "abort",

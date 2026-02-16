@@ -5,7 +5,9 @@
 .parse_tab_obj <- function(extract,
                            obj_type,
                            call) {
-  obj <- subset(extract, tolower(type) == obj_type)
+
+  obj <- extract[tolower(extract$type) == obj_type,]
+
   obj$remainder <- purrr::map_chr(
     obj$remainder,
     function(r) {
@@ -59,7 +61,7 @@
     parsed_remander,
     obj$remainder,
     function(pr, r) {
-      if (length(pr != 0)) {
+      if (length(pr) != 0) {
         purrr::pluck(pr, length(pr))
       } else {
         r
@@ -104,17 +106,6 @@
     NA
   )
 
-  # obj$upper_idx <- purrr::map(
-  #   obj$ls_upper_idx,
-  #   function(s) {
-  #     if (!s %=% NA) {
-  #       paste0("(", paste0(s, collapse = ","), ")")
-  #     } else {
-  #       NA
-  #     }
-  #   }
-  # )
-  
   order_test <- purrr::map(strsplit(obj$remainder, ")"), function(r) {
     purrr::map_chr(purrr::list_flatten(strsplit(r, ",")), 2)
   })
@@ -137,7 +128,7 @@
     obj$ls_upper_idx,
     obj$ls_lower_idx,
     .f = function(up, low) {
-      if (!up %=% NA && !low %=% NA) {
+      if (up %!=% NA && low %!=% NA) {
         paste(map2(up, low, function(up2, low2) {
           paste0(up2, low2)
         }), collapse = ",")
@@ -152,7 +143,7 @@
 
 
   if (obj_type %=% "coefficient") {
-    r <- subset(extract, tolower(type) == "read")
+    r <- extract[tolower(extract$type) == "read",]
 
     if (!all(grepl("from file", tolower(r$remainder)))) {
       .cli_action(model_err$missing_file,
@@ -196,9 +187,19 @@
   obj$subsets <- NA
   
   # some permutations not yet utilized
-  obj <- subset(obj,
-    select = c(type, name, label, qualifier_list, ls_upper_idx, ls_mixed_idx, header, file, definition, subsets, comp1, comp2, row_id)
-  )
+  obj <- obj[, c("type",
+                 "name",
+                 "label",
+                 "qualifier_list",
+                 "ls_upper_idx",
+                 "ls_mixed_idx",
+                 "header",
+                 "file",
+                 "definition",
+                 "subsets",
+                 "comp1",
+                 "comp2",
+                 "row_id")]
 
   return(obj)
 }

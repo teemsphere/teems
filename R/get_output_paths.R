@@ -1,7 +1,9 @@
+#' @importFrom tools file_path_sans_ext
+#' 
 #' @keywords internal
 #' @noRd
 .get_output_paths <- function(cmf_path,
-                              which,
+                              type,
                               select = NULL,
                               call) {
 
@@ -23,39 +25,30 @@
   }
 
   metadata_path <- file.path(model_dir, "metadata.rds")
-  bin_csv_paths <- list.files(
-    path = file.path(
-      model_dir,
-      "out",
-      "variables",
-      "bin"
-    ),
-    pattern = "csvs",
-    full.names = TRUE
-  )
-
-  if (bin_csv_paths %=% character(0)) {
+  
+  if (!file.exists(metadata_path) || !inherits(readRDS(metadata_path), "teems_metadata")) {
+    metadata_path <- NULL
+  }
+  
+  sol_mds <- file.path(model_dir, "out", "variables", "bin", "sol.mds")
+  if (!file.exists(sol_mds)) {
     .cli_action(compose_err$x_var_out,
       action = "abort",
       call = call
     )
   }
 
-  if (.o_post_set_check()) {
-    set_paths <- list.files(
-      path = file.path(
-        model_dir,
-        "out",
-        "sets"
-      ),
-      pattern = "csv",
-      full.names = TRUE
-    )
-  } else {
-    set_paths <- NULL
-  }
+  set_paths <- list.files(
+    path = file.path(
+      model_dir,
+      "out",
+      "sets"
+    ),
+    pattern = "csv",
+    full.names = TRUE
+  )
 
-  if (which %=% "coefficient") {
+  if (type %in% c("all", "coefficient")) {
     coeff_paths <- list.files(
       path = file.path(
         model_dir,
@@ -67,17 +60,16 @@
     )
 
     if (!is.null(select)) {
-      return(grep(select, coeff_paths, value = TRUE))
+      coeff_paths <- coeff_paths[tools::file_path_sans_ext(basename(coeff_paths)) %in% select]
     }
   } else {
     coeff_paths <- NULL
   }
-  
+
   paths <- list(
     tab = tab_path,
     model = model_dir,
     metadata = metadata_path,
-    bin_csv = bin_csv_paths,
     coeff = coeff_paths,
     sets = set_paths
   )

@@ -1,6 +1,7 @@
 #' @importFrom data.table data.table fsetdiff funion fintersect
-#' @importFrom purrr pmap map map_chr map_lgl
+#' @importFrom purrr pmap map map_lgl pluck map2
 #' @importFrom stats na.omit
+#' @importFrom tibble tibble
 #' 
 #' @keywords internal
 #' @noRd
@@ -15,7 +16,7 @@
 
   if (!all(stats::na.omit(set_extract$header) %in% names(sets))) {
     m_map <- setdiff(stats::na.omit(set_extract$header), names(sets))
-   .cli_action(data_err$missing_mapping,
+   .cli_action(deploy_err$missing_mapping,
                action = "abort",
                call = data_call) 
   }
@@ -30,13 +31,13 @@
   }
 
   if (intertemporal && is.null(time_steps)) {
-      .cli_action(data_err$missing_tsteps,
+      .cli_action(deploy_err$missing_tsteps,
                   action = "abort",
                   call = data_call)
   }
   
   if (!is.null(time_steps) && !intertemporal) {
-    .cli_action(data_err$nonreq_tsteps,
+    .cli_action(deploy_err$nonreq_tsteps,
                 action = "abort",
                 call = data_call)
   }
@@ -95,7 +96,7 @@
     safety_count <- safety_count + 1
     if (safety_count > exit_loop) {
       null_sets <- names(set_extract$mapping)[purrr::map_lgl(set_extract$mapping, is.null)]
-      .cli_action(set_err$while_loop,
+      .cli_action(deploy_err$while_loop,
         action = "abort",
         call = call
       )
@@ -110,23 +111,13 @@
       ),
       function(m, d, c1, c2) {
         if (is.null(m)) {
-          x <- subset(
-            set_extract,
-            name %in% c1,
-            mapping,
-            1
-          )[[1]]
-          y <- subset(
-            set_extract,
-            name %in% c2,
-            mapping,
-            1
-          )[[1]]
+          x <- purrr::pluck(set_extract[set_extract$name %in% c1, "mapping"], 1, 1)
+          y <- purrr::pluck(set_extract[set_extract$name %in% c2, "mapping"], 1, 1)
           if (any(is.null(x), is.null(y))) {
             return(NULL)
           } else if (grepl("\\+", d)) {
-            if (!nrow(data.table::fintersect(x, y)) %=% 0L) {
-              .cli_action(set_err$invalid_plus,
+            if (nrow(data.table::fintersect(x, y)) %!=% 0L) {
+              .cli_action(deploy_err$invalid_plus,
                           action = "abort",
                           call = model_call)
             }
@@ -135,7 +126,7 @@
             m <- data.table::fsetdiff(x, y, all = TRUE)
           } else if (grepl("union", d, ignore.case = TRUE)) {
             m <- data.table::funion(x, y)
-          } else if (grep("intersect", d, ignore.case = TRUE)) {
+          } else if (grepl("intersect", d, ignore.case = TRUE)) {
             m <- data.table::fintersect(x, y)
           }
         }

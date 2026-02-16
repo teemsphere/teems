@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 .validate_aux_args <- function(a,
                                call) {
   checklist <- list(

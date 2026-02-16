@@ -24,9 +24,9 @@
   )
 
   valid_qual <- c("(intertemporal)", "(non_intertemporal)")
-  if (!any(tolower(sets$qualifier_list) %in% valid_qual)) {
+  if (any(!tolower(sets$qualifier_list) %in% valid_qual)) {
     invalid_qual <- setdiff(tolower(sets$qualifier_list), valid_qual)
-    .cli_action(load_err$invalid_set_qual,
+    .cli_action(model_err$invalid_set_qual,
       action = "abort",
       call = call
     )
@@ -155,8 +155,8 @@
     pattern = sets$definition
   )
 
-  if (any(!"" %in% sets$remainder)) {
-    .cli_action(load_err$set_parse_fail,
+  if (any(sets$remainder != "")) {
+    .cli_action(model_err$set_parse_fail,
       action = "abort",
       call = call,
       .internal = TRUE
@@ -172,10 +172,16 @@
       )) >= 2
     }
   ))) {
-    .cli_action(load_err$set_op_fail,
-      action = c("abort", "inform"),
+    .cli_action(model_err$set_op_fail,
+      action = c("abort", "inform", "inform"),
       call = call
     )
+  }
+  
+  if (any(grepl(":", sets$definition))) {
+    .cli_action(model_err$binary_switch,
+                action = c("abort", "inform", "inform"),
+                call = call)
   }
 
   lapply(sets$definition, function(entry) {
@@ -186,8 +192,8 @@
         ignore.case = TRUE
       ))) {
         if (grepl(pattern = "=", x = entry)) {
-          .cli_action(load_err$identical_set_fail,
-            action = c("abort", "inform"),
+          .cli_action(model_err$identical_set_fail,
+            action = c("abort", "inform", "inform"),
             call = call
           )
         }
@@ -248,7 +254,7 @@
   r_idx <- match(sets$name, subsets$set)
   sets$subsets <- subsets$subset[r_idx]
 
-  for (i in 1:nrow(sets)) {
+  for (i in seq_len(nrow(sets))) {
     nm <- sets$name[i]
     o <- sets$operator[i]
     c1 <- sets$comp1[i]
@@ -287,12 +293,6 @@
     }
   }
 
-  if (any(grepl(":", sets$definition))) {
-    .cli_action(model_err$binary_switch,
-                action = "abort",
-                call = call)
-  }
-  
   sets$ls_upper_idx <- NA
   sets$ls_mixed_idx <- NA
   sets <- sets[, c("type",

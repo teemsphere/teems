@@ -13,7 +13,7 @@ ems_aux(dat = NULL, par = NULL, set = NULL)
 \item{par}{Auxiliary inputs for parameters coefficients
 (default \code{NULL}).}
 
-\item{set}{Auxiliary inputs for sets (default \code{NULL}).}
+\item{set}{Under development. Auxiliary inputs for sets (default \code{NULL}).}
 }
 \value{
 A list object ready for input into the \code{"aux_input"}
@@ -26,12 +26,12 @@ into the \code{ems_data()} function.
 \section{Input structure}{
  CSV inputs must contain all tuples
 associated with an unaggregated header. These will be
-subject to checks and aggregated according to data type and set mappings
-provided in \code{\link[=ems_data]{ems_data()}}.
+subject to checks and aggregated according to data type and
+set mappings provided in \code{\link[=ems_data]{ems_data()}}.
 \itemize{
-\item \code{"dat"} Inputs undergo simple sum aggregation.
-\item \code{"par"} Inputs undergo mean aggregation.
-\item \code{"set"} Inputs are subsetted.
+\item \code{"dat"} inputs undergo simple sum aggregation.
+\item \code{"par"} inputs undergo mean aggregation or weighted mean aggregation.
+\item \code{"set"} Under development. Inputs will be subsetted.
 }
 }
 
@@ -51,8 +51,29 @@ a GTAP header array file.
 }
 
 \examples{
-# example code
+\dontrun{
+# unaggregated REG and TRAD_COMM sets
+.data <- ems_data(dat_input = "path/to/v6_data/v10A/flexagg10AY14/gsddat.har",
+                  par_input = "path/to/v6_data/v10A/flexagg10AY14/gsdpar.har",
+                  set_input = "path/to/v6_data/v10A/flexagg10AY14/gsdset.har",
+                  REG = "full",
+                  TRAD_COMM = "full",
+                  ENDW_COMM = "labor_agg")
 
+POP <- .data$POP
+SUBP <- .data$SUBP
+
+# new values
+POP$Value <- POP$Value * 1.5
+SUBP$Value <- runif(nrow(SUBP))
+
+# an auxiliary HAR file
+aux_har_file <- "/path/to/auxiliary_har/GDYNflexagg10A_Y14/gdpextra.har"
+
+# load according to data type
+aux_input <- ems_aux(dat = list(POP = POP),
+                     par = list(SUBP = SUBP, "/home/mpc/dat/GDYN/GDYNflexagg10A_Y14/gdpextra.har"))
+}
 }
 \seealso{
 \code{\link[=ems_data]{ems_data()}} for using the output of this function.

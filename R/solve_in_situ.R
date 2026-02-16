@@ -43,7 +43,7 @@
 #'
 #'@export
 solve_in_situ <- function(...,
-                          model_file,
+                          model_input,
                           closure_file,
                           shock_file,
                           n_tasks = 1L,
@@ -61,8 +61,8 @@ solve_in_situ <- function(...,
                           writeout = FALSE)
 {
 call <- match.call()
-if (missing(model_file)) {
-  .cli_missing(model_file)
+if (missing(model_input)) {
+  .cli_missing(model_input)
 }
 if (missing(closure_file)) {
   .cli_missing(closure_file)
@@ -77,7 +77,7 @@ input_files <- list(...)
 cmf_path <- .in_situ_cmf(
   input_files = input_files,
   n_timesteps = n_timesteps,
-  tab_file = tab_file,
+  model_input = model_input,
   closure_file = closure_file,
   shock_file = shock_file,
   writeout = writeout,
@@ -100,15 +100,18 @@ ems_solve(
   n_timesteps = n_timesteps
 )
 
-if (!suppress_outputs && !writeout) {
-  output <- ems_compose(
-    cmf_path = cmf_path,
-    type = "variable",
-    minimal = TRUE
-  )
-} else if (!suppress_outputs && writeout) {
-  output <- ems_compose(cmf_path = cmf_path)
+if (!suppress_outputs) {
+  if (!writeout) {
+    output <- ems_compose(
+      cmf_path = cmf_path,
+      type = "variable",
+      minimal = TRUE
+    )
+  } else {
+    output <- ems_compose(cmf_path = cmf_path)
+  }
+} else {
+  output <- cmf_path
 }
-
 return(output)
 }

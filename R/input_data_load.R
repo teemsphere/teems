@@ -20,7 +20,7 @@
   if (metadata$data_format %=% target_format) {
     .cli_action(data_wrn$unnecessary_cvrt,
       action = "warn",
-      data_call = data_call
+      call = data_call
     )
   }
   par <- .read_input(
@@ -34,30 +34,6 @@
     metadata = metadata
   )
 
-  if (!inherits(dat, "dat")) {
-    inferred_type <- attr(dat, "data_type")
-    .cli_action(data_err$invalid_dat_har,
-                action = "abort",
-                call = data_call
-    )
-  }
-  
-  if (!inherits(par, "par")) {
-    inferred_type <- attr(par, "data_type")
-    .cli_action(data_err$invalid_par_har,
-                action = "abort",
-                call = data_call
-    )
-  }
-  
-  if (!inherits(set, "set")) {
-    inferred_type <- attr(set, "data_type")
-    .cli_action(data_err$invalid_set_har,
-                action = "abort",
-                call = data_call
-    )
-  }
-  
   i_data <- c(set, par, dat)
   
   if (!is.null(aux_input)) {

@@ -4,7 +4,8 @@
 #' @keywords internal
 .check_closure <- function(closure,
                            var_omit,
-                           var_extract) {
+                           var_extract,
+                           call) {
   closure <- closure[!grepl("!", closure)]
   temp <- gsub("\\([^)]*\\)", "", closure)
 

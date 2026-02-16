@@ -1,16 +1,18 @@
-#' @importFrom purrr pluck
+#' @importFrom purrr map_lgl
+#' @importFrom tools file_path_sans_ext
+#' 
 #' @keywords internal
 #' @noRd
 .in_situ_cmf <- function(input_files,
                          n_timesteps,
-                         tab_file,
+                         model_input,
                          shock_file,
                          closure_file,
                          writeout,
                          write_dir,
                          call) {
   model_file <- .check_input(
-    file = model_file,
+    file = model_input,
     valid_ext = "tab",
     call = call
   )

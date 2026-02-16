@@ -10,7 +10,8 @@
 
   closure <- .classify_cls(
     closure = closure,
-    sets = sets
+    sets = sets,
+    call = call
   )
 
   closure <- lapply(closure,

@@ -34,7 +34,7 @@
                                i_data,
                                ...) {
   v6col <- coeff_conversion[coeff_conversion$GTAPv7header %in% class(input)[[1]], "GTAPv6set"]
-  if (!length(v6col) %=% 0L) {
+  if (length(v6col) %!=% 0L) {
     v6col <- v6col[[1]]
   } else {
     v6col <- NULL
@@ -52,7 +52,7 @@
 
     drop_dim <- cnvrt_dim_names[!cnvrt_dim_names %in% v6col]
 
-    if (!drop_dim %=% character(0)) {
+    if (drop_dim %!=% character(0)) {
       input <- apply(input,
         which(!orig_dim_names %in% drop_dim),
         FUN = unique

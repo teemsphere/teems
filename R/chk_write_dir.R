@@ -6,7 +6,7 @@
                              call) {
 
   subdir <- .o_write_sub_dir()
-  if (!write_dir %=% tools::R_user_dir("teems", "cache")) {
+  if (write_dir %!=% tools::R_user_dir("teems", "cache")) {
     write_dir <- normalizePath(write_dir)
     if (!dir.exists(write_dir)) {
       .cli_action(deploy_err$invalid_write_dir,

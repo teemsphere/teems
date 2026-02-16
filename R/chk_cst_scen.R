@@ -1,5 +1,5 @@
 #' @importFrom purrr pluck
-#' @importFrom data.table fread setcolorder fwrite
+#' @importFrom data.table setcolorder
 #' 
 #' @noRd
 #' @keywords internal
@@ -45,7 +45,7 @@
     )
   }
 
-  if (!set_check %=% shock$set) {
+  if (set_check %!=% shock$set) {
     data.table::setcolorder(shock$input, c(set_check, "Value"))
     shock$set <- set_check
   }

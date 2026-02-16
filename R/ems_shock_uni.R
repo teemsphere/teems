@@ -44,10 +44,8 @@ ems_shock.uniform <- function(var,
     subset <- list(...)
     if (length(subset) > 0 && (is.null(names(subset)) || any(names(subset) == ""))) {
       .cli_action(shk_err$uni_named_lst,
-        shk_infm$uni_named_lst,
-        action = "abort",
-        url = shk_url$type,
-        hyperlink = NULL
+        shk_err$uni_named_lst,
+        action = "abort"
       )
     }
   } else {

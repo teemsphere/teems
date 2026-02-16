@@ -50,7 +50,23 @@ list(
       "levels"
     )
   }),
-
+  tar_target(supported_state, {
+    c(
+      "File", "Coefficient", "Read", "Update", "Set", "Subset",
+      "Formula", "Assertion", "Variable", "Equation", "Write",
+      "Zerodivide"
+    )
+  }),
+  tar_target(ignored_state, {
+    c(
+      "Postsim"
+    )
+  }),
+  tar_target(invalid_state, {
+    c(
+      "Omit", "Loop", "Display", "Substitute", "Break", "Mapping", "Backsolve", "Cycle", "Complementarity", "Transfer"
+    )
+  }),
   # parameter related ------------------------------------------------
   # static ===========================================================
   tar_target(GTAPv6_weights, {
@@ -186,62 +202,49 @@ list(
     rbind(dat_conversion, param_conversion)
   }),
   # messages (definitions in data-raw/R/msg_*.R) -------------------------
-  tar_target(gen_err, build_gen_err()),
-  tar_target(gen_wrn, build_gen_wrn()),
-  tar_target(gen_info, build_gen_info()),
-  tar_target(gen_url, build_gen_url()),
-  tar_target(data_err, build_data_err()),
-  tar_target(data_wrn, build_data_wrn()),
-  tar_target(load_err, build_load_err()),
-  tar_target(model_wrn, build_model_wrn()),
-  tar_target(model_err, build_model_err()),
-  tar_target(deploy_err, build_deploy_err()),
-  tar_target(set_err, build_set_err()),
-  tar_target(set_wrn, build_set_wrn()),
-  tar_target(cls_err, build_cls_err()),
-  tar_target(shk_err, build_shk_err()),
-  tar_target(shk_infm, build_shk_infm()),
-  tar_target(shk_url, build_shk_url()),
-  tar_target(swap_err, build_swap_err()),
-  tar_target(solve_err, build_solve_err()),
-  tar_target(solve_wrn, build_solve_wrn()),
-  tar_target(solve_info, build_solve_info()),
-  tar_target(compose_err, build_compose_err()),
   tar_target(aux_err, build_aux_err()),
   tar_target(aux_wrn, build_aux_wrn()),
+  tar_target(cls_err, build_cls_err()),
+  tar_target(compose_err, build_compose_err()),
+  tar_target(data_err, build_data_err()),
+  tar_target(data_info, build_data_info()),
+  tar_target(data_wrn, build_data_wrn()),
+  tar_target(deploy_err, build_deploy_err()),
+  tar_target(gen_err, build_gen_err()),
+  tar_target(model_err, build_model_err()),
+  tar_target(model_wrn, build_model_wrn()),
+  tar_target(shk_err, build_shk_err()),
+  tar_target(solve_err, build_solve_err()),
+  tar_target(solve_info, build_solve_info()),
+  tar_target(solve_wrn, build_solve_wrn()),
+  tar_target(swap_err, build_swap_err()),
   # internal data ====================================================
   tar_target(internal_data, {
     usethis::use_data(
       mappings,
       tab_qual,
+      supported_state,
+      ignored_state,
+      invalid_state,
       param_weights,
       set_conversion,
       coeff_conversion,
       aux_err,
-      gen_info,
-      gen_wrn,
-      gen_err,
-      gen_url,
-      data_wrn,
-      data_err,
-      model_wrn,
-      model_err,
-      load_err,
-      deploy_err,
-      shk_err,
-      swap_err,
-      set_err,
-      cls_err,
-      shk_infm,
-      shk_url,
-      solve_err,
-      solve_wrn,
-      solve_info,
-      compose_err,
-      aux_err,
       aux_wrn,
-      # check_wrn,
-      # check_err,
+      cls_err,
+      compose_err,
+      data_err,
+      data_info,
+      data_wrn,
+      deploy_err,
+      gen_err,
+      model_err,
+      model_wrn,
+      shk_err,
+      solve_err,
+      solve_info,
+      solve_wrn,
+      swap_err,
       overwrite = TRUE,
       internal = TRUE
     )

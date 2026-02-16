@@ -2,7 +2,9 @@
 #' 
 #' @keywords internal
 #' @noRd
-.retrieve_output <- function(type,
+.retrieve_output <- function(var_tbl,
+                             var_data,
+                             type,
                              comp_extract,
                              name,
                              paths,
@@ -17,12 +19,10 @@
   output <- list()
 
   if (compose_variable) {
-    var_union <- parsed$var_union
-
     output$variable <- .compose_var(
-      xc = parsed$xc,
+      data_dt = var_data,
       var_extract = comp_extract$variable,
-      vars = var_union,
+      vars = var_tbl,
       sets = sets,
       time_steps = time_steps,
       minimal = minimal,

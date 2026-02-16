@@ -6,7 +6,7 @@
 \usage{
 solve_in_situ(
   ...,
-  model_file,
+  model_input,
   closure_file,
   shock_file,
   n_tasks = 1L,
@@ -33,6 +33,13 @@ checks or modifications are conducted on input files used in
 this manner. All model declared input files as well as
 \code{"model_file"}, \code{"closure_file"}, and \code{"shock_file"} are
 required for in-situ model runs.}
+
+\item{model_input}{Input containing the model. Character
+vector of length 1, file name in working directory or path
+to a .tab file. See
+\href{https://github.com/teems-org/teems-models}{teems-models}
+for vetted model inputs and compatible Tablo file
+formatting.}
 
 \item{closure_file}{A character of length 1 (default is
 \code{NULL}). File name in working directory or path to a ".cls"
@@ -112,6 +119,8 @@ prior to running from the terminal.}
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
 into structured data with \code{\link{ems_compose}}.}
+
+\item{n_timesteps}{Integer length 1 (deafultl is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 
 \item{write_dir}{Character of length 1 (default is
 \code{tools::R_user_dir("teems", "cache")}), base directory where

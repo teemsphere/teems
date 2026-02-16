@@ -1,3 +1,5 @@
+#' @importFrom tools file_path_sans_ext
+#' 
 #' @keywords internal
 #' @noRd
 .get_output_paths <- function(cmf_path,

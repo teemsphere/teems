@@ -1,4 +1,4 @@
-#' @keywords keyword
+#' @keywords internal
 #' @noRd
 .out_mkdir <- function(write_dir,
                        sets = TRUE,

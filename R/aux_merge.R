@@ -1,4 +1,4 @@
-#' @importFrom purrr pwalk map_lgl map_chr
+#' @importFrom purrr map_lgl map_chr
 #' @keywords internal
 #' @noRd
 .merge_aux <- function(aux_input,
@@ -17,32 +17,28 @@
       chk_dimnames <- dimnames(i_data[as.logical(inherits(input, names(i_data), TRUE))][[1]])
       chk_nme_dimnames <- names(chk_dimnames)
 
-      if (!dim %=% chk_dim) {
+      if (dim %!=% chk_dim) {
         .cli_action(aux_err$x_dim,
           action = c("abort", "inform"),
-          call = aux_call
+          call = data_call
         )
       }
 
-      purrr::pwalk(
-        list(
-          dimnames,
-          chk_dimnames,
-          nme_dimnames
-        ),
-        function(i_d, c_d, nme) {
-          if (!all(c_d %in% i_d)) {
-            missing_nme <- setdiff(c_d, i_d)
-            name <- nme
-            .cli_action(aux_err$missing_dimname,
-              action = c("abort", "inform"),
-              call = aux_call
-            )
-          }
+      for (idx in seq_along(dimnames)) {
+        i_d <- dimnames[[idx]]
+        c_d <- chk_dimnames[[idx]]
+        nme <- nme_dimnames[[idx]]
+        if (!all(c_d %in% i_d)) {
+          missing_nme <- setdiff(c_d, i_d)
+          name <- nme
+          .cli_action(aux_err$missing_dimname,
+            action = c("abort", "inform"),
+            call = data_call
+          )
         }
-      )
+      }
 
-      if (!nme_dimnames %=% chk_nme_dimnames) {
+      if (nme_dimnames %!=% chk_nme_dimnames) {
         odd_name <- setdiff(nme_dimnames, chk_nme_dimnames)
         presumed_name <- chk_nme_dimnames[match(odd_name, nme_dimnames)]
         .cli_action(aux_wrn$nme_dimnames,
@@ -59,7 +55,8 @@
       rec_set_names <- setdiff(purrr::map_chr(rec_sets, \(s) {
         class(s)[[2]]
       }), "set")
-      nme_dimnames <- purrr::map_chr(nme_dimnames, \(s) {
+      for (idx in seq_along(nme_dimnames)) {
+        s <- nme_dimnames[[idx]]
         s_input <- dimnames[[s]]
         if (s %in% rec_set_names) {
           s_chk <- rec_sets[purrr::map_lgl(rec_sets, inherits, s)][[1]]
@@ -92,10 +89,10 @@
             )
           }
         }
-        return(s)
-      })
+        nme_dimnames[[idx]] <- s
+      }
 
-      if (!names(dimnames(input)) %=% nme_dimnames && !nme_dimnames %=% character(0)) {
+      if (names(dimnames(input)) %!=% nme_dimnames && nme_dimnames %!=% character(0)) {
         names(dimnames(input)) <- nme_dimnames
       }
       # get datatype from dat

@@ -47,6 +47,7 @@
 #' @method .names_rename set
 #' @keywords internal
 #' @noRd
+#' @export
 .names_rename.set <- function(input) {
 
   origin <- class(input)[4]

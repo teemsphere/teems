@@ -1,4 +1,4 @@
-#' Specificy shocks
+#' Specify shocks
 #'
 #' @importFrom rlang arg_match
 #'

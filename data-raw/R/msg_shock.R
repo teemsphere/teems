@@ -22,7 +22,7 @@ build_shk_err <- function() {
       "Valid elements with the current mapping include: {.val {recognized_ele}}."
     ),
     x_part_exo = "The following tuples have been allocated a shock but are not exogenous: {.field {errant_tup}}.",
-    cust_invalid_year = "{n_errant_year_tuples} tuple{?s} in the provided custom shock file contain invalid {.field Year} specifications: {.field {errant_year_tuples}}.",
+    invalid_year = "{n_errant_year_tuples} tuple{?s} in the provided {class(shk)[[1]]} shock contain invalid {.field Year} specifications: {.field {errant_year_tuples}}.",
     cust_invalid_tup = "Some tuples provided to a {.arg custom} shock indicate elements used that do not belong to their respective sets: {.field {errant_tuples}}.",
     cust_endo_tup = "Some tuples designated for a shock do not have exogenous status: {.field {x_exo_parts}}.",
     scen_dynamic = "Shock type {.arg scenario} is only valid for temporally dynamic models.",
@@ -30,20 +30,7 @@ build_shk_err <- function() {
       "{n_missing_tuples} tuple{?s} in the provided scenario shock file were missing: {.field {missing_tuples}}.",
       "Note that scenario shocks are subject to aggregation and must contain all unaggregated database- and variable-specific elements for associated sets."
     ),
-    shk_file_shocks = "No additional shocks are accepted if a shock file is provided."
-  )
-}
-
-build_shk_infm <- function() {
-  list(
+    shk_file_shocks = "No additional shocks are accepted if a shock file is provided.",
     uni_named_lst = "Note that set names consist of the concatenation of the set name and variable-specific lowercase index."
-  )
-}
-
-build_shk_url <- function() {
-  list(
-    custom = NULL,
-    scenario = NULL,
-    uniform = NULL
   )
 }

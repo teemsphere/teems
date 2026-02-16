@@ -90,7 +90,6 @@
   writeLines(input,
     con = write_path
   )
-  class(write_path) <- "cmf"
   return(write_path)
 }
 

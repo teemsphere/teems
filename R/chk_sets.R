@@ -3,15 +3,16 @@
 #' 
 #' @keywords internal
 #' @noRd
-.check_sets <- function(parsed,
+.check_sets <- function(sets,
+                        set_ele,
                         model_dir,
                         set_path,
                         minimal,
                         call) {
-  sets <- parsed$set_union
-  sets <- .match_set_ele_parsed(
+
+  sets <- .match_set_ele(
     sets_out = sets,
-    setele_dt = parsed$setele
+    setele_dt = set_ele
   )
 
   if (!minimal) {

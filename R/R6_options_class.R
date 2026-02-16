@@ -140,79 +140,57 @@ options_class <- R6::R6Class(
     
     # Setter methods with validation
     set_verbose = function(verbose) {
-      if (!is.null(verbose)) {
-        self$validate_verbose(verbose)
-      }
+      self$validate_verbose(verbose)
       self$verbose <- verbose
     },
-    
+
     set_ndigits = function(ndigits) {
-      if (!is.null(ndigits)) {
-        self$validate_ndigits(ndigits)
-      }
+      self$validate_ndigits(ndigits)
       self$ndigits <- ndigits
     },
-    
+
     set_check_shock_status = function(check_shock_status) {
-      if (!is.null(check_shock_status)) {
-        self$validate_check_shock_status(check_shock_status)
-      }
+      self$validate_check_shock_status(check_shock_status)
       self$check_shock_status <- check_shock_status
     },
 
     set_timestep_header = function(timestep_header) {
-      if (!is.null(timestep_header)) {
-        self$validate_timestep_header(timestep_header)
-      }
+      self$validate_timestep_header(timestep_header)
       self$timestep_header <- timestep_header
     },
 
     set_n_timestep_header = function(n_timestep_header) {
-      if (!is.null(n_timestep_header)) {
-        self$validate_n_timestep_header(n_timestep_header)
-      }
+      self$validate_n_timestep_header(n_timestep_header)
       self$n_timestep_header <- n_timestep_header
     },
-    
+
     set_full_exclude = function(full_exclude) {
-      if (!is.null(full_exclude)) {
-        self$validate_full_exclude(full_exclude)
-      }
+      self$validate_full_exclude(full_exclude)
       self$full_exclude <- full_exclude
     },
-    
+
     set_docker_tag = function(docker_tag) {
-      if (!is.null(docker_tag)) {
-        self$validate_docker_tag(docker_tag)
-      }
+      self$validate_docker_tag(docker_tag)
       self$docker_tag <- docker_tag
     },
-    
+
     set_margin_sectors = function(margin_sectors) {
-      if (!is.null(margin_sectors)) {
-        self$validate_margin_sectors(margin_sectors)
-      }
+      self$validate_margin_sectors(margin_sectors)
       self$margin_sectors <- margin_sectors
     },
-    
+
     set_accuracy_threshold = function(accuracy_threshold) {
-      if (!is.null(accuracy_threshold)) {
-        self$validate_accuracy_threshold(accuracy_threshold)
-      }
+      self$validate_accuracy_threshold(accuracy_threshold)
       self$accuracy_threshold <- accuracy_threshold
     },
-    
+
     set_expand_ETRE = function(expand_ETRE) {
-      if (!is.null(expand_ETRE)) {
-        self$validate_expand_ETRE(expand_ETRE)
-      }
+      self$validate_expand_ETRE(expand_ETRE)
       self$expand_ETRE <- expand_ETRE
     },
-    
+
     set_write_sub_dir = function(write_sub_dir) {
-      if (!is.null(write_sub_dir)) {
-        self$validate_write_sub_dir(write_sub_dir)
-      }
+      self$validate_write_sub_dir(write_sub_dir)
       self$write_sub_dir <- write_sub_dir
     },
     
@@ -236,13 +214,13 @@ options_class <- R6::R6Class(
     },
     
     validate_timestep_header = function(timestep_header) {
-      if (!is.character(timestep_header) || !toupper(timestep_header) %=% timestep_header) {
+      if (!is.character(timestep_header) || toupper(timestep_header) %!=% timestep_header) {
         cli::cli_abort("{.arg timestep_header} must be an upper case character vector.")
       }
     },
     
     validate_n_timestep_header = function(n_timestep_header) {
-      if (!is.character(n_timestep_header) || !toupper(n_timestep_header) %=% n_timestep_header) {
+      if (!is.character(n_timestep_header) || toupper(n_timestep_header) %!=% n_timestep_header) {
         cli::cli_abort("{.arg n_timestep_header} must be an upper case character vector.")
       }
     },
@@ -266,7 +244,7 @@ options_class <- R6::R6Class(
     },
     
     validate_accuracy_threshold = function(accuracy_threshold) {
-      if (!is.numeric(accuracy_threshold) && accuracy_threshold <= 1) {
+      if (!is.numeric(accuracy_threshold) || accuracy_threshold > 1) {
         cli::cli_abort("{.arg accuracy_threshold} must be a numeric less than or equal to 1.")
       }
     },
@@ -329,31 +307,5 @@ options_new <- function(verbose = NULL,
   )
 }
 
-options_init <- function(verbose = NULL,
-                         ndigits = NULL,
-                         check_shock_status = NULL,
-                         timestep_header = NULL,
-                         n_timestep_header = NULL,
-                         full_exclude = NULL,
-                         docker_tag = NULL,
-                         margin_sectors = NULL,
-                         accuracy_threshold = NULL,
-                         expand_ETRE = NULL,
-                         write_sub_dir = NULL) {
-  options_new(
-    verbose = verbose,
-    ndigits = ndigits,
-    check_shock_status = check_shock_status,
-    timestep_header = timestep_header,
-    n_timestep_header = n_timestep_header,
-    full_exclude = full_exclude,
-    docker_tag = docker_tag,
-    margin_sectors = margin_sectors,
-    accuracy_threshold = accuracy_threshold,
-    expand_ETRE = expand_ETRE,
-    write_sub_dir = write_sub_dir
-  )
-}
-
 # Create the global options object (like tar_options)
-ems_options <- options_init()
+ems_options <- options_new()

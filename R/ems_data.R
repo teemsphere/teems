@@ -17,15 +17,12 @@
 #'   files.
 #' @param time_steps Integer vector of variable length with
 #'   initial value 0 or reference year corresponding to database
-#'   employed (default is `NULL`). Input format can be either the
-#'   chronological years of steps including initial reference
-#'   year or steps from t0.
-#' @param aux_input Object created with [`ems_aux()`], (default is
-#'   `NULL`), file name in working directory or path to a data
-#'   input containing auxiliary coefficient data. Coefficients
-#'   will be sorted into parameter and non-parameter lists.
-#'   Currently supports GTAP HAR files and objects generated from
-#'   the [`ems_aux()`] function.
+#' employed (default is `NULL`). Input format can be either the
+#' chronological years of steps including initial reference year
+#' or steps from t0.
+#' @param aux_input List created with [`ems_aux()`], (default is
+#'   `NULL`). Auxiliary data to be loaded either to replace
+#'   existing headers or as additional headers.
 #' @param target_format Character vector of length 1 (default is
 #'   `NULL`). If not `NULL`, data will be converted to the target
 #'   format. Currently supports "GTAPv6" and "GTAPv7".
@@ -47,6 +44,7 @@
 #' @return A list of data tables ready for input into the
 #'   `"data"` argument of [`ems_deploy()`]
 #'
+#' @seealso [`ems_aux()`] preparing auxiliary input data.
 #' @seealso [`ems_deploy()`] for using the output of this
 #'   function.
 #' 

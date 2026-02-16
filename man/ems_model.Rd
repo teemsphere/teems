@@ -7,20 +7,12 @@
 ems_model(model_input, closure_file, var_omit = NULL, ...)
 }
 \arguments{
-\item{model_input}{Input containing the model. The model input
-can be selected from vetted internal models or provided by
-the user.
-\itemize{
-\item Internal model: an exported data object corresponding to an
-internally available model
-\item User-provided model: Character vector of length 1, file
-name in working directory or path to a .tab file.
-}
-
-See
+\item{model_input}{Input containing the model. Character
+vector of length 1, file name in working directory or path
+to a .tab file. See
 \href{https://github.com/teems-org/teems-models}{teems-models}
-for internally available model inputs and compatible Tablo
-file formatting.}
+for vetted model inputs and compatible Tablo file
+formatting.}
 
 \item{closure_file}{A character of length 1 (default is
 \code{NULL}). File name in working directory or path to a ".cls"
@@ -49,10 +41,10 @@ columns) as well as a "Value" column with new values. This
 replacement will be subject to structure checks according to
 set aggregations specified in \code{\link[=ems_data]{ems_data()}}.
 
-Note that set names must be provided as the model-specific
-concatenation of the standard set name plus the
-variable-specific index. For example, the standard set name
-"REG" with subindex "r" would be "REGr".}
+Note that set names in any loaded data must be provided as
+the model-specific concatenation of the standard set name
+plus the variable-specific index. For example, the standard
+set name "REG" with subindex "r" would be "REGr".}
 }
 \value{
 A tibble with attributes containing the parsed model
@@ -60,29 +52,24 @@ input for use within the \code{"model"} argument of
 \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_model} is a generic function that loads
-general model specifications, conducts pre-pipeline checks,
-and determines temporal dynamics. The output of this
-function is a required input to the \code{"model"} argument of
-the \code{\link[=ems_deploy]{ems_deploy()}} function.
+\code{ems_model} loads the model and its closure,
+conducts pre-deployment checks, determines temporal
+dynamics, and allows for the loading of aggregated data. The
+output of this function is a required input to the \code{"model"}
+argument of the \code{\link[=ems_deploy]{ems_deploy()}} function.
 }
 \examples{
-temp_dir <- tools::R_user_dir(package = "teems", "data")
-if (!dir.exists(temp_dir)) {
-  dir.create(temp_dir)
-}
-file.copy(c(teems_example(path = "GTAP_RE.tab"),
-            teems_example(path = "GTAP_RE.cls"),
-            teems_example(path = "GTAPv7.tab"),
-            teems_example(path = "GTAPv7.cls")),
-          temp_dir)
-
 # simple model load
-model <- ems_model(model_input = file.path(temp_dir, "GTAPv7.tab"),
-                   closure_file = file.path(temp_dir, "GTAPv7.cls"))
+model_input <- ems_example("GTAPv7.tab",file.path("models", "GTAPv7"))
+closure_file <- ems_example("GTAPv7.cls",file.path("models", "GTAPv7"))
+model <- ems_model(model_input = model_input,
+                   closure_file = closure_file)
 
-# model load with variable omission and uniformly applied value to
-# KAPPA coefficient and heterogeneous values allocated to SUBPAR
+# model load with variable omission
+# uniform numeric value applied to KAPPA coefficient
+# heterogeneous values allocated to SUBPAR via data frame
+model_input <- ems_example("GTAP_RE.tab",file.path("models", "GTAP_RE"))
+closure_file <- ems_example("GTAP_RE.cls",file.path("models", "GTAP_RE"))
 COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")
 REGr <- c("usa", "chn", "row")
 ALLTIMEt <- seq_len(5)
@@ -91,12 +78,11 @@ SUBPAR <- expand.grid(COMMc = COMMc,
                       REGr = REGr,
                       ALLTIMEt = ALLTIMEt)
 SUBPAR$Value <- runif(nrow(SUBPAR))
-model <- ems_model(model_input = file.path(temp_dir, "GTAP_RE.tab"),
-                   closure_file = file.path(temp_dir, "GTAP_RE.cls"),
+model <- ems_model(model_input = model_input,
+                   closure_file = model_input,
                    var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
                    KAPPA = 0.03,
                    SUBPAR = SUBPAR)
-unlink(temp_dir)
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this

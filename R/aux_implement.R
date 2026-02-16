@@ -2,6 +2,21 @@
 #' @noRd
 .implement_aux <- function(args_list,
                            call) {
+  
+  if (all(is.null(args_list$dat),
+          is.null(args_list$par),
+          is.null(args_list$set))) {
+    .cli_action(aux_err$no_inputs,
+                action = "abort",
+                call = call)
+  }
+  
+  if (!is.null(args_list$set)) {
+    .cli_action(aux_err$beta_set,
+                action = "abort",
+                call = call)
+  }
+  
   v <- .validate_aux_args(
     a = args_list,
     call = call
@@ -20,11 +35,11 @@
     call = call
   )
 
-  aux$set <- .load_aux(
-    aux = v$set,
-    data_type = "set",
-    call = call
-  )
+  # aux$set <- .load_aux(
+  #   aux = v$set,
+  #   data_type = "set",
+  #   call = call
+  # )
 
   aux <- unlist(aux, recursive = F, use.names = FALSE)
   attr(aux, "call") <- call

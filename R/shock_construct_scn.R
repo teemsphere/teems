@@ -14,21 +14,17 @@
                                       ...) {
   # NSE
   Value <- NULL
-  
-  value <- raw_shock$input
-  value <- value[value$Year %in% attr(sets, "CYRS")$Value]
-  int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
-  list2env(.year2time_set(raw_shock = raw_shock,
-                          sets = sets,
-                          value = value,
-                          int_set_names = int_set_names,
-                          call = call),
-           envir = environment())
 
-
-  set_ele <- purrr::map(with(sets$mapping, mget(raw_shock$ls_upper)), 1)
+  set_ele <- with(sets$ele, mget(raw_shock$ls_upper))
   template_shk <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
-  data.table::setnames(template_shk, new = raw_shock$ls_mixed)
+  data.table::setnames(template_shk, new = raw_shock$ls_upper)
+  value <- raw_shock$input
+  
+  class(value) <- c("dat", class(value))
+  data.table::setnames(value, raw_shock$ls_mixed, raw_shock$ls_upper)
+  value <- .aggregate_data(dt = value,
+                           sets = sets$mapping,
+                           ndigits = .o_ndigits())
   
   if (.o_check_shock_status()) {
     if (!data.table::fsetequal(template_shk, value[, !"Value"])) {
@@ -43,13 +39,8 @@
     }
   }
 
-  class(value) <- c("dat", class(value))
-  data.table::setnames(value, raw_shock$ls_mixed, raw_shock$ls_upper)
-  value <- .aggregate_data(dt = value,
-                           sets = sets$mapping,
-                           ndigits = .o_ndigits())
-
   # some grep should be which
+  int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
   int_col <- which(colnames(value) %in% int_set_names)
   data.table::setnames(value, raw_shock$ls_upper, raw_shock$ls_mixed)
   non_int_col <- colnames(value)[-c(int_col, ncol(value))]

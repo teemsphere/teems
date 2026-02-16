@@ -1,10 +1,10 @@
 #' @importFrom purrr map map2
-#' @importFrom data.table data.table CJ setnames fread setkey
-#' @importFrom tibble tibble
+#' @importFrom data.table data.table CJ setnames setkeyv
+#' @importFrom tibble tibble add_column
 #' 
 #' @keywords internal
 #' @noRd
-.compose_var <- function(xc,
+.compose_var <- function(data_dt,
                          var_extract,
                          vars,
                          sets,
@@ -48,10 +48,8 @@
 
   names(vars$dt) <- vars$cofname
 
-  data_dt <- xc
-
   if (!all(lapply(vars$dt, nrow) == vars$matsize) ||
-    !sum(unlist(lapply(vars$dt, nrow))) %=% nrow(data_dt)) {
+    sum(unlist(lapply(vars$dt, nrow))) %!=% nrow(data_dt)) {
     .cli_action(compose_err$idx_mismatch,
       action = "abort",
       .internal = TRUE,
@@ -122,7 +120,7 @@
       data_dt,
       var_extract$ls_mixed_idx,
       function(dt, mixed_col) {
-        if (!mixed_col %=% NA_character_) {
+        if (mixed_col %!=% NA_character_) {
           data.table::setnames(dt, new = c(mixed_col, "Value"))
           data.table::setkeyv(dt, cols = mixed_col)
         } else {

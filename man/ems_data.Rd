@@ -33,15 +33,12 @@ files.}
 \item{time_steps}{Integer vector of variable length with
 initial value 0 or reference year corresponding to database
 employed (default is \code{NULL}). Input format can be either the
-chronological years of steps including initial reference
-year or steps from t0.}
+chronological years of steps including initial reference year
+or steps from t0.}
 
-\item{aux_input}{Object created with \code{\link[=ems_aux]{ems_aux()}}, (default is
-\code{NULL}), file name in working directory or path to a data
-input containing auxiliary coefficient data. Coefficients
-will be sorted into parameter and non-parameter lists.
-Currently supports GTAP HAR files and objects generated from
-the \code{\link[=ems_aux]{ems_aux()}} function.}
+\item{aux_input}{List created with \code{\link[=ems_aux]{ems_aux()}}, (default is
+\code{NULL}). Auxiliary data to be loaded either to replace
+existing headers or as additional headers.}
 
 \item{target_format}{Character vector of length 1 (default is
 \code{NULL}). If not \code{NULL}, data will be converted to the target
@@ -120,6 +117,8 @@ int_data <- ems_data(dat_input = "path/to/v7_data/v11c/flexAgg11c17/gsdfdat.har"
 }           
 }
 \seealso{
+\code{\link[=ems_aux]{ems_aux()}} preparing auxiliary input data.
+
 \code{\link[=ems_deploy]{ems_deploy()}} for using the output of this
 function.
 }

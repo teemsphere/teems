@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 .read_input <- function(input,
                         data_type,
                         metadata = NULL,

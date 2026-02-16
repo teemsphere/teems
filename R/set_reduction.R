@@ -1,6 +1,3 @@
-#' @importFrom data.table fsetdiff copy fsetequal `:=`
-#' @importFrom purrr list_flatten map2_lgl compact map_chr
-#' 
 #' @keywords internal
 #' @noRd
 .reduce2sets <- function(preswap,
@@ -9,6 +6,9 @@
   UseMethod(".reduce2sets")
 }
 
+#' @importFrom data.table fsetdiff copy fsetequal `:=`
+#' @importFrom purrr list_flatten map2_lgl compact map_chr
+#' 
 #' @method .reduce2sets default
 #' @export
 .reduce2sets.default <- function(preswap,
@@ -111,7 +111,10 @@
   return(reduced_entry)
 }
 
-
+#' @importFrom data.table fsetequal
+#' 
+#' @noRd
+#' @keywords internal
 #' @method .reduce2sets ele
 #' @export
 .reduce2sets.ele <- function(preswap,

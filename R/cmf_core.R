@@ -53,9 +53,9 @@
     cmf_comp,
     var_output
   )
-
+browser()
   cmf <- purrr::map_chr(cmf, function(c) {
-    gsub(write_dir, "/opt/teems", c)
+    gsub(write_dir, "/opt/teems", c, fixed = TRUE)
   })
 
   return(cmf)

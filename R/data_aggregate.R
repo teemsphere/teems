@@ -63,14 +63,14 @@
     dt[, let(sigma = NULL, omega = NULL)]
   } else {
     sets <- setdiff(colnames(dt), "Value")
-    if (!sets %=% character(0)) {
+    if (sets %!=% character(0)) {
       dt <- dt[, list(Value = mean(Value)), by = sets]
     }
   }
   if (!rlang::is_integerish(dt$Value)) {
     dt[, let(Value = round(Value, ndigits))]
   } 
-  if (!xval_col %=% character(0)) {
+  if (xval_col %!=% character(0)) {
     data.table::setkeyv(dt, xval_col)
   }
   return(dt)

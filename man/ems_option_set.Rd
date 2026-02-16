@@ -2,9 +2,21 @@
 % Please edit documentation in R/ems_options.R
 \name{ems_option_set}
 \alias{ems_option_set}
-\title{options}
+\title{Set advanced package options}
 \usage{
-ems_option_set(...)
+ems_option_set(
+  verbose = NULL,
+  ndigits = NULL,
+  check_shock_status = NULL,
+  timestep_header = NULL,
+  n_timestep_header = NULL,
+  full_exclude = NULL,
+  docker_tag = NULL,
+  margin_sectors = NULL,
+  accuracy_threshold = NULL,
+  expand_ETRE = NULL,
+  write_sub_dir = NULL
+)
 }
 \arguments{
 \item{verbose}{Logical of length 1 (default is \code{TRUE}). If
@@ -51,10 +63,10 @@ is not met.}
 carried out. When \code{TRUE}, if ETRE header data does not
 contain the full endowment set, missing tuples will be added
 with value -1e-05. The sluggish endowment set will be
-replace with the general endowment set. ETRE header elements
-are not consistent across databases regarding inclusion of
-non-sluggish endowments, leading to issues with the ETRAE
-coefficient which is read-in with the full set of
+replaced with the general endowment set. ETRE header
+elements are not consistent across databases regarding
+inclusion of non-sluggish endowments, leading to issues with
+the ETRAE coefficient which is read-in with the full set of
 endowments.}
 
 \item{write_sub_dir}{A character vector (default \code{"teems"}).
@@ -63,5 +75,11 @@ directory for model files, \code{"write_sub_dir"} sets the name
 of the subdirectory within the base directory.}
 }
 \description{
-placeholder
+\code{ems_option_set()} allows the user to customize
+advanced options.
+}
+\seealso{
+\code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.
+
+\code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.
 }

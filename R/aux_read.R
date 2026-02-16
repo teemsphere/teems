@@ -1,3 +1,5 @@
+#' @keywords internal
+#' @noRd
 .read_aux <- function(input,
                       header,
                       data_type,
@@ -5,13 +7,15 @@
   UseMethod(".read_aux")
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .read_aux data.frame
 #' @export
 .read_aux.data.frame <- function(input,
                                  header,
                                  data_type,
                                  call) {
-  if (!data_type %=% "set") {
+  if (data_type %!=% "set") {
     col_nmes <- colnames(input)
 
     if (!"Value" %in% col_nmes) {
@@ -37,12 +41,16 @@
 
 #' @importFrom tools file_path_sans_ext
 #' @importFrom purrr  map
+#' 
+#' @keywords internal
+#' @noRd
 #' @method .read_aux character
 #' @export
 .read_aux.character <- function(input,
                                 header,
                                 data_type,
                                 call) {
+
   input <- .check_input(
     file = input,
     valid_ext = c("csv", "har"),

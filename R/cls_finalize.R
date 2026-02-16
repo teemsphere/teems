@@ -27,7 +27,8 @@
   if (!is.null(swap_out)) {
     swap_out <- .classify_cls(
       closure = swap_out,
-      sets = sets
+      sets = sets,
+      call = call
     )
 
     swap_out <- lapply(swap_out,

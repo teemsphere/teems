@@ -59,7 +59,8 @@
 
   shock$input <- .shock_preload(
     input = shock$input,
-    type = class(shock)[[1]]
+    type = class(shock)[[1]],
+    call = call
   )
 
   shock$set <- colnames(shock$input)[!colnames(shock$input) %in% "Value"]

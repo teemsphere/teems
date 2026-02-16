@@ -8,7 +8,7 @@
 
   loaded <- list()
   nested <- FALSE
-  
+
   if (!is.null(aux)) {
     for (idx in seq_along(aux)) {
       header <- names(aux)[idx]

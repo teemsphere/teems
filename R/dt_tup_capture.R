@@ -1,5 +1,8 @@
 #' @importFrom data.table fsetdiff
 #' @importFrom utils capture.output
+#' 
+#' @keywords internal
+#' @noRd
 .capture_dt_tup <- function(template,
                             value,
                             drop = 2) {

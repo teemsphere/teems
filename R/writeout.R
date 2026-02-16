@@ -62,7 +62,7 @@
   }
   
   writeout <- purrr::map_chr(writeout, function(c) {
-    gsub(write_dir, "/opt/teems", c)
+    gsub(write_dir, "/opt/teems", c, fixed = TRUE)
   })
 
   return(writeout)

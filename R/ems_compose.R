@@ -45,64 +45,15 @@
 ems_compose <- function(cmf_path,
                         type = c("all", "variable", "coefficient"),
                         name = NULL,
-                        minimal = FALSE,
-                        .parsed = NULL)
+                        minimal = FALSE)
 {
+if (missing(cmf_path)) {
+  .cli_missing(cmf_path)
+}
+args_list <- mget(names(formals()))
 call <- match.call()
-type <- rlang::arg_match(arg = type)
-paths <- .get_output_paths(
-  cmf_path = cmf_path,
-  type = type,
-  select = name,
-  call = call
-)
-if (is.null(.parsed)) {
-  sol_prefix <- file.path(paths$model, "out", "variables", "bin", "sol.")
-  .parsed <- .parse_solution(sol_prefix)
-}
-sets <- .check_sets(
-  parsed = .parsed,
-  model_dir = paths$model,
-  set_path = paths$sets,
-  minimal = minimal,
-  call = call
-)
-timesteps <- NULL
-if (!minimal) {
-  comp_extract <- .retrieve_tab_comp(
-    tab_path = paths[["tab"]],
-    type = type,
-    call = call
-  )
-  
-  metadata <- !is.null(paths$metadata)
-  if (!metadata) {
-    cli::cli_warn("No metadata file detected.")
-  }
-  
-  if (any(purrr::map_lgl(sets, function(s) {
-    isTRUE(attr(s, "intertemporal"))
-  })) && metadata) {
-    timesteps <- .get_timesteps(
-      paths = paths,
-      cmf_path = cmf_path,
-      timestep_header = .o_timestep_header(),
-      call = call
-    )
-  }
-} else {
-  comp_extract <- NULL
-}
-output <- .retrieve_output(
-  type = type,
-  comp_extract = comp_extract,
-  name = name,
-  paths = paths,
-  parsed = .parsed,
-  sets = sets,
-  time_steps = timesteps,
-  minimal = minimal,
-  call = call
-)
+args_list$type <- rlang::arg_match(arg = type)
+output <- .implement_compose(args_list = args_list,
+                             call = call)
 output
 }

@@ -7,8 +7,6 @@
                            timestep_header,
                            call) {
   t0 <- readRDS(paths$metadata)$reference_year
-
-  # there is an inconsequential error on math parsing (avoided with quiet = T) on this pass with inaccurate implicit statement at end
   model <- .process_tablo(
     tab_file = paths$tab,
     quiet = TRUE,
@@ -21,8 +19,9 @@
     select = timestep_coeff
   )$coeff
   timesteps <- data.table::fread(timestep_file,
-                                 skip = 1,
-                                 col.names = timestep_header)
+    skip = 1,
+    col.names = timestep_header
+  )
   timesteps <- timesteps[!is.na(get(timestep_header))]
   timesteps[, let(CYRS = t0 + unlist(timesteps))]
   timesteps[, let(all_time = seq(0, nrow(timesteps) - 1))]

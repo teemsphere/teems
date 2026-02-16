@@ -46,7 +46,7 @@
   )
 
   cmf <- purrr::map_chr(cmf, function(c) {
-    gsub(write_dir, "/opt/teems", c)
+    gsub(write_dir, "/opt/teems", c, fixed = TRUE)
   })
 
   attr(cmf, "write_path") <- cmf_path

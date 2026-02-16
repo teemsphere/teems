@@ -10,7 +10,8 @@
   other_grid <- expand.grid(other_indices)
 
   ls_mat <- list()
-  for (i in 1:nrow(other_grid)) {
+
+  for (i in seq_len(nrow(other_grid))) {
     indices <- as.list(other_grid[i, ])
     full_indices <- vector("list", n_dims)
     full_indices[c(1, 2)] <- list(quote(expr = ))

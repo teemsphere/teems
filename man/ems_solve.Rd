@@ -90,6 +90,8 @@ prior to running from the terminal.}
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
 into structured data with \code{\link{ems_compose}}.}
+
+\item{n_timesteps}{Integer length 1 (deafultl is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 }
 \value{
 A tibble containing model output variables and

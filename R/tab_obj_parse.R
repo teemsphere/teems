@@ -61,7 +61,7 @@
     parsed_remander,
     obj$remainder,
     function(pr, r) {
-      if (length(pr != 0)) {
+      if (length(pr) != 0) {
         purrr::pluck(pr, length(pr))
       } else {
         r
@@ -106,17 +106,6 @@
     NA
   )
 
-  # obj$upper_idx <- purrr::map(
-  #   obj$ls_upper_idx,
-  #   function(s) {
-  #     if (!s %=% NA) {
-  #       paste0("(", paste0(s, collapse = ","), ")")
-  #     } else {
-  #       NA
-  #     }
-  #   }
-  # )
-  
   order_test <- purrr::map(strsplit(obj$remainder, ")"), function(r) {
     purrr::map_chr(purrr::list_flatten(strsplit(r, ",")), 2)
   })
@@ -139,7 +128,7 @@
     obj$ls_upper_idx,
     obj$ls_lower_idx,
     .f = function(up, low) {
-      if (!up %=% NA && !low %=% NA) {
+      if (up %!=% NA && low %!=% NA) {
         paste(map2(up, low, function(up2, low2) {
           paste0(up2, low2)
         }), collapse = ",")

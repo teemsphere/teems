@@ -6,6 +6,15 @@
   checks <- c("character", "numeric", "data.frame")
   for (coeff in seq_along(mod_coeff)) {
     nme <- names(mod_coeff[coeff])
+
+    if (!nme %in% model[model$type == "Coefficient", ]$name) {
+      .cli_action(
+        model_err$invalid_coeff,
+        action = "abort",
+        call = call
+      )
+    }
+    
     input <- mod_coeff[[coeff]]
 
     .check_class(
@@ -15,17 +24,9 @@
       call = call
     )
 
-    if (inherits(input, "numeric") && !length(input) %=% 1L) {
+    if (inherits(input, "numeric") && length(input) %!=% 1L) {
       .cli_action(model_err$invalid_numeric,
         action = c("abort", "inform"),
-        call = call
-      )
-    }
-
-    if (!nme %in% model[model$type == "Coefficient", ]$name) {
-      .cli_action(
-        model_err$invalid_coeff,
-        action = "abort",
         call = call
       )
     }

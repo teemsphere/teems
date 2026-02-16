@@ -1,6 +1,6 @@
 #' @importFrom rlang is_integerish
 #' @importFrom data.table data.table setnames setkeyv setattr is.data.table
-#' @importFrom purrr map2 map_chr map_lgl
+#' @importFrom purrr map2 map_chr map_lgl map_int pluck
 #'
 #' @keywords internal
 #' @noRd
@@ -74,7 +74,7 @@
   }
 
   .data <- lapply(.data, function(dt) {
-    if (!colnames(dt) %=% "Value") {
+    if (colnames(dt) %!=% "Value") {
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
       expected <- as.integer(prod(lengths(dt_sets)))
@@ -86,8 +86,8 @@
       data.table::setattr(dt, "dimen", as.character(expected))
     }
 
-    if (!expected %=% nrow(dt)) {
-      .cli_action(data_err$data_set_mismatch,
+    if (expected %!=% nrow(dt)) {
+      .cli_action(deploy_err$data_set_mismatch,
         action = "abort",
         call = call
       )

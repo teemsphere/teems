@@ -1,8 +1,7 @@
 #' @keywords internal
 #' @noRd
 .omit_var <- function(var_omit,
-                      statements,
-                      extract) {
+                      statements) {
   dec_pattern <- paste0("^[Vv]ariable.*(?<![[:alnum:]_])", var_omit, "\\(")
   statements <- statements[!grepl(dec_pattern, statements, perl = TRUE)]
   until_paren <- "\\([^\\)]*\\)"

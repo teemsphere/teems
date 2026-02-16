@@ -1,3 +1,5 @@
+#' @importFrom cli cli_verbatim
+#' 
 #' @keywords internal
 #' @noRd
 .implement_model <- function(...,
@@ -22,6 +24,10 @@
     call = call
   )
 
+  if (.o_verbose()) {
+    model_summary <- attr(model, "model_summary")
+  }
+
   if (length(list(...)) > 0L) {
     mod_coeff <- list(...)
     model <- .coeff_mod(
@@ -34,9 +40,14 @@
   closure <- .check_closure(
     closure = v$closure,
     var_omit = v$var_omit,
-    var_extract = model[model$type == "Variable", ]
+    var_extract = model[model$type == "Variable", ],
+    call - call
   )
 
+  if (.o_verbose()) {
+    cli::cli_verbatim(model_summary)
+  }
+  
   model <- structure(model,
     closure = closure,
     closure_file = attr(v$closure, "file"),

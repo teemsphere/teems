@@ -126,16 +126,12 @@
   VFM_arr_dimnames <- dimnames(VFM_arr)
   VFM_arr_total <- apply(VFM_arr, c(1, 3), sum)
 
-  phi_arr <- array(0, dim(VFM_arr), dimnames(VFM_arr))
-  new_arr <- array(0, dim(VFM_arr), dimnames(VFM_arr))
-
   # calculate percentage along REG,ENDW and use share with EVOA
-  for (i in 1:length(VFM_arr_dimnames$ENDW_COMM)) {
-    for (k in 1:length(VFM_arr_dimnames$REG)) {
-      phi_arr[i, , k] <- VFM_arr[i, , k] / VFM_arr_total[i, k]
-      new_arr[i, , k] <- phi_arr[i, , k] * input[i, k]
-    }
-  }
+  # divide each [i, , k] slice by VFM_arr_total[i, k]
+  phi_arr <- sweep(VFM_arr, c(1, 3), VFM_arr_total, FUN = "/")
+  
+  # multiply each [i, , k] slice by input[i, k]
+  new_arr <- sweep(phi_arr, c(1, 3), input, FUN = "*")
 
   input <- new_arr
   class(input) <- unique(c(classes, class(input)))

@@ -17,6 +17,27 @@
   )
 
   if (!is.null(var_omit)) {
+    extract <- .generate_extracts(
+      tab = tab,
+      call = call
+    )
+
+    var_extract <- .parse_tab_obj(
+      extract = extract$model,
+      obj_type = "variable",
+      call = call
+    )
+
+    if (!all(var_omit %in% var_extract$name)) {
+      invalid_var <- setdiff(var_omit, var_extract$name)
+      .cli_action(model_err$invalid_var_omit,
+        action = "abort",
+        call = call
+      )
+    }
+  }
+
+  if (!is.null(var_omit)) {
     for (var in unique(var_omit)) {
       tab <- .omit_var(
         var_omit = var,
@@ -95,14 +116,16 @@
     n_coeff <- nrow(coeff_extract)
     n_sets <- nrow(extract$set)
 
-    cli::cli_h1("Tablo file summary statistics:")
-    cli::cli_dl(c(
-      "Variables" = n_var,
-      "Equations" = n_eq,
-      "Coefficients" = n_coeff,
-      "Formulas" = n_form,
-      "Sets" = n_sets
-    ))
+    model_summary <- cli::cli_fmt({
+      cli::cli_h1("Model summary:")
+      cli::cli_dl(c(
+        "Variables" = n_var,
+        "Equations" = n_eq,
+        "Coefficients" = n_coeff,
+        "Formulas" = n_form,
+        "Sets" = n_sets
+      ))
+    })
   }
   
   read_extract <- .parse_tab_read(
@@ -111,9 +134,10 @@
   )
 
   tab <- paste0(tab, ";")
+
   tab <- tibble::tibble(
     tab = tab,
-    row_id = seq(1, length(tab))
+    row_id = seq_along(tab)
   )
 
   tab_parsed <- rbind(var_extract, coeff_extract, extract$set, math_extract, read_extract)
@@ -140,11 +164,10 @@
     }
   }
   
-  if (inherits(tab_file, "teems_model")) {
-    attr(tab, "tab_file") <- paste0(class(tab_file)[[2]], ".tab")
-  } else {
-    attr(tab, "tab_file") <- basename(tab_file)
+  if (.o_verbose() && !quiet) {
+    attr(tab, "model_summary") <- model_summary
   }
-
+  
+  attr(tab, "tab_file") <- basename(tab_file)
   return(tab)
 }

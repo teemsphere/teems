@@ -8,7 +8,11 @@
     value = TRUE
   )
 
-  file_entry <- sub("/opt/teems", dirname(cmf_path), docker_path)
+  file_entry <- sub("/opt/teems",
+                    dirname(cmf_path),
+                    docker_path,
+                    fixed = TRUE)
+  
   file_name <- strsplit(file_entry, " ")[[1]][2]
   file_name <- gsub(
     pattern = "\"|;",

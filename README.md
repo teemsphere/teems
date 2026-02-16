@@ -9,8 +9,7 @@
 package for reproducible Computable General Equilibrium (CGE) model runs.
 
 TEEMS provides a complete pipeline from raw GTAP data through model solution:
-data loading, aggregation, model parsing, shock specification, and
-Docker-based solving --- all from R.
+data loading, aggregation, model parsing, shock specification, and solving --- all from R.
 
 > **Status:** Beta (v0.0.0.985) --- under active development. Use with caution.
 
@@ -18,15 +17,16 @@ Docker-based solving --- all from R.
 
 | Function | Purpose |
 |:---------|:--------|
-| `ems_aux()` | Load auxiliary HAR, data frame, CSV data
+| `ems_aux()` | Load auxiliary HAR, data frame, CSV data |
 | `ems_data()` | Load HAR and CSV input data, apply set mappings and time steps, aggregate and convert data |
 | `ems_model()` | Parse model inputs (TABLO files) and load closure |
 | `ems_shock()` | Define shocks (uniform, custom, scenario) |
 | `ems_swap()` | Load closure swaps |
-| `ems_deploy()` | Validate inputs and write solver files |
-| `ems_solve()` | Execute the Docker-based solver |
+| `ems_deploy()` | Validate inputs and write input files |
+| `ems_solve()` | Execute the Docker-based solver on package-prepared input files |
 | `ems_compose()` | Parse solver outputs into structured R objects |
-| `ems_option_set()`/`ems_option_get()` | Access advanced CGE model customization options
+| `ems_option_set()`/`ems_option_get()` | Access advanced CGE model customization options |
+| `solve_in_situ()` | Solver wrapper for execution on existing input files |
 
 ## Installation
 

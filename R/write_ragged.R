@@ -1,4 +1,4 @@
-#' @importFrom data.table fwrite setorder
+#' @importFrom data.table fwrite setorder as.data.table
 #' @importFrom utils head
 #'
 #' @keywords internal
@@ -36,7 +36,7 @@
     arr <- array(input$Value, dim_sizes)
 
     data.table::fwrite(
-      x = as.data.table(arr),
+      x = data.table::as.data.table(arr),
       file = write_path,
       col.names = FALSE,
       append = TRUE

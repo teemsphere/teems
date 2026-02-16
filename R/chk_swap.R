@@ -1,4 +1,4 @@
-#' @importFrom purrr pluck map2
+#' @importFrom purrr pluck map2 pmap_chr
 #' @importFrom rlang cnd_signal
 #' 
 #' @noRd

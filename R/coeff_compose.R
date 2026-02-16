@@ -1,6 +1,6 @@
 #' @importFrom purrr map_lgl pluck pmap transpose simplify
 #' @importFrom tibble tibble
-#' @importFrom data.table setDT setkeyv
+#' @importFrom data.table setDT
 #' 
 #' @keywords internal
 #' @noRd
@@ -35,7 +35,7 @@
     ls_data = transposed[[4]]
   )
 
-  coeff_names <- gsub(".csv", "", basename(paths))
+  coeff_names <- gsub(".csv", "", basename(paths), fixed = TRUE)
   coeff_extract <- coeff_extract[coeff_extract$name %in% coeff_names, ]
 
   if (!all(coeff_extract$name %in% coeff_tib$name)) {
@@ -63,7 +63,7 @@
     .f = function(dimen, col_nmes, num_ls) {
       dim_length <- length(dimen)
 
-      if (!col_nmes %=% NA_character_) {
+      if (col_nmes %!=% NA_character_) {
         plain_col <- .dock_tail(string = col_nmes)
         r_idx <- match(plain_col, names(sets))
         setele <- sets[r_idx]
@@ -115,7 +115,7 @@
         names(dimnames(arr)) <- col_nmes
         df <- array2DF(arr)
       }
-      if (!col_nmes %=% NA_character_) {
+      if (col_nmes %!=% NA_character_) {
         if (any(purrr::map_lgl(setele, inherits, "numeric"))) {
           int_col <- colnames(df)[purrr::map_lgl(setele, inherits, "numeric")]
           df[int_col] <- lapply(df[int_col], as.numeric)

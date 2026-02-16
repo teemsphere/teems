@@ -101,11 +101,8 @@
     list(COMM = COMM, ACTS = ACTS, REG = REG)
   )
 
-  # diagonal make
   for (k in 1:length(REG)) {
-    for (i in 1:length(COMM)) {
-      MAKB[i, i, k] <- input[i, k]
-    }
+    diag(MAKB[, , k]) <- input[, k]
   }
 
   MAKS <- array(

@@ -1,3 +1,8 @@
+# teems 0.0.0.99
+## Bug fixes
+* Complete revamp for CRAN submission
+* Far too many changes/fixes to document
+
 # teems 0.0.0.98
 
 ## Bug fixes

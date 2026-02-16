@@ -5,6 +5,8 @@
   UseMethod(".write_shock")
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .write_shock logical
 #' @export
 .write_shock.logical <- function(shock,
@@ -18,6 +20,8 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .write_shock uniform
 #' @export
 .write_shock.uniform <- function(shock,
@@ -30,6 +34,8 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .write_shock user
 #' @export
 .write_shock.user <- function(shock,
@@ -43,6 +49,8 @@
   return(write_path)
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .write_shock custom
 #' @export
 .write_shock.custom <- function(shock,
@@ -50,6 +58,8 @@
   NextMethod()
 }
 
+#' @keywords internal
+#' @noRd
 #' @method .write_shock full_set
 #' @export
 .write_shock.full_set <- function(shock,
@@ -64,6 +74,9 @@
 
   return(write_path)
 }
+
+#' @keywords internal
+#' @noRd
 #' @method .write_shock ele
 #' @export
 .write_shock.ele <- function(shock,

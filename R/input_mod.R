@@ -8,11 +8,11 @@
   m_input <- list()
   method_coeff <- method_coeff[method_coeff %in% names(call)]
   
-  if (!length(input) %=% 0L) {
+  if (length(input) %!=% 0L) {
     m_input <- c(m_input, input)
   }
   
-  if (!length(method_coeff) %=% 0L) {
+  if (length(method_coeff) %!=% 0L) {
     m_input <- c(m_input, args_list[method_coeff])
     method_file <- deparse(call$model_input)
   }
@@ -37,7 +37,6 @@
 
     model <- .inject_value(
       input = input,
-      nme = nme,
       model = model,
       call = call
     )

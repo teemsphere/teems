@@ -23,12 +23,6 @@
 
 
   if (data_type %=% "dat") {
-    if (is.null(DVER)) {
-      .cli_action(data_err$wrong_input,
-        action = "abort",
-        call = call
-      )
-    }
     metadata$data_format <- switch(as.character(DVER),
       "5" = "GTAPv6",
       "6" = "GTAPv7",

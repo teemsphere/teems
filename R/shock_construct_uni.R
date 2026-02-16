@@ -23,7 +23,7 @@
       }
     }
 
-    if (!raw_shock$ls_upper %=% "null_set") {
+    if (raw_shock$ls_upper %!=% "null_set") {
       shock_LHS <- paste0(raw_shock$var, "(", paste0(raw_shock$ls_upper, collapse = ","), ")")
     } else {
       shock_LHS <- raw_shock$var
@@ -72,7 +72,7 @@
     )
 
     r_idx <- match(mixed_ss, raw_shock$ls_mixed)
-    if (!raw_shock$ls_upper %=% NA) {
+    if (raw_shock$ls_upper %!=% NA) {
       shock_LHS <- raw_shock$ls_upper
       shock_LHS[r_idx] <- paste0('"', raw_shock$subset, '"')
       shock_LHS <- paste0(raw_shock$var, "(", paste0(shock_LHS, collapse = ","), ")")
@@ -83,7 +83,8 @@
     if (.o_check_shock_status()) {
       classified_shk <- .classify_cls(
         closure = shock_LHS,
-        sets = sets
+        sets = sets,
+        call = attr(raw_shock, "call")
       )[[1]]
 
       expanded_shk <- .exp_cls_entry(
@@ -102,10 +103,10 @@
                     call = attr(raw_shock, "call"))
       }
 
-      if (!attr(check[[1]], "ele") %=% NA) {
+      if (attr(check[[1]], "ele") %!=% NA) {
         check <- data.table::rbindlist(purrr::map(check, attr, "ele"))
 
-        if (!nrow(data.table::fsetdiff(attr(expanded_shk, "ele"), check)) %=% 0L) {
+        if (nrow(data.table::fsetdiff(attr(expanded_shk, "ele"), check)) %!=% 0L) {
           errant_tup <- data.table::fsetdiff(attr(expanded_shk, "ele"), check)
           errant_tup <- utils::capture.output(print(errant_tup))[-c(1, 2)]
           .cli_action(

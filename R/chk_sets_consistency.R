@@ -16,14 +16,16 @@
 
   bin_sets <- bin_sets[bin_sets$setname %in% tab_set_names,]
   r_idx <- match(bin_sets$setname, tab_set_names)
+
   if (!all(purrr::map2_lgl(
     tab_sets[r_idx],
     bin_sets$ele,
-    all.equal
+    identical
   ))) {
     .cli_action(compose_err$set_mismatch,
       action = "abort",
-      call = call
+      call = call,
+      .internal = TRUE
     )
   }
 

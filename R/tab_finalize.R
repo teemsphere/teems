@@ -42,7 +42,6 @@
   tab <- paste(
     c(
       model$tab,
-      "\n#!< File and Write statements follow >!#\n",
       set_writeout,
       coeff_writeout
     ),

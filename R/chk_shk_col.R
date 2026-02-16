@@ -1,9 +1,11 @@
+#' @keywords internal
+#' @noRd
 .chk_shk_col <- function(input,
                          type,
                          call) {
 
   value_colnames <- colnames(input)
-  if (!"Value" %=% value_colnames[length(value_colnames)]) {
+  if ("Value" %!=% value_colnames[length(value_colnames)]) {
     .cli_action(
       shk_err$cst_scen_val_df,
       action = "abort",

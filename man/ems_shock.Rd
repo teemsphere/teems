@@ -2,7 +2,7 @@
 % Please edit documentation in R/ems_shock.R
 \name{ems_shock}
 \alias{ems_shock}
-\title{Specificy shocks}
+\title{Specify shocks}
 \usage{
 ems_shock(var, type = c("uniform", "custom", "scenario"), ...)
 }

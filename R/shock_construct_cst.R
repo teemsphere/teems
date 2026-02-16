@@ -15,22 +15,11 @@
 
   # NSE
   Value <- NULL
-  
-  ndigits <- .o_ndigits()
-  value <- raw_shock$input
-
-  if ("Year" %in% raw_shock$set) {
-    updated <- .year2time_set(raw_shock = raw_shock,
-                              sets = sets,
-                              value = value,
-                              call = call)
-    value <- updated$value
-    raw_shock <- updated$raw_shock
-  }
-
   set_ele <- with(sets$ele, mget(raw_shock$ls_upper))
   template_shk <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
   data.table::setnames(template_shk, new = raw_shock$ls_mixed)
+  value <- raw_shock$input
+  ndigits <- .o_ndigits()
 
   if (data.table::fsetequal(template_shk, value[, !"Value"])) {
     if (.o_check_shock_status()) {
@@ -65,7 +54,7 @@
     )
     shock <- list(shock)
   } else {
-    if (!nrow(data.table::fsetdiff(value[, !"Value"], template_shk)) %=% 0L) {
+    if (nrow(data.table::fsetdiff(value[, !"Value"], template_shk)) %!=% 0L) {
       errant_tuples <- data.table::fsetdiff(value[, !"Value"], template_shk)
       errant_tuples <- utils::capture.output(print(errant_tuples))
       errant_tuples <- errant_tuples[-c(1, 2)]
@@ -88,7 +77,7 @@
 
         key_names <- names(value[, !"Value"])
         data.table::setnames(all_exo_parts, new = key_names)
-        if (!nrow(data.table::fsetdiff(value[, !"Value"], all_exo_parts)) %=% 0L) {
+        if (nrow(data.table::fsetdiff(value[, !"Value"], all_exo_parts)) %!=% 0L) {
           x_exo_parts <- data.table::fsetdiff(
             value[, key_names, with = FALSE],
             all_exo_parts
@@ -106,7 +95,8 @@
 
     set_combn <- list()
     key_cols <- names(set_ele)
-    for (size in 1:length(key_cols)) {
+
+    for (size in seq_along(key_cols)) {
       col_combinations <- utils::combn(key_cols,
         m = size,
         simplify = FALSE
@@ -182,7 +172,7 @@
       }
     }
 
-    if (!nrow(value) %=% 0L) {
+    if (nrow(value) %!=% 0L) {
       value[, let(Value = format(
         round(Value, ndigits),
         trim = TRUE,

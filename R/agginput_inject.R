@@ -26,7 +26,7 @@
         drop = 3
       )
       .cli_action(
-        load_err$agg_missing_tup,
+        deploy_err$agg_missing_tup,
         action = "abort",
         call = call
       )

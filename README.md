@@ -21,7 +21,7 @@ Docker-based solving --- all from R.
 | `ems_aux()` | Load auxiliary HAR, data frame, CSV data
 | `ems_data()` | Load HAR and CSV input data, apply set mappings and time steps, aggregate and convert data |
 | `ems_model()` | Parse model inputs (TABLO files) and load closure |
-| `ems_shock()` | Define shocks (uniform, custom, scenario) |
+| `ems_uniform_shock()`/`ems_custom_shock()`/`ems_scenario_shock()` | Load shocks |
 | `ems_swap()` | Load closure swaps |
 | `ems_deploy()` | Validate inputs and write solver files |
 | `ems_solve()` | Execute the Docker-based solver |
@@ -40,7 +40,7 @@ Docker-based solving --- all from R.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("teemsphere/teems-R@v0.0.0.99")
+remotes::install_github("teemsphere/teems-R@v0.0.1")
 ```
 
 If the installation fails citing a missing package, install that package first
@@ -52,7 +52,7 @@ and retry.
 library(teems)
 
 # 1. Load and aggregate data
-data <- ems_data(
+.data <- ems_data(
   dat_input = "path/to/gsdfdat.har",
   par_input = "path/to/gsdfpar.har",
   set_input = "path/to/gsdfset.har",
@@ -68,13 +68,13 @@ model <- ems_model(model_input = "path/to/model",
                    closure_file = "path/to/closure")
 
 # 3. Define shocks
-shock <- ems_shock(var = "pop",
-                   type = "uniform",
-                   REGr = "lam",
-                   value = 1)
+shock <- ems_uniform_shock(var = "pop",
+                           type = "uniform",
+                           REGr = "lam",
+                           value = 1)
 
 # 4. Validate and write solver inputs
-cmf_path <- ems_deploy(.data = data,
+cmf_path <- ems_deploy(.data = .data,
                        model = model,
                        shock = shock)
 

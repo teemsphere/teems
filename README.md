@@ -102,7 +102,7 @@ Full documentation is available at
 | [teems-models](https://github.com/teemsphere/teems-models) | Vetted models and their standard closures |
 | [teems-solver](https://github.com/teemsphere/teems-solver) | C/Fortran optimization solver (Docker) |
 | [teems-mappings](https://github.com/teemsphere/teems-mappings) | Regional and sectoral aggregation mappings |
-| [teems-manual](https://github.com/teemsphere/teems-manual) | Full package documentation |
+| [teems-manual](https://teemsphere.github.io/) | Full package documentation |
 
 ## License
 

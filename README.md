@@ -12,7 +12,7 @@ TEEMS provides a complete pipeline from raw GTAP data through model solution:
 data loading, aggregation, model parsing, shock specification, and
 Docker-based solving --- all from R.
 
-> **Status:** Beta (v0.0.0.99) --- under active development. Use with caution.
+> **Status:** Beta (v0.0.1) --- under active development.
 
 ## Overview
 

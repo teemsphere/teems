@@ -29,7 +29,8 @@
 #'   Modify with caution.
 #' @param docker_tag Character length 1 (default `"latest"`).
 #'   Docker tag to specify the which Docker image is use.
-#' @param margin_sectors placeholder
+#' @param margin_sectors Sectors corresponding to original
+#'   unaggregated elements that will be considered "margin"
 #' @param accuracy_threshold Numeric length 1 (default 0.8),
 #'   converted to a percentage. 4 digit precision will be
 #'   compared against this threshold, generating a warning if it

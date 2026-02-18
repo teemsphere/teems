@@ -14,17 +14,15 @@ model <- ems_model(
   closure_file = closure_file
 )
 
-partial <- ems_shock(
+partial <- ems_uniform_shock(
   var = "qfd",
-  type = "uniform",
   REGs = "usa",
   PROD_COMMj = "crops",
   value = -1
 )
 
-full <- ems_shock(
+full <- ems_uniform_shock(
   var = "yp",
-  type = "uniform",
   value = 0.1
 )
 

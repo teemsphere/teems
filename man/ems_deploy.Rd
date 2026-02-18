@@ -2,7 +2,7 @@
 % Please edit documentation in R/ems_deploy.R
 \name{ems_deploy}
 \alias{ems_deploy}
-\title{Loads, validates, and writes all model components}
+\title{Loads, validates, and writes all model inputs}
 \usage{
 ems_deploy(
   .data,
@@ -22,7 +22,8 @@ ems_deploy(
 \code{\link[=ems_model]{ems_model()}} or equivalent.}
 
 \item{shock}{A \code{shock} object or in the case of multiple
-shocks, list of objects produced by \code{\link[=ems_shock]{ems_shock()}} (default
+shocks, list of objects produced by \code{\link[=ems_uniform_shock]{ems_uniform_shock()}},
+\code{\link[=ems_custom_shock]{ems_custom_shock()}}, or \code{\link[=ems_scenario_shock]{ems_scenario_shock()}} (default
 is \code{NULL}). In the case of \code{NULL}, a \code{NULL} shock will be
 carried out which effectively returns base data.}
 
@@ -45,9 +46,9 @@ written and model solution will be carried out within the
 user-provided base directory must be provided.}
 
 \item{shock_file}{Character of length 1, file name in working
-directory or path to a csv representing the final shock file
-(default is \code{NULL}). No checks or modifications will be
-conducted on this file.}
+directory or path to a csv representing a user-provided
+final shock file (default is \code{NULL}). No checks or
+modifications will be conducted on this file.}
 }
 \value{
 File path to a CMF file necessary to execute
@@ -56,20 +57,14 @@ File path to a CMF file necessary to execute
 \description{
 \code{ems_deploy()} accumulate and checks all data and
 model inputs as well as writes required input files. Outputs
-from \code{\link[rlang:dot-data]{rlang::.data()}} and \code{\link[=ems_model]{ems_model()}} are required inputs
-to \code{"data"}, \code{"model"} respectively.
+from \code{\link[=ems_data]{ems_data()}} and \code{\link[=ems_model]{ems_model()}} are required inputs to
+\code{".data"}, \code{"model"} respectively.
 }
 \details{
 \code{ems_deploy()} consolidates all user inputs and
 carries out all operations necessary to run a CGE model. The
 output file path serves as a required input to
 \code{\link[=ems_solve]{ems_solve()}}.
-}
-\examples{
-\dontrun{
-# See \href{https://github.com/teems-org/teems-scripts}{teems-scripts}
-# for a range of sample scripts.
-}
 }
 \seealso{
 \code{\link[=ems_model]{ems_model()}} for generating the input to
@@ -78,8 +73,8 @@ output file path serves as a required input to
 \code{\link[=ems_data]{ems_data()}} for generating the input to
 \code{".data"}.
 
-\code{\link[=ems_shock]{ems_shock()}} for generating the input to
-\code{"shock"}.
+\code{\link[=ems_uniform_shock]{ems_uniform_shock()}}, \code{\link[=ems_custom_shock]{ems_custom_shock()}}, and
+\code{\link[=ems_scenario_shock]{ems_scenario_shock()}} for generating the input to \code{"shock"}.
 
 \code{\link[=ems_swap]{ems_swap()}} for loading both full variable swaps
 as well as element-specific swaps.

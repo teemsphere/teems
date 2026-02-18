@@ -58,6 +58,15 @@ usa_multi_qfd_in <- ems_swap(var = "qfd",
                               
 }
 \seealso{
-\code{\link[=ems_shock]{ems_shock()}} for specification of shocks on
-exogenous variables.
+\code{\link[=ems_uniform_shock]{ems_uniform_shock()}} for specification of uniform
+shocks.
+
+\code{\link[=ems_custom_shock]{ems_custom_shock()}} for specification of custom
+shocks.
+
+\code{\link[=ems_scenario_shock]{ems_scenario_shock()}} for specification of
+scenario shocks.
+
+\code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
+function.
 }

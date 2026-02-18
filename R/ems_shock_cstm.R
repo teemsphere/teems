@@ -1,7 +1,6 @@
-#' Specify custom shock
+#' Load custom shock
 #'
-#' @importFrom rlang trace_back check_dots_empty
-#' @description `ems_shock.custom()` loads custom shocks for
+#' @description `ems_custom_shock()` loads custom shocks for
 #'   processing as well as conducts a series of compatibility
 #'   checks. A custom shock is one which allows for granular
 #'   control over heterogenous shocks that are allocated on a
@@ -13,14 +12,17 @@
 #'   required input to the `"shock"` argument within the
 #'   [`ems_deploy()`] function.
 #' 
-#' @inheritParams ems_shock
+#' @inheritParams ems_uniform_shock
 #' @param input character length 1, path to a csv file; a data
 #'   frame or data frame extension (e.g., tibble, data table).
 #'   Must contain "Value" as last column representing
 #'   percentage-change shocks to each respective tuple.
 #' @param ... Future extension.
-#'
-#' @method ems_shock custom
+#' 
+#' @seealso [`ems_deploy()`] for loading the output of this
+#'   function.
+#' @seealso [`ems_swap()`] for changing the standard model
+#'   closure.
 #' @examples
 #' REGr <- c("asia", "eit", "lam", "maf", "oecd")
 #' ACTSa <- c("svces", "food", "crops", "mnfcs", "livestock")
@@ -33,21 +35,21 @@
 #' 
 #' aoall <- aoall[do.call(order, aoall), ]
 #' aoall$Value <- runif(nrow(aoall))
-#' aoall_shk <- ems_shock(
+#' aoall_shk <- ems_custom_shock(
 #'  var = "aoall",
-#'  type = "custom",
 #'  input = aoall)
 #' 
 #' @export
-ems_shock.custom <- function(var,
-                             type = "custom",
+ems_custom_shock <- function(var,
                              input,
                              ...)
 {
-  call <- rlang::trace_back()$call[[1]]
-  rlang::check_dots_empty()
-  shock <- mget(names(formals()))
-  config <- .validate_shock(shock = shock,
-                            call = call)
-  config
+args_list <- mget(names(formals()))
+call <- match.call()
+shock <- .implement_shock(
+  args_list = args_list,
+  class = "custom",
+  call = call
+)
+shock
 }

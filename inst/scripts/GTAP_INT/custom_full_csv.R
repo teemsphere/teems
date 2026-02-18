@@ -77,27 +77,23 @@ atall$Value <- runif(nrow(atall))
 atall_csv <- tempfile(fileext = ".csv")
 write.csv(atall, atall_csv, row.names = FALSE)
 
-pop_shk <- ems_shock(
+pop_shk <- ems_custom_shock(
   var = "pop",
-  type = "custom",
   input = pop_csv
 )
 
-aoall_shk <- ems_shock(
+aoall_shk <- ems_custom_shock(
   var = "aoall",
-  type = "custom",
   input = aoall_csv
 )
 
-afeall_shk <- ems_shock(
+afeall_shk <- ems_custom_shock(
   var = "afeall",
-  type = "custom",
   input = afeall_csv
 )
 
-atall_shk <- ems_shock(
+atall_shk <- ems_custom_shock(
   var = "atall",
-  type = "custom",
   input = atall_csv
 )
 

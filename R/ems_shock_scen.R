@@ -1,7 +1,6 @@
-#' Specify scenario shock
+#' Load scenario shock
 #'
-#' @importFrom rlang trace_back check_dots_empty
-#' @description `ems_shock.scenario()` loads scenario shocks for
+#' @description `ems_scenario_shock()` loads scenario shocks for
 #'   processing as well as conducts a series of compatibility
 #'   checks. A scenario shock is one which allows for granular
 #'   control over heterogenous shocks that are allocated on a
@@ -15,7 +14,7 @@
 #'   aggregation (specific to the database being used). Values
 #'   will be aggregated according to the selected set
 #'   aggregations and converted to percentage change form.
-#' @inheritParams ems_shock
+#' @inheritParams ems_uniform_shock
 #' @param input character length 1, path to a csv file; a data
 #'   frame or data frame extension (e.g., tibble, data table).
 #'   Must contain a column "Year" corresponding to selected time
@@ -24,21 +23,21 @@
 #'   based on set and time step selection.
 #' @param ... Future extension.
 #'
-#' @method ems_shock scenario
-#' @seealso [teems
-#'   manual](https://teemsphere.github.io/scenario_shocks.html)
-#'   for an example of the construction and use of a scenario
-#'   shock.
+#' @seealso [`ems_deploy()`] for loading the output of this
+#'   function.
+#' @seealso [`ems_swap()`] for changing the standard model
+#'   closure.
 #' @export
-ems_shock.scenario <- function(var,
-                               type = "scenario",
+ems_scenario_shock <- function(var,
                                input,
-                               ...)
-{
-  call <- rlang::trace_back()$call[[1]]
-  rlang::check_dots_empty()
-  shock <- mget(names(formals()))
-  config <- .validate_shock(shock = shock,
-                            call = call)
-  config
+                               ...
+) {
+args_list <- mget(names(formals()))
+call <- match.call()
+shock <- .implement_shock(
+  args_list = args_list,
+  class = "scenario",
+  call = call
+)
+shock
 }

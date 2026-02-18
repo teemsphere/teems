@@ -14,9 +14,8 @@ model <- ems_model(
   closure_file = closure_file
 )
 
-numeraire <- ems_shock(
+numeraire <- ems_uniform_shock(
   var = "pfactwld",
-  type = "uniform",
   value = 1
 )
 

@@ -10,14 +10,13 @@ ems_model(model_input, closure_file, var_omit = NULL, ...)
 \item{model_input}{Input containing the model. Character
 vector of length 1, file name in working directory or path
 to a .tab file. See
-\href{https://github.com/teems-org/teems-models}{teems-models}
+\href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted model inputs and compatible Tablo file
 formatting.}
 
-\item{closure_file}{A character of length 1 (default is
-\code{NULL}). File name in working directory or path to a ".cls"
-closure file. See
-\href{https://github.com/teems-org/teems-models}{teems-models}
+\item{closure_file}{A character of length 1. File name in
+working directory or path to a ".cls" closure file. See
+\href{https://github.com/teemsphere/teems-models}{teems-models}
 for formatting of closure files.}
 
 \item{var_omit}{A character vector (default is \code{NULL}).
@@ -29,7 +28,7 @@ present).}
 values to model coefficients. The LHS must correspond to a
 model coefficient declared within \code{"model_input"}. The RHS
 is the value to be assigned and may be either a numeric
-length 1, a data frame or data frame extension (e..g,
+length 1, a data frame or data frame extension (e.g.,
 tibble, data table), or path to a CSV file.
 
 If a numeric length 1 is provided to a non-binary
@@ -79,7 +78,7 @@ SUBPAR <- expand.grid(COMMc = COMMc,
                       ALLTIMEt = ALLTIMEt)
 SUBPAR$Value <- runif(nrow(SUBPAR))
 model <- ems_model(model_input = model_input,
-                   closure_file = model_input,
+                   closure_file = closure_file,
                    var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
                    KAPPA = 0.03,
                    SUBPAR = SUBPAR)

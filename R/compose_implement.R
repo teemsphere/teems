@@ -12,7 +12,7 @@
     minimal = "logical"
   )
   
-  args_list$... <- NULL
+  args_list[["..."]] <- NULL
   v <- .validate_compose_args(
     a = args_list,
     checklist = checklist,

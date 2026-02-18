@@ -37,20 +37,19 @@ required for in-situ model runs.}
 \item{model_input}{Input containing the model. Character
 vector of length 1, file name in working directory or path
 to a .tab file. See
-\href{https://github.com/teems-org/teems-models}{teems-models}
+\href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted model inputs and compatible Tablo file
 formatting.}
 
-\item{closure_file}{A character of length 1 (default is
-\code{NULL}). File name in working directory or path to a ".cls"
-closure file. See
-\href{https://github.com/teems-org/teems-models}{teems-models}
+\item{closure_file}{A character of length 1. File name in
+working directory or path to a ".cls" closure file. See
+\href{https://github.com/teemsphere/teems-models}{teems-models}
 for formatting of closure files.}
 
 \item{shock_file}{Character of length 1, file name in working
-directory or path to a csv representing the final shock file
-(default is \code{NULL}). No checks or modifications will be
-conducted on this file.}
+directory or path to a csv representing a user-provided
+final shock file (default is \code{NULL}). No checks or
+modifications will be conducted on this file.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
@@ -118,7 +117,7 @@ prior to running from the terminal.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
-into structured data with \code{\link{ems_compose}}.}
+into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{n_timesteps}{Integer length 1 (deafultl is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 

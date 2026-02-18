@@ -14,9 +14,8 @@ model <- ems_model(
   closure_file = closure_file
 )
 
-partial <- ems_shock(
+partial <- ems_uniform_shock(
   var = "aoall",
-  type = "uniform",
   REGr = "chn",
   PROD_COMMj = "crops",
   value = -1

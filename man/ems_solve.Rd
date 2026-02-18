@@ -89,7 +89,7 @@ prior to running from the terminal.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
-into structured data with \code{\link{ems_compose}}.}
+into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{n_timesteps}{Integer length 1 (deafultl is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 }
@@ -104,7 +104,7 @@ coefficients. Alternatively, if \code{"suppress_outputs"} is
 problem according to a range of runtime configuration
 options. In order to solve the model, a \code{teems} Docker image
 (\href{https://github.com/teemsphere/teems-solver}{teems-solver})
-must be built.Singularity, accuracy, and error checks are
+must be built. Singularity, accuracy, and error checks are
 carried out following a successful run.
 }
 \examples{

@@ -44,17 +44,17 @@ for (d in seq_along(data_prefix)) {
       }
     ))))
   })
-
+  
   test_that(paste(db, paste(model, "numeraire scenario")), {
     run_script(file.path(model, "numeraire.R"))
     expect_true(all(outputs$dat$pfactwld$Value == 1))
   })
-
+  
   test_that(paste(db, paste(model, "full uniform scenario")), {
     run_script(file.path(model, "full_uniform.R"))
     expect_true(all(outputs$dat$pop$Value == 1))
   })
-
+  
   test_that(paste(db, paste(model, "partial uniform scenario")), {
     run_script(file.path(model, "part_uniform.R"))
     expect_true(all(outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops"]$Value == -1))
@@ -124,7 +124,7 @@ for (d in seq_along(data_prefix)) {
       )
     ))
   })
-  
+
   test_that(paste(db, paste(model, "custom full csv all dim")), {
     run_script(file.path(model, "custom_full_csv.R"))
     expect_true(all(
@@ -179,7 +179,7 @@ for (d in seq_along(data_prefix)) {
 
   test_that(paste(db, paste(model, "scenario")), {
     run_script(file.path(model, "scenario.R"))
-
+    
     pop$REGr <- ifelse(pop$REGr == "chn",
       "chn",
       ifelse(pop$REGr == "usa",

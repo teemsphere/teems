@@ -24,7 +24,7 @@ pop <- ems_data(
   TRAD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
   target_format = target_format
-)$pop
+)$POP
 
 pop$Year <- year
 regions <- unique(pop$REG)
@@ -56,9 +56,8 @@ pop <- pop[order(pop$REG, pop$Year), ]
 pop <- pop[, c("REG", "Year", "Value")]
 colnames(pop)[1] <- "REGr"
 
-pop_trajectory <- ems_shock(
+pop_trajectory <- ems_scenario_shock(
   var = "pop",
-  type = "scenario",
   input = pop
 )
 

@@ -22,9 +22,15 @@
 #'   be directly inputted as a character string in
 #'   [`ems_deploy()`].
 #'
-#' @seealso [`ems_shock()`] for specification of shocks on
-#'   exogenous variables.
-#'
+#' @seealso [`ems_uniform_shock()`] for specification of uniform
+#'   shocks.
+#' @seealso [`ems_custom_shock()`] for specification of custom
+#'   shocks.
+#' @seealso [`ems_scenario_shock()`] for specification of
+#'   scenario shocks.
+#' @seealso [`ems_deploy()`] for loading the output of this
+#'   function.
+#' 
 #' @examples
 #' # Full variable swaps
 #' tfd_out <- ems_swap(var = "tfd")
@@ -52,29 +58,15 @@
 ems_swap <- function(var,
                      ...
 ) {
-if (missing(var)) {
-  .cli_missing(var)
-}
-if (!missing(...)) {
-  subset <- list(...)
-  breadth <- "partial"
-  if (any(lengths(subset) > 1)) {
-    depth <- "multi"
-  } else {
-    depth <- "single"
+  if (missing(var)) {
+    .cli_missing(var)
   }
-  swap <- list(
-    var = var,
-    subset = subset
-  )
-} else {
-  breadth <- "full"
-  swap <- list(var = var)
-  depth <- "single"
-}
+args_list <- mget(names(formals()))
+args_list$subset <- list(...)
 call <- match.call()
-attr(swap, "call") <- call
-class(swap) <- c("ems", depth, breadth, class(swap))
-swap <- list(swap)
+swap <- .implement_swap(
+  args_list = args_list,
+  call = call
+)
 swap
 }

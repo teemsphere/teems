@@ -57,7 +57,7 @@ name in working directory or path to a .csv file.
 }
 
 See
-\href{https://github.com/teems-org/teems-mappings/}{teems-mappings}
+\href{https://github.com/teemsphere/teems-mappings}{teems-mappings}
 for internally available mappings and formatting for
 user-provided mappings.}
 }
@@ -68,6 +68,9 @@ A list of data tables ready for input into the
 \description{
 \code{ems_data()} loads and prepares data for use
 within a CGE model run.
+}
+\details{
+Missing section explaining the aggregation process
 }
 \examples{
 \dontrun{

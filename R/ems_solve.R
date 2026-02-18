@@ -4,7 +4,7 @@
 #'  problem according to a range of runtime configuration
 #'  options. In order to solve the model, a `teems` Docker image
 #'  (\href{https://github.com/teemsphere/teems-solver}{teems-solver})
-#'  must be built.Singularity, accuracy, and error checks are
+#'  must be built. Singularity, accuracy, and error checks are
 #'  carried out following a successful run.
 #'
 #' @param cmf_path Character length 1 (default is `NULL`), path to
@@ -62,7 +62,7 @@
 #'  prior to running from the terminal.
 #' @param suppress_outputs Logical length 1 (default is `FALSE`).
 #'  When `TRUE` solver outputs are not automatically converted
-#'  into structured data with [`ems_compose`].
+#'  into structured data with [`ems_compose()`].
 #' @param n_timesteps Integer length 1 (deafultl is `NULL`). Number of timesteps must be manually entered if `"matrix_method"` is "NDBBD".
 #'
 #' @examples
@@ -89,12 +89,12 @@ ems_solve <- function(cmf_path = NULL,
                       suppress_outputs = FALSE,
                       n_timesteps = NULL
 ) {
-call <- match.call()
-.check_docker(image_name = "teems",
-              call = call)
-timeID <- format(x = Sys.time(), "%H%M")
-paths <- .get_solver_paths(cmf_path = cmf_path,
-                           timeID = timeID,
+  call <- match.call()
+  .check_docker(image_name = "teems",
+                call = call)
+  timeID <- format(x = Sys.time(), "%H%M")
+  paths <- .get_solver_paths(cmf_path = cmf_path,
+                             timeID = timeID,
                            call = call)
 # n_timesteps can be carried as an attribute but better to deal with it in the solver
 mod_arg <- .validate_solver_args(n_tasks = n_tasks,

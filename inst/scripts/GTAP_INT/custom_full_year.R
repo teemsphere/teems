@@ -68,27 +68,23 @@ atall <- expand.grid(
 atall <- atall[do.call(order, atall), ]
 atall$Value <- runif(nrow(atall))
 
-pop_shk <- ems_shock(
+pop_shk <- ems_custom_shock(
   var = "pop",
-  type = "custom",
   input = pop
 )
 
-aoall_shk <- ems_shock(
+aoall_shk <- ems_custom_shock(
   var = "aoall",
-  type = "custom",
   input = aoall
 )
 
-afeall_shk <- ems_shock(
+afeall_shk <- ems_custom_shock(
   var = "afeall",
-  type = "custom",
   input = afeall
 )
 
-atall_shk <- ems_shock(
+atall_shk <- ems_custom_shock(
   var = "atall",
-  type = "custom",
   input = atall
 )
 

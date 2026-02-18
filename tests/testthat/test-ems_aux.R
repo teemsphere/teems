@@ -123,8 +123,8 @@ test_that("ems_data accepts ems_aux output as aux_input", {
     dat = list(POP = pop_csv, SAVE = SAVE, VTWR = VTWR, rndm = VTWR),
     par = list(POP = pop_csv, har_input)
   )
-
-  .data <- ems_data(
+  
+  .data <- suppressWarnings(ems_data(
     dat_input = dat_input,
     par_input = par_input,
     set_input = set_input,
@@ -135,7 +135,7 @@ test_that("ems_data accepts ems_aux output as aux_input", {
     ENDW = "labor_agg",
     time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16),
     target_format = "GTAPv7"
-  )
+  ))
 
   expect_type(.data, "list")
   expect_true(length(.data) > 0)

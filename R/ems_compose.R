@@ -31,10 +31,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' inputdata <- ems_compose(cmf_path = cmf_path, type = "inputdata")
 #' variables <- ems_compose(cmf_path = cmf_path, type = "variable")
 #' coefficients <- ems_compose(cmf_path = cmf_path, type = "coefficient")
-#' sets <- ems_compose(cmf_path = cmf_path, type = "set")
 #' 
 #' qfd <- ems_compose(cmf_path = cmf_path, type = "variable", name = "qfd")
 #' }

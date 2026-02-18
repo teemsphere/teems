@@ -2,7 +2,7 @@
 #' @keywords internal
 .validate_data_args <- function(a,
                                 call) {
-  a$... <- NULL
+  a[["..."]] <- NULL
   if (length(a$set_mappings) %=% 0L) {
     .cli_action(data_err$missing_set_mappings,
                 action = "abort",
@@ -19,7 +19,7 @@
     target_format = c("NULL", "character"),
     set_mappings = "list"
   )
-
+  
   .check_arg_class(
     args_list = a,
     checklist = checklist,

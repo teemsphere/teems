@@ -51,7 +51,8 @@ Modify with caution.}
 \item{docker_tag}{Character length 1 (default \code{"latest"}).
 Docker tag to specify the which Docker image is use.}
 
-\item{margin_sectors}{placeholder}
+\item{margin_sectors}{Sectors corresponding to original
+unaggregated elements that will be considered "margin"}
 
 \item{accuracy_threshold}{Numeric length 1 (default 0.8),
 converted to a percentage. 4 digit precision will be

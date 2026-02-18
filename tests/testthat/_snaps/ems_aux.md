@@ -33,10 +33,10 @@
 
 # ems_data errors when aux data is missing elements
 
-    x The element names provided for 'REG' do not contain all elements within the data being replaced.
+    x The POP element names provided for 'REG' do not contain all elements within the data being replaced.
     i Missing elements include "alb".
 
 # ems_data errors when aux data has unrecognizable set
 
-    x The set FAKE_SET is not found among loaded data, neither in terms of its name or constituitive elements.
+    x The rndm set FAKE_SET is not found among loaded data, neither in terms of its name or constituitive elements.
 

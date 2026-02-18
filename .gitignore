@@ -1,5 +1,6 @@
 .Rproj.user
 .Rhistory
 src/*.o
+src/*.so
 *.Rproj
 *_targets*

@@ -1,3 +1,11 @@
+# teems 0.0.1
+## Bug fixes
+* Passes devtools::check()
+
+## Other changes
+* All shock functions get their own function rather than S3 dispatch
+* Tests are about 70% there
+
 # teems 0.0.0.99
 ## Bug fixes
 * Complete revamp for CRAN submission

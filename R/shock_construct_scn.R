@@ -24,7 +24,7 @@
   data.table::setnames(value, raw_shock$ls_mixed, raw_shock$ls_upper)
   value <- .aggregate_data(dt = value,
                            sets = sets$mapping,
-                           ndigits = .o_ndigits())
+                           shock = TRUE)
   
   if (.o_check_shock_status()) {
     if (!data.table::fsetequal(template_shk, value[, !"Value"])) {

@@ -19,7 +19,6 @@
   template_shk <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
   data.table::setnames(template_shk, new = raw_shock$ls_mixed)
   value <- raw_shock$input
-  ndigits <- .o_ndigits()
 
   if (data.table::fsetequal(template_shk, value[, !"Value"])) {
     if (.o_check_shock_status()) {
@@ -32,13 +31,6 @@
         )
       }
     }
-
-    value[, let(Value = format(
-      round(Value, ndigits),
-      trim = TRUE,
-      nsmall = ndigits,
-      scientific = FALSE
-    ))]
 
     data.table::setorder(value)
     new_classes <- append(class(raw_shock), "full_set", after = 1)
@@ -140,13 +132,6 @@
           ss[match(names(ele), raw_shock$ls_upper)] <- paste0("\"", ele, "\"")
           shk$value <- shk$value[, -c(col), with = FALSE]
           data.table::setorder(shk$value)
-          shk$value[, let(Value = format(
-            round(Value, ndigits),
-            trim = TRUE,
-            nsmall = ndigits,
-            scientific = FALSE
-          ))]
-
           new_classes <- append(class(raw_shock), "full_set", after = 1)
           lead <- paste(
             "Shock",
@@ -173,13 +158,6 @@
     }
 
     if (nrow(value) %!=% 0L) {
-      value[, let(Value = format(
-        round(Value, ndigits),
-        trim = TRUE,
-        nsmall = ndigits,
-        scientific = FALSE
-      ))]
-
       value <- paste(
         "Shock",
         paste0(raw_shock$var,

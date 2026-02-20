@@ -16,6 +16,7 @@
 #' @export
 .aggregate_data.dat <- function(dt,
                                 sets,
+                                shock = FALSE,
                                 ndigits,
                                 ...) {
   # NSE
@@ -30,7 +31,7 @@
   data.table::setkeyv(dt, xval_col)
   dt <- dt[, sum(Value), by = xval_col]
   data.table::setnames(dt, "V1", "Value")
-  if (!rlang::is_integerish(dt$Value)) {
+  if (!rlang::is_integerish(dt$Value) && !shock) {
     dt[, let(Value = round(Value, ndigits))]
   } 
   return(dt)

@@ -110,12 +110,7 @@
       }
 
       if (type %=% "Real" && !rlang::is_integerish(dt$Value)) {
-        dt[, let(Value = format(
-          round(Value, ndigits),
-          trim = TRUE,
-          nsmall = ndigits,
-          scientific = FALSE
-        ))]
+        dt[, let(Value = round(Value, ndigits))]
       } else {
         dt[, let(Value = as.integer(Value))]
       }

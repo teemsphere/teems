@@ -1,3 +1,10 @@
+# teems 0.0.2
+## Bug fixes
+* The export tag from ems_solve was dropped in the previous version
+
+## Other changes
+* Objects created with shock functions are now copied so no changes via reference are passed back
+
 # teems 0.0.1
 ## Bug fixes
 * Passes devtools::check()

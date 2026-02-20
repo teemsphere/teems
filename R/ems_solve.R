@@ -63,7 +63,7 @@
 #' @param suppress_outputs Logical length 1 (default is `FALSE`).
 #'  When `TRUE` solver outputs are not automatically converted
 #'  into structured data with [`ems_compose()`].
-#' @param n_timesteps Integer length 1 (deafultl is `NULL`). Number of timesteps must be manually entered if `"matrix_method"` is "NDBBD".
+#' @param n_timesteps Integer length 1 (default is `NULL`). Number of timesteps must be manually entered if `"matrix_method"` is "NDBBD".
 #'
 #' @examples
 #' \dontrun{
@@ -75,7 +75,7 @@
 #'  coefficients. Alternatively, if `"suppress_outputs"` is
 #'  `TRUE`, file path to a CMF file that may be used with
 #'  [`ems_compose`].
-#'
+#' @export
 ems_solve <- function(cmf_path = NULL,
                       n_tasks = 1L,
                       n_subintervals = 1L,

@@ -119,7 +119,7 @@ prior to running from the terminal.}
 When \code{TRUE} solver outputs are not automatically converted
 into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{n_timesteps}{Integer length 1 (deafultl is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
+\item{n_timesteps}{Integer length 1 (default is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 
 \item{write_dir}{Character of length 1 (default is
 \code{tools::R_user_dir("teems", "cache")}), base directory where

@@ -2,24 +2,71 @@
 % Please edit documentation in R/ems_example.R
 \name{ems_example}
 \alias{ems_example}
-\title{Get path to teems example models and scripts}
+\title{Write teems example models and scripts to file}
 \usage{
-ems_example(file, dir = "extdata")
+ems_example(
+  model,
+  write_dir = tools::R_user_dir("teems", "cache"),
+  type = c("model_files", "scripts"),
+  dat_input = NULL,
+  par_input = NULL,
+  set_input = NULL,
+  target_format = NULL
+)
 }
 \arguments{
-\item{file}{Name of file. If \code{NULL}, the example files will be
-listed.}
+\item{model}{Character vector of length 1, (default is
+\code{NULL}). Name of model. Options include:
+\itemize{
+\item \code{"GTAP-RE"}: GTAP Rational Expectations
+\item \code{"GTAP-INT"}: GTAP Intertemporal
+\item \code{"GTAPv7"}: Standard GTAP model
+\item \code{"GTAPv6"}: Classic GTAP model
+}}
 
-\item{dir}{Directory path within /inst containing \code{"file"}}
+\item{write_dir}{Character vector of length 1, (default is
+\code{tools::R_user_dir("teems", "cache")}). Directory where
+files will be written.}
+
+\item{type}{Character vector of length 1. Determines the
+example output. Options include:
+\itemize{
+\item \code{"model"}: Model file and closure file
+\item \code{"scripts"}: Example scripts for the chosen \code{model}.
+\code{dat_input}, \code{par_input}, and \code{set_input} are required.
+\code{target_format} must be specified if a data format
+conversion is to take place.
+}}
+
+\item{dat_input}{Character vector of length 1, file name in
+working directory or path to a data input containing
+basedata coefficient data. Currently supports GTAP "dat" HAR
+files.}
+
+\item{par_input}{Character vector of length 1, file name in
+working directory or path to a data input containing
+parameter coefficient data. Currently supports GTAP "par"
+HAR files.}
+
+\item{set_input}{Character vector of length 1, file name in
+working directory or path to a data input containing set
+elements and attributes. Currently supports GTAP "set" HAR
+files.}
+
+\item{target_format}{Character vector of length 1 (default is
+\code{NULL}). If not \code{NULL}, data will be converted to the target
+format. Currently supports "GTAPv6" and "GTAPv7".}
+}
+\value{
+For \code{type = "model_files"}: a named list with elements \code{model_file}
+and \code{closure_file}. For \code{type = "scripts"}: a character vector of paths to
+the written script files.
 }
 \description{
-teems comes bundled with some example files in its
-\code{inst/extdata}, \code{inst/models}, and \code{inst/scripts} directories.
-This function make them easy to access.
-}
-\details{
-Function modified from \code{readxl::readxl_example()}
+teems comes bundled with example models and scripts. This
+function facilitates access.
 }
 \examples{
-ems_example("GTAP_RE.tab")
+# write GTAP-RE model files to `tools::R_user_dir("teems", "cache")`
+ems_example("GTAP-RE")
 }

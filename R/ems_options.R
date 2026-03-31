@@ -50,9 +50,11 @@
 #'   directory for model files, `"write_sub_dir"` sets the name
 #'   of the subdirectory within the base directory.
 #'
+#' @return `invisible(NULL)`, called for its side effects.
+#'
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #' @seealso [`ems_option_reset()`] for resetting package options.
-#' 
+#'
 #' @importFrom cli cli_abort
 #' @export
 ems_option_set <- function(verbose = NULL,
@@ -119,9 +121,12 @@ ems_option_set <- function(verbose = NULL,
 #'     subdirectory within the base directory set by
 #'     `ems_deploy()`.
 #'
+#' @return If `name` is `NULL`, a named list of all current option values.
+#'   Otherwise, the value of the requested option.
+#'
 #' @seealso [`ems_option_set()`] for setting package options.
 #' @seealso [`ems_option_reset()`] for resetting package options.
-#' 
+#'
 #' @importFrom cli cli_abort
 #' @export
 ems_option_get <- function(name = NULL) {
@@ -157,9 +162,11 @@ ems_option_get <- function(name = NULL) {
 #' @description `ems_option_reset()` resets all package
 #'   options to default values.
 #'   
+#' @return `invisible(NULL)`, called for its side effects.
+#'
 #' @seealso [`ems_option_set()`] for setting package options.
 #' @seealso [`ems_option_get()`] for retrieving package options.
-#' 
+#'
 #' @export
 ems_option_reset <- function() {
   ems_options$reset()

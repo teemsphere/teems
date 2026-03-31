@@ -14,13 +14,17 @@ frame or data frame extension (e.g., tibble, data table).
 Must contain "Value" as last column representing
 percentage-change shocks to each respective tuple.}
 
-\item{...}{Future extension.}
+\item{...}{These dots are for future extensions and must be empty.}
+}
+\value{
+A \code{list} object to be passed to the \code{shock} argument of
+\code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
 \code{ems_custom_shock()} loads custom shocks for
 processing as well as conducts a series of compatibility
 checks. A custom shock is one which allows for granular
-control over heterogenous shocks that are allocated on a
+control over heterogeneous shocks that are allocated on a
 tuple-specific basis, inputted as a CSV file or dataframe
 (or dataframe equivalent) through \code{"input"}.  The accepted
 set values within \code{"input"} depend on the \code{"var"} specified

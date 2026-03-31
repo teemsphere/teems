@@ -6,6 +6,9 @@
 \usage{
 ems_option_reset()
 }
+\value{
+\code{invisible(NULL)}, called for its side effects.
+}
 \description{
 \code{ems_option_reset()} resets all package
 options to default values.

@@ -16,23 +16,30 @@ steps and "Value" as last column representing an actual
 value that will be converted into a percentage-change shock
 based on set and time step selection.}
 
-\item{...}{Future extension.}
+\item{...}{These dots are for future extensions and must be
+empty.}
+}
+\value{
+A \code{list} object to be passed to the \code{shock} argument of
+\code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
 \code{ems_scenario_shock()} loads scenario shocks for
 processing as well as conducts a series of compatibility
 checks. A scenario shock is one which allows for granular
-control over heterogenous shocks that are allocated on a
+control over heterogeneous shocks that are allocated on a
 tuple-specific basis, inputted as a CSV file or dataframe
 (or dataframe equivalent) through \code{"input"} in the form of
-absolute values. This is in contrast with \code{"custom"} shocks
-where the inputs are denominated in percentage change
-values.  The accepted set values within \code{"input"} depend on
-the \code{"var"} specified and set mappings associated with this
-variable but must encompass all tuples prior to any
-aggregation (specific to the database being used). Values
-will be aggregated according to the selected set
-aggregations and converted to percentage change form.
+absolute values.
+
+This type of shock differs from \code{"custom"} shocks where the
+inputs are denominated in percentage change values.  The
+accepted set values within \code{"input"} depend on the \code{"var"}
+specified and set mappings associated with this variable but
+must encompass all tuples prior to any aggregation (specific
+to the database being used). Values will be aggregated
+according to the selected set aggregations and converted to
+percentage change form.
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this

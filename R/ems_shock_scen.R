@@ -3,17 +3,19 @@
 #' @description `ems_scenario_shock()` loads scenario shocks for
 #'   processing as well as conducts a series of compatibility
 #'   checks. A scenario shock is one which allows for granular
-#'   control over heterogenous shocks that are allocated on a
+#'   control over heterogeneous shocks that are allocated on a
 #'   tuple-specific basis, inputted as a CSV file or dataframe
 #'   (or dataframe equivalent) through `"input"` in the form of
-#'   absolute values. This is in contrast with `"custom"` shocks
-#'   where the inputs are denominated in percentage change
-#'   values.  The accepted set values within `"input"` depend on
-#'   the `"var"` specified and set mappings associated with this
-#'   variable but must encompass all tuples prior to any
-#'   aggregation (specific to the database being used). Values
-#'   will be aggregated according to the selected set
-#'   aggregations and converted to percentage change form.
+#'   absolute values.
+#'
+#'   This type of shock differs from `"custom"` shocks where the
+#'   inputs are denominated in percentage change values.  The
+#'   accepted set values within `"input"` depend on the `"var"`
+#'   specified and set mappings associated with this variable but
+#'   must encompass all tuples prior to any aggregation (specific
+#'   to the database being used). Values will be aggregated
+#'   according to the selected set aggregations and converted to
+#'   percentage change form.
 #' @inheritParams ems_uniform_shock
 #' @param input character length 1, path to a csv file; a data
 #'   frame or data frame extension (e.g., tibble, data table).
@@ -21,7 +23,11 @@
 #'   steps and "Value" as last column representing an actual
 #'   value that will be converted into a percentage-change shock
 #'   based on set and time step selection.
-#' @param ... Future extension.
+#' @param ... These dots are for future extensions and must be
+#'   empty.
+#'
+#' @return A `list` object to be passed to the `shock` argument of
+#'   [`ems_deploy()`].
 #'
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function.
@@ -32,6 +38,12 @@ ems_scenario_shock <- function(var,
                                input,
                                ...
 ) {
+if (missing(var)) {
+  .cli_missing(var)
+}
+if (missing(input)) {
+  .cli_missing(input)
+}
 args_list <- mget(names(formals()))
 call <- match.call()
 shock <- .implement_shock(

@@ -16,6 +16,9 @@
 #'   separated by commas corresponding to the parts of a variable
 #'   that will receive a uniform shock.
 #'
+#' @return A `list` object to be passed to the `shock` argument of
+#'   [`ems_deploy()`].
+#'
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function.
 #' @seealso [`ems_swap()`] for changing the standard model
@@ -36,6 +39,12 @@ ems_uniform_shock <- function(var,
                               value,
                               ...)
 {
+if (missing(var)) {
+  .cli_missing(var)
+}
+if (missing(value)) {
+  .cli_missing(value)
+}
 args_list <- mget(names(formals()))
 args_list$subset <- list(...)
 call <- match.call()

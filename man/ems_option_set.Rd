@@ -75,6 +75,9 @@ Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a bas
 directory for model files, \code{"write_sub_dir"} sets the name
 of the subdirectory within the base directory.}
 }
+\value{
+\code{invisible(NULL)}, called for its side effects.
+}
 \description{
 \code{ems_option_set()} allows the user to customize
 advanced options.

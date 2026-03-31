@@ -3,7 +3,7 @@
 #' @description `ems_custom_shock()` loads custom shocks for
 #'   processing as well as conducts a series of compatibility
 #'   checks. A custom shock is one which allows for granular
-#'   control over heterogenous shocks that are allocated on a
+#'   control over heterogeneous shocks that are allocated on a
 #'   tuple-specific basis, inputted as a CSV file or dataframe
 #'   (or dataframe equivalent) through `"input"`.  The accepted
 #'   set values within `"input"` depend on the `"var"` specified
@@ -17,8 +17,11 @@
 #'   frame or data frame extension (e.g., tibble, data table).
 #'   Must contain "Value" as last column representing
 #'   percentage-change shocks to each respective tuple.
-#' @param ... Future extension.
+#' @param ... These dots are for future extensions and must be empty.
 #' 
+#' @return A `list` object to be passed to the `shock` argument of
+#'   [`ems_deploy()`].
+#'
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function.
 #' @seealso [`ems_swap()`] for changing the standard model
@@ -44,6 +47,12 @@ ems_custom_shock <- function(var,
                              input,
                              ...)
 {
+if (missing(var)) {
+  .cli_missing(var)
+}
+if (missing(input)) {
+  .cli_missing(input)
+}
 args_list <- mget(names(formals()))
 call <- match.call()
 shock <- .implement_shock(

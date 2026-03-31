@@ -42,6 +42,10 @@ subdirectory within the base directory set by
 \code{ems_deploy()}.
 }}
 }
+\value{
+If \code{name} is \code{NULL}, a named list of all current option values.
+Otherwise, the value of the requested option.
+}
 \description{
 \code{ems_option_get()} returns default package
 options. If \code{name} is \code{NULL} (the default), all option

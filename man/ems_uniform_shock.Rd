@@ -15,6 +15,10 @@ ems_uniform_shock(var, value, ...)
 separated by commas corresponding to the parts of a variable
 that will receive a uniform shock.}
 }
+\value{
+A \code{list} object to be passed to the \code{shock} argument of
+\code{\link[=ems_deploy]{ems_deploy()}}.
+}
 \description{
 \code{ems_uniform_shock()} loads uniform shocks for
 processing as well as conducts a series of compatibility

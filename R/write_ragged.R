@@ -5,6 +5,7 @@
 #' @noRd
 .ragged_write <- function(input,
                           write_dir) {
+  # opening a file-specific con here probably faster
   write_path <- file.path(write_dir, paste0(attr(input, "file"), ".txt"))
   dim_sizes <- attr(input, "dim_sizes")
   idx <- length(colnames(input))

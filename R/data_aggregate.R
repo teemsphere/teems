@@ -88,8 +88,9 @@
                                 ...) {
 
   # NSE
-  mapping <- origin <- NULL
-  
+  mapping <- NULL
+  origin <- NULL
+
   if (inherits(dt, names(sets))) {
     r_idx <- match(dt$Value, purrr::pluck(sets, class(dt)[2], 1))
     dt[[2]] <- purrr::pluck(sets, class(dt)[2], 2)[r_idx]

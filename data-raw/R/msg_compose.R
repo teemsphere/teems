@@ -9,6 +9,7 @@ build_compose_err <- function() {
     var_check = "Name discrepancy in parsed variables with respect to variable extract names.",
     coeff_check = "One or more coefficients identified from the Tablo extract was not found in the output csvs.",
     invalid_coeff_set = "It appears that a set isn't found which likely means a space around a coefficient set declaration (e.g., (all, r, REG) instead of (all,r,REG).",
-    missing_sets = "Set information missing from binary outputs: {.field {x_sets}}."
+    missing_sets = "Set information missing from binary outputs: {.field {x_sets}}.",
+    invalid_name = "The {.arg name} provided: {.field {name}} is not present within output variables or coefficients."
   )
 }

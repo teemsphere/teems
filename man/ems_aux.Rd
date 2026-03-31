@@ -4,52 +4,47 @@
 \alias{ems_aux}
 \title{Load and prepare auxiliary data inputs}
 \usage{
-ems_aux(dat = NULL, par = NULL, set = NULL)
+ems_aux(input, type, header = NULL)
 }
 \arguments{
-\item{dat}{Auxiliary inputs for non-parameter coefficients
-(default \code{NULL}).}
+\item{input}{Character vector of length 1, file name in
+working directory or path to a data input containing
+basedata coefficient data. Currently supports a data frame
+or data frame extension (e.g., tibble, data table) for
+\code{"dat"} and \code{"par"} input \code{type}, a vector for \code{"set"} input
+\code{type}, or path to a CSV file or GTAP HAR files.
 
-\item{par}{Auxiliary inputs for parameters coefficients
-(default \code{NULL}).}
+Where a header is to be replaced, the accepted set names
+(i.e., column names) within "input" must conform to the same
+format as the header-specific output from \code{\link[=ems_data]{ems_data()}}.
+Where a novel header is introduced, set names must conform
+to the hybrid format consisting of the concatenated set name
+and index within the coefficient declaration (e.g. REGr for
+the SAVE coefficient).}
 
-\item{set}{Under development. Auxiliary inputs for sets (default \code{NULL}).}
+\item{type}{Character vector of length 1, type of data that is
+loaded. One of the following:
+\itemize{
+\item \code{"dat"} inputs undergo simple sum aggregation.
+\item \code{"par"} inputs undergo mean aggregation or weighted mean
+aggregation.
+\item \code{"set"} inputs represent final set elements.
+}}
+
+\item{header}{Character vector of length 1 (default is
+\code{NULL}). Must be provided if the input is not a GTAP HAR
+file. If provided and already present in other loaded data,
+will overwrite existing values. If not already present, will
+be appended to existing data.}
 }
 \value{
-A list object ready for input into the \code{"aux_input"}
+An object ready for input into the \code{"aux_input"}
 argument of \code{\link[=ems_data]{ems_data()}}
 }
 \description{
 \code{ems_aux()} loads and prepares data for input
 into the \code{ems_data()} function.
 }
-\section{Input structure}{
- CSV inputs must contain all tuples
-associated with an unaggregated header. These will be
-subject to checks and aggregated according to data type and
-set mappings provided in \code{\link[=ems_data]{ems_data()}}.
-\itemize{
-\item \code{"dat"} inputs undergo simple sum aggregation.
-\item \code{"par"} inputs undergo mean aggregation or weighted mean aggregation.
-\item \code{"set"} Under development. Inputs will be subsetted.
-}
-}
-
-\section{Input Format}{
- Each parameter (\code{dat}, \code{par}, \code{set})
-accepts a list with list elements in one of the following
-formats:
-\itemize{
-\item \strong{Data frame}: A named list where the name corresponds to
-the header and value is a data frame or extension (tibble,
-data.table).
-\item \strong{CSV file}: A named list where the name corresponds to
-the header and value is a file path to a CSV.
-\item \strong{HAR file}: An unnamed character vector with the path to
-a GTAP header array file.
-}
-}
-
 \examples{
 \dontrun{
 # unaggregated REG and TRAD_COMM sets
@@ -70,9 +65,35 @@ SUBP$Value <- runif(nrow(SUBP))
 # an auxiliary HAR file
 aux_har_file <- "/path/to/auxiliary_har/GDYNflexagg10A_Y14/gdpextra.har"
 
-# load according to data type
-aux_input <- ems_aux(dat = list(POP = POP),
-                     par = list(SUBP = SUBP, "/home/mpc/dat/GDYN/GDYNflexagg10A_Y14/gdpextra.har"))
+# specify data type and header (in the case of single headers)
+dat_input <- ems_aux(input = POP,
+                     type = "dat",
+                     header = "POP")
+                     
+par_input <- ems_aux(input = SUBP,
+                     type = "par",
+                     header = "SUBP")
+                   
+HAR_input <- ems_aux(input = aux_har_file,
+                     type = "par")
+         
+# single auxiliary input          
+.data <- ems_data(dat_input = "path/to/v6_data/v10A/flexagg10AY14/gsddat.har",
+                  par_input = "path/to/v6_data/v10A/flexagg10AY14/gsdpar.har",
+                  set_input = "path/to/v6_data/v10A/flexagg10AY14/gsdset.har",
+                  aux_input = dat_input,
+                  REG = "full",
+                  TRAD_COMM = "full",
+                  ENDW_COMM = "labor_agg")
+                  
+# multiple auxiliary inputs          
+.data <- ems_data(dat_input = "path/to/v6_data/v10A/flexagg10AY14/gsddat.har",
+                  par_input = "path/to/v6_data/v10A/flexagg10AY14/gsdpar.har",
+                  set_input = "path/to/v6_data/v10A/flexagg10AY14/gsdset.har",
+                  aux_input = list(dat_input, par_input, HAR_input),
+                  REG = "full",
+                  TRAD_COMM = "full",
+                  ENDW_COMM = "labor_agg")
 }
 }
 \seealso{

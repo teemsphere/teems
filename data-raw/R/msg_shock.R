@@ -1,6 +1,8 @@
 build_shk_err <- function() {
   list(
     cst_scen_val_file = "The last column in the loaded file {.file {input}} must be a {.field Value} column.",
+    # test-ems_custom_shock.R: "ems_custom_shock errors when input data frame lacks Value column"
+    # test-ems_scenario_shock.R: "ems_scenario_shock errors when input data frame lacks Value column"
     cst_scen_val_df = "{.obj_type_friendly {input}} supplied as a shock must have {.field Value} as the last column.",
     scen_year_file = "No {.field Year} column was found in the loaded file {.file {input}}.",
     scen_year_df = "{.obj_type_friendly {input}} supplied as a scenario shock must have a column designating {.field Year} consistent with selected time steps.",
@@ -14,7 +16,8 @@ build_shk_err <- function() {
       "For {.val {var_name}} these include: {.field {ls_mixed}}.",
       "In intertemporal models, {.field Year} may be provided in lieu of an intertemporal set."
     ),
-    x_full_exo = "The variable {.field {raw_shock$var}} was assigned a shock over the entire variable yet is not fully exogenous.",
+    x_full_exo = c("The variable {raw_shock$var}} was assigned a shock over the entire variable yet is not fully exogenous.",
+                   "If {.field {raw_shock$var}} is fully exogenous but contains multiple closure entires, modify the multiple entries into a single {.val {raw_shock$var}} entry."),
     x_full_exo_part = "The variable {.field {raw_shock$var}} was assigned a shock over part of the variable yet no components are exogenous.",
     uni_invalid_year = "The Year provided for a shock {.val {Year}} is not among years consistent with provided time steps {.field {CYRS}}.",
     uni_invalid_ele = c(
@@ -30,6 +33,7 @@ build_shk_err <- function() {
       "{n_missing_tuples} tuple{?s} in the provided scenario shock file were missing: {.field {missing_tuples}}.",
       "Note that scenario shocks are subject to aggregation and must contain all unaggregated database- and variable-specific elements for associated sets."
     ),
+    # test-ems_deploy.R: "ems_deploy errors when shock_file and shock are both provided"
     shk_file_shocks = "No additional shocks are accepted if a shock file is provided.",
     uni_named_lst = "Note that set names consist of the concatenation of the set name and variable-specific lowercase index."
   )

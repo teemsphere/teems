@@ -1,113 +1,79 @@
-#' @importFrom data.table dcast fwrite setorder
+#' @importFrom data.table dcast fwrite setorder setorderv .SD
 #' @importFrom utils head
 #'
 #' @keywords internal
 #' @noRd
 .shk_ragged_write <- function(input,
-                              write_dir,
                               lead,
-                              dim_sizes,
                               write_path) {
- 
-  idx <- length(colnames(input))
 
-  if (is.null(lead)) {
-    cat(attr(input, "lead"),
-      file = write_path,
-      sep = "\n",
-      append = TRUE
-    )
-  } else {
-    cat(lead,
-      file = write_path,
-      sep = "\n",
-      append = TRUE
-    )
-  }
+  k <- ncol(input) - 1L
 
-  if (idx %=% 1L) {
-    data.table::fwrite(
-      x = input,
-      file = write_path,
-      quote = FALSE,
-      append = TRUE,
-      sep = " "
-    )
-  } else if (idx %=% 2L) {
+  cat(if (is.null(lead)) attr(input, "lead") else lead,
+    file = write_path,
+    sep = "\n",
+    append = TRUE
+  )
+
+  if (k %=% 1L) {
     data.table::setorder(input)
     data.table::fwrite(
-      x = input[, -1],
+      x = input[, "Value", with = FALSE],
       file = write_path,
       quote = FALSE,
+      col.names = FALSE,
       append = TRUE,
       sep = " "
     )
-
-    cat(";\n",
-      file = write_path,
-      sep = "",
-      append = TRUE
-    )
-  } else if (idx %=% 3L) {
-    input <- data.table::dcast(input,
-                               paste(colnames(input)[2:1], collapse = "~"),
-                               value.var = "Value")
-    data.table::fwrite(
-      x = input[, -1],
-      file = write_path,
-      quote = FALSE,
-      append = TRUE,
-      sep = " "
-    )
-    cat(";\n",
-      file = write_path,
-      sep = "",
-      append = TRUE
-    )
+    cat(";\n\n", file = write_path, sep = "", append = TRUE)
   } else {
-    input <- input[, c(rev(utils::head(seq_len(idx), -1)), idx), with = FALSE]
-    data.table::setorder(input)
-    arr <- array(input[[idx]], dim_sizes)
+    col_col <- colnames(input)[[k]]
+    row_col <- colnames(input)[[k - 1L]]
+    blk <- utils::head(colnames(input), k - 2L)
 
-    ls_dt <- .slice_array(
-      arr = arr,
-      dim_sizes = dim_sizes
-    )
+    if (length(blk) %=% 0L) {
+      mat <- data.table::dcast(input,
+        paste(row_col, "~", col_col),
+        value.var = "Value"
+      )
+      data.table::setorder(mat)
+      data.table::fwrite(
+        x = mat[, -1L],
+        file = write_path,
+        quote = FALSE,
+        col.names = FALSE,
+        append = TRUE,
+        sep = " "
+      )
+      cat(";\n\n", file = write_path, sep = "", append = TRUE)
+    } else {
+      blk_grid <- unique(input[, .SD, .SDcols = blk])
+      data.table::setorderv(blk_grid, blk)
+      n_blk <- nrow(blk_grid)
 
-    lapply(
-      seq_along(ls_dt),
-      function(i) {
+      for (i in seq_len(n_blk)) {
+        slice <- input[blk_grid[i], on = blk]
+        mat <- data.table::dcast(slice,
+          paste(row_col, "~", col_col),
+          value.var = "Value"
+        )
+        data.table::setorder(mat)
         data.table::fwrite(
-          ls_dt[[i]],
+          x = mat[, -1L],
           file = write_path,
-          sep = " ",
+          quote = FALSE,
           col.names = FALSE,
-          append = TRUE
+          append = TRUE,
+          sep = " "
         )
-
-        if (i == length(ls_dt)) {
-          cat(";\n",
-            file = write_path,
-            sep = "",
-            append = TRUE
-          )
+        if (i == n_blk) {
+          cat(";\n\n", file = write_path, sep = "", append = TRUE)
+        } else {
+          cat("\n", file = write_path, sep = "", append = TRUE)
         }
-        cat("\n",
-          file = write_path,
-          sep = "",
-          append = TRUE
-        )
       }
-    )
+    }
   }
 
-
-  if (idx < 4) {
-    cat("\n",
-      file = write_path,
-      sep = "",
-      append = TRUE
-    )
-  }
   return(write_path)
 }

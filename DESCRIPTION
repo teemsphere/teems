@@ -1,37 +1,36 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Version: 0.0.2
+Version: 0.0.3
 Authors@R:
-  person(
-    given = "Matthew",
-    family = "Cantele",
-    email = "matthew.cantele@protonmail.com",
-    role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0003-3729-1764"))
-Description: A comprehensive modeling system for preparing and running all aspects of a 
-    Computable General Equilibrium (CGE) model. The package converts HAR files, parses TABLO model 
-    files, calculates aggregation-specific parameter values, aggregates data to 
-    set specifications, compiles shocks and closures, and solves the model 
-    according to a wide variety of parameters. 
-License: GPL (>= 3)
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+    person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3729-1764"))
+Description: A comprehensive modeling system for preparing and running all
+    aspects of a Computable General Equilibrium (CGE) model. The package
+    converts inputs, parses model files, calculates
+    aggregation-specific parameter values, aggregates data to set
+    specifications, compiles shocks and closures, and solves the model
+    according to a wide range of parameters.
+License: AGPL (>= 3)
+Depends: 
+    R (>= 4.3.0)
 Imports: 
     cli (>= 3.6.5),
     data.table (>= 1.17.8),
     purrr (>= 1.2.0),
-    rlang (>= 1.1.6),
     R6 (>= 2.6.1),
-    tibble (>= 3.3.0)
-LinkingTo:
-    cpp11
+    rlang (>= 1.1.6),
+    stats,
+    tibble (>= 3.3.0),
+    tools,
+    utils
 Suggests:
     testthat (>= 3.0.0),
-    withr (>= 3.0.0),
-    dplyr (>= 1.1.4)
-Depends: 
-    R (>= 4.3.0)
-LazyData: true
+    withr (>= 3.0.0)
+LinkingTo:
+    cpp11
 Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
 SystemRequirements: Docker

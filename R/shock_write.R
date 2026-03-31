@@ -55,20 +55,20 @@
 #' @export
 .write_shock.custom <- function(shock,
                                 write_path) {
+
   NextMethod()
 }
 
 #' @keywords internal
 #' @noRd
-#' @method .write_shock full_set
+#' @method .write_shock full
 #' @export
-.write_shock.full_set <- function(shock,
-                                  write_path) {
+.write_shock.full <- function(shock,
+                              write_path) {
 
   .shk_ragged_write(
     input = shock$dt,
     lead = attr(shock, "lead"),
-    dim_sizes = attr(shock, "dim_sizes"),
     write_path = write_path
   )
 
@@ -81,8 +81,10 @@
 #' @export
 .write_shock.ele <- function(shock,
                              write_path) {
-  cat(shock$ele,
-      file = write_path,
-      append = TRUE)
+  
+  con <- file(write_path, open = "a")
+  writeLines(shock$ele, con, sep = "\n\n")
+  close(con)
+  
   return(write_path)
 }

@@ -4,15 +4,15 @@
 #' @keywords internal
 #' @noRd
 .in_situ_cmf <- function(input_files,
-                         n_timesteps,
-                         model_input,
+                         model_file,
                          shock_file,
                          closure_file,
                          writeout,
                          write_dir,
                          call) {
+  
   model_file <- .check_input(
-    file = model_input,
+    file = model_file,
     valid_ext = "tab",
     call = call
   )

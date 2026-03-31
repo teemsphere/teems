@@ -24,7 +24,7 @@
   entry_ele <- data.table::setnames(do.call(data.table::CJ, entry_ele), var_sets)
   data.table::setkey(entry_ele)
   if (nrow(data.table::fintersect(entry_ele, full_entry)) %!=% 1L) {
-    .cli_action(cls_err$ele_invalid,
+    .cli_action(model_err$ele_invalid,
                 action = "abort",
                 call = call
     )

@@ -1,8 +1,8 @@
 #' @keywords internal
 #' @noRd
 .read_aux <- function(input,
+                      type,
                       header,
-                      data_type,
                       call) {
   UseMethod(".read_aux")
 }
@@ -12,10 +12,10 @@
 #' @method .read_aux data.frame
 #' @export
 .read_aux.data.frame <- function(input,
+                                 type,
                                  header,
-                                 data_type,
                                  call) {
-  if (data_type %!=% "set") {
+  if (type %!=% "set") {
     col_nmes <- colnames(input)
 
     if (!"Value" %in% col_nmes) {
@@ -32,58 +32,45 @@
     names(dimnames) <- x_val_col
 
     input <- array(input$Value, dim = dim, dimnames = dimnames)
-    class(input) <- c(header, data_type, class(input))
+    class(input) <- c(header, type, class(input))
   } else {
-    class(input) <- c(header, header, data_type, class(input))
+    class(input) <- c(header, header, type, class(input))
   }
   return(input)
 }
 
-#' @importFrom tools file_path_sans_ext
-#' @importFrom purrr  map
-#' 
 #' @keywords internal
 #' @noRd
 #' @method .read_aux character
 #' @export
 .read_aux.character <- function(input,
+                                type,
                                 header,
-                                data_type,
                                 call) {
 
-  input <- .check_input(
-    file = input,
-    valid_ext = c("csv", "har"),
-    call = call
-  )
-
-  if (inherits(input, "har")) {
-    basename <- tools::file_path_sans_ext(basename(input))
-  }
-
-  if (!is.null(header)) {
-    attr(input, "header") <- header
-  }
-
-  input <- .read_input(
-    input = input,
-    data_type = data_type,
-    call = call
-  )
-
-  if (inherits(input, "data.frame")) {
-    input <- .read_aux(
+  if (length(input) %=% 1L) {
+    input <- .read_input(
       input = input,
-      header = header,
-      data_type = data_type,
+      data_type = type,
       call = call
     )
-  } else if (inherits(input, "list")) {
-    # if har origin
-    input <- purrr::map(input, function(i) {
-      attr(i, "name") <- basename
-      return(i)
-    })
+
+    if (inherits(input, "data.frame")) {
+      input <- .read_aux(
+        input = input,
+        header = header,
+        type = type,
+        call = call
+      )
+    }
+  }
+  
+  if (type %=% "set") {
+    class(input) <- c(header, header, type, class(input))
+  }
+  
+  if (!is.null(header)) {
+    attr(input, "header") <- header
   }
 
   return(input)

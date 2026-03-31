@@ -14,7 +14,7 @@
   
   if (length(method_coeff) %!=% 0L) {
     m_input <- c(m_input, args_list[method_coeff])
-    method_file <- deparse(call$model_input)
+    method_file <- deparse(call$model_file)
   }
 
   for (nme in names(m_input)) {

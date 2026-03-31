@@ -4,7 +4,7 @@ targets::tar_config_set(store = "./data-raw/_targets")
 
 # Set target options:
 targets::tar_option_set(
-  packages = c("data.table", "usethis", "purrr", "tabulapdf"),
+  packages = c("data.table", "usethis", "purrr", "tabulapdf", "fst"),
   format = "qs",
   cue = tar_cue("always")
 )
@@ -16,7 +16,18 @@ targets::tar_source("./data-raw/R")
 
 list(
   tar_target(db_version, c("GTAPv9", "GTAPv10", "GTAPv11")),
+  tar_target(vetted_db_versions, c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c")),
   tar_target(data_format, c("GTAPv6", "GTAPv7")),
+  # model related
+  tar_target(model_dirs, {
+    dir <- list.dirs(
+      "../teems-models",
+      recursive = FALSE
+    )
+    
+    dir <- dir[basename(dir) != ".git"]
+    file.copy(dir, "./inst/models/", recursive = TRUE)
+  }),
   # mapping related --------------------------------------------------
   tar_target(mapping_files, {
     list.files(
@@ -204,12 +215,13 @@ list(
   # messages (definitions in data-raw/R/msg_*.R) -------------------------
   tar_target(aux_err, build_aux_err()),
   tar_target(aux_wrn, build_aux_wrn()),
-  tar_target(cls_err, build_cls_err()),
   tar_target(compose_err, build_compose_err()),
   tar_target(data_err, build_data_err()),
   tar_target(data_info, build_data_info()),
   tar_target(data_wrn, build_data_wrn()),
   tar_target(deploy_err, build_deploy_err()),
+  tar_target(exp_err, build_exp_err()),
+  tar_target(exp_info, build_exp_info()),
   tar_target(gen_err, build_gen_err()),
   tar_target(model_err, build_model_err()),
   tar_target(model_wrn, build_model_wrn()),
@@ -221,6 +233,7 @@ list(
   # internal data ====================================================
   tar_target(internal_data, {
     usethis::use_data(
+      vetted_db_versions,
       mappings,
       tab_qual,
       supported_state,
@@ -231,12 +244,13 @@ list(
       coeff_conversion,
       aux_err,
       aux_wrn,
-      cls_err,
       compose_err,
       data_err,
       data_info,
       data_wrn,
       deploy_err,
+      exp_err,
+      exp_info,
       gen_err,
       model_err,
       model_wrn,

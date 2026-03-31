@@ -24,7 +24,7 @@
     depth <- "single"
   }
   attr(swap, "call") <- call
-  class(swap) <- c("ems", depth, breadth, class(swap))
+  class(swap) <- c(depth, breadth, class(swap))
   swap <- list(swap)
   return(swap)
 }

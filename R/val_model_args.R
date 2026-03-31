@@ -11,8 +11,8 @@
   
   a$var_omit <- tolower(a$var_omit)
 
-  a$model_input <- .check_input(
-    file = a$model_input,
+  a$model_file <- .check_input(
+    file = a$model_file,
     valid_ext = "tab",
     call = call
   )
@@ -27,7 +27,7 @@
 
   a$closure <- .load_closure(
     closure_file = a$closure_file,
-    model_input = a$model_input,
+    model_file = a$model_file,
     call = call
   )
 

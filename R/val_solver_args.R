@@ -1,70 +1,92 @@
 #' @importFrom rlang arg_match is_integerish
-#' 
+#'
 #' @keywords internal
 #' @noRd
-.validate_solver_args <- function(n_tasks,
-                                  n_subintervals,
-                                  matrix_method,
-                                  solution_method,
-                                  steps,
-                                  n_timesteps,
+.validate_solver_args <- function(a,
                                   paths,
                                   call) {
-  if (!rlang::is_integerish(n_tasks)) {
-    arg <- "n_tasks"
-    .cli_action(solve_err$x_integerish,
-      action = "abort",
-      call = call
-    )
-  }
-
-  if (as.integer(length(n_tasks)) %!=% 1L) {
-    arg <- "n_tasks"
-    .cli_action(solve_err$invalid_length,
-      action = "abort",
-      call = call
-    )
-  }
-
-  if (!rlang::is_integerish(n_subintervals)) {
-    arg <- "n_subintervals"
-    .cli_action(solve_err$x_integerish,
-      action = "abort",
-      call = call
-    )
-  }
-
-  if (as.integer(length(n_subintervals)) %!=% 1L) {
-    arg <- "n_subintervals"
-    .cli_action(solve_err$invalid_length,
-      action = "abort",
-      call = call
-    )
-  }
-
-  matrix_method <- rlang::arg_match(
+  
+  matrix_method <- a$matrix_method
+  a$matrix_method <- rlang::arg_match(
     arg = matrix_method,
-    values = c("LU", "DBBD", "SBBD", "NDBBD")
+    values = c("LU", "DBBD", "SBBD", "NDBBD"),
+    error_call = call
   )
-  solution_method <- rlang::arg_match(
+  
+  solution_method <- a$solution_method
+  a$solution_method <- rlang::arg_match(
     arg = solution_method,
-    values = c("Johansen", "mod_midpoint")
+    values = c("Johansen", "mod_midpoint"),
+    error_call = call
   )
-  if (!(all(steps %% 2 == 0) || all(steps %% 2 == 1))) {
+  
+  checklist <- list(
+    cmf_path = "character",
+    n_tasks = c("numeric", "integer"),
+    n_subintervals = c("numeric", "integer"),
+    matrix_method = "character",
+    solution_method = "character",
+    steps = c("numeric", "integer"),
+    laA = c("numeric", "integer"),
+    laD = c("numeric", "integer"),
+    laDi = c("numeric", "integer"),
+    suppress_outputs = "logical",
+    terminal_run = "logical"
+  )
+
+  .check_arg_class(
+    args_list = a,
+    checklist = checklist,
+    call = call
+  )
+
+  if (!rlang::is_integerish(a$n_tasks)) {
+    arg <- "n_tasks"
+    .cli_action(solve_err$x_integerish,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (as.integer(length(a$n_tasks)) %!=% 1L) {
+    arg <- "n_tasks"
+    .cli_action(solve_err$invalid_length,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (!rlang::is_integerish(a$n_subintervals)) {
+    arg <- "n_subintervals"
+    .cli_action(solve_err$x_integerish,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (as.integer(length(a$n_subintervals)) %!=% 1L) {
+    arg <- "n_subintervals"
+    .cli_action(solve_err$invalid_length,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (!(all(a$steps %% 2 == 0) || all(a$steps %% 2 == 1))) {
     .cli_action(solve_err$subint_form,
       action = "abort",
       call = call
     )
   }
-  if (!all(is.numeric(steps), length(steps) == 3)) {
+  if (!all(is.numeric(a$steps), length(a$steps) == 3)) {
     .cli_action(solve_err$step_length,
       action = "abort",
       call = call
     )
   }
 
-  matsol <- switch(
-    EXPR = matrix_method,
+  a$matsol <- switch(
+    EXPR = a$matrix_method,
     "LU" = 0,
     "SBBD" = 1,
     "DBBD" = 2,
@@ -82,44 +104,30 @@
   }
 
   if (any(grepl(pattern = "(intertemporal)", tab))) {
-    enable_time <- TRUE
+    a$enable_time <- TRUE
   } else {
-    enable_time <- FALSE
+    a$enable_time <- FALSE
   }
 
-  if (matrix_method %in% c("SBBD", "NDBBD") && !enable_time) {
+  if (a$matrix_method %in% c("SBBD", "NDBBD") && !a$enable_time) {
     .cli_action(solve_err$invalid_method,
       action = "abort",
       call = call
     )
   }
 
-  if (identical(x = matrix_method, y = "NDBBD")) {
-    # this warning necessary in NULL method
-    if (is.null(n_timesteps)) {
-      .cli_action(solve_err$NDBBD_time,
-                  action = "abort",
-                  call = call)
-    }
-    nesteddbbd <- 1
+  if (matrix_method %=% "NDBBD") {
+    a$nesteddbbd <- 1
   } else {
-    nesteddbbd <- 0
-  }
-  if (solution_method %=% "mod_midpoint") {
-    solmed <- "Mmid"
-  } else {
-    solmed <- "Johansen"
-    n_subintervals <- 1
+    a$nesteddbbd <- 0
   }
 
-  mod_arg <- list(
-    matsol = matsol,
-    solmed = solmed,
-    n_subintervals = n_subintervals,
-    n_timesteps = n_timesteps,
-    nesteddbbd = nesteddbbd,
-    enable_time = enable_time
-  )
+  if (a$solution_method %=% "mod_midpoint") {
+    a$solmed <- "Mmid"
+  } else {
+    a$solmed <- "Johansen"
+    a$n_subintervals <- 1
+  }
 
-  return(mod_arg)
+  return(a)
 }

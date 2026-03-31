@@ -29,7 +29,7 @@
 
   if (any(purrr::map_lgl(closure, inherits, "NA"))) {
     invalid_entry <- closure[purrr::map_lgl(closure, inherits, "NA")]
-    .cli_action(cls_err$entry_type,
+    .cli_action(model_err$entry_type,
                 action = "abort",
                 call = call)
   }

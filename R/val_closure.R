@@ -30,7 +30,7 @@
       overlap <- over_check[duplicated(over_check)]
       n_overlap <- nrow(overlap)
       overlap <- utils::capture.output(print(overlap))[-c(1, 2)]
-      .cli_action(swap_err$overlap_ele,
+      .cli_action(swap_err$pre_overlap_ele,
         action = "abort",
         call = call
       )

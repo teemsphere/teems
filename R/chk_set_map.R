@@ -49,6 +49,7 @@
 
 #' @importFrom data.table fread
 #' @importFrom purrr pluck map_lgl
+#' @importFrom data.table is.data.table as.data.table copy
 #' 
 #' @keywords internal
 #' @noRd
@@ -62,12 +63,19 @@
                                 ...) {
 
   map_name <- attr(set_map, "name")
-  set_map <- .check_input(
-    file = set_map,
-    valid_ext = "csv",
-    call = call
-  )
-  set_mapping <- data.table::fread(set_map)
+  
+  if (inherits(set_map, "character")) {
+    set_map <- .check_input(
+      file = set_map,
+      valid_ext = "csv",
+      call = call
+    )
+    set_mapping <- data.table::fread(set_map)
+  } else if (!data.table::is.data.table(set_map)) {
+    set_mapping <- data.table::as.data.table(set_map)
+  } else {
+    set_mapping <- data.table::copy(set_map)
+  }
   
   if (ncol(set_mapping) < 2) {
     .cli_action(data_err$invalid_user_input,

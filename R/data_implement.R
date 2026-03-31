@@ -8,15 +8,14 @@
     a = args_list,
     call = call
   )
-
+  
   i_data <- .load_input_data(
     dat_input = v$dat_input,
     par_input = v$par_input,
     set_input = v$set_input,
     aux_input = v$aux_input,
     target_format = v$target_format,
-    data_call = call,
-    aux_call = attr(v$aux_input, "call")
+    data_call = call
   )
 
   if (!is.null(v$target_format)) {

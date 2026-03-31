@@ -1,18 +1,18 @@
-# ems_model requires both model_input and closure_file
+# ems_model requires both model_file and closure_file
 
-    argument "model_input" is missing, with no default
+    x argument `model_file` is missing, with no default
 
-# ems_model requires closure_file when only model_input provided
+# ems_model requires closure_file when only model_file provided
 
-    argument "closure_file" is missing, with no default
+    x argument `closure_file` is missing, with no default
 
-# ems_model requires model_input when only closure_file provided
+# ems_model requires model_file when only closure_file provided
 
-    argument "model_input" is missing, with no default
+    x argument `model_file` is missing, with no default
 
-# ems_model rejects non-character model_input
+# ems_model rejects non-character model_file
 
-    x `model_input` must be a character, not a number.
+    x `model_file` must be a character, not a number.
 
 # ems_model rejects non-character closure_file
 
@@ -22,7 +22,7 @@
 
     x `closure_file` must be a character, not a number.
 
-# ems_model rejects non-existent model_input file
+# ems_model rejects non-existent model_file file
 
     x Cannot open file 'not_a_file': No such file.
 
@@ -49,11 +49,11 @@
 
 # ignored tab statement
 
-    ! The following model statements Postsim are unsupported and will be ignored.
+    ! The following model statements are unsupported and will be ignored: Postsim.
 
 # invalid tab statement
 
-    x The current version of teems does not support Omit.
+    x teems 0.0.2 does not support Omit statements.
     i Supported statements include: File, Coefficient, Read, Update, Set, Subset, Formula, Assertion, Variable, Equation, Write, and Zerodivide.
 
 # invalid intertemporal header
@@ -79,11 +79,28 @@
 
 # invalid set qualifier
 
-    x Invalid set qualifier detected: "(static)".
+    x Invalid set qualifier detected: (static).
 
 # multiple set operators
 
     x Multiple "+" and/or "-" were detected within a single Tablo Set statement.
     i For compatibility, split into multiple statements.
     i Instead of Set ENDWCFS # multiple op # = ENDWC + ENDWF + ENDWS;, Set ENDWCF # one op # = ENDWC + ENDWF; and Set ENDWCFS # second op # = ENDWCF + ENDWS;.
+
+# partial read statement
+
+    x Partial Read statements are not supported.
+
+# data frame input missing a set
+
+    x Input data for the coefficient SUBPAR does not contain all required columns (sets).
+    i The required columns are COMMc, REGr, ALLTIMEt, and Value.
+
+# invalid var in closure
+
+    x The closure provided contains variables not present in the model: "not_a_var".
+
+# closure missing exo/endo spec
+
+    x The closure provided must contain both an "Exogenous" entry and a "Rest Endogenous" entry. Note that the inverse approach is not currently supported.
 

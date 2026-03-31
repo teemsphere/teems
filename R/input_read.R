@@ -18,8 +18,12 @@
                             metadata = NULL,
                             attach_metadata = FALSE,
                             call = NULL) {
-
+  
   input <- utils::read.csv(input)
+  if (data_type %=% "set") {
+    input <- input[[1]]
+  }
+
   return(input)
 }
 

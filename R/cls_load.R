@@ -1,14 +1,8 @@
 #' @keywords internal
 #' @noRd
 .load_closure <- function(closure_file,
-                          model_input,
+                          model_file,
                           call) {
-  if (is.null(closure_file)) {
-    .cli_action(cls_err$no_cls,
-      action = "abort",
-      call = call
-    )
-  }
 
   closure <- readLines(closure_file)
   closure_file <- basename(closure_file)
@@ -18,8 +12,7 @@
 
   if (!any(grepl("exogenous", closure[[1]], ignore.case = TRUE)) ||
     !any(grepl("rest endogenous", closure[[length(closure)]], ignore.case = TRUE))) {
-    # add examples
-    .cli_action(cls_err$missing_specification,
+    .cli_action(model_err$missing_specification,
       action = "abort",
       call = call
     )

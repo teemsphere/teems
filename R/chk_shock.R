@@ -5,8 +5,10 @@
                          int_sets,
                          call) {
 
-  shock <- .unpack_shock(shock = shock, call = call)
-
+  if (is.null(names(shock))) {
+    shock <- shock[[1]]
+  }
+  
   if (!shock$var %in% var_extract$name) {
     var_name <- shock$var
     .cli_action(
@@ -30,7 +32,10 @@
                                  int_sets,
                                  call) {
 
-  shock <- .unpack_shock(shock = shock, call = call)
+  if (is.null(names(shock))) {
+    shock <- shock[[1]]
+  }
+  
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
 
   if (shock$subset %!=% NA) {
@@ -85,7 +90,11 @@
                                 var_extract,
                                 int_sets,
                                 call) {
-  shock <- .unpack_shock(shock = shock, call = call)
+  
+  if (is.null(names(shock))) {
+    shock <- shock[[1]]
+  }
+  
   shock <- .check_cst_scen(
     shock = shock,
     var_extract = var_extract,
@@ -104,7 +113,11 @@
                                   var_extract,
                                   int_sets,
                                   call) {
-  shock <- .unpack_shock(shock = shock, call = call)
+  
+  if (is.null(names(shock))) {
+    shock <- shock[[1]]
+  }
+  
   if (is.null(int_sets)) {
     .cli_action(shk_err$scen_dynamic,
       action = "abort",

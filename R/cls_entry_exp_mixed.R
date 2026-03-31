@@ -31,7 +31,7 @@
   if (nrow(data.table::fsetdiff(entry_mixed, full_entry)) %!=% 0L) {
     invalid_entries <- data.table::fsetdiff(entry_mixed, full_entry)
     n_invalid_entries <- nrow(invalid_entries)
-    .cli_action(cls_err$mixed_invalid,
+    .cli_action(model_err$mixed_invalid,
                 action = "abort",
                 call = call
     )

@@ -1,14 +1,14 @@
 # ems_data requires dat_input argument
 
-    argument "dat_input" is missing, with no default
+    x argument `dat_input` is missing, with no default
 
 # ems_data requires par_input argument
 
-    argument "par_input" is missing, with no default
+    x argument `par_input` is missing, with no default
 
 # ems_data requires set_input argument
 
-    argument "set_input" is missing, with no default
+    x argument `set_input` is missing, with no default
 
 # ems_data requires REG argument
 
@@ -28,16 +28,16 @@
 
 # ems_data rejects non-character aux_input
 
-    x `aux_input` must be a NULL or list, not a number.
+    x `aux_input` must be a NULL, list, array, or character, not a number.
 
 # ems_data rejects non-character REG
 
-    x `REG` must be a character, not a number.
+    x `REG` must be a character or data.frame, not a number.
 
 # ems_data rejects invalid internal mapping name
 
     x The internal mapping selected: "not_an_internal_mapping", for set "REG" does not exist.
-    i Available internal mappings for "REG" include "AR5", "big3", "full", "huge", "large", "R32", "WB23", and "WB7"
+    i Available internal mappings for "REG" include "AR5", "big3", "full", "huge", "large", "medium", "R32", "WB23", and "WB7"
 
 # ems_data rejects non-existent CSV file
 

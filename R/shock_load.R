@@ -6,7 +6,6 @@
                         closure,
                         sets,
                         var_extract) {
-
   # still clunky
   if (any(any(purrr::map_lgl(shocks, \(shk) {
     "Year" %in% colnames(shk$input)
@@ -16,15 +15,16 @@
       shocks,
       \(shk) {
         if ("Year" %in% colnames(shk$input)) {
-          shk <- .year2time_set(shk = shk,
-                                sets = sets,
-                                int_set_names = int_set_names)
+          shk <- .year2time_set(
+            shk = shk,
+            sets = sets,
+            int_set_names = int_set_names
+          )
         }
         return(shk)
       }
     )
   }
-
   final_shocks <- lapply(
     X = shocks,
     FUN = function(shk) {
@@ -39,7 +39,7 @@
 
   final_shocks <- unlist(x = final_shocks, recursive = F)
   shock_names <- purrr::map_chr(.x = shocks, .f = "var")
-  
+
   if (length(x = final_shocks) < 4) {
     shock_id <- paste(substring(
       text = shock_names,

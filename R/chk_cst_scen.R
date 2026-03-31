@@ -7,7 +7,7 @@
                             var_extract,
                             int_sets,
                             call) {
-
+  
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
 
   if (!is.null(int_sets)) {

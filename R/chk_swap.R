@@ -1,11 +1,12 @@
 #' @importFrom purrr pluck map2 pmap_chr
 #' @importFrom rlang cnd_signal
-#' 
+#'
 #' @noRd
 #' @keywords internal
 .check_swap <- function(swap,
                         var_extract,
-                        ...) {
+                        sets,
+                        call) {
   UseMethod(".check_swap")
 }
 
@@ -15,30 +16,35 @@
 #' @method .check_swap list
 .check_swap.list <- function(swap,
                              var_extract,
-                             ...) {
+                             sets,
+                             call) {
   swap <- swap[[1]]
-  UseMethod(".check_swap", swap)
+  call <- attr(swap, "call")
+  .check_swap(
+    swap = swap,
+    var_extract = var_extract,
+    sets = sets,
+    call = call
+  )
 }
 
 #' @noRd
 #' @keywords internal
 #' @export
-#' @method .check_swap ems
-.check_swap.ems <- function(swap,
-                            var_extract,
-                            ...) {
-  NextMethod()
-}
-
-#' @noRd
-#' @keywords internal
-#' @export
-#' @method .check_swap default
-.check_swap.default <- function(swap,
-                                var_extract,
-                                ...) {
+#' @method .check_swap character
+.check_swap.character <- function(swap,
+                                  var_extract,
+                                  sets,
+                                  call) {
   swap <- ems_swap(swap)[[1]]
-  UseMethod(".check_swap", swap)
+  if (!swap$var %in% var_extract$name) {
+    var_name <- swap$var
+    .cli_action(swap_err$no_var,
+      action = "abort",
+      call = call
+    )
+  }
+  return(swap$var)
 }
 
 #' @noRd
@@ -48,15 +54,7 @@
 .check_swap.full <- function(swap,
                              var_extract,
                              sets,
-                             call,
-                             ...) {
-  if (is.null(attr(swap[[1]], "call"))) {
-    swap <- ems_swap(swap)
-    attr(swap[[1]], "call") <- NULL
-  }
-
-  swap <- swap[[1]]
-  
+                             call) {
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var,
@@ -74,13 +72,9 @@
 .check_swap.partial <- function(swap,
                                 var_extract,
                                 sets,
-                                call,
-                                ...) {
-  if (is.null(attr(swap, "call"))) {
-    swap <- swap[[1]]
-  }
+                                call) {
   call <- attr(swap, "call")
-  
+
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var,
@@ -108,6 +102,7 @@
       function(comp, nm) {
         valid_ele <- with(sets$ele, get(.dock_tail(nm)))
         valid_subsets <- with(sets$subsets, get(.dock_tail(nm)))
+
         if (all(is.na(valid_subsets))) {
           vs_check <- character(0)
           valid_subsets <- "*none*"

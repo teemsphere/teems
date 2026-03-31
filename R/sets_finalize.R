@@ -13,7 +13,7 @@
                            call,
                            data_call,
                            model_call) {
-
+  
   if (!all(stats::na.omit(set_extract$header) %in% names(sets))) {
     m_map <- setdiff(stats::na.omit(set_extract$header), names(sets))
    .cli_action(deploy_err$missing_mapping,

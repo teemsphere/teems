@@ -25,7 +25,7 @@
   entry_subset <- data.table::setnames(do.call(data.table::CJ, entry_subset), var_sets)
   data.table::setkey(entry_subset)
   if (nrow(data.table::fsetdiff(entry_subset, full_entry)) %!=% 0L) {
-    .cli_action(cls_err$subset_invalid,
+    .cli_action(model_err$subset_invalid,
                 action = "abort",
                 call = call
     )

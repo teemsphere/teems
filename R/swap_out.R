@@ -3,14 +3,16 @@
 .swap_out <- function(swap_out,
                       closure,
                       sets,
+                      var_name,
                       var_extract,
+                      var_entries,
                       call) {
   UseMethod(".swap_out")
 }
 
 #' @importFrom purrr map_lgl map
 #' @importFrom data.table rbindlist fsetdiff fintersect
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output head
 #' @importFrom cli cli_format
 #' 
 #' @keywords internal
@@ -20,16 +22,15 @@
 .swap_out.default <- function(swap_out,
                               closure,
                               sets,
+                              var_name,
                               var_extract,
+                              var_entries,
                               call) {
-  var_entries <- closure[purrr::map_lgl(closure, function(c) {
-    attr(c, "var_name") == attr(swap_out, "var_name")
-  })]
-
+  
   check <- data.table::rbindlist(purrr::map(var_entries, attr, "ele"))
   if (nrow(data.table::fsetdiff(attr(swap_out, "ele"), check)) %!=% 0L) {
     invalid_tuples <- cli::cli_format(data.table::fsetdiff(attr(swap_out, "ele"), check))
-    invalid_tuples <- utils::capture.output(print(invalid_tuples))[-c(1, 2)]
+    invalid_tuples <- utils::head(utils::capture.output(print(invalid_tuples))[-c(1:3)], -1)
     n_invalid_tuples <- length(invalid_tuples)
     .cli_action(swap_err$invalid_tup,
       action = "abort",

@@ -251,15 +251,18 @@
   })
 
   sets$subsets <- vector("list", nrow(sets))
-  r_idx <- match(sets$name, subsets$set)
-  sets$subsets <- subsets$subset[r_idx]
+  r_idx <- match(subsets$set, sets$name)
+  
+  for (pos in seq_along(r_idx)) {
+    id <- r_idx[pos]
+    sets$subsets[[id]] <- c(sets$subsets[[id]], subsets$subset[[pos]])
+  }
 
   for (i in seq_len(nrow(sets))) {
     nm <- sets$name[i]
     o <- sets$operator[i]
     c1 <- sets$comp1[i]
     c2 <- sets$comp2[i]
-
     if (o %=% "-") {
       c1_row <- which(sets$name == c1)
       existing_subsets <- sets$subsets[[c1_row[1]]]
@@ -270,13 +273,21 @@
       sets$subsets[c1_row[1]] <- purrr::list_flatten(list(unique(new_subsets)))
     } else if (o %in% c("union", "+")) {
       existing_subsets <- sets$subsets[[i]]
-      if (is.na(existing_subsets)) {
+      if (is.null(existing_subsets)) {
         existing_subsets <- character(0)
       }
       new_subsets <- c(existing_subsets, c1, c2)
       sets$subsets[i] <- purrr::list_flatten(list(unique(new_subsets)))
     }
   }
+  
+  sets$subsets <- purrr::map(sets$subsets, \(s) {
+    if (is.null(s)) {
+      NA
+    } else {
+      s
+    }
+  })
 
   names(sets$subsets) <- sets$name
 

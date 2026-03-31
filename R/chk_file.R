@@ -6,6 +6,7 @@
                         call,
                         file_ext) {
   if (dir.exists(file)) {
+    browser()
     .cli_action(
       gen_err$dir_not_file,
       action = "abort",
@@ -18,7 +19,9 @@
       action = "abort",
       call = call
     )
-  } else if (!file_ext %in% valid_ext) {
+  }
+
+  if (!file_ext %in% valid_ext) {
     arg <- names(as.list(call))[as.list(call) == file]
     .cli_action(gen_err$invalid_file,
       action = "abort",

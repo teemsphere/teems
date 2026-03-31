@@ -7,7 +7,6 @@
                            n_subintervals,
                            solmed,
                            nesteddbbd,
-                           n_timesteps,
                            laA,
                            laDi,
                            laD,
@@ -30,7 +29,7 @@
   docker_diagnostic_out <- file.path(paths$docker_run, "out", paste0("solver_out", "_", timeID, ".txt"))
   solver_param <- paste(
     "-matsol", matsol,
-    if (identical(x = solmed, y = "Mmid")) {
+    if (solmed %=% "Mmid") {
       paste("-step1", steps[1], "-step2", steps[2], "-step3", steps[3])
     },
     if (any(is.element(el = matsol, set = c(0, 2, 3)))) {
@@ -42,9 +41,6 @@
     "-nsubints", n_subintervals,
     "-solmed", solmed,
     "-nesteddbbd", nesteddbbd,
-    if (identical(x = matsol, y = 3)) {
-      paste("-ndbbd_bl_rank", n_timesteps)
-    },
     "-presol", 1,
     "-laA", laA,
     "-laDi", laDi,
@@ -61,12 +57,12 @@
     cat(solve_cmd, file = file.path(paths$run, "model_exec.txt"))
     hsl <- "hsl"
     diag_out <- paths$diag_out
-    cmf_path <- paths$cmf
+    cmf_path <- paste0("\"", paths$cmf, "\"")
     .cli_action(solve_info$terminal_run,
       action = "inform",
-      append = solve_info$terminal_run
+      call = call
     )
-    eval(solve_info$t_run_append)
+    cli::cli_ol(solve_info$terminal_run_steps)
     return(FALSE)
   }
 

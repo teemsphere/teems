@@ -17,9 +17,9 @@
 #'   files.
 #' @param time_steps Integer vector of variable length with
 #'   initial value 0 or reference year corresponding to database
-#' employed (default is `NULL`). Input format can be either the
-#' chronological years of steps including initial reference year
-#' or steps from t0.
+#'   employed (default is `NULL`). Input format can be either the
+#'   chronological years of steps including initial reference
+#'   year or steps from t0.
 #' @param aux_input List created with [`ems_aux()`], (default is
 #'   `NULL`). Auxiliary data to be loaded either to replace
 #'   existing headers or as additional headers.
@@ -34,15 +34,15 @@
 #'   * Internal mapping: character vector of length 1 corresponding to an
 #'   internally available mapping
 #'   * User-provided mapping: Character vector of length 1, file
-#'   name in working directory or path to a .csv file.
+#'   name in working directory or path to a .csv file; a data
+#'   frame or data frame extension (e.g., tibble, data table).
 #'
 #'   See
 #'   \href{https://github.com/teemsphere/teems-mappings}{teems-mappings}
 #'   for internally available mappings and formatting for
 #'   user-provided mappings.
-#' @details
-#' Missing section explaining the aggregation process
-#' 
+#' @details Missing section explaining the aggregation process
+#'
 #' @return A list of data tables ready for input into the
 #'   `"data"` argument of [`ems_deploy()`]
 #'

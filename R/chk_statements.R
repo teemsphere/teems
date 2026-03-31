@@ -1,5 +1,6 @@
 #' @importFrom purrr map_chr
 #' @importFrom tools toTitleCase
+#' @importFrom utils packageVersion
 #' 
 #' @keywords internal
 #' @note Comprehensive statement-specific checks to be implemented here
@@ -19,6 +20,7 @@
   if (any(state_decl %in% tolower(invalid_state))) {
     inv_state <- state_decl[state_decl %in% tolower(invalid_state)]
     inv_state <- tools::toTitleCase(inv_state)
+    version <- utils::packageVersion("teems")
     .cli_action(model_err$invalid_state,
                 action = c("abort", "inform"),
                 call = call)

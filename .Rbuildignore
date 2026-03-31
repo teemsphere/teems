@@ -5,3 +5,4 @@
 .Rhistory
 ^README\.Rmd$
 ^beta$
+^dev$

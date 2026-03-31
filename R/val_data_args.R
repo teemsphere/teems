@@ -5,8 +5,8 @@
   a[["..."]] <- NULL
   if (length(a$set_mappings) %=% 0L) {
     .cli_action(data_err$missing_set_mappings,
-                action = "abort",
-                call = call
+      action = "abort",
+      call = call
     )
   }
 
@@ -14,49 +14,27 @@
     dat_input = "character",
     par_input = "character",
     set_input = "character",
-    time_steps = c("NULL", "numeric"),
-    aux_input = c("NULL", "list"),
+    time_steps = c("NULL", "numeric", "integer"),
+    aux_input = c("NULL", "list", "array", "character"),
     target_format = c("NULL", "character"),
     set_mappings = "list"
   )
-  
+
   .check_arg_class(
     args_list = a,
     checklist = checklist,
     call = call
   )
 
-  checklist <- lapply(a$set_mappings, function(x) "character")
+  checklist <- lapply(a$set_mappings, \(c) c("character", "data.frame"))
 
   .check_arg_class(
     args_list = a$set_mappings,
     checklist = checklist,
     call = call
   )
-  
-  a$dat_input <- .check_input(a$dat_input,
-    valid_ext = "har",
-    call = call
-  )
 
-  a$par_input <- .check_input(a$par_input,
-    valid_ext = "har",
-    call = call
-  )
-
-  a$set_input <- .check_input(a$set_input,
-    valid_ext = "har",
-    call = call
-  )
-  
-  if (!is.null(a$target_format)) {
-    valid_formats <- c("GTAPv6", "GTAPv7")
-    if (!a$target_format %in% valid_formats) {
-      .cli_action(data_err$invalid_target,
-                  action = c("abort", "inform"),
-                  call = call)
-    }
-  }
+  a <- .data_inputs(a = a, call = call)
 
   if (!is.null(a$tab_file)) {
     a$tab_file <- .check_input(

@@ -14,7 +14,6 @@
                                      sets,
                                      var_extract,
                                      ...) {
-
   if (is.null(shock_file)) {
     shock <- .shock_load(
       shocks = shock,

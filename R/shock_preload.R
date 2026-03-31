@@ -30,7 +30,7 @@
   return(input)
 }
 
-#' @importFrom data.table is.data.table as.data.table
+#' @importFrom data.table is.data.table as.data.table copy
 #' 
 #' @keywords internal
 #' @noRd
@@ -42,6 +42,8 @@
 
   if (!data.table::is.data.table(input)) {
     input <- data.table::as.data.table(input)
+  } else {
+    input <- data.table::copy(input)
   }
   
   .chk_shk_col(input = input,

@@ -1,3 +1,8 @@
+# teems 0.0.3
+## Bug fixes
+* Innumerable bug fixes due to the comprehensive test suite 
+* NEWS will be more informative once we're on CRAN
+
 # teems 0.0.2
 ## Bug fixes
 * The export tag from ems_solve was dropped in the previous version

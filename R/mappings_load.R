@@ -2,7 +2,7 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom tools file_ext
 #' @importFrom cli cli_h1 cli_text
-#' 
+#'
 #' @noRd
 #' @keywords internal
 .load_mappings <- function(set_mappings,
@@ -10,7 +10,6 @@
                            metadata,
                            time_steps,
                            call) {
-
   set_mappings <- purrr::map2(
     set_mappings,
     names(set_mappings),
@@ -34,7 +33,7 @@
   } else {
     data_format <- metadata$data_format
   }
-
+  
   set_mappings <- lapply(set_mappings,
     .check_set_map,
     data_format = data_format,
@@ -43,6 +42,22 @@
     set_data = set_data
   )
 
+  if (any(purrr::map_lgl(set_data, \(s) {
+    isTRUE(attr(s, "user_set"))
+  }))) {
+    user_sets <- set_data[purrr::map_lgl(set_data, \(s) {
+      isTRUE(attr(s, "user_set"))
+    })]
+    user_sets <- lapply(user_sets, \(s) {
+      set <- data.table::data.table(
+        origin = as.character(s),
+        mapping = as.character(s)
+      )
+    })
+
+    set_mappings <- c(set_mappings, user_sets)
+  }
+
   if (data_format %=% "GTAPv6") {
     set_mappings$MARG_COMM <- set_mappings$TRAD_COMM[set_mappings$TRAD_COMM[, 1][[1]] %in% .o_margin_sectors(), ]
     CGDS <- data.table::data.table("zcgds", "zcgds")
@@ -50,7 +65,7 @@
   } else if (data_format %=% "GTAPv7") {
     set_mappings$MARG <- set_mappings$COMM[set_mappings$COMM[, 1][[1]] %in% .o_margin_sectors(), ]
   }
-  
+
   if (!is.null(time_steps)) {
     time_steps <- .check_time_steps(
       t0 = metadata$reference_year,
@@ -59,18 +74,18 @@
     )
     attr(set_mappings, "time_steps") <- time_steps
   }
-  
+
   if (.o_verbose()) {
     cli::cli_h1("Set elements")
     purrr::map2(
       names(set_mappings),
       set_mappings,
       function(set_name, ele) {
-        ele <- sort(unlist(unique(ele[,2])))
+        ele <- sort(unlist(unique(ele[, 2])))
         cli::cli_text("{set_name}: {.val {ele}}")
       }
     )
   }
-  
+
   return(set_mappings)
 }

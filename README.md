@@ -1,7 +1,7 @@
 # teems <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![R >= 4.3.0](https://img.shields.io/badge/R-%E2%89%A5%204.3.0-276DC3?logo=r)](https://cran.r-project.org/)
 <!-- badges: end -->
 
@@ -106,7 +106,7 @@ Full documentation is available at
 
 ## License
 
-GPL-3.0 --- see [LICENSE.md](LICENSE.md) for details.
+AGPL-3.0 --- see [LICENSE.md](LICENSE.md) for details.
 
 ## Contact
 

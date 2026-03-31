@@ -7,7 +7,8 @@
                          model,
                          call) {
 
-  req_col <- c(purrr::pluck(model, "ls_mixed_idx", attr(input, "name")), "Value")
+  nme <- attr(input, "name")
+  req_col <- c(purrr::pluck(model, "ls_mixed_idx", nme), "Value")
   input_col <- colnames(input)
 
   if (!all(req_col %in% input_col)) {

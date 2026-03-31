@@ -6,7 +6,7 @@
                              args_list,
                              call) {
   checklist <- list(
-    model_input = "character",
+    model_file = "character",
     closure_file = "character",
     var_omit = c("NULL", "character")
   )
@@ -19,7 +19,7 @@
   )
 
   model <- .process_tablo(
-    tab_file = v$model_input,
+    tab_file = v$model_file,
     var_omit = v$var_omit,
     call = call
   )
@@ -41,7 +41,7 @@
     closure = v$closure,
     var_omit = v$var_omit,
     var_extract = model[model$type == "Variable", ],
-    call - call
+    call = call
   )
 
   if (.o_verbose()) {

@@ -6,7 +6,7 @@
 \usage{
 solve_in_situ(
   ...,
-  model_input,
+  model_file,
   closure_file,
   shock_file,
   n_tasks = 1L,
@@ -19,7 +19,6 @@ solve_in_situ(
   laDi = 500L,
   terminal_run = FALSE,
   suppress_outputs = FALSE,
-  n_timesteps = NULL,
   write_dir = tools::R_user_dir("teems", "cache"),
   writeout = FALSE
 )
@@ -34,12 +33,11 @@ this manner. All model declared input files as well as
 \code{"model_file"}, \code{"closure_file"}, and \code{"shock_file"} are
 required for in-situ model runs.}
 
-\item{model_input}{Input containing the model. Character
-vector of length 1, file name in working directory or path
-to a .tab file. See
+\item{model_file}{File containing the model. Character vector
+of length 1, file name in working directory or path to a
+.tab file. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
-for vetted model inputs and compatible Tablo file
-formatting.}
+for vetted models and compatible Tablo file formatting.}
 
 \item{closure_file}{A character of length 1. File name in
 working directory or path to a ".cls" closure file. See
@@ -91,35 +89,37 @@ https://www.copsmodels.com/gpmanual.htm#gpd3.12.2
 }}
 
 \item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
-vector of steps for the modified midpoint method, must be all
-odd or all even and length 3. Additional steps may improve
-accuracy for some model runs.}
+vector of steps for the modified midpoint method, must be
+all odd or all even and length 3. Additional steps may
+improve accuracy for some model runs.}
 
-\item{laA}{Integer length 1 (default is \code{300L}). The laA memory
-parameter for solver pertaining to matrix methods \code{"LU"} and
-\code{"SBBD"}. Value is in percentages. Increase gradually if
-prompted via "Error return from MA48B/BD because LA is ..."}
+\item{laA}{Integer length 1 (default is \code{300L}). The laA
+memory parameter for solver pertaining to matrix methods
+\code{"LU"} and \code{"SBBD"}. Value is in percentages. Increase
+gradually if prompted via "Error return from MA48B/BD
+because LA is ..."}
 
-\item{laD}{Integer length 1 (default is \code{200L}). The laD memory
-parameter for solver pertaining to matrix methods \code{"DBBD"}
-and \code{"NDBBD"}. Value is in percentages. Increase gradually if
-prompted via "Error return from MA48B/BD because LA is ..."}
+\item{laD}{Integer length 1 (default is \code{200L}). The laD
+memory parameter for solver pertaining to matrix methods
+\code{"DBBD"} and \code{"NDBBD"}. Value is in percentages. Increase
+gradually if prompted via "Error return from MA48B/BD
+because LA is ..."}
 
 \item{laDi}{Integer length 1 (default is \code{500L}). The laDi
 memory parameter for solver pertaining to matrix method
 \code{"NDBBD"}. Value is in percentages. Increase gradually if
 prompted via "Error return from MA48B/BD because LA is ..."}
 
-\item{terminal_run}{Logical length 1 (default is \code{FALSE}). When
-\code{TRUE}, the function is exited without running the solver.
-This allows the user to close any R IDE or other programs
-prior to running from the terminal.}
+\item{terminal_run}{Logical length 1 (default is \code{FALSE}).
+When \code{TRUE}, the function is exited without running the
+solver. This allows the user to close any R IDE or other
+programs prior to running from the terminal. When \code{TRUE}
+solver outputs are not automatically converted into
+structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
 into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
-
-\item{n_timesteps}{Integer length 1 (default is \code{NULL}). Number of timesteps must be manually entered if \code{"matrix_method"} is "NDBBD".}
 
 \item{write_dir}{Character of length 1 (default is
 \code{tools::R_user_dir("teems", "cache")}), base directory where

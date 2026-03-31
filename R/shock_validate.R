@@ -30,7 +30,7 @@
 
   shock <- structure(shock,
                      call = call,
-                     class = c(depth, "shock", class(shock))
+                     class = c(depth, class(shock))
   )
   
   shock <- list(shock)
@@ -61,7 +61,7 @@
   shock$set <- colnames(shock$input)[!colnames(shock$input) %in% "Value"]
   shock <- structure(shock,
                      call = call,
-                     class = c(class(shock), "shock")
+                     class = class(shock)
   )
   shock <- list(shock)
   return(shock)

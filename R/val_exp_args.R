@@ -1,0 +1,64 @@
+#' @importFrom tools R_user_dir
+#' @importFrom rlang arg_match
+#' 
+#' @keywords internal
+#' @noRd
+.validate_exp_args <- function(a,
+                               checklist,
+                               call) {
+  
+  type <- a$type
+  a$type <- rlang::arg_match(
+    type,
+    c("model_files", "scripts"),
+    error_call = call
+  )
+  
+  checklist <- list(
+    model = "character",
+    write_dir = "character",
+    type = "character",
+    dat_input = c("NULL", "character"),
+    par_input = c("NULL", "character"),
+    set_input = c("NULL", "character"),
+    target_format = c("NULL", "character")
+  )
+
+  .check_arg_class(
+    args_list = a,
+    checklist = checklist,
+    call = call
+  )
+  
+  a <- .data_inputs(a = a, call = call)
+
+  if (a$write_dir %=% tools::R_user_dir("teems", "cache")) {
+    if (!dir.exists(a$write_dir)) {
+      dir.create(a$write_dir, recursive = TRUE)
+    }
+  }
+
+  if (!dir.exists(a$write_dir)) {
+    write_dir <- a$write_dir
+    .cli_action(exp_err$invalid_write_dir,
+      action = "abort",
+      call = call
+    )
+  } else {
+    a$write_dir <- normalizePath(a$write_dir)
+  }
+
+  if (a$type %=% "scripts") {
+    if (any(
+      is.null(a$dat_input),
+      is.null(a$par_input),
+      is.null(a$set_input)
+    )) {
+      .cli_action(exp_err$missing_input,
+        action = "abort",
+        call = call
+      )
+    }
+  }
+  return(a)
+}

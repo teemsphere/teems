@@ -7,8 +7,7 @@
                              set_input,
                              aux_input,
                              target_format,
-                             data_call,
-                             aux_call) {
+                             data_call) {
 
   dat <- .read_input(
     input = dat_input,
@@ -35,15 +34,13 @@
   )
 
   i_data <- c(set, par, dat)
+  i_data <- i_data[!names(i_data) %in% .o_full_exclude()]
   
   if (!is.null(aux_input)) {
-    i_data <- .merge_aux(aux_input = aux_input,
-                         i_data = i_data,
-                         aux_call = aux_call,
-                         data_call = data_call)
+    i_data <- .add_aux(aux_input = aux_input,
+                       i_data = i_data,
+                       data_call = data_call)
   }
-  
-  i_data <- i_data[!names(i_data) %in% .o_full_exclude()]
 
   # remove duplicates precedence aux, dat, par, set
   if (any(duplicated(names(i_data)))) {
@@ -70,7 +67,7 @@
   )
 
   .check_database_version(
-    vetted = c("GTAPv9A", "GTAPv10A", "GTAPv11c"),
+    vetted = vetted_db_versions,
     provided = metadata$full_database_version,
     call = data_call
   )

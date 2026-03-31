@@ -23,11 +23,10 @@
 
   closure <- closure[!closure %in% var_omit]
   cls_var <- purrr::map_chr(strsplit(closure, "\\("), 1)
-
+  
   if (!all(cls_var %in% var_extract$name)) {
     var_discrepancy <- setdiff(tolower(cls_var), tolower(var_extract$name))
-    l_var <- length(var_discrepancy)
-    .cli_action(cls_err$no_var,
+    .cli_action(model_err$no_var,
       action = "abort",
       call = call
     )

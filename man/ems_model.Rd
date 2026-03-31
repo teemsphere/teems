@@ -4,15 +4,14 @@
 \alias{ems_model}
 \title{Load general model specifications}
 \usage{
-ems_model(model_input, closure_file, var_omit = NULL, ...)
+ems_model(model_file, closure_file, var_omit = NULL, ...)
 }
 \arguments{
-\item{model_input}{Input containing the model. Character
-vector of length 1, file name in working directory or path
-to a .tab file. See
+\item{model_file}{File containing the model. Character vector
+of length 1, file name in working directory or path to a
+.tab file. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
-for vetted model inputs and compatible Tablo file
-formatting.}
+for vetted models and compatible Tablo file formatting.}
 
 \item{closure_file}{A character of length 1. File name in
 working directory or path to a ".cls" closure file. See
@@ -26,7 +25,7 @@ present).}
 
 \item{...}{A named pairlist assigning aggregation-specific
 values to model coefficients. The LHS must correspond to a
-model coefficient declared within \code{"model_input"}. The RHS
+model coefficient declared within the loaded model. The RHS
 is the value to be assigned and may be either a numeric
 length 1, a data frame or data frame extension (e.g.,
 tibble, data table), or path to a CSV file.
@@ -59,16 +58,14 @@ argument of the \code{\link[=ems_deploy]{ems_deploy()}} function.
 }
 \examples{
 # simple model load
-model_input <- ems_example("GTAPv7.tab",file.path("models", "GTAPv7"))
-closure_file <- ems_example("GTAPv7.cls",file.path("models", "GTAPv7"))
-model <- ems_model(model_input = model_input,
-                   closure_file = closure_file)
+GTAPv7 <- ems_example("GTAPv7")
+model <- ems_model(model_file = GTAPv7[["model_file"]],
+                   closure_file = GTAPv7[["closure_file"]])
 
 # model load with variable omission
 # uniform numeric value applied to KAPPA coefficient
 # heterogeneous values allocated to SUBPAR via data frame
-model_input <- ems_example("GTAP_RE.tab",file.path("models", "GTAP_RE"))
-closure_file <- ems_example("GTAP_RE.cls",file.path("models", "GTAP_RE"))
+GTAP_RE <- ems_example("GTAP-RE")
 COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")
 REGr <- c("usa", "chn", "row")
 ALLTIMEt <- seq_len(5)
@@ -77,13 +74,16 @@ SUBPAR <- expand.grid(COMMc = COMMc,
                       REGr = REGr,
                       ALLTIMEt = ALLTIMEt)
 SUBPAR$Value <- runif(nrow(SUBPAR))
-model <- ems_model(model_input = model_input,
-                   closure_file = closure_file,
+model <- ems_model(model_file = GTAP_RE[["model_file"]],
+                   closure_file = GTAP_RE[["closure_file"]],
                    var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
                    KAPPA = 0.03,
                    SUBPAR = SUBPAR)
 }
 \seealso{
+\code{\link[=ems_example]{ems_example()}} for loading example models and
+scripts
+
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
 function as well as conducting any closure swaps.
 }

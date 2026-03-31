@@ -4,7 +4,7 @@
 #' @noRd
 .get_output_paths <- function(cmf_path,
                               type,
-                              select = NULL,
+                              #select = NULL,
                               call) {
 
   model_dir <- dirname(normalizePath(cmf_path))
@@ -59,9 +59,10 @@
       full.names = TRUE
     )
 
-    if (!is.null(select)) {
-      coeff_paths <- coeff_paths[tools::file_path_sans_ext(basename(coeff_paths)) %in% select]
-    }
+    # reintegrate this
+    # if (!is.null(select)) {
+    #   coeff_paths <- coeff_paths[tools::file_path_sans_ext(basename(coeff_paths)) %in% select]
+    # }
   } else {
     coeff_paths <- NULL
   }

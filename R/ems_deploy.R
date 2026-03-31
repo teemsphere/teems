@@ -65,11 +65,9 @@ ems_deploy <- function(.data,
 if (missing(.data)) {
   .cli_missing(.data)
 }
-force(.data)
 if (missing(model)) {
   .cli_missing(model)
 }
-force(model)
 call <- match.call()
 args_list <- mget(names(formals()))
 metadata <- attr(.data, "metadata")

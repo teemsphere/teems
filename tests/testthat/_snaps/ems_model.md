@@ -53,7 +53,7 @@
 
 # invalid tab statement
 
-    x teems 0.0.2 does not support Omit statements.
+    x teems 0.0.3 does not support Omit statements.
     i Supported statements include: File, Coefficient, Read, Update, Set, Subset, Formula, Assertion, Variable, Equation, Write, and Zerodivide.
 
 # invalid intertemporal header

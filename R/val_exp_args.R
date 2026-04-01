@@ -16,12 +16,12 @@
   
   checklist <- list(
     model = "character",
-    write_dir = "character",
     type = "character",
     dat_input = c("NULL", "character"),
     par_input = c("NULL", "character"),
     set_input = c("NULL", "character"),
-    target_format = c("NULL", "character")
+    target_format = c("NULL", "character"),
+    write_dir = "character"
   )
 
   .check_arg_class(

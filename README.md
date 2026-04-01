@@ -18,17 +18,17 @@ Docker-based solving --- all from R.
 
 | Function | Purpose |
 |:---------|:--------|
-| `ems_aux()` | Load auxiliary HAR, data frame, CSV data
-| `ems_data()` | Load HAR and CSV input data, apply set mappings and time steps, aggregate and convert data |
-| `ems_model()` | Parse model inputs (TABLO files) and load closure |
+| `ems_aux()` | Load auxiliary data
+| `ems_data()` | Load input data, apply set mappings and time steps, aggregate and convert data |
+| `ems_model()` | Load model and closure files |
 | `ems_uniform_shock()`/`ems_custom_shock()`/`ems_scenario_shock()` | Load shocks |
 | `ems_swap()` | Load closure swaps |
-| `ems_deploy()` | Validate inputs and write solver files |
+| `ems_deploy()` | Validate inputs and write solver input files |
 | `ems_solve()` | Execute the Docker-based solver |
 | `ems_compose()` | Parse solver outputs into structured R objects |
 | `ems_option_set()`/`ems_option_get()`/`ems_option_reset()` | Get, set, and reset advanced package options |
-| `ems_example()` | Write bundled example model files and scripts to disk |
-| `solve_in_situ()` | Solve with user-provided files, bypassing the standard pipeline |
+| `ems_example()` | Get example model files and write ready-to-run scripts to disk |
+| `solve_in_situ()` | Solve user-provided input files |
 
 ## Installation
 

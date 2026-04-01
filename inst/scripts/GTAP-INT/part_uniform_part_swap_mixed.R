@@ -70,5 +70,5 @@ endo1 <- outputs$dat$qfd[REGs != "usa" & PROD_COMMj != "crops"]$Value != 0
 endo2 <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj == "crops"]$Value != 0
 exo_null <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj != "crops"]$Value == 0
 endo3 <- outputs$dat$dppriv$Value != 0
-exo_shk2 <- dplyr::near(outputs$dat$yp$Value, 0.1)
+exo_shk2 <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
 checks <- c(exo_shk1, endo1, endo2, exo_null, endo3, exo_shk2)

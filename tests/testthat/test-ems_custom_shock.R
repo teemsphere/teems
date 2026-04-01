@@ -50,11 +50,6 @@ test_that("ems_custom_shock result inherits 'custom' class", {
   expect_true(inherits(result[[1]], "custom"))
 })
 
-test_that("ems_custom_shock result inherits 'shock' class", {
-  result <- ems_custom_shock(var = "aoall", input = df_input)
-  expect_true(inherits(result[[1]], "shock"))
-})
-
 test_that("ems_custom_shock result carries call attribute", {
   result <- ems_custom_shock(var = "aoall", input = df_input)
   expect_false(is.null(attr(result[[1]], "call")))

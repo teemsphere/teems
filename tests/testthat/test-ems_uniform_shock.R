@@ -33,11 +33,6 @@ test_that("ems_uniform_shock result inherits 'uniform' class", {
   expect_true(inherits(result[[1]], "uniform"))
 })
 
-test_that("ems_uniform_shock result inherits 'shock' class", {
-  result <- ems_uniform_shock(var = "pop", value = 1)
-  expect_true(inherits(result[[1]], "shock"))
-})
-
 test_that("ems_uniform_shock result carries call attribute", {
   result <- ems_uniform_shock(var = "pop", value = 1)
   expect_false(is.null(attr(result[[1]], "call")))

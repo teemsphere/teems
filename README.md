@@ -12,7 +12,7 @@ TEEMS provides a complete pipeline from raw GTAP data through model solution:
 data loading, aggregation, model parsing, shock specification, and
 Docker-based solving --- all from R.
 
-> **Status:** Beta (v0.0.2) --- under active development.
+> **Status:** Beta (v0.0.3) --- under active development.
 
 ## Overview
 
@@ -26,7 +26,9 @@ Docker-based solving --- all from R.
 | `ems_deploy()` | Validate inputs and write solver files |
 | `ems_solve()` | Execute the Docker-based solver |
 | `ems_compose()` | Parse solver outputs into structured R objects |
-| `ems_option_set()`/`ems_option_get()` | Access advanced CGE model customization options
+| `ems_option_set()`/`ems_option_get()`/`ems_option_reset()` | Get, set, and reset advanced package options |
+| `ems_example()` | Write bundled example model files and scripts to disk |
+| `solve_in_situ()` | Solve with user-provided files, bypassing the standard pipeline |
 
 ## Installation
 
@@ -40,7 +42,7 @@ Docker-based solving --- all from R.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("teemsphere/teems-R@v0.0.2")
+remotes::install_github("teemsphere/teems-R@v0.0.3")
 ```
 
 If the installation fails citing a missing package, install that package first
@@ -56,20 +58,19 @@ library(teems)
   dat_input = "path/to/gsdfdat.har",
   par_input = "path/to/gsdfpar.har",
   set_input = "path/to/gsdfset.har",
-  timesteps = c(2017, 2018, 2019, 2020),
   REG  = "AR5",
   COMM = "macro_sector",
   ACTS = "macro_sector",
-  ENDW = "labor_agg"
+  ENDW = "labor_agg",
+  time_steps = c(0, 1, 2, 3)
 )
 
 # 2. Configure model and closure
-model <- ems_model(model_input = "path/to/model",
+model <- ems_model(model_file = "path/to/model",
                    closure_file = "path/to/closure")
 
 # 3. Define shocks
 shock <- ems_uniform_shock(var = "pop",
-                           type = "uniform",
                            REGr = "lam",
                            value = 1)
 

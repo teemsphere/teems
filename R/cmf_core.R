@@ -8,7 +8,8 @@
                       shock_file,
                       write_dir) {
 
-  input_files <- purrr::map(input_files, normalizePath)
+  write_dir   <- normalizePath(write_dir, winslash = "/")
+  input_files <- purrr::map(input_files, \(f) normalizePath(f, winslash = "/"))
   files <- c(input_files,
     model_file = model_file,
     closure_file = closure_file,

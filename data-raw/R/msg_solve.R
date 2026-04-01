@@ -17,6 +17,7 @@ build_solve_err <- function() {
     solution_sing = "Singularity detected during solution. See {.path {paths$diag_out}}.",
     docker_installed = "Docker is required to call the solver and is not installed on this system.",
     docker_sudo = "Docker is installed but cannot be called without sudo.",
+    docker_not_running = "Docker is installed but the daemon is not running. Start Docker Desktop and try again.",
     docker_x_image = "The {.val {image_name}} Docker image is not present."
   )
 }

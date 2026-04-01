@@ -9,12 +9,12 @@
                 exist.",
                 call = call)
   }
-  run_dir <- dirname(path = cmf_path)
+  run_dir <- normalizePath(dirname(path = cmf_path), winslash = "/")
   diagnostic_out <- file.path(run_dir,
                               "out",
                               paste0("solver_out", "_", timeID, ".txt"))
   docker_run_dir <- "/opt/teems"
-  docker_cmf_path <- sub(pattern = dirname(path = cmf_path),
+  docker_cmf_path <- sub(pattern = run_dir,
                          replacement = docker_run_dir,
                          x = cmf_path,
                          fixed = TRUE)

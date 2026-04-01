@@ -13,7 +13,7 @@
 #define MAXSUPSET 12
 
 typedef int uvdim;
-typedef long int uvadd;
+typedef int64_t uvadd;
 typedef double forreal;
 typedef float ha_floattype;
 
@@ -103,7 +103,7 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
   cpp11::writable::strings var_setid(static_cast<R_xlen_t>(nvar));
   cpp11::writable::strings var_antidims(static_cast<R_xlen_t>(nvar));
 
-  for (long int i = 0; i < nvar; i++) {
+  for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nvar); i++) {
     var_cofname[i] = std::string(var_structs[i].cofname);
     var_begadd[i]  = static_cast<double>(var_structs[i].begadd);
     var_size[i]    = var_structs[i].size;
@@ -158,7 +158,7 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
   cpp11::writable::strings sel_setele(static_cast<R_xlen_t>(nsetspace));
   cpp11::writable::strings sel_setsh(static_cast<R_xlen_t>(nsetspace));
 
-  for (long int i = 0; i < nsetspace; i++) {
+  for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nsetspace); i++) {
     sel_setele[i] = std::string(sel_structs[i].setele);
     std::string sh;
     for (int k = 0; k < MAXSUPSET; k++) {
@@ -196,7 +196,7 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
   cpp11::writable::integers set_regional(static_cast<R_xlen_t>(nset));
   cpp11::writable::integers set_regsup(static_cast<R_xlen_t>(nset));
 
-  for (long int i = 0; i < nset; i++) {
+  for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nset); i++) {
     set_header[i]    = std::string(set_structs[i].header);
     set_fileid[i]    = set_structs[i].fileid;
     set_setname[i]   = std::string(set_structs[i].setname);

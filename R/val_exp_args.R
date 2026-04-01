@@ -44,9 +44,9 @@
       action = "abort",
       call = call
     )
-  } else {
-    a$write_dir <- normalizePath(a$write_dir)
   }
+  
+  a$write_dir <- normalizePath(a$write_dir, winslash = "/")
 
   if (a$type %=% "scripts") {
     if (any(

@@ -6,12 +6,12 @@
 \usage{
 ems_example(
   model,
-  write_dir = tools::R_user_dir("teems", "cache"),
   type = c("model_files", "scripts"),
   dat_input = NULL,
   par_input = NULL,
   set_input = NULL,
-  target_format = NULL
+  target_format = NULL,
+  write_dir = tools::R_user_dir("teems", "cache")
 )
 }
 \arguments{
@@ -24,14 +24,10 @@ ems_example(
 \item \code{"GTAPv6"}: Classic GTAP model
 }}
 
-\item{write_dir}{Character vector of length 1, (default is
-\code{tools::R_user_dir("teems", "cache")}). Directory where
-files will be written.}
-
 \item{type}{Character vector of length 1. Determines the
 example output. Options include:
 \itemize{
-\item \code{"model"}: Model file and closure file
+\item \code{"model_files"}: Model file and closure file
 \item \code{"scripts"}: Example scripts for the chosen \code{model}.
 \code{dat_input}, \code{par_input}, and \code{set_input} are required.
 \code{target_format} must be specified if a data format
@@ -56,11 +52,15 @@ files.}
 \item{target_format}{Character vector of length 1 (default is
 \code{NULL}). If not \code{NULL}, data will be converted to the target
 format. Currently supports "GTAPv6" and "GTAPv7".}
+
+\item{write_dir}{Character vector of length 1, (default is
+\code{tools::R_user_dir("teems", "cache")}). Directory where
+files will be written.}
 }
 \value{
-For \code{type = "model_files"}: a named list with elements \code{model_file}
-and \code{closure_file}. For \code{type = "scripts"}: a character vector of paths to
-the written script files.
+For \code{type = "model_files"}: a named list with elements
+\code{model_file} and \code{closure_file}. For \code{type = "scripts"}: a
+character vector of paths to the written script files.
 }
 \description{
 teems comes bundled with example models and scripts. This

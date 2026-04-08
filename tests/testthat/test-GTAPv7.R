@@ -1,28 +1,28 @@
 skip_on_cran()
 ems_option_set(verbose = FALSE)
 
-data_dir <- "~/src/teems/teems_dat"
-data_prefix <- c("gd", "gsd", "gsdf")
 data_db <- c("v9", "v10", "v11")
+db_inputs <- list(
+  v9  = list(dat = Sys.getenv("GTAP9_dat"),   par = Sys.getenv("GTAP9_par"),   set = Sys.getenv("GTAP9_set")),
+  v10 = list(dat = Sys.getenv("GTAP10A_dat"),  par = Sys.getenv("GTAP10A_par"),  set = Sys.getenv("GTAP10A_set")),
+  v11 = list(dat = Sys.getenv("GTAP11c_dat"),  par = Sys.getenv("GTAP11c_par"),  set = Sys.getenv("GTAP11c_set"))
+)
 
 model <- "GTAPv7"
 model_files <- ems_example(model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
-for (d in seq_along(data_prefix)) {
-  prefix <- data_prefix[d]
-  dat_input <- file.path(data_dir, paste0(prefix, "dat.har"))
-  par_input <- file.path(data_dir, paste0(prefix, "par.har"))
-  set_input <- file.path(data_dir, paste0(prefix, "set.har"))
+for (db in data_db) {
+  dat_input <- db_inputs[[db]]$dat
+  par_input <- db_inputs[[db]]$par
+  set_input <- db_inputs[[db]]$set
 
-  if (prefix %in% c("gd", "gsd")) {
+  if (db %in% c("v9", "v10")) {
     target_format <- "GTAPv7"
   } else {
     target_format <- NULL
   }
-
-  db <- data_db[d]
 
   year <- switch(db,
     "v9" = 2011,

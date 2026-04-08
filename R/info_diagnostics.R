@@ -9,7 +9,7 @@
   diagnostic_file <- file.path(run_dir, "model_diagnostics.txt")
 
   cat("\n", append = TRUE, file = diagnostic_file)
-  cat("── Solver log ──\n\n", append = TRUE, file = diagnostic_file)
+  cat("-- Solver log --\n\n", append = TRUE, file = diagnostic_file)
   cat(paste(model_log, collapse = "\n"), "\n", append = TRUE, file = diagnostic_file)
 
   if (any(grepl(pattern = "Accurate", model_log))) {
@@ -60,7 +60,7 @@
     }
 
     cat(
-      "\n── Run summary ──\n\n",
+      "\n-- Run summary --\n\n",
       sprintf("Elapsed time:       %s\n", elapsed_time_fmt),
       sprintf("Accuracy (4-digit): %s\n", accuracy),
       sprintf("Accuracy threshold: %s\n", a_threshold_fmt),

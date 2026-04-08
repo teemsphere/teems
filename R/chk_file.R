@@ -5,14 +5,6 @@
                         valid_ext,
                         call,
                         file_ext) {
-  if (dir.exists(file)) {
-    browser()
-    .cli_action(
-      gen_err$dir_not_file,
-      action = "abort",
-      call = call
-    )
-  }
 
   if (!file.exists(file)) {
     .cli_action(gen_err$no_file,

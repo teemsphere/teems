@@ -8,7 +8,6 @@ build_gen_err <- function() {
     # test-ems_model.R: "ems_model rejects non-character model_file", "ems_model rejects non-character closure_file", "ems_model rejects non-character var_omit"
     # test-ems_compose.R: "ems_compose errors when name is not character"
     class = "{.arg {arg_name}} must be a {.or {check}}, not {.obj_type_friendly {arg}}.",
-    dir_not_file = "A filepath is expected, not the directory {.file {file}}.",
     # test-ems_data.R: "ems_data rejects non-existent CSV file"
     # test-ems_model.R: "ems_model rejects non-existent model_file file", "ems_model rejects non-existent closure_file"
     no_file = "Cannot open file {.file {file}}: No such file.",

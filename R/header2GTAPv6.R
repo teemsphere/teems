@@ -60,10 +60,10 @@
     }
 
     if (classes[1] %=% "ESBT") {
-      CGDS <- array(0, dimnames = list("CGDS"))
+      CGDS <- array(0, dimnames = list("zcgds"))
       input <- c(input, CGDS)
     } else if (classes[1] %=% "ESBV") {
-      CGDS <- array(1, dimnames = list("CGDS"))
+      CGDS <- array(1, dimnames = list("zcgds"))
       input <- c(input, CGDS)
     }
 
@@ -237,7 +237,7 @@
   arr_dimnames <- dimnames(input)
   arr_names <- names(arr_dimnames)
   CGDS_dim <- c(dim(input), 1)
-  CGDS_dimnames <- c(arr_dimnames, list(ACTS = "CGDS"))
+  CGDS_dimnames <- c(arr_dimnames, list(ACTS = "zcgds"))
   CGDS_data <- array(input, CGDS_dim, CGDS_dimnames)
   CGDS_data <- CGDS_data * -1
   arr <- i_data$CSEP

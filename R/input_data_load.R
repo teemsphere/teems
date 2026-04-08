@@ -14,6 +14,7 @@
     data_type = "dat",
     attach_metadata = TRUE
   )
+  
   metadata <- attr(dat, "metadata")
 
   if (metadata$data_format %=% target_format) {

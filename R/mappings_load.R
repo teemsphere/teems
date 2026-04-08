@@ -23,7 +23,7 @@
       return(m)
     }
   )
-
+  
   if (is.null(metadata$data_format)) {
     data_format <- switch(metadata$database_version,
       "GTAPv9" = "GTAPv6",

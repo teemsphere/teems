@@ -20,7 +20,7 @@
                                     call,
                                     available_mappings,
                                     ...) {
-
+  
   available_mappings <- purrr::pluck(mappings, database_version, data_format)
   map_name <- attr(set_map, "name")
 

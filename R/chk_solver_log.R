@@ -22,6 +22,7 @@
   .inform_diagnostics(
     elapsed_time = elapsed_time,
     model_log = model_log,
+    run_dir = paths$run,
     call = call
   )
   

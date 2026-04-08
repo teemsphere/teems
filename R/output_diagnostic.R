@@ -1,5 +1,5 @@
 #' @importFrom cli cli_fmt cli_h1 cli_h2 cli_h3 cli_dl cli_text cli_ul
-#'   cli_verbatim cli_alert_warning
+#'   cli_verbatim cli_alert_warning ansi_strip
 #' @importFrom purrr pmap map_chr
 #'
 #' @keywords internal
@@ -79,7 +79,11 @@
 
   .ems_write(metadata, write_dir = dirname(tab_path))
   writeLines(
-    diag_output,
+    c(
+      sprintf("Run timestamp: %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
+      "",
+      cli::ansi_strip(diag_output)
+    ),
     diagnostic_file
   )
 }

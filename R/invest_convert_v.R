@@ -14,7 +14,7 @@
                                      ...) {
   arr_names <- names(dimnames(input))
   CGDS_dim <- c(dim(CGDS_data), 1)
-  CGDS_dimnames <- c(dimnames(CGDS_data), ACTS = "CGDS")
+  CGDS_dimnames <- c(dimnames(CGDS_data), ACTS = "zcgds")
   a_idx <- match(arr_names, names(CGDS_dimnames), 0)
 
   CGDS_dimnames <- CGDS_dimnames[a_idx]

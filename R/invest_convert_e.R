@@ -6,7 +6,7 @@
   CGDS_dim <- dim(input)
   CGDS_dim[ACTS_dim] <- 1
   CGDS_dimnames <- dimnames(input)
-  CGDS_dimnames[ACTS_dim] <- list(ACTS = "CGDS")
+  CGDS_dimnames[ACTS_dim] <- list(ACTS = "zcgds")
   CGDS_data <- array(0, CGDS_dim, CGDS_dimnames)
   input <- .abind(input, CGDS_data, along = ACTS_dim)
   names(dimnames(input)) <- arr_names

@@ -1,5 +1,5 @@
 #' @importFrom purrr map_lgl
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .implement_data <- function(args_list,
@@ -8,7 +8,7 @@
     a = args_list,
     call = call
   )
-  
+
   i_data <- .load_input_data(
     dat_input = v$dat_input,
     par_input = v$par_input,
@@ -18,7 +18,7 @@
     data_call = call
   )
 
-  if (!is.null(v$target_format)) {
+  if (!is.null(v$target_format) && v$target_format %!=% attr(i_data, "metadata")$data_format) {
     i_data <- .convert_data(i_data = i_data)
   }
   
@@ -29,7 +29,7 @@
     metadata = attr(i_data, "metadata"),
     call = call
   )
-
+  
   i_data <- .process_data(
     i_data = i_data,
     set_mappings = set_mappings,

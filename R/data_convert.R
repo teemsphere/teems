@@ -70,7 +70,7 @@
   drop_dat <- coeff_conversion[is.na(coeff_conversion$GTAPv6header) & coeff_conversion$data_type == "dat", "GTAPv7header"]
   i_data <- i_data[!names(i_data) %in% drop_dat]
 
-  CGDS_COMM <- structure("CGDS",
+  CGDS_COMM <- structure("zcgds",
     class = c("H9", "CGDS_COMM", "set", "GTAPv6", "character")
   )
 

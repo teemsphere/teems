@@ -1,19 +1,18 @@
 #' @importFrom tools R_user_dir
 #' @importFrom rlang arg_match
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .validate_exp_args <- function(a,
                                checklist,
                                call) {
-  
   type <- a$type
   a$type <- rlang::arg_match(
     type,
     c("model_files", "scripts"),
     error_call = call
   )
-  
+
   checklist <- list(
     model = "character",
     type = "character",
@@ -29,7 +28,7 @@
     checklist = checklist,
     call = call
   )
-  
+
   a <- .data_inputs(a = a, call = call)
 
   if (a$write_dir %=% tools::R_user_dir("teems", "cache")) {
@@ -45,7 +44,7 @@
       call = call
     )
   }
-  
+
   a$write_dir <- normalizePath(a$write_dir, winslash = "/")
 
   if (a$type %=% "scripts") {
@@ -59,6 +58,10 @@
         call = call
       )
     }
+    a$dat_input <- normalizePath(a$dat_input, winslash = "/", mustWork = FALSE)
+    a$par_input <- normalizePath(a$par_input, winslash = "/", mustWork = FALSE)
+    a$set_input <- normalizePath(a$set_input, winslash = "/", mustWork = FALSE)
   }
+
   return(a)
 }

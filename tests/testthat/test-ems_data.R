@@ -224,8 +224,9 @@ test_that("ems_data unnecessary convert", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    TRAD_COMM = "macro_sector",
-    ENDW_COMM = "labor_agg",
+    COMM = "macro_sector",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg",
     time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16),
     target_format = "GTAPv7"
   ))

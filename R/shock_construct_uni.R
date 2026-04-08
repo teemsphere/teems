@@ -29,24 +29,25 @@
       shock_LHS <- raw_shock$var
     }
   } else {
-    # if ("Year" %in% names(raw_shock$subset)) {
-    #   Year <- purrr::pluck(raw_shock, "subset", "Year")
-    #   int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
-    #   time_set_upper <- intersect(raw_shock$ls_upper, int_set_names)
-    #   time_set <- raw_shock$ls_mixed[match(time_set_upper, raw_shock$ls_upper)]
-    #   CYRS <- attr(sets, "CYRS")
-    #   if (!Year %in% CYRS$Value) {
-    #     CYRS <- CYRS$Value
-    #     .cli_action(
-    #       shk_err$uni_invalid_year,
-    #       action = "abort",
-    #       call = attr(raw_shock, "call")
-    #     )
-    #   }
-    #   v_idx <- match(Year, CYRS$Value)
-    #   purrr::pluck(raw_shock, "subset", "Year") <- purrr::pluck(sets, "ele", time_set_upper, v_idx)
-    #   names(raw_shock$subset) <- sub("Year", time_set, names(raw_shock$subset))
-    # }
+    # move this up
+    if ("Year" %in% names(raw_shock$subset)) {
+      Year <- purrr::pluck(raw_shock, "subset", "Year")
+      int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
+      time_set_upper <- intersect(raw_shock$ls_upper, int_set_names)
+      time_set <- raw_shock$ls_mixed[match(time_set_upper, raw_shock$ls_upper)]
+      CYRS <- attr(sets, "CYRS")
+      if (!Year %in% CYRS$Value) {
+        CYRS <- CYRS$Value
+        .cli_action(
+          shk_err$uni_invalid_year,
+          action = "abort",
+          call = attr(raw_shock, "call")
+        )
+      }
+      v_idx <- match(Year, CYRS$Value)
+      purrr::pluck(raw_shock, "subset", "Year") <- purrr::pluck(sets, "ele", time_set_upper, v_idx)
+      names(raw_shock$subset) <- sub("Year", time_set, names(raw_shock$subset))
+    }
 
     mixed_ss <- names(raw_shock$subset)
 

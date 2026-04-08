@@ -5,12 +5,10 @@ withr::defer(ems_option_reset())
 
 temp_dir <- withr::local_tempdir()
 
-data_dir <- "~/src/teems/teems_dat"
-
-dat_input <- file.path(data_dir, "gsdfdat.har")
-par_input <- file.path(data_dir, "gsdfpar.har")
-set_input <- file.path(data_dir, "gsdfset.har")
-har_input <- file.path(data_dir, "gdpextra.har")
+dat_input <- Sys.getenv("GTAP11c_dat")
+par_input <- Sys.getenv("GTAP11c_par")
+set_input <- Sys.getenv("GTAP11c_set")
+har_input <- file.path(dirname(Sys.getenv("GTAP11c_dat")), "gdpextra.har")
 
 d <- ems_data(
   dat_input = dat_input,

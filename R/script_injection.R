@@ -11,7 +11,7 @@
                            closure_file) {
   script <- basename(script)
   write_path <- file.path(write_dir, script)
-  write_path <- normalizePath(write_path, winslash = "/")
+  write_path <- normalizePath(write_path, winslash = "/", mustWork = FALSE)
   assignments <- list(
     dat_input    = dat_input,
     par_input    = par_input,
@@ -30,6 +30,7 @@
   }
   
   con <- file(write_path, open = "a")
+  writeLines("library(teems)", con)
   writeLines(assignments, con)
   writeLines("", con)
   writeLines(template, con)

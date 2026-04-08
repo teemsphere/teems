@@ -1,6 +1,6 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Version: 0.0.3
+Version: 0.0.4
 Authors@R:
     person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3729-1764"))

@@ -11,7 +11,7 @@
                            closure_file) {
   script <- basename(script)
   write_path <- file.path(write_dir, script)
-
+  write_path <- normalizePath(write_path, winslash = "/")
   assignments <- list(
     dat_input    = dat_input,
     par_input    = par_input,

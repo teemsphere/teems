@@ -1,3 +1,20 @@
+# teems 0.0.4
+## Major change
+* Solver and package now working on Windows 11
+## Bug fixes
+* Windows path handling corrected throughout (`winslash = "/"`, `normalizePath`)
+* Docker detection and error messaging now platform-aware (Linux vs. Windows/Mac)
+* Format conversion no-ops when target format matches loaded data format
+* `Value` column presence check made robust to column ordering
+* Mixed-case input data now handled correctly in set mappings
+
+## Other changes
+* `CGDS` sector renamed to `zcgds` throughout for consistency with solver output (note that this will change in the next version)
+* cpp11 binary parser ported to Windows: `long int` replaced with `int64_t`/`R_xlen_t`
+* Solver log and run summary (elapsed time, accuracy) now written to `model_diagnostics.txt`
+* ANSI codes stripped from diagnostic file output; run timestamp added
+* `run_dir` parameter added to `.inform_diagnostics`
+
 # teems 0.0.3
 ## Bug fixes
 * Innumerable bug fixes due to the comprehensive test suite 

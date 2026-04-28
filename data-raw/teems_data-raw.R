@@ -1,266 +1,312 @@
-library(targets)
+library(usethis)
 
-targets::tar_config_set(store = "./data-raw/_targets")
+fun <- list.files("./data-raw/R", full.names = TRUE)
+lapply(fun, source)
 
-# Set target options:
-targets::tar_option_set(
-  packages = c("data.table", "usethis", "purrr", "tabulapdf", "fst"),
-  format = "qs",
-  cue = tar_cue("always")
+# databases
+db_version <- c("GTAPv9", "GTAPv10", "GTAPv11", "GTAPv12")
+vetted_db_versions <- c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c", "GTAPv12")
+data_format <- c("GTAPv6", "GTAPv7")
+
+# models
+dir <- list.dirs(
+  "../teems-models",
+  recursive = FALSE
 )
 
+dir <- dir[basename(dir) != ".git"]
+file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
 
+tab_qual <- c(
+  "nonzero_by_zero",
+  "zero_by_zero",
+  "\\bchange\\b",
+  "linear",
+  "orig_level",
+  "ge [[:digit:]]",
+  "gt [[:digit:]]",
+  "integer",
+  "parameter",
+  "initial",
+  "\\breal\\b",
+  "levels"
+)
 
-# functions
-targets::tar_source("./data-raw/R")
+supported_state <- c(
+  "File", "Coefficient", "Read", "Update", "Set", "Subset",
+  "Formula", "Assertion", "Variable", "Equation", "Write",
+  "Zerodivide"
+)
 
-list(
-  tar_target(db_version, c("GTAPv9", "GTAPv10", "GTAPv11")),
-  tar_target(vetted_db_versions, c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c")),
-  tar_target(data_format, c("GTAPv6", "GTAPv7")),
-  # model related
-  tar_target(model_dirs, {
-    dir <- list.dirs(
-      "../teems-models",
-      recursive = FALSE
-    )
-    
-    dir <- dir[basename(dir) != ".git"]
-    file.copy(dir, "./inst/models/", recursive = TRUE)
-  }),
-  # mapping related --------------------------------------------------
-  tar_target(mapping_files, {
-    list.files(
-      "../teems-mappings",
-      pattern = "\\.csv",
-      recursive = TRUE,
-      full.names = TRUE
-    )
-  }),
-  tar_target(
-    mappings,
-    process_mappings(
-      mapping_files = mapping_files,
-      db_version = db_version,
-      data_format = data_format
-    )
+ignored_state <- "Postsim"
+
+invalid_state <- c(
+  "Omit", "Loop", "Display", "Substitute", "Break", "Mapping", "Backsolve", "Cycle", "Complementarity", "Transfer"
+)
+
+# mappings
+mapping_files <- list.files(
+  "../teems-mappings",
+  pattern = "\\.csv",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+mappings <- process_mappings(
+  mapping_files = mapping_files,
+  db_version = db_version,
+  data_format = data_format
+)
+
+# parameters
+GTAPv6_weights <- list(
+  ESBD = c("VDPA", "VIPA", "VDGA", "VIGA", "VDFA", "VIFA"),
+  ESBM = c("VIPA", "VIGA", "VIFA"),
+  ESBT = c("VDFM", "VIFM", "VFM", "FTRV", "-FBEP", "-ISEP"),
+  ESBV = "EVFA",
+  INCP = c("VDPA", "VIPA"),
+  SUBP = c("VDPA", "VIPA")
+)
+
+GTAPv7_weights <- list(
+  ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP"),
+  ESBM = c("VMPP", "VMGP", "VMFP"),
+  ESBT = c("VDFB", "VMFB", "EVFB", "FTRV", "-FBEP", "-ISEP"),
+  ESBV = "EVFP",
+  INCP = c("VDPP", "VMPP"),
+  SUBP = c("VDPP", "VMPP"),
+  ESBC = c("VDFB", "VMFB")
+)
+
+param_weights <- list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights)
+set_conversion <- data.frame(
+  GTAPv6name = c(
+    "REG", "TRAD_COMM", "MARG_COMM", "NMRG_COMM", "CGDS_COMM", "PROD_COMM",
+    "ENDW_COMM", "DEMD_COMM", "ENDWS_COMM", "ENDWM_COMM", "ENDWC_COMM",
+    "NSAV_COMM", NA, NA
   ),
-  tar_target(tab_qual, {
-    c(
-      "nonzero_by_zero",
-      "zero_by_zero",
-      "\\bchange\\b",
-      "linear",
-      "orig_level",
-      "ge [[:digit:]]",
-      "gt [[:digit:]]",
-      "integer",
-      "parameter",
-      "initial",
-      "\\breal\\b",
-      "levels"
-    )
-  }),
-  tar_target(supported_state, {
-    c(
-      "File", "Coefficient", "Read", "Update", "Set", "Subset",
-      "Formula", "Assertion", "Variable", "Equation", "Write",
-      "Zerodivide"
-    )
-  }),
-  tar_target(ignored_state, {
-    c(
-      "Postsim"
-    )
-  }),
-  tar_target(invalid_state, {
-    c(
-      "Omit", "Loop", "Display", "Substitute", "Break", "Mapping", "Backsolve", "Cycle", "Complementarity", "Transfer"
-    )
-  }),
-  # parameter related ------------------------------------------------
-  # static ===========================================================
-  tar_target(GTAPv6_weights, {
-    list(
-      ESBD = c("VDPA", "VIPA", "VDGA", "VIGA", "VDFA", "VIFA"),
-      ESBM = c("VIPA", "VIGA", "VIFA"),
-      ESBT = c("VDFM", "VIFM", "VFM", "FTRV", "-FBEP", "-ISEP"),
-      ESBV = "EVFA",
-      INCP = c("VDPA", "VIPA"),
-      SUBP = c("VDPA", "VIPA")
-    )
-  }),
-  tar_target(GTAPv7_weights, {
-    list(
-      ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP"),
-      ESBM = c("VMPP", "VMGP", "VMFP"),
-      ESBT = c("VDFB", "VMFB", "EVFB", "FTRV", "-FBEP", "-ISEP"),
-      ESBV = "EVFP",
-      INCP = c("VDPP", "VMPP"),
-      SUBP = c("VDPP", "VMPP"),
-      ESBC = c("VDFB", "VMFB")
-    )
-  }),
-  tar_target(param_weights, {
-    list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights)
-  }),
-  # v6 <> v7 conversion
-  tar_target(
-    GTAPv7_manual,
-    "./data-raw/Corong and Tsigas - 2017 - The Standard GTAP Model, Version 7.pdf",
-    format = "file"
+  GTAPv6header = c("H1", "H2", "MARG", NA, "H9", "H5", "H6", "H4", "H7", "H8", NA, "H3", NA, NA),
+  GTAPv6description = c(
+    "regions in the model", "traded commodities", "margin commodities",
+    "non-margin commodities", "capital goods commodities", "produced commodities",
+    "endowment commodities", "demanded commodities", "sluggish endowment commodities",
+    "mobile endowment commodities", "capital endowment commodity",
+    "non-savings commodities", NA, NA
   ),
-  # tables here are not even concordance, just semi related lists
-  tar_target(set_conversion, {
-    set_table <- tabulapdf::extract_tables(file = GTAPv7_manual, pages = 83)
-    c_names <- c("name", "header", "description")
+  GTAPv7name = c(
+    "REG", "COMM", "MARG", "NMRG", NA, "ACTS", "ENDW", "DEMD", "ENDWS",
+    "ENDWM", "ENDWC", NA, "ENDWF", "ENDWMS"
+  ),
+  GTAPv7header = c("REG", "COMM", "MARG", NA, NA, "ACTS", "ENDW", NA, "ENDS", "ENDM", NA, NA, NA, NA),
+  GTAPv7description = c(
+    "regions", "commodities", "margin commodities", "non-margin commodities",
+    NA, "Activities", "endowments", "commodities and endowments",
+    "sluggish endowment", "mobile endowments", "capital endowment",
+    NA, "Sector-specific endowment", "mobile and sluggish endowments"
+  ),
+  stringsAsFactors = FALSE
+)
 
-    GTAPv6_sets <- set_table[[1]][, c(1:4)]
-    colnames(x = GTAPv6_sets) <- c("idx", paste0("GTAPv6", c_names))
-    GTAPv7_sets <- set_table[[1]][, c(5:8)]
-    colnames(x = GTAPv7_sets) <- c("idx", paste0("GTAPv7", c_names))
+coeff_conversion <- data.frame(
+  GTAPv6header = c(
+    "ADRV", "EVFA", "EVOA", "FBEP", "FTRV", "ISEP", "MFRV", "OSEP", "POP", "PURV",
+    "SAVE", "TFRV", "TVOM", "VDEP", "VDFA", "VDFM", "VDGA", "VDGM", "VDPA", "VDPM",
+    "VFM", "VIFA", "VIFM", "VIGA", "VIGM", "VIMS", "VIPA", "VIPM", "VIWS", "VKB",
+    "VRRV", "VST", "VTSS", "VTWR", "VXMD", "VXWD", "XTRV",
+    NA, NA, NA, NA, NA, NA, NA,
+    "ESBD", "ESBM", "ESBT", "ESBV", "ETRE", "INCP", "SUBP", "RDLT", "RFLX", "SLUG",
+    NA, NA, NA, NA, NA, NA
+  ),
+  GTAPv6description = c(
+    "anti-dumping duty",
+    "primary factor purchases, at agents' prices",
+    "primary factor sales, at agents' prices",
+    "gross factor-based subsidies",
+    "gross factor employment tax revenue",
+    "net intermediate input subsidies",
+    "export tax equivalent of MFA quota premia",
+    "net ordinary output subsidy",
+    "population",
+    "export tax equivalent of price undertakings",
+    "net saving, by region",
+    "ordinary import duty",
+    "sales of domestic product, at market prices",
+    "capital depreciation",
+    "domestic purchases, by firms, at agents' prices",
+    "domestic purchases, by firms, at market prices",
+    "domestic purchases, by government, at agents' prices",
+    "domestic purchases, by government, at market prices",
+    "domestic purchases, by households, at agents' prices",
+    "domestic purchases, by households, at market prices",
+    "primary factor purchases, by firms, at market prices",
+    "import purchases, by firms, at agents' prices",
+    "import purchases, by firms, at market prices",
+    "import purchases, by government, at agents' prices",
+    "import purchases, by government, at market prices",
+    "imports, at market prices",
+    "import purchases, by households, at agents' prices",
+    "import purchases, by households, at market prices",
+    "imports, at world prices",
+    "capital stock",
+    "export tax equivalent of voluntary export restraints",
+    "margin exports",
+    "Import tariff Rev by type of tariffs paid",
+    "margins by margin commodity",
+    "non-margin exports, at market prices",
+    "non-margin exports, at world prices",
+    "ordinary export tax",
+    NA, NA, NA, NA, NA, NA, NA,
+    "Armington CES for domestic/imported allocation",
+    "Armington CES for regional allocation of imports",
+    "Elasticity of intermediate input substitution",
+    "CES between primary factors in production",
+    "CET between sectors for sluggish primary factors",
+    "CDE expansion parameter",
+    "CDE substitution parameter",
+    "Investment allocation binary coefficient",
+    "Expected rate of return flexibility parameter",
+    "Binary parameter for factor mobility: 1=sluggish 0=mobile",
+    NA, NA, NA, NA, NA, NA
+  ),
+  GTAPv7header = c(
+    "ADRV", "EVFP", "EVOS", "FBEP", "FTRV", "ISEP", "MFRV", NA, "POP", "PURV",
+    "SAVE", "TFRV", "VOSB", "VDEP", "VDFP", "VDFB", "VDGP", "VDGB", "VDPP", "VDPB",
+    "EVFB", "VMFP", "VMFB", "VMGP", "VMGB", "VMSB", "VMPP", "VMPB", "VCIF", "VKB",
+    "VRRV", "VST", "VMTS", "VTWR", "VXSB", "VFOB", "XTRV",
+    "VDIB", "VDIP", "VMIB", "VMIP", "CSEP", "MAKS", "MAKB",
+    "ESBD", "ESBM", "ESBT", "ESBV", "ETRE", "INCP", "SUBP", "RDLT", "RFLX", NA,
+    "ESBG", "ETRQ", "ESBS", "ESBC", "ESBQ", "ESBI"
+  ),
+  GTAPv7description = c(
+    "anti-dumping duty",
+    "primary factor purchases, at producer prices",
+    "primary factor sales, at supply (post-income tax) prices",
+    "gross factor-based subsidies",
+    "gross factor employment tax revenue",
+    "net investment input subsidies",
+    "export tax equivalent of MFA quota premia",
+    "net ordinary output subsidy",
+    "population",
+    "export tax equivalent of price undertakings",
+    "net saving, by region",
+    "ordinary import duty",
+    "sales of domestic product, at basic prices",
+    "capital depreciation",
+    "domestic purchases, by firms, at producer prices",
+    "domestic purchases, by firms, at basic prices",
+    "domestic purchases, by government, at producer prices",
+    "domestic purchases, by government, at basic prices",
+    "domestic purchases, by households, at producer prices",
+    "domestic purchases, by households, at basic prices",
+    "primary factor purchases, by firms, at basic prices",
+    "import purchases, by firms, at producer prices",
+    "import purchases, by firms, at basic prices",
+    "import purchases, by government, at producer prices",
+    "import purchases, by government, at basic prices",
+    "imports, at basic prices",
+    "import purchases, by households, at producer prices",
+    "import purchases, by households, at basic prices",
+    "imports, at CIF prices",
+    "capital stock",
+    "export tax equivalent of voluntary export restraints",
+    "margin exports",
+    "Import tariff Rev by type of tariffs paid",
+    "margins by margin commodity",
+    "non-margin exports, at basic prices",
+    "non-margin exports, at FOB prices",
+    "ordinary export tax",
+    "domestic purchases, by investment, at basic prices",
+    "domestic purchases, by investment, at producer prices",
+    "import purchases, by investment, at basic prices",
+    "import purchases, by investment, at producer prices",
+    "net intermediate input subsidies",
+    "multi-production ('make') matrix at supply prices",
+    "multi-production ('make') matrix at basic prices",
+    "Armington CES for domestic/imported allocation",
+    "Armington CES for regional allocation of imports",
+    "CES between primary factors and intermediate inputs",
+    "CES between primary factors in production",
+    "CET between sectors for sluggish primary factors",
+    "CDE expansion parameter",
+    "CDE substitution parameter",
+    "Investment allocation binary coefficient",
+    "Expected rate of return flexibility parameter",
+    NA,
+    "CES elasticity of substitution for government demands",
+    "CET elasticity of transformation for commodities produced by",
+    "CES elasticity of substitution for international transport margin services",
+    "CES elasticity of substitution for intermediate inputs",
+    "1/CES elasticity for commodity sourcing",
+    "Investment expenditure CES elasticity"
+  ),
+  GTAPv6set = c(
+    rep(NA, 44),
+    "TRAD_COMM", "TRAD_COMM", "PROD_COMM", "PROD_COMM", "ENDW_COMM",
+    "TRAD_COMM, REG", "TRAD_COMM, REG", NA, "REG", NA,
+    NA, NA, NA, NA, NA, NA
+  ),
+  GTAPv7set = c(
+    rep(NA, 44),
+    "COMM, REG", "COMM, REG", "ACTS, REG", "ACTS, REG", "ENDW, REG",
+    "COMM, REG", "COMM, REG", NA, "REG", NA,
+    "REG", "ACTS, REG", "MARG", "ACTS, REG", "COMM, REG", "REG"
+  ),
+  data_type = c(rep("dat", 44), rep("par", 16)),
+  stringsAsFactors = FALSE
+)
 
-    # always inconsistencies in GTAP outputs
-    GTAPv7_sets[5:13, "idx"] <- 5:13
-    GTAPv7_sets[12:13, "idx"] <- 13:14
+coeff_conversion$GTAPv6set <- strsplit(coeff_conversion$GTAPv6set, ", ")
+coeff_conversion$GTAPv7set <- strsplit(coeff_conversion$GTAPv7set, ", ")
 
-    sets <- merge(GTAPv6_sets, GTAPv7_sets, by = "idx", all = TRUE)
-  }),
-  tar_target(param_conversion, {
-    param_table <- tabulapdf::extract_tables(file = GTAPv7_manual, pages = 84)
+# messages (definitions in data-raw/R/msg_*.R) -------------------------
+aux_err <- build_aux_err()
+aux_wrn <- build_aux_wrn()
+compose_err <- build_compose_err()
+data_err <- build_data_err()
+data_info <- build_data_info()
+data_wrn <- build_data_wrn()
+deploy_err <- build_deploy_err()
+deploy_wrn <- build_deploy_wrn()
+exp_err <- build_exp_err()
+gen_err <- build_gen_err()
+gen_info <- build_gen_info()
+model_err <- build_model_err()
+model_wrn <- build_model_wrn()
+shk_err <- build_shk_err()
+solve_err <- build_solve_err()
+solve_info <- build_solve_info()
+solve_wrn <- build_solve_wrn()
+swap_err <- build_swap_err()
 
-    GTAPv7_param <- param_table[[1]][, c(5:8)]
-
-    # missing ESBQ
-    ESBQ <- tibble::tibble(
-      14,
-      "ESBQ",
-      "COMM*REG",
-      "1/CES elasticity for commodity sourcing"
-    )
-    colnames(x = ESBQ) <- colnames(x = GTAPv7_param)
-
-    # missing ESBI
-    # ESBI <- tibble::tibble(15, "ESBI", "REG", "Investment expenditure CES elasticity")
-    # colnames(x = ESBI) <- colnames(x = v7_param)
-
-    GTAPv7_param <- rbind(GTAPv7_param, ESBQ)
-
-    GTAPv7_param <- .table_fix(
-      single = c(11, 12, 27),
-      double = c(1, 3, 5, 7, 9, 13, 15, 17, 19, 25),
-      trebble = c(19, 22),
-      table = GTAPv7_param,
-      prefix = "GTAPv7",
-      data_type = "par"
-    )
-
-    GTAPv7_param[10:14, "idx"] <- 11:15
-
-    GTAPv6_param <- param_table[[1]][, c(1:4)]
-
-    GTAPv6_param <- .table_fix(
-      single = c(11, 12),
-      double = c(1, 3, 5, 7, 9, 13, 15, 17),
-      table = GTAPv6_param,
-      prefix = "GTAPv6",
-      data_type = "par"
-    )
-
-    param <- merge(GTAPv6_param, GTAPv7_param, by = "idx", all = TRUE)
-    param[["data_type"]] <- "par"
-    return(param)
-  }),
-  tar_target(dat_conversion, {
-    coeff_table <- tabulapdf::extract_tables(file = GTAPv7_manual, pages = 85:86)
-
-    coeff_table <- data.table::rbindlist(l = coeff_table)
-
-    GTAPv7_coeff <- coeff_table[, c(4:6)]
-    double <- c(3, 18, 20, 22, 24, 26, 30, 32, 35, 37, 41, 49, 51, 54)
-    single <- setdiff(seq(1, nrow(GTAPv7_coeff)), double)
-    NAs <- which(is.na(GTAPv7_coeff[, 1]))
-    single <- setdiff(single, NAs)
-    GTAPv7_coeff <- .table_fix(
-      single = single,
-      double = double,
-      table = GTAPv7_coeff,
-      prefix = "GTAPv7",
-      data_type = "dat"
-    )
-
-    GTAPv6_coeff <- coeff_table[, c(1:3)]
-    double <- c(18, 20, 22, 24, 26, 30, 32, 35, 37, 41)
-    single <- setdiff(seq(1, nrow(GTAPv6_coeff)), double)
-
-    NAs <- which(is.na(GTAPv6_coeff[, 1]))
-    single <- setdiff(single, NAs)
-    GTAPv6_coeff <- .table_fix(
-      single = single,
-      double = double,
-      table = GTAPv6_coeff,
-      prefix = "GTAPv6",
-      data_type = "dat"
-    )
-
-    coeff <- merge(GTAPv6_coeff, GTAPv7_coeff, by = "idx", all = TRUE)
-    coeff[["GTAPv6set"]] <- NA
-    coeff[["GTAPv7set"]] <- NA
-    coeff[["data_type"]] <- "dat"
-    return(coeff)
-  }),
-  tar_target(coeff_conversion, {
-    rbind(dat_conversion, param_conversion)
-  }),
-  # messages (definitions in data-raw/R/msg_*.R) -------------------------
-  tar_target(aux_err, build_aux_err()),
-  tar_target(aux_wrn, build_aux_wrn()),
-  tar_target(compose_err, build_compose_err()),
-  tar_target(data_err, build_data_err()),
-  tar_target(data_info, build_data_info()),
-  tar_target(data_wrn, build_data_wrn()),
-  tar_target(deploy_err, build_deploy_err()),
-  tar_target(exp_err, build_exp_err()),
-  tar_target(exp_info, build_exp_info()),
-  tar_target(gen_err, build_gen_err()),
-  tar_target(model_err, build_model_err()),
-  tar_target(model_wrn, build_model_wrn()),
-  tar_target(shk_err, build_shk_err()),
-  tar_target(solve_err, build_solve_err()),
-  tar_target(solve_info, build_solve_info()),
-  tar_target(solve_wrn, build_solve_wrn()),
-  tar_target(swap_err, build_swap_err()),
-  # internal data ====================================================
-  tar_target(internal_data, {
-    usethis::use_data(
-      vetted_db_versions,
-      mappings,
-      tab_qual,
-      supported_state,
-      ignored_state,
-      invalid_state,
-      param_weights,
-      set_conversion,
-      coeff_conversion,
-      aux_err,
-      aux_wrn,
-      compose_err,
-      data_err,
-      data_info,
-      data_wrn,
-      deploy_err,
-      exp_err,
-      exp_info,
-      gen_err,
-      model_err,
-      model_wrn,
-      shk_err,
-      solve_err,
-      solve_info,
-      solve_wrn,
-      swap_err,
-      overwrite = TRUE,
-      internal = TRUE
-    )
-  })
+# internal data
+usethis::use_data(
+  vetted_db_versions,
+  mappings,
+  tab_qual,
+  supported_state,
+  ignored_state,
+  invalid_state,
+  param_weights,
+  set_conversion,
+  coeff_conversion,
+  aux_err,
+  aux_wrn,
+  compose_err,
+  data_err,
+  data_info,
+  data_wrn,
+  deploy_err,
+  deploy_wrn,
+  exp_err,
+  gen_err,
+  gen_info,
+  model_err,
+  model_wrn,
+  shk_err,
+  solve_err,
+  solve_info,
+  solve_wrn,
+  swap_err,
+  overwrite = TRUE,
+  internal = TRUE
 )

@@ -10,6 +10,7 @@
   entry_subset <- sub(")", "", purrr::pluck(strsplit(cls_entry, "\\("), 1, 2))
   entry_subset <- strsplit(entry_subset, ",")[[1]]
   var_sets <- purrr::pluck(var_extract, "ls_upper_idx", attr(cls_entry, "var_name"))
+  idx_sets <- purrr::pluck(var_extract, "ls_mixed_idx", attr(cls_entry, "var_name"))
   
   if (all(entry_subset == var_sets)) {
     class(cls_entry) <- c("full", class(cls_entry))
@@ -20,17 +21,22 @@
     data.table::CJ,
     c(with(sets, mget(var_sets, ifnotfound = "")), sorted = FALSE)
   )
+  data.table::setnames(full_entry, new = idx_sets)
   attr(cls_entry, "comp") <- entry_subset
   entry_subset <- with(sets, mget(entry_subset))
   entry_subset <- data.table::setnames(do.call(data.table::CJ, entry_subset), var_sets)
+  data.table::setnames(entry_subset, new = idx_sets)
   data.table::setkey(entry_subset)
   if (nrow(data.table::fsetdiff(entry_subset, full_entry)) %!=% 0L) {
+    var_name <- attr(cls_entry, "var_name")
     .cli_action(model_err$subset_invalid,
                 action = "abort",
                 call = call
     )
   }
   
+  data.table::setnames(entry_subset, new = var_sets)
+  data.table::setkey(entry_subset)
   attr(cls_entry, "ele") <- entry_subset
   return(cls_entry)
 }

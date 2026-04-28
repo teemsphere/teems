@@ -4,7 +4,7 @@
 .check_set_consistency <- function(bin_sets,
                                    tab_sets,
                                    call) {
-
+  
   tab_set_names <- tolower(names(tab_sets))
   if (!all(tab_set_names %in% bin_sets$setname)) {
     x_sets <- toupper(setdiff(tab_set_names, bin_sets$setname))

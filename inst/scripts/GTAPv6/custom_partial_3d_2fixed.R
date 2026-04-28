@@ -7,7 +7,7 @@
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  TRAD_COMM = "macro_sector",
+  PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
   target_format = target_format
 )
@@ -19,7 +19,7 @@ model <- ems_model(
 
 REG <- c("chn", "usa", "row")
 ENDW_COMM <- c("labor", "capital", "natlres", "land")
-PROD_COMM <- c("svces", "food", "crops", "mnfcs", "livestock", "zcgds")
+PROD_COMM <- c("svces", "food", "crops", "mnfcs", "livestock", "cgds")
 
 set.seed(42)
 

@@ -60,11 +60,17 @@
     }
 
     if (classes[1] %=% "ESBT") {
-      CGDS <- array(0, dimnames = list("zcgds"))
+      CGDS <- array(0, dimnames = list("CGDS"))
       input <- c(input, CGDS)
-    } else if (classes[1] %=% "ESBV") {
-      CGDS <- array(1, dimnames = list("zcgds"))
+    }
+    
+    if (classes[1] %=% "ESBV") {
+      CGDS <- array(1, dimnames = list("CGDS"))
       input <- c(input, CGDS)
+    }
+    
+    if (classes[1] %=% "ETRE") {
+      input[which(tolower(names(input)) == "natlres")] <- -1e-3
     }
 
     if (!is.array(input)) {
@@ -192,6 +198,7 @@
                                 ...) {
   classes <- class(input)
   input <- .convert_invest_e(input = input)
+  input <- input * -1
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
   return(input)
@@ -237,7 +244,7 @@
   arr_dimnames <- dimnames(input)
   arr_names <- names(arr_dimnames)
   CGDS_dim <- c(dim(input), 1)
-  CGDS_dimnames <- c(arr_dimnames, list(ACTS = "zcgds"))
+  CGDS_dimnames <- c(arr_dimnames, list(ACTS = "CGDS"))
   CGDS_data <- array(input, CGDS_dim, CGDS_dimnames)
   CGDS_data <- CGDS_data * -1
   arr <- i_data$CSEP

@@ -70,73 +70,9 @@ if (missing(model)) {
 }
 call <- match.call()
 args_list <- mget(names(formals()))
-metadata <- attr(.data, "metadata")
-attr(metadata, "file") <- "metadata.rds"
-sets <- .finalize_sets(
-  sets = .data[purrr::map_lgl(.data, inherits, "set")],
-  set_extract = model[model$type == "Set", ],
-  coeff_extract = model[model$type == "Coefficient", ],
-  time_steps = attr(.data, "time_steps"),
-  reference_year = metadata$reference_year,
-  call = call,
-  data_call = attr(.data, "call"),
-  model_call = attr(model, "call")
-)
-v <- .validate_deploy_args(
-  a = args_list,
-  sets = sets,
-  model_headers = attr(model, "header"),
-  call = call,
-  data_call = attr(.data, "call")
-)
-closure <- .validate_closure(
-  closure = attr(v$model, "closure"),
-  sets = sets,
-  var_extract = model[model$type == "Variable", ],
+cmf_path <- .finalize(
+  args_list = args_list,
   call = call
-)
-closure <- .finalize_closure(
-  swap_in = v$swap_in,
-  swap_out = v$swap_out,
-  closure = closure,
-  closure_file = attr(v$model, "closure_file"),
-  sets = sets,
-  var_extract = model[model$type == "Variable", ],
-  call = call
-)
-shocks <- .finalize_shocks(
-  shock = v$shock,
-  shock_file = v$shock_file,
-  closure = closure,
-  sets = sets,
-  var_extract = model[model$type == "Variable", ]
-)
-.data <- .finalize_data(
-  .data = .data,
-  sets = sets,
-  model = model,
-  write_dir = write_dir,
-  call = call,
-  model_call = attr(model, "call")
-)
-tab <- .finalize_tab(model = model)
-cmf <- .finalize_cmf(
-  model = model,
-  shock_file = attr(shocks, "file"),
-  tab_file = attr(tab, "file"),
-  cls_file = attr(closure, "file"),
-  write_dir = v$write_dir
-)
-cmf_path <- .write_input_files(
-  write_dir = v$write_dir,
-  tab = tab,
-  closure = closure,
-  shocks = shocks,
-  cmf = cmf,
-  .data = .data,
-  v_shock = v$shock,
-  metadata = metadata,
-  sets = sets
 )
 cmf_path
 }

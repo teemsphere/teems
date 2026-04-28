@@ -2,40 +2,41 @@ build_data_err <- function() {
   list(
     # test-ems_data.R: "ems_data rejects invalid target_format"
     invalid_target = c("Invalid {.arg target_format}.",
-    "Valid target formats currently include: {.val {valid_formats}}."),
+    "Valid target formats: {.val {valid_formats}}."),
     # test-ems_data.R: "ems_data rejects duplicate time_steps"
     invalid_time_step = "One or more {.arg time_steps} does not progress into the future.",
     # test-ems_data.R: "ems_data rejects CSV with insufficient columns"
-    invalid_user_input = "The set mapping loaded for {.field {map_name}} does not contain both an origin element column and a mapping column.",
+    invalid_user_input = "The {.field {map_name}} mapping requires both an origin and destination column.",
     # test-ems_data.R: "ems_data rejects unrecognized set arguments with CSV mapping"
-    missing_data = "There is no loaded set data which corresponds to the loaded set map: {.field {map_name}}.",
+    missing_data = "No loaded set data corresponds to the {.field {map_name}} mapping.",
     # test-ems_data.R: "ems_data rejects invalid mapping values in CSV"
-    missing_ele_mapping = "The set mapping loaded for {.field {map_name}} is missing mappings for {.val {missing_ele}}.",
+    missing_ele_mapping = "The {.field {map_name}} mapping has no entries for {.val {missing_ele}}.",
     # test-ems_data.R: "ems_data rejects unrecognized set arguments"
-    no_internal_mapping = "No internal mappings were found for the set {.field {map_name}}.",
+    no_internal_mapping = "No internal mappings exist for set {.field {map_name}}.",
     # test-ems_data.R: "ems_data rejects invalid internal mapping name"
     invalid_internal_mapping = c(
-      "The internal mapping selected: {.val {set_map}}, for set {.val {map_name}} does not exist.",
+      "Internal mapping {.val {set_map}} does not exist for set {.val {map_name}}.",
       "Available internal mappings for {.val {map_name}} include {.val {available_map_names}}"
     ),
     # test-ems_data.R: "ems_data requires REG argument"
-    missing_set_mappings = "Set mappings passed to {.arg ...} as a pairwise list are required."
+    missing_set_mappings = "Set mappings are required as named arguments in {.arg ...}."
   )
 }
 
 build_data_wrn <- function() {
   list(
     # test-ems_data.R: "ems_data warns wrong initial year"
-    time_steps = "The initial timestep provided is neither {.val {as.numeric(0)}} nor the reference year corresponding to the {.field dat} file loaded: {.val {t0}}.",
+    time_steps = "Initial timestep is neither {.val 0} nor the {.field dat} reference year ({.val {t0}}).",
     # test-ems_data.R: "ems_data unnecessary convert"
-    unnecessary_cvrt = "The retrieved data format is identical to the {.arg target_format} specified. No conversion has taken place.",
+    unnecessary_cvrt = "Data format already matches {.arg target_format}; no conversion applied.",
     # test-ems_data.R: "ems_data rejects CSV with extra columns"
-    invalid_user_input = "The set mapping loaded for {.field {map_name}} contains more than 2 columns. Only the first (origin element) and second (mapped element) columns will be utilized.",
+    invalid_user_input = "The {.field {map_name}} mapping has more than 2 columns; only columns 1 (origin) and 2 (destination) will be used.",
     # no need to spoof this one
     db_version = c(
       "{.pkg teems} version: {teems_version} has only been vetted on GTAP Data Base versions: {vetted}.",
       "The {.fn teems::solve_in_situ} function can bypass the pipeline and be called on solver-ready input files."
-    )
+    ),
+    mapping_case = "Some {.field {map_name}} elements converted to lowercase for consistency."
   )
 }
 

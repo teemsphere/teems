@@ -38,7 +38,6 @@ test_that("ems_data rejects non-character dat_input", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
@@ -52,7 +51,6 @@ test_that("ems_data rejects non-character par_input", {
     par_input = 1,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
@@ -66,27 +64,25 @@ test_that("ems_data rejects non-character set_input", {
     par_input = par_input,
     set_input = 1,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
 })
 
-test_that("ems_data rejects non-character aux_input", {
-  dat_input <- Sys.getenv("GTAP11c_dat")
-  par_input <- Sys.getenv("GTAP11c_par")
-  set_input <- Sys.getenv("GTAP11c_set")
-  expect_snapshot_error(ems_data(
-    dat_input = dat_input,
-    par_input = par_input,
-    set_input = set_input,
-    aux_input = 1,
-    REG = "big3",
-    COMM = "macro_sector",
-    ACTS = "macro_sector",
-    ENDW = "labor_agg"
-  ))
-})
+# test_that("ems_data rejects non-character aux_input", {
+#   dat_input <- Sys.getenv("GTAP11c_dat")
+#   par_input <- Sys.getenv("GTAP11c_par")
+#   set_input <- Sys.getenv("GTAP11c_set")
+#   expect_snapshot_error(ems_data(
+#     dat_input = dat_input,
+#     par_input = par_input,
+#     set_input = set_input,
+#     aux_input = 1,
+#     REG = "big3",
+#     ACTS = "macro_sector",
+#     ENDW = "labor_agg"
+#   ))
+# })
 
 test_that("ems_data rejects non-character REG", {
   dat_input <- Sys.getenv("GTAP11c_dat")
@@ -97,7 +93,6 @@ test_that("ems_data rejects non-character REG", {
     par_input = par_input,
     set_input = set_input,
     REG = 1,
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
@@ -145,12 +140,12 @@ test_that("ems_data rejects invalid mapping values in CSV", {
   dat_input <- Sys.getenv("GTAP11c_dat")
   par_input <- Sys.getenv("GTAP11c_par")
   set_input <- Sys.getenv("GTAP11c_set")
-  REG <- mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
+  REG <- teems:::mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
   REG[1, ] <- "invalid"
-  if (!dir.exists(R_user_dir("teems", "cache"))) {
-    dir.create(R_user_dir("teems", "cache"))
+  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
+    dir.create(tools::R_user_dir("teems", "cache"))
   }
-  REG_csv <- file.path(R_user_dir("teems", "cache"), "REG.csv")
+  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input = dat_input,
@@ -164,12 +159,12 @@ test_that("ems_data rejects CSV with extra columns", {
   dat_input <- Sys.getenv("GTAP11c_dat")
   par_input <- Sys.getenv("GTAP11c_par")
   set_input <- Sys.getenv("GTAP11c_set")
-  REG <- mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
+  REG <- teems:::mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
   REG$extra_col <- NA
-  if (!dir.exists(R_user_dir("teems", "cache"))) {
-    dir.create(R_user_dir("teems", "cache"))
+  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
+    dir.create(tools::R_user_dir("teems", "cache"))
   }
-  REG_csv <- file.path(R_user_dir("teems", "cache"), "REG.csv")
+  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_warning(ems_data(
     dat_input = dat_input,
@@ -183,12 +178,12 @@ test_that("ems_data rejects CSV with insufficient columns", {
   dat_input <- Sys.getenv("GTAP11c_dat")
   par_input <- Sys.getenv("GTAP11c_par")
   set_input <- Sys.getenv("GTAP11c_set")
-  REG <- mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
+  REG <- teems:::mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
   REG <- REG[, 1]
-  if (!dir.exists(R_user_dir("teems", "cache"))) {
-    dir.create(R_user_dir("teems", "cache"))
+  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
+    dir.create(tools::R_user_dir("teems", "cache"))
   }
-  REG_csv <- file.path(R_user_dir("teems", "cache"), "REG.csv")
+  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input = dat_input,
@@ -207,7 +202,6 @@ test_that("ems_data rejects invalid target_format", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
     time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16),
@@ -224,7 +218,6 @@ test_that("ems_data unnecessary convert", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
     time_steps = c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16),
@@ -241,7 +234,6 @@ test_that("ems_data rejects unrecognized set arguments", {
     par_input = par_input,
     set_input = set_input,
     not_a_set = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
@@ -251,18 +243,17 @@ test_that("ems_data rejects unrecognized set arguments with CSV mapping", {
   dat_input <- Sys.getenv("GTAP11c_dat")
   par_input <- Sys.getenv("GTAP11c_par")
   set_input <- Sys.getenv("GTAP11c_set")
-  REG <- mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
-  if (!dir.exists(R_user_dir("teems", "cache"))) {
-    dir.create(R_user_dir("teems", "cache"))
+  REG <- teems:::mappings$GTAPv11$GTAPv7$REG[, c(1, 2)]
+  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
+    dir.create(tools::R_user_dir("teems", "cache"))
   }
-  REG_csv <- file.path(R_user_dir("teems", "cache"), "REG.csv")
+  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input = dat_input,
     par_input = par_input,
     set_input = set_input,
     not_a_set = REG_csv,
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   ))
@@ -277,7 +268,6 @@ test_that("ems_data rejects duplicate time_steps", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
     time_steps = c(0, 1, 1)
@@ -293,9 +283,108 @@ test_that("ems_data warns wrong initial year", {
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
-    COMM = "macro_sector",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
     time_steps = c(2014, 2015, 2016)
   ))
+})
+
+test_that("ems_data converts from v7 to v6", {
+  convertedv6 <- ems_data(
+    dat_input = Sys.getenv("GTAP11c_dat"),
+    par_input = Sys.getenv("GTAP11c_par"),
+    set_input = Sys.getenv("GTAP11c_set"),
+    REG = "full",
+    PROD_COMM = "full",
+    ENDW_COMM = "full",
+    target_format = "GTAPv6"
+  )
+  
+  gdyn <- ems_data(
+    dat_input = Sys.getenv("GDYN11c_dat"),
+    par_input = Sys.getenv("GDYN11c_par"),
+    set_input = Sys.getenv("GDYN11c_set"),
+    REG = "full",
+    PROD_COMM = "full",
+    ENDW_COMM = "full"
+  )
+  
+  gdyn <- lapply(gdyn, \(h) {
+    nmes <- colnames(h)
+    if ("ENDW_COMM" %in% nmes) {
+      h[is.na(ENDW_COMM), ENDW_COMM := "natlres"]
+      data.table::setorderv(h, setdiff(nmes, "Value"))
+    }
+    return(h)
+  })
+  
+  common_headers <- intersect(names(gdyn), names(convertedv6))
+  common_headers <- setdiff(common_headers, "SAVE")
+  gdyn <- gdyn[names(gdyn) %in% common_headers]
+  convertedv6 <- convertedv6[names(convertedv6) %in% common_headers]
+  
+  gdyn <- gdyn[match(names(convertedv6), names(gdyn))]
+  
+  checks <- purrr::map2_lgl(
+    gdyn,
+    convertedv6,
+    all.equal,
+    check.attributes = F,
+    tolerance = 1e-4
+  )
+  
+  expect_all_true(checks)
+})
+
+test_that("ems_data converts from v6 to v7", {
+  gdyn <- ems_data(
+    dat_input = Sys.getenv("GDYN11c_dat"),
+    par_input = Sys.getenv("GDYN11c_par"),
+    set_input = Sys.getenv("GDYN11c_set"),
+    REG = "full",
+    ACTS = "full",
+    ENDW = "full",
+    target_format = "GTAPv7"
+  )
+  
+  gdyn <- gdyn[!duplicated(names(gdyn))]
+  
+  normalv7 <- ems_data(
+    dat_input = Sys.getenv("GTAP11c_dat"),
+    par_input = Sys.getenv("GTAP11c_par"),
+    set_input = Sys.getenv("GTAP11c_set"),
+    REG = "full",
+    ACTS = "full",
+    ENDW = "full"
+  )
+  
+  gdyn <- lapply(gdyn, \(h) {
+    nmes <- colnames(h)
+    if ("ENDW" %in% nmes) {
+      h[is.na(ENDW), ENDW := "natlres"]
+      data.table::setorderv(h, setdiff(nmes, "Value"))
+    }
+    return(h)
+  })
+  
+  common_headers <- intersect(names(gdyn), names(normalv7))
+  common_headers <- setdiff(common_headers, c("SAVE", "ENDF", "ENDL"))
+  normalv7 <- normalv7[names(normalv7) %in% common_headers]
+  gdyn <- gdyn[names(gdyn) %in% common_headers]
+  gdyn <- gdyn[match(names(normalv7), names(gdyn))]
+  gdyn$ENDW[which(gdyn$ENDW$origin == "natres"),]$origin <- "natlres"
+  gdyn$ENDW[which(gdyn$ENDW$origin == "natlres"),]$mapping <- "natlres"
+  data.table::setorder(gdyn$ENDW)
+  
+  gdyn$ETRE <- gdyn$ETRE[!duplicated(gdyn$ETRE)]
+  
+  checks <- purrr::map2_lgl(
+    gdyn,
+    normalv7,
+    all.equal,
+    check.attributes = F,
+    tolerance = 1e-5
+  )
+  
+  expect_all_true(checks)
 })

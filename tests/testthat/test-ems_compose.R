@@ -7,32 +7,32 @@ dat_input <- Sys.getenv("GTAP11c_dat")
 par_input <- Sys.getenv("GTAP11c_par")
 set_input <- Sys.getenv("GTAP11c_set")
 
-model <- "GTAP-RE"
-model_files <- ems_example(model)
-model_file <- model_files[["model_file"]]
-closure_file <- model_files[["closure_file"]]
+write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "compose")
 
-write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "v11", model)
-
-if (!dir.exists(write_dir)) {
+if (dir.exists(write_dir)) { 
+  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
+} else {
   dir.create(write_dir, recursive = TRUE)
 }
 
-.data <- ems_data(
+model <- "GTAP-RE"
+model_files <- ems_example(model, write_dir = write_dir)
+model_file <- model_files[["model_file"]]
+closure_file <- model_files[["closure_file"]]
+
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  COMM = "macro_sector",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = c(0, 1, 2, 3)
+  time_steps = c(0, 1, 2)
 )
 model <- ems_model(model_file = model_file, closure_file = closure_file)
 n_var <- nrow(model[which(model$type == "Variable"),])
 n_coeff <- nrow(model[which(model$type == "Coefficient"),])
-ems_option_set(write_sub_dir = "compose_test")
-cmf_path <- ems_deploy(.data = .data, model = model, write_dir = write_dir)
+cmf_path <- ems_deploy(.data = dat, model = model, write_dir = write_dir)
 ems_solve(cmf_path = cmf_path, suppress_outputs = TRUE)
 
 # --- error tests ---
@@ -91,3 +91,12 @@ test_that("ems_compose accepts minimal = TRUE", {
   expect_type(result, "list")
 })
 
+test_that("ems_compose errors when cmf_path does not exist", {
+  expect_snapshot_error(ems_compose(cmf_path = file.path("not_a_path")))
+})
+
+test_that("ems_compose errors when model run has not taken place", {
+  cmf_path <- file.path("/tmp", "not_a_cmf.cmf")
+  file.create(cmf_path)
+  expect_snapshot_error(ems_compose(cmf_path = cmf_path))
+})

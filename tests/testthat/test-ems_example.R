@@ -16,9 +16,13 @@ test_that("ems_example errors when model is missing", {
   expect_snapshot_error(ems_example())
 })
 
-test_that("ems_example errors when write_dir does not exist", {
-  expect_snapshot_error(
-    ems_example("GTAPv7", write_dir = file.path(tools::R_user_dir("teems", "cache"), "nonexistent_dir_xyz"))
+test_that("ems_example warns when write_dir does not exist", {
+  write_dir <- file.path(tools::R_user_dir("teems", "cache"), "nonexistent_dir_xyz")
+  if (dir.exists(write_dir)) {
+  unlink(write_dir, recursive = TRUE)
+  }
+  expect_snapshot_warning(
+    ems_example("GTAPv7", write_dir = write_dir)
   )
 })
 

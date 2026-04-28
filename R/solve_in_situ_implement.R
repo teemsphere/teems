@@ -1,10 +1,10 @@
 #' @keywords internal
 #' @noRd
 .implement_solve_in_situ <- function(model_file,
+                                     model_dir,
                                      closure_file,
                                      input_files,
                                      shock_file,
-                                     write_dir,
                                      writeout,
                                      n_tasks,
                                      n_subintervals,
@@ -23,7 +23,7 @@
     closure_file = closure_file,
     shock_file = shock_file,
     writeout = writeout,
-    write_dir = write_dir,
+    model_dir = model_dir,
     call = call
   )
   

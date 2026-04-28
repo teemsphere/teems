@@ -25,6 +25,8 @@
 #'   this manner. All model declared input files as well as
 #'   `"model_file"`, `"closure_file"`, and `"shock_file"` are
 #'   required for in-situ model runs.
+#' @param model_dir Character of length 1, base directory where
+#'   input files will be copied and the model will be run. 
 #' @param writeout Logical length 1, default `FALSE`. Whether to
 #'   attempt to parse the Tablo file and append "Write"
 #'   declarations for out all model output coefficients and sets.
@@ -44,6 +46,7 @@
 #' @export
 solve_in_situ <- function(...,
                           model_file,
+                          model_dir,
                           closure_file,
                           shock_file,
                           n_tasks = 1L,
@@ -56,30 +59,34 @@ solve_in_situ <- function(...,
                           laDi = 500L,
                           terminal_run = FALSE,
                           suppress_outputs = FALSE,
-                          write_dir = tools::R_user_dir("teems", "cache"),
                           writeout = FALSE
 ) {
 call <- match.call()
 if (missing(model_file)) {
   .cli_missing(model_file)
 }
+if (missing(model_dir)) {
+  .cli_missing(model_dir)
+}
 if (missing(closure_file)) {
   .cli_missing(closure_file)
 }
+if (missing(shock_file)) {
+  .cli_missing(shock_file)
+}
 if (missing(...)) {
   .cli_action(solve_err$no_insitu_inputs,
-    action = c("abort", "inform"),
+    action = "abort",
     call = call
   )
 }
 input_files <- list(...)
-# consider sending a call 
 output <- .implement_solve_in_situ(
   model_file = model_file,
+  model_dir = model_dir,
   closure_file = closure_file,
   input_files = input_files,
   shock_file = shock_file,
-  write_dir = write_dir,
   writeout = writeout,
   n_tasks = n_tasks,
   n_subintervals = n_subintervals,

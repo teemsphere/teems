@@ -1,15 +1,14 @@
 build_compose_err <- function() {
   list(
-    x_model_dir = "Model directory {.path {model_dir}} not found. This would indicate that the {.arg cmf_path} provided, {.path {cmf_path}}, is not correct.",
-    x_var_out = "Model outputs not found. This would indicate that a model run at the {.arg cmf_path} provided, {.path {cmf_path}}, has not taken place.",
-    set_mismatch = "Tablo-parsed sets and/or elements are not identical to post-model binary set outputs.",
-    idx_mismatch = "Index mismatch detected on output variables in {.fun teems::ems_compose}.",
-    lax_check = "Lax column name check failed: One or more column names in parsed variable data.tables is not present in the tab extract.",
-    strict_check = "Strict column name check failed: One or more column names is either not present or in a different order than that of the tab extract.",
-    var_check = "Name discrepancy in parsed variables with respect to variable extract names.",
-    coeff_check = "One or more coefficients identified from the Tablo extract was not found in the output csvs.",
-    invalid_coeff_set = "It appears that a set isn't found which likely means a space around a coefficient set declaration (e.g., (all, r, REG) instead of (all,r,REG).",
+    no_sol = "No solution files found at {.path {cmf_path}}; the path is wrong or the model has not been run.",
+    set_mismatch = "Tablo-parsed sets/elements do not match binary set outputs.",
+    idx_mismatch = "Output variable index mismatch in {.fun teems::ems_compose}.",
+    lax_check = "Lax column check failed: one or more parsed variable column names are absent from the tab extract.",
+    strict_check = "Strict column check failed: one or more column names are absent or out of order relative to the tab extract.",
+    var_check = "Parsed variable names do not match extract names.",
+    coeff_check = "One or more Tablo-identified coefficients absent from model output.",
+    invalid_coeff_set = "Set not found; a space in a coefficient set declaration may be the cause, e.g. {.code (all, r, REG)} instead of {.code (all,r,REG)}.",
     missing_sets = "Set information missing from binary outputs: {.field {x_sets}}.",
-    invalid_name = "The {.arg name} provided: {.field {name}} is not present within output variables or coefficients."
+    invalid_name = "{.field {name}} is not present in output variables or coefficients."
   )
 }

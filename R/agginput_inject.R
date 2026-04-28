@@ -7,24 +7,23 @@
                               sets,
                               model,
                               call) {
-
   agg_input <- attributes(model)[purrr::map_lgl(attributes(model), data.table::is.data.table)]
 
   for (nme in names(agg_input)) {
     input <- agg_input[[nme]]
     ls_upper <- purrr::pluck(model, "ls_upper_idx", nme)
-    header <- model[which(model$name == nme & model$type == "Coefficient"),]$header
+    header <- model[which(model$name == nme & model$type == "Coefficient"), ]$header
     set_ele <- with(sets$ele, mget(ls_upper))
     template_shk <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
     data.table::setnames(template_shk, new = colnames(input[, !"Value"]))
     data.table::setkey(template_shk)
-    
+
     if (!data.table::fsetequal(input[, !"Value"], template_shk)) {
-      tup <- .capture_dt_tup(
-        template = template_shk,
-        value = input[, !"Value"],
-        drop = 3
-      )
+      missing_tuples <- data.table::fsetdiff(template_shk, input[, !"Value"])
+      n <- nrow(missing_tuples)
+      missing_tuples <- utils::capture.output(print(missing_tuples))
+      missing <- missing_tuples[-seq_len(3)]
+
       .cli_action(
         deploy_err$agg_missing_tup,
         action = "abort",
@@ -40,7 +39,11 @@
     } else {
       classes <- setdiff(class(input), grep("_", class(input), value = TRUE))
       param <- grepl("parameter", model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
-      type <- if (param) {"par"} else {"dat"}
+      type <- if (param) {
+        "par"
+      } else {
+        "dat"
+      }
       class(input) <- c(nme, type, classes)
       .data <- c(.data, list(input))
     }

@@ -16,6 +16,7 @@
     i_data = i_data,
     data_format = metadata$data_format
   )
+  
   i_data <- lapply(i_data,
     .aggregate_data,
     sets = set_mappings,

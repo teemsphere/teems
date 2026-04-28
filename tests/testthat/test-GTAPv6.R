@@ -1,14 +1,17 @@
 skip_on_cran()
 ems_option_set(verbose = FALSE)
 
-data_db <- c("v9", "v10", "v11")
+data_db <- c("v9", "v10", "v11", "v12")
 db_inputs <- list(
   v9  = list(dat = Sys.getenv("GTAP9_dat"),   par = Sys.getenv("GTAP9_par"),   set = Sys.getenv("GTAP9_set")),
   v10 = list(dat = Sys.getenv("GTAP10A_dat"),  par = Sys.getenv("GTAP10A_par"),  set = Sys.getenv("GTAP10A_set")),
-  v11 = list(dat = Sys.getenv("GTAP11c_dat"),  par = Sys.getenv("GTAP11c_par"),  set = Sys.getenv("GTAP11c_set"))
+  v11 = list(dat = Sys.getenv("GTAP11c_dat"),  par = Sys.getenv("GTAP11c_par"),  set = Sys.getenv("GTAP11c_set")),
+  v12 = list(dat = Sys.getenv("GTAP12_dat"),  par = Sys.getenv("GTAP12_par"),  set = Sys.getenv("GTAP12_set"))
 )
 
 model <- "GTAPv6"
+model_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"))
+model_files <- ems_example(model, write_dir = model_dir)
 model_files <- ems_example(model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
@@ -18,23 +21,17 @@ for (db in data_db) {
   par_input <- db_inputs[[db]]$par
   set_input <- db_inputs[[db]]$set
 
-  if (db == "v11") {
+  if (db %in% c("v11", "v12")) {
     target_format <- "GTAPv6"
   } else {
     target_format <- NULL
   }
 
-  year <- switch(db,
-    "v9" = 2011,
-    "v10" = 2014,
-    "v11" = 2017
-  )
-
   write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), db, model)
 
-  unlink(file.path(write_dir, "*"), expand = TRUE)
-
-  if (!dir.exists(write_dir)) {
+  if (dir.exists(write_dir)) { 
+    unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
+  } else {
     dir.create(write_dir, recursive = TRUE)
   }
 

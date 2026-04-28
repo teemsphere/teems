@@ -101,5 +101,5 @@ output <- .implement_solve(
   args_list = args_list,
   call = call
 )
-output
+if (is.null(output)) invisible(output) else output
 }

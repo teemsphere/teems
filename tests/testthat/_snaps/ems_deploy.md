@@ -6,51 +6,47 @@
 
     x argument `model` is missing, with no default
 
-# ems_swap in variable not valid
+# ems_deploy errors when invalid variable provided for swap-in
 
-    x The variable "not_a_var" designated for a swap is not found within the model Tablo file provided.
+    x Swap variable "not_a_var" not found in the model.
 
-# ems_swap out variable not valid
+# ems_deploy errors when invalid variable provided for swap-out
 
-    x The variable "not_a_var" designated for a swap is not found within the model Tablo file provided.
-
-# ems_swap in subset not valid
-
-    x The swap set "NOT_A_SET" is not associated with the variable "pop".
-    i Note that set designations within teems are comprised of the variable-specific uppercase set name and lowercase index.
-    i For "pop" these include: REGr and ALLTIMEt.
-
-# ems_swap out subset not valid
-
-    x The swap set "NOT_A_SET" is not associated with the variable "pop".
-    i Note that set designations within teems are comprised of the variable-specific uppercase set name and lowercase index.
-    i For "pop" these include: REGr and ALLTIMEt.
-
-# ems_swap in ele component not valid
-
-    x Elements or subsets designated for a swap are not part of the set COMMc: zzz.
-    i Valid elements include "crops", "food", "livestock", "mnfcs", and "svces".
-    i Valid subsets include MARG and NMRG.
-
-# ems_swap out var component no entry
-
-    x Elements or subsets designated for a swap are not part of the set COMMc: zzz.
-    i Valid elements include "crops", "food", "livestock", "mnfcs", and "svces".
-    i Valid subsets include MARG and NMRG.
-
-# full ems_swap out var not fully exogenous
-
-    x A full swap on the variable "qe" is not possible as the variable is not fully exogenous.
-
-# ems_swap out no entry
-
-    x There is no closure entry for the selected swap-out variable "qfd".
-
-# ems_swap duplicate tup in closure
-
-    x The proposed swap on "qe" results in duplicate closure entries: 1: capital chn 0, 2: capital row 0, and 3: capital usa 0.
+    x Swap variable "not_a_var" not found in the model.
 
 # ems_deploy errors when shock_file and shock are both provided
 
     x No additional shocks are accepted if a shock file is provided.
+
+# ems_deploy errors when read-in headers not present in data
+
+    x Read-in headers missing from loaded data: "SAVE".
+
+# ems_deploy errors when read-in headers are missing mapping
+
+    x Some read-in model sets have no mappings: REG.
+
+# ems_deploy errors when timesteps provided to static model
+
+    x `time_steps` provided but no intertemporal sets detected in the model. See `teems::ems_data()`.
+
+# ems_deploy errors when timesteps not provided to a dynamic model
+
+    x `time_steps` required for intertemporal models. See `teems::ems_data()`.
+
+# ems_deploy errors when set-calculated number of entries does not match a finalized data header
+
+    x ESBT has 45 entries; 30 expected.
+
+# ems_deploy errors when write_dir does not exist
+
+    x '/tmp2/does_not_exist' does not exist and could not be created. Ensure the parent directory exists.
+
+# ems_deploy warns when creating write_dir
+
+    ! Creating directory: '/tmp/write_dir/tmp'.
+
+# ems_deploy errors when aggregated inputs are incomplete
+
+    x 7 tuples in the provided input file for "SAVE" were missing: 1: chn 1, 2: chn 2, 3: row 1, 4: row 2, 5: usa 0, 6: usa 1, and 7: usa 2.
 

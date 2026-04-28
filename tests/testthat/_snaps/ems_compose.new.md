@@ -16,5 +16,7 @@
 
 # ems_compose errors when model run has not taken place
 
-    x No solution files found at '/tmp/not_a_cmf.cmf'; the path is wrong or the model has not been run.
+    ! Could not evaluate cli `{}` expression: `cmf_path`.
+    Caused by error in `eval(expr, envir = envir)`:
+    ! object 'cmf_path' not found
 

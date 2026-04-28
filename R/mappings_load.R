@@ -10,6 +10,7 @@
                            metadata,
                            time_steps,
                            call) {
+  
   set_mappings <- purrr::map2(
     set_mappings,
     names(set_mappings),
@@ -28,7 +29,8 @@
     data_format <- switch(metadata$database_version,
       "GTAPv9" = "GTAPv6",
       "GTAPv10" = "GTAPv6",
-      "GTAPv11" = "GTAPv7"
+      "GTAPv11" = "GTAPv7",
+      "GTAPv12" = "GTAPv7"
     )
   } else {
     data_format <- metadata$data_format
@@ -58,13 +60,11 @@
     set_mappings <- c(set_mappings, user_sets)
   }
 
-  if (data_format %=% "GTAPv6") {
-    set_mappings$MARG_COMM <- set_mappings$TRAD_COMM[set_mappings$TRAD_COMM[, 1][[1]] %in% .o_margin_sectors(), ]
-    CGDS <- data.table::data.table("zcgds", "zcgds")
-    set_mappings$PROD_COMM <- data.table::rbindlist(list(set_mappings$TRAD_COMM, CGDS), use.names = FALSE)
-  } else if (data_format %=% "GTAPv7") {
-    set_mappings$MARG <- set_mappings$COMM[set_mappings$COMM[, 1][[1]] %in% .o_margin_sectors(), ]
-  }
+  provided_mappings <- names(set_mappings)
+  set_mappings <- .infer_set_mappings(
+    set_mappings = set_mappings,
+    set_data = set_data
+  )
 
   if (!is.null(time_steps)) {
     time_steps <- .check_time_steps(
@@ -76,10 +76,11 @@
   }
 
   if (.o_verbose()) {
+    broadcast <- which(provided_mappings %in% names(set_mappings))
     cli::cli_h1("Set elements")
     purrr::map2(
-      names(set_mappings),
-      set_mappings,
+      names(set_mappings)[broadcast],
+      set_mappings[broadcast],
       function(set_name, ele) {
         ele <- sort(unlist(unique(ele[, 2])))
         cli::cli_text("{set_name}: {.val {ele}}")

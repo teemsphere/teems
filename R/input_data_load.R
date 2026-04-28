@@ -1,20 +1,18 @@
 #' @importFrom purrr map
-#' 
+#'
 #' @noRd
 #' @keywords internal
 .load_input_data <- function(dat_input,
                              par_input,
                              set_input,
-                             aux_input,
                              target_format,
                              data_call) {
-
   dat <- .read_input(
     input = dat_input,
     data_type = "dat",
     attach_metadata = TRUE
   )
-  
+
   metadata <- attr(dat, "metadata")
 
   if (metadata$data_format %=% target_format) {
@@ -36,47 +34,21 @@
 
   i_data <- c(set, par, dat)
   i_data <- i_data[!names(i_data) %in% .o_full_exclude()]
-  
-  if (!is.null(aux_input)) {
-    i_data <- .add_aux(aux_input = aux_input,
-                       i_data = i_data,
-                       data_call = data_call)
-  }
 
-  # remove duplicates precedence aux, dat, par, set
   if (any(duplicated(names(i_data)))) {
     i_data <- i_data[!duplicated(names(i_data), fromLast = TRUE)]
   }
-  
-  i_data <- lapply(
-    i_data,
-    function(h) {
-      if (inherits(h, c("dat", "par")) && !is.null(dimnames(h))) {
-        dimnames(h) <- purrr::map(dimnames(h), function(e) {
-          tolower(gsub("CGDS", "zcgds", e, ignore.case = TRUE))
-        })
-      } else if (inherits(h, "set")) {
-        h <- tolower(gsub(
-          "CGDS",
-          "zcgds",
-          h,
-          ignore.case = TRUE
-        ))
-      }
-      return(h)
-    }
-  )
 
   .check_database_version(
     vetted = vetted_db_versions,
     provided = metadata$full_database_version,
     call = data_call
   )
-  
+
   if (.o_verbose()) {
-  .inform_metadata(metadata = metadata)
+    .inform_metadata(metadata = metadata)
   }
-  
+
   attr(i_data, "metadata") <- metadata
   class(i_data) <- c(metadata$data_format, class(i_data))
   return(i_data)

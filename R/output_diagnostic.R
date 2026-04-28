@@ -1,4 +1,4 @@
-#' @importFrom cli cli_fmt cli_h1 cli_h2 cli_h3 cli_dl cli_text cli_ul
+#' @importFrom cli cli_fmt cli_h1 cli_h2 cli_dl cli_text cli_ul
 #'   cli_verbatim cli_alert_warning ansi_strip
 #' @importFrom purrr pmap map_chr
 #'
@@ -23,7 +23,7 @@
     null_shk <- cli::cli_fmt({
       cli::cli_alert_warning("No shock has been provided so a
       {.val NULL} shock will be used. A null shock will return all model
-      coefficients as they are read and/or calculated in the Tablo file.
+      coefficients as they are read and/or calculated in the model file.
       Any significant deviation under these conditions would indicate an error
       in the loading of input files or parsing of model outputs.",
         wrap = TRUE
@@ -50,15 +50,15 @@
       "Reference year" = metadata$reference_year,
       "Data format" = metadata$data_format
     ))
-    cli::cli_h2(text = "Set specifications")
+    cli::cli_h2(text = "Set elements")
     purrr::pmap(
       .l = list(sets$name, sets$ele, sets$label),
       .f = function(nme, ele, info) {
         nme <- toupper(nme)
         info <- trimws(gsub("#", "", info))
-        cli::cli_h3(text = "Set {nme}")
-        cli::cli_text("Description: {info}")
-        cli::cli_text("Elements: {.val {paste(ele, collapse = ', ')}}")
+        #cli::cli_h3(text = "Set {nme}")
+        cli::cli_text("{nme} ({info}): {.val {paste(ele, collapse = ', ')}}")
+        #cli::cli_text("Elements: {.val {paste(ele, collapse = ', ')}}")
       }
     )
     cli::cli_h2("Closure and shock specifications")

@@ -9,6 +9,7 @@
 #' @noRd
 #' @export
 .names_rename.default <- function(input) {
+  
   origin <- class(input)[3]
   target <- ifelse(inherits(input, "GTAPv7"), "GTAPv6", "GTAPv7")
   id <- match(class(input)[1], coeff_conversion[[paste0(origin, "header")]])
@@ -49,14 +50,16 @@
 #' @noRd
 #' @export
 .names_rename.set <- function(input) {
-
+  
   origin <- class(input)[4]
   target <- ifelse(inherits(input, "GTAPv7"), "GTAPv6", "GTAPv7")
-
   id <- match(class(input)[1], set_conversion[[paste0(origin, "header")]])
   if (!is.na(id)) {
     new_header_name <- set_conversion[id, paste0(target, "header")]
     new_set_name <- set_conversion[id, paste0(target, "name")]
+    if (is.na(new_header_name)) {
+      new_header_name <- new_set_name
+    }
     class(input)[1] <- new_header_name
     class(input)[2] <- new_set_name
   }

@@ -10,8 +10,8 @@
                            model_file,
                            closure_file) {
   script <- basename(script)
-  write_path <- file.path(write_dir, script)
-  write_path <- normalizePath(write_path, winslash = "/", mustWork = FALSE)
+  sub_path <- file.path(write_dir, script)
+  sub_path <- normalizePath(sub_path, winslash = "/", mustWork = FALSE)
   assignments <- list(
     dat_input    = dat_input,
     par_input    = par_input,
@@ -25,16 +25,24 @@
   assignments <- paste(names(assignments), paste0("\"", assignments, "\""), sep = " = ")
   assignments <- sub("\"NULL\"", "NULL", assignments)
 
-  if (file.exists(write_path)) {
-    unlink(write_path)
+  if (file.exists(sub_path)) {
+    existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)
+    if (length(existing) > 0) {
+      .cli_action(gen_info$unlink,
+                  action = "inform",
+                  call = call
+      )
+      unlink(file.path(sub_path, "*"), expand = TRUE)
+    }
+    unlink(sub_path)
   }
   
-  con <- file(write_path, open = "a")
+  con <- file(sub_path, open = "a")
   writeLines("library(teems)", con)
   writeLines(assignments, con)
   writeLines("", con)
   writeLines(template, con)
   close(con)
   
-  return(write_path)
+  return(sub_path)
 }

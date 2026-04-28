@@ -42,12 +42,6 @@
 
 #' @noRd
 #' @keywords internal
-.o_margin_sectors <- function() {
-  ems_option_get("margin_sectors")
-}
-
-#' @noRd
-#' @keywords internal
 .o_accuracy_threshold <- function() {
   ems_option_get("accuracy_threshold")
 }

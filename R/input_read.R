@@ -18,7 +18,6 @@
                             metadata = NULL,
                             attach_metadata = FALSE,
                             call = NULL) {
-  
   input <- utils::read.csv(input)
   if (data_type %=% "set") {
     input <- input[[1]]
@@ -41,7 +40,6 @@
                             metadata = NULL,
                             attach_metadata = FALSE,
                             call = NULL) {
-
   if (is.character(input)) {
     input <- file(input, "rb")
   }
@@ -70,7 +68,7 @@
       i <- i + 1
       bitsLength <- as.integer(rawToBits(fb))[3:8]
       toRead <- as.integer(rawToBits(fb))[1:2]
-      toReadBytes <- Reduce(function(a, f) {
+      toReadBytes <- Reduce(\(a, f) {
         a <- a + 2^(f - 1) * toRead[f]
       }, 1:length(toRead), 0)
 
@@ -82,7 +80,7 @@
       }
 
       recordLength <- Reduce(
-        function(a, f) {
+        \(a, f) {
           a <- a + 2^(f - 1) * bitsLength[f]
         },
         1:length(bitsLength),
@@ -201,7 +199,7 @@
   for (h in names(headers)) {
     if (headers[[h]]$type == "1CFULL") {
       contents <- Reduce(
-        function(a, f) {
+        \(a, f) {
           c(a, headers[[h]]$records[[f]][17:length(headers[[h]]$records[[f]])])
         },
         3:length(headers[[h]]$records),
@@ -242,7 +240,7 @@
       m <- matrix(
         readBin(
           Reduce(
-            function(a, f) {
+            \(a, f) {
               c(a, headers[[h]]$records[[f]][33:length(headers[[h]]$records[[f]])])
             },
             3:length(headers[[h]]$records),
@@ -267,7 +265,7 @@
       m <- array(
         readBin(
           Reduce(
-            function(a, f) {
+            \(a, f) {
               c(a, headers[[h]]$records[[f]][33:length(headers[[h]]$records[[f]])])
             },
             3:length(headers[[h]]$records),
@@ -307,7 +305,7 @@
         )
 
         dnames <- apply(m, 2, paste, collapse = "")
-        dimNames <- Map(function(f) {
+        dimNames <- Map(\(f) {
           NULL
         }, 1:headers[[h]]$usedDimensions)
         actualDimsNamesFlags <- headers[[h]]$records[[3]][(33 + headers[[h]]$usedDimensions *
@@ -342,7 +340,7 @@
           numberOfFrames <- readBin(headers[[h]]$records[[dataStart]][5:8], "integer")
           numberOfDataFrames <- (numberOfFrames - 1) / 2
           dataFrames <- (dataStart) + 1:numberOfDataFrames * 2
-          dataBytes <- do.call(what = c, Map(function(f) {
+          dataBytes <- do.call(what = c, Map(\(f) {
             headers[[h]]$records[[f]][9:length(headers[[h]]$records[[f]])]
           }, dataFrames))
 
@@ -420,27 +418,36 @@
   # manually pull out set names for pre v11
   # no telling how robust this is
   if (data_type %=% "set") {
+    ranges <- c(
+      H1 = 19, H2 = 25, H3 = 25, H4 = 25, H5 = 25,
+      H6 = 25, H7 = 25, H8 = 25, H9 = 25, MARG = 25, TARS = 20
+    )
+    
     switch(metadata$database_version,
-           "GTAPv9" = ,
-           "GTAPv10" = {
-             purrr::pluck(headers, "H1", "name") <- trimws(rawToChar(headers$H1$records[[2]][14:19]))
-             purrr::pluck(headers, "H2", "name") <- trimws(rawToChar(headers$H2$records[[2]][14:25]))
-             purrr::pluck(headers, "H6", "name") <- trimws(rawToChar(headers$H6$records[[2]][14:25]))
-             purrr::pluck(headers, "H9", "name") <- trimws(rawToChar(headers$H9$records[[2]][14:25]))
-             purrr::pluck(headers, "MARG", "name") <- trimws(rawToChar(headers$MARG$records[[2]][14:25]))
-           },
-           "GTAPv11" = {
-             headers <- lapply(headers, function(h) {
-               h$name <- h$header
-               return(h)
-             })
-           }
+      "GTAPv9" = , # falls through to GTAPv10
+      "GTAPv10" = {
+        for (key in names(ranges)) {
+          headers[[key]]$name <- trimws(rawToChar(headers[[key]]$records[[2]][14:ranges[key]]))
+        }
+      },
+      "GTAPv11" = {
+        headers <- lapply(headers, \(h) {
+          h$name <- h$header
+          return(h)
+        })
+      },
+      "GTAPv12" = {
+        headers <- lapply(headers, \(h) {
+          h$name <- h$header
+          return(h)
+        })
+      }
     )
   }
 
   headers <- lapply(
     headers,
-    function(h) {
+    \(h) {
       header <- h$header
       name <- h$name
       .data <- h$data

@@ -30,7 +30,7 @@ process_mappings <- function(mapping_files,
             return(dt)
           }
         )
-
+        
         # Merge all data frames in the list by the first column
         merged_dt <- Reduce(
           f = function(x, y) {

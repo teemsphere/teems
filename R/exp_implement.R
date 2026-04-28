@@ -4,7 +4,6 @@
 #' @noRd
 .implement_exp <- function(args_list,
                            call) {
-
   v <- .validate_exp_args(
     a = args_list,
     call = call
@@ -15,7 +14,8 @@
   origin <- system.file(file.path("models", v$model, c(model_file, closure_file)), package = "teems", mustWork = TRUE)
   file.copy(
     from = origin,
-    to = v$write_dir
+    to = v$write_dir,
+    overwrite = TRUE
   )
   paths <- file.path(v$write_dir, c(model_file, closure_file))
   names(paths) <- c("model_file", "closure_file")

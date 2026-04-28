@@ -8,9 +8,3 @@ build_exp_err <- function() {
     missing_input = "{.arg dat_input}, {.arg par_input}, and {.arg set_input} must be provided when {.arg type} is {.val scripts}."
   )
 }
-
-build_exp_info <- function() {
-  # list(
-  #   model_write = "{.field {v$model}} model files have been written to {.file {paths}}."
-  # )
-}

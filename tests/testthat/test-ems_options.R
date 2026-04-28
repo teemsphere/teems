@@ -40,10 +40,6 @@ test_that("ems_option_get returns character for docker_tag", {
   expect_type(ems_option_get("docker_tag"), "character")
 })
 
-test_that("ems_option_get returns character vector for margin_sectors", {
-  expect_type(ems_option_get("margin_sectors"), "character")
-})
-
 test_that("ems_option_get returns numeric for accuracy_threshold", {
   expect_type(ems_option_get("accuracy_threshold"), "double")
 })

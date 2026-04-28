@@ -98,6 +98,7 @@
 .header2GTAPv7.FBEP <- function(input,
                                 ...) {
   input <- .drop_CGDS(input)
+  input <- input * -1
   input <- .names_rename(input = input)
   return(input)
 }
@@ -180,13 +181,16 @@
 .header2GTAPv7.ETRE <- function(input,
                                 i_data,
                                 ...) {
+
   classes <- class(input)
+  input[which(tolower(names(input)) == "natlres")] <- -1e-5
   input <- .add_REG(
     input = input,
     REG = i_data$H1
   )
   class(input) <- unique(c(classes, class(input)))
   input <- .names_rename(input = input)
+
   return(input)
 }
 

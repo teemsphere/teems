@@ -154,19 +154,18 @@ File
     |-------------------------|
 >!
 
-!Coefficient
-    VERNUM # version of GTAP data #;
-Read
-    VERNUM from file GTAPDATA header "DVER";
-Update
-    VERNUM = 0.0;  force it to be copied to update file !
-
 Set
     REG # regions in the model #
     maximum size 10 read elements from file GTAPSETS header "H1";
 Set
-    TRAD_COMM # traded commodities #
-    maximum size 10 read elements from file GTAPSETS header "H2";
+    PROD_COMM # produced commodities #
+    maximum size 10 read elements from file GTAPSETS header "H5";
+Set
+    CGDS_COMM # capital goods commodities # (cgds);
+Subset
+    CGDS_COMM is subset of PROD_COMM;
+Set 
+    TRAD_COMM # traded commodities # = PROD_COMM - CGDS_COMM;
 Set
     MARG_COMM # margin commodities #
     maximum size 10 read elements from file GTAPSETS header "MARG";
@@ -175,12 +174,8 @@ Subset
 Set
     NMRG_COMM # non-margin commodities # = TRAD_COMM - MARG_COMM;
 Set
-    CGDS_COMM # capital goods commodities # (zcgds);
-Set
     ENDW_COMM # endowment commodities #
     maximum size 5 read elements from file GTAPSETS header "H6";
-Set
-    PROD_COMM # produced commodities # = TRAD_COMM union CGDS_COMM;
 Set
     DEMD_COMM # demanded commodities # = ENDW_COMM union TRAD_COMM;
 Set
@@ -459,7 +454,7 @@ Read
 Variable (all,r,REG)
     kb(r) # beginning-of-period capital stock in r #;
 Variable (all,r,REG)
-    pcgds(r) # price of investment goods = ps("zcgds",r) #;
+    pcgds(r) # price of investment goods = ps("cgds",r) #;
 Coefficient (ge 0)(all,r,REG)
     VDEP(r) # value of capital depeciation in r (exogenous) #;
 Update (all,r,REG)
@@ -572,7 +567,7 @@ Variable (all,i,NSAV_COMM)(all,r,REG)
 !<
     Note:  It is important that the user NOT shock the tax on capital goods
     output, as this will cause an inconsistency in the update relationship for
-    VOM(zcgds).
+    VOM(cgds).
 >!
 Variable (orig_level=VIM)(all,i,TRAD_COMM)(all,s,REG)
     qim(i,s) # aggregate imports of i in region s, market price weights #;
@@ -1502,7 +1497,7 @@ Variable (all,r,REG)
 Variable (all,r,REG)
     rorc(r) # current net rate of return on capital stock in r #;
 Variable (all,r,REG)
-    qcgds(r) # output of capital goods sector = qo("zcgds",r) #;
+    qcgds(r) # output of capital goods sector = qo("cgds",r) #;
 
 
 !<

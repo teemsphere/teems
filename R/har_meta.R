@@ -4,9 +4,7 @@
 #' @noRd
 .har_meta <- function(DREL,
                       DVER,
-                      data_type,
-                      call) {
-
+                      data_type) {
   metadata <- list()
   if (length(DREL) %=% 1L) {
     string <- purrr::pluck(strsplit(DREL, "_"), 1, 1)

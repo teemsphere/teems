@@ -1,16 +1,16 @@
 build_model_err <- function() {
   list(
     # test-ems_model.R: "ems_model rejects invalid variable names in var_omit"
-    invalid_var_omit = "{.val {invalid_var}} designated for variable omission not found within the provided model input.",
+    invalid_var_omit = "{.val {invalid_var}} designated for omission not found in the model.",
     # test-ems_model.R: "ems_model rejects invalid coefficient arguments"
-    invalid_coeff = "The aggregated data coefficient {.arg {nme}} is not declared within the provided model input.",
+    invalid_coeff = "{.arg {nme}} is not declared in the model.",
     # test-ems_model.R: "partial read statement"
     invalid_read = "Partial {.field Read} statements are not supported.",
     # leaving this in but there is not possible?
     invalid_mod = "{.arg nme} is neither read in nor appearing on the LHS of a formula.",
     # test-ems_model.R: "invalid numeric to a formula"
-    invalid_numeric = c("Numeric value directly assigned must be length one.",
-                        "Use a {.code data.frame} with the appropriate sets to assign multiple heterogeneous numeric values to a coefficient."),
+    invalid_numeric = c("Directly assigned numeric values must be length 1.",
+                        "To assign heterogeneous values, use a {.code data.frame} with the appropriate set columns."),
     # test-ems_model.R: "invalid tab statement"
     invalid_state = c("teems {version} does not support {.field {inv_state}} statements.",
                       "Supported statements include: {.field {supported_state}}."),
@@ -18,19 +18,19 @@ build_model_err <- function() {
     unsupported_tab = "Unsupported Tablo declarations detected: {.field {unsupported}}.",
     # test-ems_model.R: "invalid intertemporal header"
     invalid_int_header = c(
-      "The intertemporal {header_descr} required is currently {.val {timestep_header}} but this header is not loaded.",
-      "See {.fun teems::ems_option_set} {.arg {arg_name}} for setting a custom {header_descr}."
+      "Intertemporal {header_descr} {.val {timestep_header}} not found in loaded data.",
+      "Use {.fun teems::ems_option_set} {.arg {arg_name}} to set a custom {header_descr}."
     ),
     # test-ems_model.R: "invalid read statement"
     missing_file = "Read statements missing \"from file\" detected.",
     # test-ems_model.R: "invalid binary set switch statement"
-    binary_switch = c("A colon was detected within a {.field Set} definition indicating the use of an unsupported binary switch.",
+    binary_switch = c("Unsupported binary switch detected in a {.field Set} definition.",
                       "Declare sets explicitly within the Tablo file or using {.arg ...} within {.fun teems::ems_model}.",
                       "For example, {.field Set ENDWM # mobile endowment # (capital,unsklab,sklab);} {.emph not} {.field Set ENDWM # mobile endowments # = (all,e,ENDW:ENDOWFLAG(e,\"mobile\") ne 0);}."),
     # test-ems_model.R: "identical set assignment"
     identical_set_fail = c(
-      "It appears that one set has been defined as identical to a second set: {.field Set SET_B # example Set B # = SET_A;}.",
-      "If duplicate sets are desired, multiple Read statements should be implemented.",
+      "A set appears to be defined as identical to another: {.field Set SET_B # example Set B # = SET_A;}.",
+      "For duplicate sets, use multiple {.field Read} statements.",
       "For example {.field Set SET_A # example set A # maximum size 5 read elements from file GTAPSETS header \"H2\";} {.emph and} {.field Set SET_B # example set B # maximum size 5 read elements from file GTAPSETS header \"H2\";)}"
     ),
     # test-ems_model.R: "invalid set qualifier"
@@ -45,14 +45,24 @@ build_model_err <- function() {
     ),
     # test-ems_model.R: "data frame input missing a set"
     injection_missing_col = c(
-      "Input data for the coefficient {.field {nme}} does not contain all required columns (sets).",
-      "The required columns are {.field {req_col}}."
+      "Input for {.field {nme}} is missing required columns.",
+      "Required: {.field {req_col}}."
     ),
     # test-ems_model.R: "invalid var in closure"
-    no_var = "The closure provided contains variables not present in the model: {.val {var_discrepancy}}.",
+    no_var = "Closure contains variables not in the model: {.val {var_discrepancy}}.",
     # the following error should never be issued (full will be assigned)
     entry_type = "The following closure entries have not been classified properly: {invalid_entry}.",
-    missing_specification = "The closure provided must contain both an {.val Exogenous} entry and a {.val Rest Endogenous} entry. Note that the inverse approach is not currently supported."
+    # test-ems_model.R: "closure missing exo/endo spec"
+    missing_specification = "The closure must contain both {.val Exogenous} and {.val Rest Endogenous} entries. The inverse approach is not supported.",
+    # test-ems_model.R: "ems_model errors when invalid closure mixed entry present preswap"
+    mixed_invalid = "{n_invalid_entries} closure entry element{?s} in {.field {cls_entry}} do not belong to the respective variable sets: {invalid_entries}.",
+    # test-ems_model.R: "ems_model errors when duplicate closure entry present preswap"
+    pre_overlap_ele = "{n_overlap} tuple{?s} for {.val {e}} in the pre-swap closure with multiple entries: {overlap}.",
+    # test-ems_model.R: "ems_model errors when invalid closure pure element entry present preswap"
+    ele_invalid = "The closure entry tuple {.field {cls_entry}} is invalid under the current set mapping.",
+    # test-ems_model.R: "ems_model errors when invalid closure subset entry present preswap"
+    subset_invalid = c("Some subsets in {.field {cls_entry}} do not belong to {.field {var_name}}.",
+                       "Parent sets include: {.field {var_sets}}.")
     )
 }
 

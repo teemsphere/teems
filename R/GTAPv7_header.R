@@ -2,6 +2,7 @@
 #' @noRd
 .GTAPv7_header <- function(input,
                            ...) {
+
   UseMethod(".GTAPv7_header")
 }
 
@@ -121,6 +122,21 @@
   class(MAKB) <- c("MAKB", "dat", "GTAPv7", class(MAKB))
   class(MAKS) <- c("MAKS", "dat", "GTAPv7", class(MAKS))
   return(list(MAKB, MAKS))
+}
+
+#' @method .GTAPv7_header ESBI
+#' @keywords internal
+#' @noRd
+#' @export
+.GTAPv7_header.ESBI <- function(input,
+                                REG,
+                                ...) {
+  input <- .create_GTAPv7arr(
+    input = input,
+    value = 0,
+    REG = REG
+  )
+  return(input)
 }
 
 #' @method .GTAPv7_header ESBG

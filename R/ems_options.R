@@ -29,8 +29,6 @@
 #'   Modify with caution.
 #' @param docker_tag Character length 1 (default `"latest"`).
 #'   Docker tag to specify the which Docker image is use.
-#' @param margin_sectors Sectors corresponding to original
-#'   unaggregated elements that will be considered "margin"
 #' @param accuracy_threshold Numeric length 1 (default 0.8),
 #'   converted to a percentage. 4 digit precision will be
 #'   compared against this threshold, generating a warning if it
@@ -64,7 +62,6 @@ ems_option_set <- function(verbose = NULL,
                            n_timestep_header = NULL,
                            full_exclude = NULL,
                            docker_tag = NULL,
-                           margin_sectors = NULL,
                            accuracy_threshold = NULL,
                            expand_ETRE = NULL,
                            write_sub_dir = NULL) {
@@ -75,7 +72,6 @@ ems_option_set <- function(verbose = NULL,
   if (!is.null(n_timestep_header)) ems_options$set_n_timestep_header(n_timestep_header)
   if (!is.null(full_exclude)) ems_options$set_full_exclude(full_exclude)
   if (!is.null(docker_tag)) ems_options$set_docker_tag(docker_tag)
-  if (!is.null(margin_sectors)) ems_options$set_margin_sectors(margin_sectors)
   if (!is.null(accuracy_threshold)) ems_options$set_accuracy_threshold(accuracy_threshold)
   if (!is.null(expand_ETRE)) ems_options$set_expand_ETRE(expand_ETRE)
   if (!is.null(write_sub_dir)) ems_options$set_write_sub_dir(write_sub_dir)
@@ -108,8 +104,6 @@ ems_option_set <- function(verbose = NULL,
 #'     fully exclude from all aspects of the model run.
 #'   * `"docker_tag"` Character. Docker tag specifying
 #'     which Docker image to use.
-#'   * `"margin_sectors"` Character vector. Default
-#'     margin sectors.
 #'   * `"accuracy_threshold"` Numeric. Threshold
 #'     (converted to a percentage) against which 4 digit
 #'     precision is compared.
@@ -150,7 +144,6 @@ ems_option_get <- function(name = NULL) {
          n_timestep_header = ems_options$get_n_timestep_header(),
          full_exclude = ems_options$get_full_exclude(),
          docker_tag = ems_options$get_docker_tag(),
-         margin_sectors = ems_options$get_margin_sectors(),
          accuracy_threshold = ems_options$get_accuracy_threshold(),
          expand_ETRE = ems_options$get_expand_ETRE(),
          write_sub_dir = ems_options$get_write_sub_dir()

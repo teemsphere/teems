@@ -17,8 +17,32 @@ write_modified_closure <- function(closure_file, text, .fn = cat) {
   out_path
 }
 
-model_file <- ems_example("GTAP-RE")[["model_file"]]
-closure_file <- ems_example("GTAP-RE")[["closure_file"]]
+write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "model")
+
+if (dir.exists(write_dir)) { 
+  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(write_dir, recursive = TRUE)
+}
+
+model_file <- ems_example("GTAP-RE", write_dir = write_dir)[["model_file"]]
+closure_file <- ems_example("GTAP-RE", write_dir = write_dir)[["closure_file"]]
+
+# general data
+dat_input <- Sys.getenv("GTAP11c_dat")
+par_input <- Sys.getenv("GTAP11c_par")
+set_input <- Sys.getenv("GTAP11c_set")
+
+dat <- ems_data(
+  dat_input = dat_input,
+  par_input = par_input,
+  set_input = set_input,
+  REG = "big3",
+  ACTS = "macro_sector",
+  ENDW = "labor_agg",
+  time_steps = c(0, 1, 2)
+)
+
 test_that("ems_model requires both model_file and closure_file", {
   expect_snapshot_error(ems_model())
 })
@@ -341,4 +365,86 @@ test_that("closure missing exo/endo spec", {
     model_file = model_file,
     closure_file = err_file
   ))
+})
+
+test_that("ems_model errors when invalid closure mixed entry present preswap", {
+  mod_closure <- readLines(closure_file)
+  mod_closure <- mod_closure[-1]
+  mod_closure <- mod_closure[mod_closure != "pop"]
+  append_cls <- c('exogenous', 'pop("row",ALLTIME)', 'pop("chn",ALLTIME)', 'pop("zzz",ALLTIME)') 
+  mod_closure <- c(append_cls, mod_closure)
+  invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
+  writeLines(mod_closure, invalid_cls)
+  
+  model <- ems_model(model_file = model_file, closure_file = invalid_cls)
+  ems_option_set(write_sub_dir = "invalid_closure")
+  expect_snapshot_error(
+    ems_deploy(
+      .data = dat,
+      model = model,
+      write_dir = write_dir
+    )
+  )
+})
+
+test_that("ems_model errors when invalid closure subset entry present preswap", {
+  mod_closure <- readLines(closure_file)
+  mod_closure <- mod_closure[-1]
+  mod_closure <- mod_closure[mod_closure != "qe(ENDWC,REG,INITIME)"]
+  append_cls <- c("exogenous", "qe(COMM,REG,INITIME)") 
+  mod_closure <- c(append_cls, mod_closure)
+  invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
+  writeLines(mod_closure, invalid_cls)
+  
+  model <- ems_model(model_file = model_file, closure_file = invalid_cls)
+  ems_option_set(write_sub_dir = "invalid_closure")
+  expect_snapshot_error(
+    ems_deploy(
+      .data = dat,
+      model = model,
+      write_dir = write_dir
+    )
+  )
+})
+
+test_that("ems_model errors when invalid closure pure element entry present preswap", {
+  mod_closure <- readLines(closure_file)
+  mod_closure <- mod_closure[-1]
+  mod_closure <- mod_closure[mod_closure != "pop"]
+  append_cls <- c("exogenous",
+                  'pop("row","0")', 'pop("row","1")', 'pop("row","2")',
+                  'pop("chn","0")', 'pop("chn","1")', 'pop("chn","2")',
+                  'pop("usa","0")', 'pop("usa","1")', 'pop("zzz","2")')
+  mod_closure <- c(append_cls, mod_closure)
+  invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
+  writeLines(mod_closure, invalid_cls)
+
+  model <- ems_model(model_file = model_file, closure_file = invalid_cls)
+  ems_option_set(write_sub_dir = "invalid_closure")
+  expect_snapshot_error(
+    ems_deploy(
+      .data = dat,
+      model = model,
+      write_dir = write_dir
+    )
+  )
+})
+
+test_that("ems_model errors when duplicate closure entry present preswap", {
+  mod_closure <- readLines(closure_file)
+  mod_closure <- mod_closure[-1]
+  append_cls <- c("exogenous", "pop") 
+  mod_closure <- c(append_cls, mod_closure)
+  invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
+  writeLines(mod_closure, invalid_cls)
+  
+  model <- ems_model(model_file = model_file, closure_file = invalid_cls)
+  ems_option_set(write_sub_dir = "invalid_closure")
+  expect_snapshot_error(
+    ems_deploy(
+      .data = dat,
+      model = model,
+      write_dir = write_dir
+    )
+  )
 })

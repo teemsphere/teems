@@ -1,3 +1,5 @@
+#' @importFrom cli cli_verbatim cli_ol
+#' 
 #' @keywords internal
 #' @noRd
 .construct_cmd <- function(paths,
@@ -62,6 +64,7 @@
       action = "inform",
       call = call
     )
+    cli::cli_verbatim(solve_cmd, "\n")
     cli::cli_ol(solve_info$terminal_run_steps)
     return(FALSE)
   }

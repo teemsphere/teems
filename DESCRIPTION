@@ -1,26 +1,32 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Version: 0.0.4
+Description: Provides a reproducible workflow for Computable 
+  General Equilibrium (CGE) model runs. Handles data loading and 
+  aggregation, model file parsing, closure and shock 
+  specification, and containerized model solution via Docker, 
+  returning structured output for downstream analysis.
+Version: 0.0.5
 Authors@R:
-    person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-3729-1764"))
-Description: A comprehensive modeling system for preparing and running all
-    aspects of a Computable General Equilibrium (CGE) model. The package
-    converts inputs, parses model files, calculates
-    aggregation-specific parameter values, aggregates data to set
-    specifications, compiles shocks and closures, and solves the model
-    according to a wide range of parameters.
+  person(
+    given = "Matthew",
+    family = "Cantele",
+    role = c("aut", "cre"),
+    email = "matthew.cantele@protonmail.com",
+    comment = c(ORCID = "0000-0003-3729-1764")
+  )
 License: AGPL (>= 3)
+URL: https://teemsphere.github.io/, https://github.com/teemsphere/teems/                                                                
+BugReports: https://github.com/teemsphere/teems-R/issues
 Depends: 
     R (>= 4.3.0)
-Imports: 
-    cli (>= 3.6.5),
-    data.table (>= 1.17.8),
-    purrr (>= 1.2.0),
-    R6 (>= 2.6.1),
-    rlang (>= 1.1.6),
+Imports:
+    cli (>= 3.4.0),
+    data.table (>= 1.15.0),
+    purrr (>= 1.0.0),
+    R6 (>= 2.4.0),
+    rlang (>= 1.0.0),
     stats,
-    tibble (>= 3.3.0),
+    tibble (>= 3.0.0),
     tools,
     utils
 Suggests:
@@ -30,7 +36,6 @@ LinkingTo:
     cpp11
 Config/testthat/edition: 3
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-SystemRequirements: Docker
+SystemRequirements: Docker (https://www.docker.com)

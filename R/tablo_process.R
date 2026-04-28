@@ -78,7 +78,7 @@
   }
 
   if (any(grepl("\"CGDS\"", tab, ignore.case = TRUE))) {
-    tab <- gsub("\"CGDS\"", "\"zcgds\"", tab, ignore.case = TRUE)
+    tab <- gsub("\"CGDS\"", "\"cgds\"", tab, ignore.case = TRUE)
     extract <- .generate_extracts(
       tab = tab,
       call = call

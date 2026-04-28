@@ -1,13 +1,10 @@
-#' @importFrom purrr pluck map2 pmap_chr
-#' @importFrom rlang cnd_signal
-#'
 #' @noRd
 #' @keywords internal
 .check_swap <- function(swap,
                         var_extract,
                         sets,
                         call) {
-  UseMethod(".check_swap")
+    UseMethod(".check_swap")
 }
 
 #' @noRd
@@ -39,11 +36,13 @@
   swap <- ems_swap(swap)[[1]]
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
-    .cli_action(swap_err$no_var,
+    .cli_action(swap_err$no_var[[1]],
       action = "abort",
       call = call
     )
   }
+  
+  attr(swap$var, "call") <- call
   return(swap$var)
 }
 
@@ -55,16 +54,20 @@
                              var_extract,
                              sets,
                              call) {
+  call <- attr(swap, "call")
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var,
-      action = "abort",
+      action = c("abort", "inform"),
       call = call
     )
   }
+  
+  attr(swap$var, "call") <- call
   return(swap$var)
 }
 
+#' @importFrom purrr pluck pmap_chr
 #' @noRd
 #' @keywords internal
 #' @export
@@ -78,7 +81,7 @@
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var,
-      action = "abort",
+      action = c("abort", "inform"),
       call = call
     )
   }
@@ -90,44 +93,41 @@
     var_name <- swap$var
     .cli_action(
       swap_err$invalid_set,
-      action = c("abort", "inform", "inform"),
+      action = c("abort", rep("inform", 3)),
       call = call
     )
   }
 
-  swap$subset <- withCallingHandlers(
-    purrr::map2(
-      swap$subset,
-      names(swap$subset),
-      function(comp, nm) {
-        valid_ele <- with(sets$ele, get(.dock_tail(nm)))
-        valid_subsets <- with(sets$subsets, get(.dock_tail(nm)))
+  for (i in seq_along(swap$subset)) {
+    comp <- swap$subset[[i]]
+    nm <- names(swap$subset)[[i]]
 
-        if (all(is.na(valid_subsets))) {
-          vs_check <- character(0)
-          valid_subsets <- "*none*"
-        } else {
-          vs_check <- valid_subsets
-        }
-        if (!comp %in% c(valid_ele, vs_check)) {
-          invalid_comp <- setdiff(comp, c(valid_ele, vs_check))
-          .cli_action(swap_err$invalid_comp,
-            action = c("abort", "inform", "inform"),
-            call = call
-          )
-        }
-        if (comp %in% valid_ele) {
-          attr(comp, "type") <- "ele"
-        } else if (comp %in% valid_subsets) {
-          attr(comp, "type") <- "subset"
-        }
-        return(comp)
-      }
-    ),
-    purrr_error_indexed = function(err) {
-      rlang::cnd_signal(err$parent)
+    valid_ele <- with(sets$ele, get(.dock_tail(nm)))
+    valid_subsets <- with(sets$subsets, get(.dock_tail(nm)))
+
+    if (all(is.na(valid_subsets))) {
+      vs_check <- character(0)
+      valid_subsets <- "*none*"
+    } else {
+      vs_check <- valid_subsets
     }
-  )
+
+    if (!comp %in% c(valid_ele, vs_check)) {
+      invalid_comp <- setdiff(comp, c(valid_ele, vs_check))
+      .cli_action(swap_err$invalid_comp,
+        action = c("abort", rep("inform", 3)),
+        call = call
+      )
+    }
+
+    if (comp %in% valid_ele) {
+      attr(comp, "type") <- "ele"
+    } else if (comp %in% valid_subsets) {
+      attr(comp, "type") <- "subset"
+    }
+
+    swap$subset[[i]] <- comp
+  }
 
   ls_upper <- purrr::pluck(var_extract, "ls_upper_idx", swap$var)
   m_mixed <- setdiff(ls_mixed, names(swap$subset))
@@ -160,5 +160,6 @@
     ")"
   )
 
+  attr(swap, "call") <- call
   return(swap)
 }

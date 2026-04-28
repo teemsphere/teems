@@ -5,7 +5,7 @@
 .check_input <- function(file = NULL,
                          valid_ext,
                          call) {
-
+  
   file_ext <- tolower(tools::file_ext(basename(file)))
 
   file <- .check_file(

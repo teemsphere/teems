@@ -16,7 +16,6 @@ options_class <- R6::R6Class(
     n_timestep_header = NULL,
     full_exclude = NULL,
     docker_tag = NULL,
-    margin_sectors = NULL,
     accuracy_threshold = NULL,
     expand_ETRE = NULL,
     write_sub_dir = NULL,
@@ -29,7 +28,6 @@ options_class <- R6::R6Class(
                           n_timestep_header = NULL,
                           full_exclude = NULL,
                           docker_tag = NULL,
-                          margin_sectors = NULL,
                           accuracy_threshold = NULL,
                           expand_ETRE = NULL,
                           write_sub_dir = NULL) {
@@ -40,7 +38,6 @@ options_class <- R6::R6Class(
       self$n_timestep_header <- n_timestep_header
       self$full_exclude <- full_exclude
       self$docker_tag <- docker_tag
-      self$margin_sectors <- margin_sectors
       self$accuracy_threshold <- accuracy_threshold
       self$expand_ETRE <- expand_ETRE
       self$write_sub_dir <- write_sub_dir
@@ -56,7 +53,6 @@ options_class <- R6::R6Class(
         n_timestep_header = self$get_n_timestep_header(),
         full_exclude = self$get_full_exclude(),
         docker_tag = self$get_docker_tag(),
-        margin_sectors = self$get_margin_sectors(),
         accuracy_threshold = self$get_accuracy_threshold(),
         expand_ETRE = self$get_expand_ETRE(),
         write_sub_dir = self$get_write_sub_dir()
@@ -72,7 +68,6 @@ options_class <- R6::R6Class(
       self$set_n_timestep_header(list$n_timestep_header)
       self$set_full_exclude(list$full_exclude)
       self$set_docker_tag(list$docker_tag)
-      self$set_margin_sectors(list$margin_sectors)
       self$set_accuracy_threshold(list$accuracy_threshold)
       self$set_expand_ETRE(list$expand_ETRE)
       self$set_write_sub_dir(list$write_sub_dir)
@@ -87,7 +82,6 @@ options_class <- R6::R6Class(
       self$n_timestep_header <- NULL
       self$full_exclude <- NULL
       self$docker_tag <- NULL
-      self$margin_sectors <- NULL
       self$accuracy_threshold <- NULL
       self$expand_ETRE <- NULL
       self$write_sub_dir <- NULL
@@ -121,11 +115,7 @@ options_class <- R6::R6Class(
     get_docker_tag = function() {
       self$docker_tag %|||% "latest"
     },
-    
-    get_margin_sectors = function() {
-      self$margin_sectors %|||% c("atp", "otp", "wtp")
-    },
-    
+
     get_accuracy_threshold = function() {
       self$accuracy_threshold %|||% 0.8
     },
@@ -172,11 +162,6 @@ options_class <- R6::R6Class(
     set_docker_tag = function(docker_tag) {
       self$validate_docker_tag(docker_tag)
       self$docker_tag <- docker_tag
-    },
-
-    set_margin_sectors = function(margin_sectors) {
-      self$validate_margin_sectors(margin_sectors)
-      self$margin_sectors <- margin_sectors
     },
 
     set_accuracy_threshold = function(accuracy_threshold) {
@@ -236,13 +221,7 @@ options_class <- R6::R6Class(
         cli::cli_abort("{.arg docker_tag} must be a character vector.")
       }
     },
-    
-    validate_margin_sectors = function(margin_sectors) {
-      if (!is.character(margin_sectors)) {
-        cli::cli_abort("{.arg margin_sectors} must be a character vector.")
-      }
-    },
-    
+
     validate_accuracy_threshold = function(accuracy_threshold) {
       if (!is.numeric(accuracy_threshold) || accuracy_threshold > 1) {
         cli::cli_abort("{.arg accuracy_threshold} must be a numeric less than or equal to 1.")
@@ -270,7 +249,6 @@ options_class <- R6::R6Class(
       self$validate_n_timestep_header(self$get_n_timestep_header())
       self$validate_full_exclude(self$get_full_exclude())
       self$validate_docker_tag(self$get_docker_tag())
-      self$validate_margin_sectors(self$get_margin_sectors())
       self$validate_accuracy_threshold(self$get_accuracy_threshold())
       self$validate_expand_ETRE(self$get_expand_ETRE())
       self$validate_write_sub_dir(self$get_write_sub_dir())
@@ -288,7 +266,6 @@ options_new <- function(verbose = NULL,
                         n_timestep_header = NULL,
                         full_exclude = NULL,
                         docker_tag = NULL,
-                        margin_sectors = NULL,
                         accuracy_threshold = NULL,
                         expand_ETRE = NULL,
                         write_sub_dir = NULL) {
@@ -300,7 +277,6 @@ options_new <- function(verbose = NULL,
     n_timestep_header = n_timestep_header,
     full_exclude = full_exclude,
     docker_tag = docker_tag,
-    margin_sectors = margin_sectors,
     accuracy_threshold = accuracy_threshold,
     expand_ETRE = expand_ETRE,
     write_sub_dir = write_sub_dir

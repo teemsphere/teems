@@ -178,8 +178,14 @@ Set
     REG # regions in the model #
     maximum size 10 read elements from file GTAPSETS header "H1";
 Set
-    TRAD_COMM # traded commodities #
-    maximum size 10 read elements from file GTAPSETS header "H2";
+    PROD_COMM # produced commodities #
+    maximum size 10 read elements from file GTAPSETS header "H5";
+Set
+    CGDS_COMM # capital goods commodities # (cgds);
+Subset
+    CGDS_COMM is subset of PROD_COMM;
+Set 
+    TRAD_COMM # traded commodities # = PROD_COMM - CGDS_COMM;
 Set
     MARG_COMM # margin commodities #
     maximum size 10 read elements from file GTAPSETS header "MARG";
@@ -188,12 +194,8 @@ Subset
 Set
     NMRG_COMM # non-margin commodities # = TRAD_COMM - MARG_COMM;
 Set
-    CGDS_COMM # capital goods commodities # (zcgds);
-Set
     ENDW_COMM # endowment commodities #
     maximum size 5 read elements from file GTAPSETS header "H6";
-Set
-    PROD_COMM # produced commodities # = TRAD_COMM + CGDS_COMM;
 Set
     DEMD_COMM # demanded commodities # = ENDW_COMM union TRAD_COMM;
 Set
@@ -509,7 +511,7 @@ Read
 
 
 Variable (all,r,REG)(all,t,ALLTIME)
-    pcgds(r,t) # price of investment goods = ps("zcgds",r,t) #;
+    pcgds(r,t) # price of investment goods = ps("cgds",r,t) #;
 Coefficient (ge 0)(all,r,REG)(all,t,ALLTIME)
     VDEP(r,t) # value of capital depeciation in r (exogenous,t) #;
 Update (all,r,REG)(all,t,ALLTIME)
@@ -1550,7 +1552,7 @@ Equation ZEROPROFITS
 !Variable (all,r,REG)(all,t,ALLTIME)
     rorc(r,t) # current net rate of return on capital stock in r #;!
 Variable (all,r,REG)(all,t,ALLTIME)
-    qcgds(r,t) # output of capital goods sector = qo("zcgds",r,t) #;
+    qcgds(r,t) # output of capital goods sector = qo("cgds",r,t) #;
 
 
 !<
@@ -4128,7 +4130,7 @@ Coefficient (all,r,REG)(all,t,ALLTIME)
 Coefficient (all,r,REG)(all,t,ALLTIME)
     MUSUM(r,t) # sum of RHS mu motion equation #;
 Coefficient (all,r,REG)(all,t,FWDTIME)
-    CAPISHR(r,t) # qo zCGDS share coefficient #;
+    CAPISHR(r,t) # qo cgds share coefficient #;
 Coefficient (all,r,REG)(all,t,FWDTIME)
     LCAPHAT(r,t) # capital shadow price #;
 Coefficient (all,r,REG)(all,t,ALLTIME)
@@ -4162,10 +4164,10 @@ Formula (all,t,ALLTIME)
     LRORG(t) = 0.04;
 
 Formula (all,r,REG)(all,t,ALLTIME)
-    LINVPRC(r,t) = 1; !Normalised value of ps("zcgds",r,t)!
+    LINVPRC(r,t) = 1; !Normalised value of ps("cgds",r,t)!
 Formula (initial)(all,r,REG)(all,t,ALLTIME)
-    VCAPINCR(r,t) = INIDELTA * VOA("zcgds",r,t) / [1 + CPHI(r,t) * KAPPA(r,t) / 2]
-                    + [1 - INIDELTA] * [(VKB(r,t)^2 + 2 * CPHI(r,t) * VKB(r,t) * VOA("zcgds",r,t))^0.5 - VKB(r,t)] / CPHI(r,t);
+    VCAPINCR(r,t) = INIDELTA * VOA("cgds",r,t) / [1 + CPHI(r,t) * KAPPA(r,t) / 2]
+                    + [1 - INIDELTA] * [(VKB(r,t)^2 + 2 * CPHI(r,t) * VKB(r,t) * VOA("cgds",r,t))^0.5 - VKB(r,t)] / CPHI(r,t);
 Formula (initial)(all,r,REG)(all,t,ALLTIME)
     VKB(r,t) = INIDELTA * VCAPINCR(r,t) / KAPPA(r,t) + [1 - INIDELTA] * VKB(r,t);
 Formula (initial)(all,r,REG)(all,t,ALLTIME)
@@ -4201,9 +4203,9 @@ Formula (initial)(all,r,REG)(all,t,ENDTIME)
     LMUHAT(r,t) = VMU(r,t) / MUSUM(r,t);
 
 Update (all,r,REG)(all,t,ALLTIME)
-    VKB(r,t) = qo("capital",r,t) * ps("zcgds",r,t);
+    VKB(r,t) = qo("capital",r,t) * ps("cgds",r,t);
 Update (all,r,REG)(all,t,ALLTIME)
-    VCAPINCR(r,t) = capincr(r,t) * ps("zcgds",r,t);
+    VCAPINCR(r,t) = capincr(r,t) * ps("cgds",r,t);
 Update (all,r,REG)(all,t,ALLTIME)
     LCAPPRC(r,t) = ps("capital",r,t);
 Update (all,r,REG)(all,t,ALLTIME)
@@ -4223,13 +4225,13 @@ Equation E_capstock
 Equation E_inv
 # investment function #
 (all,r,REG)(all,t,ALLTIME)
-    qo("zcgds",r,t) = capincr(r,t) + CPHI(r,t) * VCAPINCR(r,t)
+    qo("cgds",r,t) = capincr(r,t) + CPHI(r,t) * VCAPINCR(r,t)
                       / (2 * VKB(r,t) + CPHI(r,t) * VCAPINCR(r,t)) * (capincr(r,t) - capital(r,t));
 
 Equation E_opti
 # FOC #
 (all,r,REG)(all,t,ALLTIME)
-    ps("zcgds",r,t) = mu(r,t) - CPHI(r,t) * VCAPINCR(r,t)
+    ps("cgds",r,t) = mu(r,t) - CPHI(r,t) * VCAPINCR(r,t)
                       / [VKB(r,t) + CPHI(r,t) * VCAPINCR(r,t)] * (capincr(r,t) - capital(r,t));
 
 Equation E_capdot
@@ -4242,7 +4244,7 @@ Equation E_mu
 (all,r,REG)(all,t,FWDTIME)
     mu(r,t+1) = MUSHR(r,t) * [mu(r,t) + LRORG(t) * (YEAR(t+1) - YEAR(t))
                               / ((LRORG(t) + KAPPA(r,t)) * (YEAR(t+1) - YEAR(t)) + 1) * rorg(t)]
-               + [1 - MUSHR(r,t) - PCAPSHR(r,t)] * [ps("zcgds",r,t) + 2 * capincr(r,t) - 2 * capital(r,t)]
+               + [1 - MUSHR(r,t) - PCAPSHR(r,t)] * [ps("cgds",r,t) + 2 * capincr(r,t) - 2 * capital(r,t)]
                + PCAPSHR(r,t) * ps("capital",r,t) + delmu(r,t);
 
 Equation E_mu_end
@@ -4250,7 +4252,7 @@ Equation E_mu_end
 (all,r,REG)(all,t,ENDTIME)
     mu(r,t) = MUSHR(r,t) * [mu(r,t) + LRORG(t) * (YEAR(t) - YEAR(t-1))
                             / ((LRORG(t) + KAPPA(r,t)) * (YEAR(t) - YEAR(t-1)) + 1) * rorg(t)]
-              + [1 - MUSHR(r,t) - PCAPSHR(r,t)] * [ps("zcgds",r,t) + 2 * capincr(r,t) - 2 * capital(r,t)]
+              + [1 - MUSHR(r,t) - PCAPSHR(r,t)] * [ps("cgds",r,t) + 2 * capincr(r,t) - 2 * capital(r,t)]
               + PCAPSHR(r,t) * ps("capital",r,t) + delmu(r,t);
 
 

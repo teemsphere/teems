@@ -7,6 +7,7 @@
 solve_in_situ(
   ...,
   model_file,
+  model_dir,
   closure_file,
   shock_file,
   n_tasks = 1L,
@@ -19,7 +20,6 @@ solve_in_situ(
   laDi = 500L,
   terminal_run = FALSE,
   suppress_outputs = FALSE,
-  write_dir = tools::R_user_dir("teems", "cache"),
   writeout = FALSE
 )
 }
@@ -38,6 +38,9 @@ of length 1, file name in working directory or path to a
 .tab file. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted models and compatible Tablo file formatting.}
+
+\item{model_dir}{Character of length 1, base directory where
+input files will be copied and the model will be run.}
 
 \item{closure_file}{A character of length 1. File name in
 working directory or path to a ".cls" closure file. See
@@ -120,13 +123,6 @@ structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
 into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
-
-\item{write_dir}{Character of length 1 (default is
-\code{tools::R_user_dir("teems", "cache")}), base directory where
-"teems" subdirectory will be created. Input files will be
-written and model solution will be carried out within the
-"teems" subdirectory. If persistence is desired, a
-user-provided base directory must be provided.}
 
 \item{writeout}{Logical length 1, default \code{FALSE}. Whether to
 attempt to parse the Tablo file and append "Write"

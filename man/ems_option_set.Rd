@@ -12,7 +12,6 @@ ems_option_set(
   n_timestep_header = NULL,
   full_exclude = NULL,
   docker_tag = NULL,
-  margin_sectors = NULL,
   accuracy_threshold = NULL,
   expand_ETRE = NULL,
   write_sub_dir = NULL
@@ -50,9 +49,6 @@ Modify with caution.}
 
 \item{docker_tag}{Character length 1 (default \code{"latest"}).
 Docker tag to specify the which Docker image is use.}
-
-\item{margin_sectors}{Sectors corresponding to original
-unaggregated elements that will be considered "margin"}
 
 \item{accuracy_threshold}{Numeric length 1 (default 0.8),
 converted to a percentage. 4 digit precision will be

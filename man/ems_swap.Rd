@@ -2,70 +2,81 @@
 % Please edit documentation in R/ems_swap.R
 \name{ems_swap}
 \alias{ems_swap}
-\title{Load swaps}
+\title{Prepare closure swaps}
 \usage{
 ems_swap(var, ...)
 }
 \arguments{
 \item{var}{Character of length 1, model variable to swap.}
 
-\item{...}{One or more key-value pairs separated by commas.
-These correspond to element- or subset-specific swaps in the
-format SETi = "component" or SETi = c("component1",
-"component2") where i denotes the variable-specific index
-(see examples). Sets not specified are implicitly determined
-as uniform.}
+\item{...}{One or more key-value pairs separated by commas,
+where "SET" represents the standard set name and "i" denotes
+the variable-specific index (see examples). Unspecified sets
+default to all elements (i.e. the swap applies across the
+full extent of those sets). Three forms are accepted:
+\itemize{
+\item Single element: \code{SETi = "element"}
+\item Multiple elements: \code{SETi = c("element1", "element2")}
+\item Subset: \code{SETi = "SUBSET"}
+}}
 }
 \value{
-A list with swap specifications.
+A list of class \code{"full"} or\code{"partial"} and \code{"single"}
+or\code{"multi"} containing the swap specification. Intended for
+use as \code{swap_in} or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_swap()} is a helper function that loads
+\code{ems_swap()} is a helper function that prepares
 swaps, allowing for a change of endogenous/exogenous
 variable status. If a swap is specified using this function,
-the output is a required input to the \code{"swap_in"} or
-\code{"swap_out"} arguments of the \code{\link[=ems_deploy]{ems_deploy()}} function.
+the output is a required input to the \code{swap_in} or
+\code{swap_out} arguments of the \code{\link[=ems_deploy]{ems_deploy()}} function.
 }
 \details{
 \code{ems_swap()} return values have no purpose used in
-isolation. The standard model-specific closure will be used
-if no swaps are specified. Note that full variable swaps can
-be directly inputted as a character string in
-\code{\link[=ems_deploy]{ems_deploy()}}.
+isolation. The closure provided to the \code{closure_file}
+argument of \code{\link[=ems_model]{ems_model()}} will be used if no swaps are
+specified. Note that full variable swaps can be directly
+inputted as a character string in the \code{"swap_in"} and
+\code{"swap_out"} arguments of \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \examples{
 # Full variable swaps
 tfd_out <- ems_swap(var = "tfd")
 qfd_in <- ems_swap(var = "qfd")
 
-# Partial variable swaps (note distinction between "REGr" and "REGs")
+# Partial variable swaps with uniform "PROD_COMM" set
+# application (note distinction between "REGr" and "REGs") in
+# the classic GTAP model (version 6.2)
 chn_food_tfd_out <- ems_swap(var = "tfd",
                              TRAD_COMMi = "food",
                              REGr = "chn")
-                               
+
 chn_food_qfd_in <- ems_swap(var = "qfd",
                             TRAD_COMMi = "food",
                             REGs = "chn")
 
-# Partial variable multiple element swaps
+# Partial variable, multiple element swaps with uniform "ACTS"
+# set application in the standard GTAP model (version 7.0).
 usa_multi_tfd_out <- ems_swap(var = "tfd",
-                              TRAD_COMMi = c("food", "crops"),
+                              COMMc = c("food", "crops"),
                               REGr = "usa")
-                               
+
 usa_multi_qfd_in <- ems_swap(var = "qfd",
-                             TRAD_COMMi = c("food", "crops"),
-                             REGs = "usa")
-                              
+                             COMMc = c("food", "crops"),
+                             REGr = "usa")
+                             
+# Valid subsets may also be selected.
+qxs_in <- ems_swap(var = "qxs",
+                   COMMc = "NMRG",
+                   ALLTIMEt = "FWDTIME")
+
+txs_out <- ems_swap(var = "txs",
+                    COMMc = "NMRG",
+                    ALLTIMEt = "FWDTIME")
 }
 \seealso{
-\code{\link[=ems_uniform_shock]{ems_uniform_shock()}} for specification of uniform
-shocks.
-
-\code{\link[=ems_custom_shock]{ems_custom_shock()}} for specification of custom
-shocks.
-
-\code{\link[=ems_scenario_shock]{ems_scenario_shock()}} for specification of
-scenario shocks.
+\code{\link[=ems_model]{ems_model()}} for loading a model closure.
 
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
 function.

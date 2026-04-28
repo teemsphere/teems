@@ -28,8 +28,6 @@ timestep intervals.
 fully exclude from all aspects of the model run.
 \item \code{"docker_tag"} Character. Docker tag specifying
 which Docker image to use.
-\item \code{"margin_sectors"} Character vector. Default
-margin sectors.
 \item \code{"accuracy_threshold"} Numeric. Threshold
 (converted to a percentage) against which 4 digit
 precision is compared.

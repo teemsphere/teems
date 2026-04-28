@@ -86,7 +86,7 @@
 .aggregate_data.set <- function(dt,
                                 sets,
                                 ...) {
-
+  
   # NSE
   mapping <- NULL
   origin <- NULL
@@ -101,5 +101,3 @@
 }
 
 # introduce header-specific methods
-
-

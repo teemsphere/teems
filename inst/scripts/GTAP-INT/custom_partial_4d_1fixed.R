@@ -12,7 +12,7 @@ time_steps <- c(0, 1, 2, 3)
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  TRAD_COMM = "macro_sector",
+  PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
   time_steps = time_steps,
   target_format = target_format
@@ -25,7 +25,7 @@ model <- ems_model(
 
 REG <- c("chn", "usa", "row")
 ENDW_COMM <- c("labor", "capital", "natlres", "land")
-PROD_COMM <- c("svces", "food", "crops", "mnfcs", "livestock", "zcgds")
+PROD_COMM <- c("svces", "food", "crops", "mnfcs", "livestock", "cgds")
 ALLTIME <- seq(0, length(time_steps) - 1)
 
 set.seed(42)

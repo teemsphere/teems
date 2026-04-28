@@ -6,7 +6,6 @@
   REG = "big3",
   PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
-  time_steps = c(0, 1, 2),
   target_format = target_format
 )
 
@@ -20,7 +19,8 @@ model <- ems_model(
 partial <- ems_uniform_shock(
   var = "qfd",
   REGs = "usa",
-  PROD_COMMj = "crops",
+  PROD_COMMj = "TRAD_COMM",
+  ALLTIMEt = "FWDTIME",
   value = -1
 )
 
@@ -28,20 +28,22 @@ partial <- ems_uniform_shock(
 qfd <- ems_swap(
   var = "qfd",
   REGs = "usa",
-  PROD_COMMj = "crops"
+  PROD_COMMj = "TRAD_COMM",
+  ALLTIMEt = "FWDTIME"
 )
 
 # prepare a partial closure swap making tfd subset endogenous
 tfd <- ems_swap(
   var = "tfd",
   REGr = "usa",
-  PROD_COMMj = "crops"
+  PROD_COMMj = "TRAD_COMM",
+  ALLTIMEt = "FWDTIME"
 )
 
 # set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_part_swap")
+ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 
-# validate inputs, write solver files, and return the CMF path
+# validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
   .data = .data,
@@ -59,8 +61,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj == "crops"]$Value == -1
-endo1 <- outputs$dat$qfd[(REGs == "usa" & PROD_COMMj == "crops")]$Value != 0
-endo2 <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[!(REGr == "usa" & PROD_COMMj == "crops")]$Value == 0
+exo_shk <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj != "cgds" & ALLTIMEt != length(time_steps) - 1]$Value == -1
+endo1 <- outputs$dat$qfd[!(REGs != "usa" & PROD_COMMj == "cgds" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
+endo2 <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj != "cgds" & ALLTIMEt != length(time_steps) - 1]$Value != 0
+exo_null <- outputs$dat$tfd[!(REGr == "usa" & PROD_COMMj == "cgds" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
+
 checks <- c(exo_shk, endo1, endo2, exo_null)

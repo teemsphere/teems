@@ -4,7 +4,7 @@
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  TRAD_COMM = "macro_sector",
+  PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
   time_steps = c(0, 1, 2),
   target_format = target_format
@@ -45,5 +45,5 @@ outputs <- ems_solve(
 
 # checks
 exo_shk <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops" & Year == year]$Value == -1
-exo_null <- outputs$dat$aoall[REGr != "chn" & PROD_COMMj != "crops" & Year != year]$Value == 0
+exo_null <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops" & Year == year)]$Value == 0
 checks <- c(exo_shk, exo_null)

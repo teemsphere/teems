@@ -15,7 +15,7 @@ time_steps <- c(0, 1, 2, 3)
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  TRAD_COMM = "services",
+  PROD_COMM = "services",
   ENDW_COMM = "labor_agg",
   time_steps = time_steps,
   target_format = target_format

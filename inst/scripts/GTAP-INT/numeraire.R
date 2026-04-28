@@ -4,7 +4,7 @@
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  TRAD_COMM = "macro_sector",
+  PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
   time_steps = c(0, 1, 2),
   target_format = target_format

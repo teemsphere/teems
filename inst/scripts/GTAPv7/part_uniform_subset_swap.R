@@ -17,43 +17,37 @@ model <- ems_model(
 
 # define a uniform shock on a subset of qfd elements
 partial <- ems_uniform_shock(
-  var = "qfd",
-  REGr = "usa",
-  ACTSa = "crops",
+  var = "qxs",
+  COMMc = "MARG",
+  REGs = "chn",
   value = -1
 )
 
-# define a uniform shock across all yp elements
-full <- ems_uniform_shock(
-  var = "yp",
-  value = 0.1
-)
-
 # prepare a partial closure swap making qfd subset exogenous
-qfd <- ems_swap(
-  var = "qfd",
-  REGr = "usa",
-  ACTSa = "crops"
+qxs <- ems_swap(
+  var = "qxs",
+  COMMc = "MARG",
+  REGs = "chn"
 )
 
 # prepare a partial closure swap making tfd subset endogenous
-tfd <- ems_swap(
-  var = "tfd",
-  REGr = "usa",
-  ACTSa = "crops"
+txs <- ems_swap(
+  var = "txs",
+  COMMc = "MARG",
+  REGs = "chn"
 )
 
 # set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_part_swap_mixed")
+ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
   .data = .data,
   model = model,
-  shock = list(partial, full),
-  swap_in = list(qfd, "yp"),
-  swap_out = list(tfd, "dppriv")
+  shock = partial,
+  swap_in = qxs,
+  swap_out = txs
 )
 
 # run the Docker-based solver and parse results
@@ -64,10 +58,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk1 <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
-endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
-endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[(REGr == "usa" & ACTSa != "crops")]$Value == 0
-endo3 <- outputs$dat$dppriv$Value != 0
-exo_shk2 <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
-checks <- c(exo_shk1, endo1, endo2, exo_null, endo3, exo_shk2)
+exo_shk <- outputs$dat$qxs[REGs == "chn" & COMMc == "svces"]$Value == -1
+endo1 <- outputs$dat$qxs[!(REGs == "chn" & COMMc == "svces")]$Value != 0
+endo2 <- outputs$dat$txs[REGs == "chn" & COMMc == "svces"]$Value != 0
+exo_null <- outputs$dat$txs[!(REGs == "chn" & COMMc == "svces")]$Value == 0
+
+checks <- c(exo_shk, endo1, endo2, exo_null)

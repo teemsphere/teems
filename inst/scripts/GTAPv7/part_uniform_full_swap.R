@@ -4,7 +4,6 @@
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  COMM = "macro_sector",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
   target_format = target_format
@@ -47,6 +46,6 @@ outputs <- ems_solve(
 
 # checks
 exo_shk <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
-exo_null <- outputs$dat$qfd[REGr != "usa" & ACTSa != "crops"]$Value == 0
+exo_null <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
 endo <- outputs$dat$tfd$Value != 0
 checks <- c(exo_shk, exo_null, endo)

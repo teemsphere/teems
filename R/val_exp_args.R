@@ -31,21 +31,10 @@
 
   a <- .data_inputs(a = a, call = call)
 
-  if (a$write_dir %=% tools::R_user_dir("teems", "cache")) {
-    if (!dir.exists(a$write_dir)) {
-      dir.create(a$write_dir, recursive = TRUE)
-    }
-  }
-
-  if (!dir.exists(a$write_dir)) {
-    write_dir <- a$write_dir
-    .cli_action(exp_err$invalid_write_dir,
-      action = "abort",
-      call = call
-    )
-  }
-
-  a$write_dir <- normalizePath(a$write_dir, winslash = "/")
+  a$write_dir <- .check_write_dir(
+    write_dir = a$write_dir,
+    call = call
+  )
 
   if (a$type %=% "scripts") {
     if (any(

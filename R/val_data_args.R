@@ -3,6 +3,7 @@
 .validate_data_args <- function(a,
                                 call) {
   a[["..."]] <- NULL
+
   if (length(a$set_mappings) %=% 0L) {
     .cli_action(data_err$missing_set_mappings,
       action = "abort",
@@ -15,7 +16,6 @@
     par_input = "character",
     set_input = "character",
     time_steps = c("NULL", "numeric", "integer"),
-    aux_input = c("NULL", "list", "array", "character"),
     target_format = c("NULL", "character"),
     set_mappings = "list"
   )

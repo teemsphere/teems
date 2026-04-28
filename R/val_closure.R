@@ -6,19 +6,20 @@
 .validate_closure <- function(closure,
                               sets,
                               var_extract,
-                              call) {
+                              call,
+                              model_call) {
 
   closure <- .classify_cls(
     closure = closure,
     sets = sets,
-    call = call
+    call = model_call
   )
-
+  
   closure <- lapply(closure,
     .exp_cls_entry,
     var_extract = var_extract,
     sets = sets$ele,
-    call = call
+    call = model_call
   )
 
   var_names <- purrr::map_chr(closure, attr, "var_name")
@@ -30,9 +31,9 @@
       overlap <- over_check[duplicated(over_check)]
       n_overlap <- nrow(overlap)
       overlap <- utils::capture.output(print(overlap))[-c(1, 2)]
-      .cli_action(swap_err$pre_overlap_ele,
+      .cli_action(model_err$pre_overlap_ele,
         action = "abort",
-        call = call
+        call = model_call
       )
     }
   }

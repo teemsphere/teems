@@ -4,13 +4,22 @@
 #'
 #' @keywords internal
 #' @noRd
-.finalize_closure <- function(swap_in,
-                              swap_out,
-                              closure,
+.finalize_closure <- function(closure,
                               closure_file,
+                              swap_in,
+                              swap_out,
                               sets,
                               var_extract,
-                              call) {
+                              call,
+                              model_call) {
+  closure <- .validate_closure(
+    closure = closure,
+    sets = sets,
+    var_extract = var_extract,
+    call = call,
+    model_call = model_call
+  )
+
   if (!is.null(swap_in)) {
     swap_in <- .classify_cls(
       closure = swap_in,
@@ -31,11 +40,18 @@
 
       if (length(var_entries) %!=% 0L) {
         check <- data.table::rbindlist(purrr::map(var_entries, attr, "ele"))
-        if (nrow(data.table::fintersect(attr(swap, "ele"), check)) %!=% 0L) {
-          overlap <- data.table::fintersect(attr(swap, "ele"), check)
+        idx_sets <- purrr::pluck(var_extract, "ls_mixed_idx", var_name)
+        data.table::setnames(check, new = idx_sets)
+        swap_check <- data.table::copy(attr(swap, "ele"))
+        data.table::setnames(swap_check, new = idx_sets)
+        if (nrow(data.table::fintersect(swap_check, check)) %!=% 0L) {
+          if (!is.null(attr(swap, "call"))) {
+            call <- attr(swap, "call")
+          }
+          overlap <- data.table::fintersect(swap_check, check)
           overlap <- utils::capture.output(print(overlap))[-c(1, 2)]
           .cli_action(swap_err$overlap_ele,
-            action = "abort",
+            action = c("abort", "inform"),
             call = call
           )
         }
@@ -67,14 +83,17 @@
       })]
 
       if (length(var_entries) %=% 0L) {
+        if (!is.null(attr(swap, "call"))) {
+          call <- attr(swap, "call")
+        }
         .cli_action(swap_err$no_var_cls,
-          action = "abort",
+          action = c("abort", "inform"),
           call = call
         )
       }
 
       closure <- .swap_out(
-        swap_out = swap,
+        swap = swap,
         closure = closure,
         sets = sets,
         var_name = var_name,

@@ -5,10 +5,10 @@
 #' @noRd
 .in_situ_cmf <- function(input_files,
                          model_file,
+                         model_dir,
                          shock_file,
                          closure_file,
                          writeout,
-                         write_dir,
                          call) {
   
   model_file <- .check_input(
@@ -17,6 +17,12 @@
     call = call
   )
 
+  if (!dir.exists(model_dir)) {
+    .cli_action(solve_err$no_model_dir,
+                action = "abort",
+                call = call)
+  }
+  
   shock_file <- .check_input(
     file = shock_file,
     valid_ext = "shf",
@@ -29,17 +35,12 @@
     call = call
   )
 
-  write_dir <- .check_write_dir(
-    write_dir = write_dir,
-    call = call
-  )
-
   cmf <- .cmf_core(
     input_files = input_files,
     model_file = model_file,
     closure_file = closure_file,
     shock_file = shock_file,
-    write_dir
+    model_dir = model_dir
   )
 
   if (writeout) {
@@ -69,17 +70,17 @@
     tab <- .finalize_tab(model = model)
     .ems_write(
       input = tab,
-      write_dir = write_dir
+      write_dir = model_dir
     )
     cmf_writeout <- .writeout(
       model = model,
-      write_dir = write_dir
+      write_dir = model_dir
     )
     cmf <- c(cmf, cmf_writeout)
   }
 
   cmf_file <- paste0(tools::file_path_sans_ext(basename(model_file)), ".cmf")
-  cmf_path <- file.path(write_dir, cmf_file)
+  cmf_path <- file.path(model_dir, cmf_file)
   attr(cmf, "write_path") <- cmf_path
   class(cmf) <- c("cmf", class(cmf))
   cmf_path <- .ems_write(input = cmf)

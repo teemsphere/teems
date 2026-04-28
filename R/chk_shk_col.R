@@ -8,17 +8,17 @@
   if (!"Value" %in% value_colnames) {
     .cli_action(
       shk_err$cst_scen_val_df,
-      action = "abort",
+      action = c("abort", "inform"),
       url = NULL,
       hyperlink = NULL,
       call = call
     )
   }
-  
+
   if (type %=% "scenario" && !"Year" %in% value_colnames) {
     .cli_action(
       shk_err$scen_year_df,
-      action = "abort",
+      action = c("abort", "inform"),
       url = NULL,
       hyperlink = NULL,
       call = call

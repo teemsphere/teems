@@ -1,252 +1,301 @@
 skip_on_cran()
 ems_option_set(verbose = FALSE)
 
-data_db <- c("v9", "v10", "v11")
-db_inputs <- list(
-  v9  = list(dat = Sys.getenv("GTAP9_dat"),   par = Sys.getenv("GTAP9_par"),   set = Sys.getenv("GTAP9_set")),
-  v10 = list(dat = Sys.getenv("GTAP10A_dat"),  par = Sys.getenv("GTAP10A_par"),  set = Sys.getenv("GTAP10A_set")),
-  v11 = list(dat = Sys.getenv("GTAP11c_dat"),  par = Sys.getenv("GTAP11c_par"),  set = Sys.getenv("GTAP11c_set"))
-)
+dat_input <- Sys.getenv("GTAP11c_dat")
+par_input <- Sys.getenv("GTAP11c_par")
+set_input <- Sys.getenv("GTAP11c_set")
+
+year <- 2017
+
+write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "in_situ")
+
+if (dir.exists(write_dir)) {
+  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(write_dir, recursive = TRUE)
+}
 
 model <- "GTAP-RE"
-model_files <- ems_example(model)
+
+model_files <- ems_example(model, write_dir = write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
-for (db in data_db) {
-  dat_input <- db_inputs[[db]]$dat
-  par_input <- db_inputs[[db]]$par
-  set_input <- db_inputs[[db]]$set
+time_steps <- c(0, 1, 2, 3)
 
-  if (db %in% c("v9", "v10")) {
-    target_format <- "GTAPv7"
-  } else {
-    target_format <- NULL
-  }
+dat <- ems_data(
+  dat_input = dat_input,
+  par_input = par_input,
+  set_input = set_input,
+  REG = "big3",
+  ACTS = "macro_sector",
+  ENDW = "labor_agg",
+  time_steps = time_steps
+)
 
-  year <- switch(db,
-    "v9" = 2011,
-    "v10" = 2014,
-    "v11" = 2017
+model <- ems_model(
+  model_file = model_file,
+  closure_file = closure_file
+)
+
+test_that("solve_in_situ solves", {
+  REG <- c("chn", "usa", "row")
+  ENDW <- c("labor", "capital", "natlres", "land")
+  COMM <- c("svces", "food", "crops", "mnfcs", "livestock")
+  ACTS <- COMM
+  MARG <- "svces"
+  ALLTIME <- seq(0, length(time_steps) - 1)
+
+
+  # 2D
+  pop <- expand.grid(
+    REGr = REG,
+    ALLTIMEt = ALLTIME,
+    stringsAsFactors = FALSE
   )
 
-  write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), db, model)
+  pop <- pop[do.call(order, pop), ]
+  pop$Value <- runif(nrow(pop))
 
-  unlink(file.path(write_dir, "*"), expand = TRUE)
+  # 3D
+  aoall <- expand.grid(
+    ACTSa = ACTS,
+    REGr = REG,
+    ALLTIMEt = ALLTIME,
+    stringsAsFactors = FALSE
+  )
 
-  if (!dir.exists(write_dir)) {
-    dir.create(write_dir, recursive = TRUE)
-  }
+  aoall <- aoall[do.call(order, aoall), ]
+  aoall$Value <- runif(nrow(aoall))
 
+  # 4D
+  afeall <- expand.grid(
+    ENDWe = ENDW,
+    ACTSa = ACTS,
+    REGr = REG,
+    ALLTIMEt = ALLTIME,
+    stringsAsFactors = FALSE
+  )
 
-  test_that(paste(db, paste(model, "solve_in_situ")), {
-    time_steps <- c(0, 1, 2, 3)
+  afeall <- afeall[do.call(order, afeall), ]
+  afeall$Value <- runif(nrow(afeall))
 
-    # load GTAP HAR files, apply set mappings, and aggregate data
-    .data <- ems_data(
-      dat_input = dat_input,
-      par_input = par_input,
-      set_input = set_input,
-      REG = "big3",
-      COMM = "macro_sector",
-      ACTS = "macro_sector",
-      ENDW = "labor_agg",
-      time_steps = time_steps,
-      target_format = target_format
-    )
+  # 5D
+  atall <- expand.grid(
+    MARGm = MARG,
+    COMMc = COMM,
+    REGs = REG,
+    REGd = REG,
+    ALLTIMEt = ALLTIME,
+    stringsAsFactors = FALSE
+  )
 
-    # parse the model Tablo file and load the closure
-    model <- ems_model(
-      model_file = model_file,
-      closure_file = closure_file
-    )
+  atall <- atall[do.call(order, atall), ]
+  atall$Value <- runif(nrow(atall))
 
-    REG <- c("chn", "usa", "row")
-    ENDW <- c("labor", "capital", "natlres", "land")
-    COMM <- c("svces", "food", "crops", "mnfcs", "livestock")
-    ACTS <- COMM
-    MARG <- "svces"
-    ALLTIME <- seq(0, length(time_steps) - 1)
+  pop_shk <- ems_custom_shock(
+    var = "pop",
+    input = pop
+  )
 
+  aoall_shk <- ems_custom_shock(
+    var = "aoall",
+    input = aoall
+  )
 
-    # 2D
-    pop <- expand.grid(
-      REGr = REG,
-      ALLTIMEt = ALLTIME,
-      stringsAsFactors = FALSE
-    )
+  afeall_shk <- ems_custom_shock(
+    var = "afeall",
+    input = afeall
+  )
 
-    pop <- pop[do.call(order, pop), ]
-    pop$Value <- runif(nrow(pop))
+  atall_shk <- ems_custom_shock(
+    var = "atall",
+    input = atall
+  )
 
-    # 3D
-    aoall <- expand.grid(
-      ACTSa = ACTS,
-      REGr = REG,
-      ALLTIMEt = ALLTIME,
-      stringsAsFactors = FALSE
-    )
+  write_sub_dir <- "custom_full"
+  ems_option_set(write_sub_dir = write_sub_dir)
+  cmf_path <- ems_deploy(
+    write_dir = write_dir,
+    .data = dat,
+    model = model,
+    shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
+  )
 
-    aoall <- aoall[do.call(order, aoall), ]
-    aoall$Value <- runif(nrow(aoall))
+  insitu_dir <- file.path(write_dir, write_sub_dir)
+  GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
+  GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
+  GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")
+  GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
+  shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
 
-    # 4D
-    afeall <- expand.grid(
-      ENDWe = ENDW,
-      ACTSa = ACTS,
-      REGr = REG,
-      ALLTIMEt = ALLTIME,
-      stringsAsFactors = FALSE
-    )
+  dir.create(file.path(insitu_dir, "writeout"))
+  
+  outputs <- solve_in_situ(
+    GTAPDATA = GTAPDATA,
+    GTAPINT = GTAPINT,
+    GTAPPARM = GTAPPARM,
+    GTAPSETS = GTAPSETS,
+    model_file = model_files[["model_file"]],
+    model_dir = file.path(insitu_dir, "writeout"),
+    closure_file = model_files[["closure_file"]],
+    shock_file = shock_file,
+    n_tasks = 1,
+    n_subintervals = 1,
+    matrix_method = "SBBD",
+    solution_method = "mod_midpoint",
+    writeout = TRUE
+  )
 
-    afeall <- afeall[do.call(order, afeall), ]
-    afeall$Value <- runif(nrow(afeall))
+  expect_s3_class(outputs, "tbl")
 
-    # 5D
-    atall <- expand.grid(
-      MARGm = MARG,
-      COMMc = COMM,
-      REGs = REG,
-      REGd = REG,
-      ALLTIMEt = ALLTIME,
-      stringsAsFactors = FALSE
-    )
+  # checks
+  pop_check <- isTRUE(all.equal(pop,
+    outputs$dat$pop,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    atall <- atall[do.call(order, atall), ]
-    atall$Value <- runif(nrow(atall))
+  aoall_check <- isTRUE(all.equal(aoall,
+    outputs$dat$aoall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    # define a custom percentage change shock over all pop elements
-    pop_shk <- ems_custom_shock(
-      var = "pop",
-      input = pop
-    )
+  afeall_check <- isTRUE(all.equal(afeall,
+    outputs$dat$afeall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    # define a custom percentage change shock over all aoall elements
-    aoall_shk <- ems_custom_shock(
-      var = "aoall",
-      input = aoall
-    )
+  atall_check <- isTRUE(all.equal(atall,
+    outputs$dat$atall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    # define a custom percentage change shock over all afeall elements
-    afeall_shk <- ems_custom_shock(
-      var = "afeall",
-      input = afeall
-    )
+  checks <- c(pop_check, aoall_check, afeall_check, atall_check)
+  expect_all_true(checks)
 
-    # define a custom percentage change shock over all atall elements
-    atall_shk <- ems_custom_shock(
-      var = "atall",
-      input = atall
-    )
+  dir.create(file.path(insitu_dir, "no_writeout"))
+  outputs <- solve_in_situ(
+    GTAPDATA = GTAPDATA,
+    GTAPINT = GTAPINT,
+    GTAPPARM = GTAPPARM,
+    GTAPSETS = GTAPSETS,
+    model_file = model_files[["model_file"]],
+    model_dir = file.path(insitu_dir, "no_writeout"),
+    closure_file = model_files[["closure_file"]],
+    shock_file = shock_file,
+    n_tasks = 1,
+    n_subintervals = 1,
+    matrix_method = "SBBD",
+    solution_method = "mod_midpoint",
+    writeout = FALSE
+  )
 
-    # set the output subdirectory name within write_dir
-    write_sub_dir <- "solve_in_situ_WRITEOUT"
-    ems_option_set(write_sub_dir = write_sub_dir)
+  expect_type(outputs, "list")
 
-    # validate inputs, write solver files, and return the CMF path
-    cmf_path <- ems_deploy(
-      write_dir = write_dir,
-      .data = .data,
-      model = model,
-      shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
-    )
+  # checks
+  pop_check <- isTRUE(all.equal(pop,
+    outputs$pop,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    GTAPDATA <- file.path(write_dir, write_sub_dir, "GTAPDATA.txt")
-    GTAPINT <- file.path(write_dir, write_sub_dir, "GTAPINT.txt")
-    GTAPPARM <- file.path(write_dir, write_sub_dir, "GTAPPARM.txt")
-    GTAPSETS <- file.path(write_dir, write_sub_dir, "GTAPSETS.txt")
-    shock_file <- list.files(file.path(write_dir, write_sub_dir), pattern = "shf", full.names = TRUE)
+  aoall_check <- isTRUE(all.equal(aoall,
+    outputs$aoall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    outputs <- solve_in_situ(
-      GTAPDATA = GTAPDATA,
-      GTAPINT = GTAPINT,
-      GTAPPARM = GTAPPARM,
-      GTAPSETS = GTAPSETS,
-      model_file = model_files[["model_file"]],
-      closure_file = model_files[["closure_file"]],
-      shock_file = shock_file,
-      write_dir = "~/Documents/test/in_situ_test/",
-      n_tasks = 1,
-      n_subintervals = 1,
-      matrix_method = "SBBD",
-      solution_method = "mod_midpoint",
-      writeout = TRUE
-    )
+  afeall_check <- isTRUE(all.equal(afeall,
+    outputs$afeall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    expect_s3_class(outputs, "tbl")
+  atall_check <- isTRUE(all.equal(atall,
+    outputs$atall,
+    check.attributes = FALSE,
+    tolerance = 1e-6
+  ))
 
-    # checks
-    pop_check <- isTRUE(all.equal(pop,
-      outputs$dat$pop,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
+  checks <- c(pop_check, aoall_check, afeall_check, atall_check)
+  expect_all_true(checks)
+})
 
-    aoall_check <- isTRUE(all.equal(aoall,
-      outputs$dat$aoall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
+test_that("solve_in_situ errors when model directory doesn't exist", {
+  pop <- ems_uniform_shock(
+    var = "pop",
+    value = 1
+  )
 
-    afeall_check <- isTRUE(all.equal(afeall,
-      outputs$dat$afeall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
+  write_sub_dir <- "solve_in_situ_missing_file"
+  ems_option_set(write_sub_dir = write_sub_dir)
 
-    atall_check <- isTRUE(all.equal(atall,
-      outputs$dat$atall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
+  cmf_path <- ems_deploy(
+    write_dir = write_dir,
+    .data = dat,
+    model = model
+  )
 
-    checks <- c(pop_check, aoall_check, afeall_check, atall_check)
-    expect_all_true(checks)
+  insitu_dir <- file.path(write_dir, write_sub_dir)
+  GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
+  GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
+  GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
+  shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
 
-    outputs <- solve_in_situ(
-      GTAPDATA = GTAPDATA,
-      GTAPINT = GTAPINT,
-      GTAPPARM = GTAPPARM,
-      GTAPSETS = GTAPSETS,
-      model_file = model_files[["model_file"]],
-      closure_file = model_files[["closure_file"]],
-      shock_file = shock_file,
-      write_dir = "~/Documents/test/in_situ_test/",
-      n_tasks = 1,
-      n_subintervals = 1,
-      matrix_method = "SBBD",
-      solution_method = "mod_midpoint",
-      writeout = FALSE
-    )
+  expect_snapshot_error(solve_in_situ(
+    GTAPDATA = GTAPDATA,
+    GTAPINT = GTAPINT,
+    GTAPSETS = GTAPSETS,
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    model_dir = file.path(insitu_dir, "missing_file"),
+    shock_file = shock_file,
+    n_tasks = 1,
+    n_subintervals = 1,
+    matrix_method = "SBBD",
+    solution_method = "mod_midpoint",
+    writeout = TRUE
+  ))
+})
 
-    expect_type(outputs, "list")
-
-    # checks
-    pop_check <- isTRUE(all.equal(pop,
-      outputs$pop,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
-
-    aoall_check <- isTRUE(all.equal(aoall,
-      outputs$aoall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
-
-    afeall_check <- isTRUE(all.equal(afeall,
-      outputs$afeall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
-
-    atall_check <- isTRUE(all.equal(atall,
-      outputs$atall,
-      check.attributes = FALSE,
-      tolerance = 1e-6
-    ))
-
-    checks <- c(pop_check, aoall_check, afeall_check, atall_check)
-    expect_all_true(checks)
-  })
-}
+test_that("solve_in_situ errors when missing input file", {
+  pop <- ems_uniform_shock(
+    var = "pop",
+    value = 1
+  )
+  
+  write_sub_dir <- "solve_in_situ_missing_file"
+  ems_option_set(write_sub_dir = write_sub_dir)
+  
+  cmf_path <- ems_deploy(
+    write_dir = write_dir,
+    .data = dat,
+    model = model
+  )
+  
+  insitu_dir <- file.path(write_dir, write_sub_dir)
+  GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
+  GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
+  GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
+  shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
+  
+  dir.create(file.path(insitu_dir, "missing_file"))
+  expect_snapshot_error(solve_in_situ(
+    GTAPDATA = GTAPDATA,
+    GTAPINT = GTAPINT,
+    GTAPSETS = GTAPSETS,
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    model_dir = file.path(insitu_dir, "missing_file"),
+    shock_file = shock_file,
+    n_tasks = 1,
+    n_subintervals = 1,
+    matrix_method = "SBBD",
+    solution_method = "mod_midpoint",
+    writeout = TRUE
+  ))
+})

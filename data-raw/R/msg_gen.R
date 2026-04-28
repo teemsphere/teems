@@ -15,3 +15,9 @@ build_gen_err <- function() {
     invalid_file = "{.arg {arg}} must be a {.or {.val {valid_ext}}} file, not {?a/an} {.val {file_ext}} file."
   )
 }
+
+build_gen_info <- function() {
+  list(
+    unlink = "Clearing {length(existing)} existing file{?s} from {.path {sub_path}}"
+  )
+}

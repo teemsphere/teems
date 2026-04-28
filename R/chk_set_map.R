@@ -47,9 +47,8 @@
   return(set_mapping)
 }
 
-#' @importFrom data.table fread
+#' @importFrom data.table fread is.data.table as.data.table copy fsetequal
 #' @importFrom purrr pluck map_lgl
-#' @importFrom data.table is.data.table as.data.table copy
 #' 
 #' @keywords internal
 #' @noRd
@@ -105,6 +104,15 @@
                   call = call
       )
     }
+  }
+  
+  orig_mapping <- data.table::copy(set_mapping)
+  set_mapping[, names(set_mapping) := lapply(.SD, tolower)]
+  
+  if (!data.table::fsetequal(set_mapping, orig_mapping)) {
+    .cli_action(data_wrn$mapping_case,
+                action = "warn",
+                call = call)
   }
 
   if (colnames(set_mapping[,c(1,2)]) %!=% c(map_name, "mapping")) {

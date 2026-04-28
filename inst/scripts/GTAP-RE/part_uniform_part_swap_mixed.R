@@ -4,7 +4,6 @@
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  COMM = "macro_sector",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
   time_steps = c(0, 1, 2),
@@ -67,9 +66,9 @@ outputs <- ems_solve(
 
 # checks
 exo_shk1 <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
-endo1 <- outputs$dat$qfd[REGr != "usa" & ACTSa != "crops"]$Value != 0
+endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
 endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[REGr == "usa" & ACTSa != "crops"]$Value == 0
+exo_null <- outputs$dat$tfd[(REGr == "usa" & ACTSa != "crops")]$Value == 0
 endo3 <- outputs$dat$dppriv$Value != 0
 exo_shk2 <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
 checks <- c(exo_shk1, endo1, endo2, exo_null, endo3, exo_shk2)

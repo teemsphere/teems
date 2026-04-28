@@ -6,7 +6,6 @@ time_steps <- year + c(0, 1, 2, 3)
   par_input = par_input,
   set_input = set_input,
   REG = "big3",
-  COMM = "macro_sector",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
   time_steps = time_steps,
@@ -25,7 +24,6 @@ pop <- ems_data(
   par_input = par_input,
   set_input = set_input,
   REG = "full",
-  COMM = "macro_sector",
   ENDW = "labor_agg",
   target_format = target_format
 )$POP

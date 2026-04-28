@@ -6,8 +6,8 @@
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = c(0, 1, 2),
-  target_format = target_format
+  target_format = target_format,
+  time_steps = time_steps
 )
 
 # parse the model Tablo file and load the closure
@@ -18,37 +18,40 @@ model <- ems_model(
 
 # define a uniform shock on a subset of qfd elements
 partial <- ems_uniform_shock(
-  var = "qfd",
-  REGr = "usa",
-  ACTSa = "crops",
+  var = "qxs",
+  COMMc = "MARG",
+  REGs = "chn",
+  ALLTIMEt = "FWDTIME",
   value = -1
 )
 
 # prepare a partial closure swap making qfd subset exogenous
-qfd <- ems_swap(
-  var = "qfd",
-  REGr = "usa",
-  ACTSa = "crops"
+qxs <- ems_swap(
+  var = "qxs",
+  COMMc = "MARG",
+  REGs = "chn",
+  ALLTIMEt = "FWDTIME"
 )
 
 # prepare a partial closure swap making tfd subset endogenous
-tfd <- ems_swap(
-  var = "tfd",
-  REGr = "usa",
-  ACTSa = "crops"
+txs <- ems_swap(
+  var = "txs",
+  COMMc = "MARG",
+  REGs = "chn",
+  ALLTIMEt = "FWDTIME"
 )
 
 # set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_part_swap")
+ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 
-# validate inputs, write solver files, and return the CMF path
+# validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
   .data = .data,
   model = model,
   shock = partial,
-  swap_in = qfd,
-  swap_out = tfd
+  swap_in = qxs,
+  swap_out = txs
 )
 
 # run the Docker-based solver and parse results
@@ -59,8 +62,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
-endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
-endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
+exo_shk <- outputs$dat$qxs[REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value == -1
+endo1 <- outputs$dat$qxs[!(REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
+endo2 <- outputs$dat$txs[REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value != 0
+exo_null <- outputs$dat$txs[!(REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
+
 checks <- c(exo_shk, endo1, endo2, exo_null)

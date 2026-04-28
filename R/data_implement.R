@@ -8,12 +8,11 @@
     a = args_list,
     call = call
   )
-
+  
   i_data <- .load_input_data(
     dat_input = v$dat_input,
     par_input = v$par_input,
     set_input = v$set_input,
-    aux_input = v$aux_input,
     target_format = v$target_format,
     data_call = call
   )
@@ -35,5 +34,7 @@
     set_mappings = set_mappings,
     call = call
   )
+  
+  class(i_data) <- c("ems_data", class(i_data))
   return(i_data)
 }

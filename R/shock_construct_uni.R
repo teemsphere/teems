@@ -1,5 +1,6 @@
 #' @importFrom utils capture.output
-#' 
+#' @importFrom purrr map_chr map_lgl
+#'
 #' @noRd
 #' @keywords internal
 #' @method .construct_shock uniform
@@ -9,16 +10,15 @@
                                      sets,
                                      var_extract,
                                      ...) {
-  
+  call <- attr(raw_shock, "call")
   if (attr(raw_shock, "full_var")) {
     if (.o_check_shock_status()) {
-      if (!raw_shock$var %in% closure$full_var) {
-        # if parts of a var are provided that comprise the full, not sure if caught
-        # provide some endo components as examples here
+      full_vars <- purrr::map_chr(closure[purrr::map_lgl(closure, inherits, "full")], attr, "var_name")
+      if (!raw_shock$var %in% full_vars) {
         .cli_action(
           shk_err$x_full_exo,
-          action = "abort",
-          call = attr(raw_shock, "call")
+          action = c("abort", "inform", "inform"),
+          call = call
         )
       }
     }
@@ -29,53 +29,14 @@
       shock_LHS <- raw_shock$var
     }
   } else {
-    # move this up
-    if ("Year" %in% names(raw_shock$subset)) {
-      Year <- purrr::pluck(raw_shock, "subset", "Year")
-      int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
-      time_set_upper <- intersect(raw_shock$ls_upper, int_set_names)
-      time_set <- raw_shock$ls_mixed[match(time_set_upper, raw_shock$ls_upper)]
-      CYRS <- attr(sets, "CYRS")
-      if (!Year %in% CYRS$Value) {
-        CYRS <- CYRS$Value
-        .cli_action(
-          shk_err$uni_invalid_year,
-          action = "abort",
-          call = attr(raw_shock, "call")
-        )
-      }
-      v_idx <- match(Year, CYRS$Value)
-      purrr::pluck(raw_shock, "subset", "Year") <- purrr::pluck(sets, "ele", time_set_upper, v_idx)
-      names(raw_shock$subset) <- sub("Year", time_set, names(raw_shock$subset))
-    }
-
     mixed_ss <- names(raw_shock$subset)
-
-    withCallingHandlers(
-      purrr::map2(
-        raw_shock$subset,
-        mixed_ss,
-        function(ele, ele_set) {
-          ele_set <- .dock_tail(ele_set)
-          recognized_ele <- purrr::pluck(sets, "ele", ele_set)
-          if (!ele %in% recognized_ele) {
-            .cli_action(
-              shk_err$uni_invalid_ele,
-              action = c("abort", "inform"),
-              call = attr(raw_shock, "call")
-            )
-          }
-        }
-      ),
-      purrr_error_indexed = function(err) {
-        rlang::cnd_signal(err$parent)
-      }
-    )
-
     r_idx <- match(mixed_ss, raw_shock$ls_mixed)
     if (raw_shock$ls_upper %!=% NA) {
       shock_LHS <- raw_shock$ls_upper
-      shock_LHS[r_idx] <- paste0('"', raw_shock$subset, '"')
+      ss <- purrr::map_lgl(raw_shock$subset, attr, "subset")
+      shock_LHS[r_idx] <- ifelse(!ss,
+                                 paste0('"', raw_shock$subset, '"'),
+                                 raw_shock$subset)
       shock_LHS <- paste0(raw_shock$var, "(", paste0(shock_LHS, collapse = ","), ")")
     } else {
       shock_LHS <- raw_shock$var
@@ -85,7 +46,7 @@
       classified_shk <- .classify_cls(
         closure = shock_LHS,
         sets = sets,
-        call = attr(raw_shock, "call")
+        call = call
       )[[1]]
 
       expanded_shk <- .exp_cls_entry(
@@ -97,23 +58,25 @@
       check <- closure[purrr::map_lgl(closure, function(c) {
         attr(c, "var_name") %=% raw_shock$var
       })]
-      
+
       if (length(check) %=% 0L) {
         .cli_action(shk_err$x_full_exo_part,
-                    action = "abort",
-                    call = attr(raw_shock, "call"))
+          action = c("abort", "inform"),
+          call = call
+        )
       }
 
       if (attr(check[[1]], "ele") %!=% NA) {
         check <- data.table::rbindlist(purrr::map(check, attr, "ele"))
-
-        if (nrow(data.table::fsetdiff(attr(expanded_shk, "ele"), check)) %!=% 0L) {
-          errant_tup <- data.table::fsetdiff(attr(expanded_shk, "ele"), check)
-          errant_tup <- utils::capture.output(print(errant_tup))[-c(1, 2)]
+        data.table::setnames(check, new = raw_shock$ls_mixed)
+        check2 <- data.table::setnames(attr(expanded_shk, "ele"), new = raw_shock$ls_mixed)
+        if (nrow(data.table::fsetdiff(check2, check)) %!=% 0L) {
+          errant_tup <- data.table::fsetdiff(check2, check)
+          errant_tup <- utils::capture.output(print(errant_tup))[-c(1, 2, 3)]
           .cli_action(
             shk_err$x_part_exo,
-            action = "abort",
-            call = attr(raw_shock, "call")
+            action = c("abort", "inform"),
+            call = call
           )
         }
       }

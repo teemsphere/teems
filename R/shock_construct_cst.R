@@ -11,23 +11,8 @@
                                     closure,
                                     sets,
                                     ...) {
-  set_ele <- with(sets$ele, mget(raw_shock$ls_upper))
-  template <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
-  data.table::setnames(template, new = raw_shock$ls_mixed)
-
-  is_full <- data.table::fsetequal(template, raw_shock$input[, !"Value"])
-
-  if (!is_full) {
-    if (nrow(data.table::fsetdiff(raw_shock$input[, !"Value"], template)) %!=% 0L) {
-      errant_tuples <- data.table::fsetdiff(raw_shock$input[, !"Value"], template)
-      errant_tuples <- utils::capture.output(print(errant_tuples))
-      errant_tuples <- errant_tuples[-c(1, 2)]
-      .cli_action(shk_err$cust_invalid_tup,
-        action = "abort",
-        call = attr(raw_shock, "call")
-      )
-    }
-  }
+  
+  is_full <- attr(raw_shock, "is_full")
 
   if (.o_check_shock_status()) {
     cls_entries <- closure[purrr::map_lgl(closure, function(c) {
@@ -38,7 +23,7 @@
       if (!inherits(cls_entries[[1]], "full")) {
         .cli_action(
           shk_err$x_full_exo,
-          action = c("abort", "inform"),
+          action = c("abort", "inform", "inform"),
           call = attr(raw_shock, "call")
         )
       }
@@ -58,9 +43,10 @@
           x_exo_parts <- trimws(utils::capture.output(print(x_exo_parts)))
           x_exo_parts <- x_exo_parts[-c(1, 2)]
 
+          call <- attr(raw_shock, "call")
           .cli_action(shk_err$cust_endo_tup,
-            action = "abort",
-            call = attr(raw_shock, "call")
+            action = c("abort", "inform"),
+            call = call
           )
         }
       }

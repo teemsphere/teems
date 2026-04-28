@@ -8,8 +8,8 @@
     if (length(args_list$subset) > 0) {
       if (length(args_list$subset) > 0 && (is.null(names(args_list$subset)) || any(names(args_list$subset) == ""))) {
         .cli_action(shk_err$uni_named_lst,
-          shk_err$uni_named_lst,
-          action = "abort"
+          action = c("abort", "inform", "inform"),
+          call = call
         )
       }
     } else {

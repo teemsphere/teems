@@ -2,9 +2,13 @@
 
     x argument `model` is missing, with no default
 
+# ems_example errors when write_dir parent dir does not exist
+
+    x '/home/mpc/.cache/R/teems/nonexistent_dir_xyz' does not exist and could not be created. Ensure the parent directory exists.
+
 # ems_example warns when write_dir does not exist
 
-    ! Creating directory: '/home/mpc/.cache/R/teems/nonexistent_dir_xyz'.
+    ! Creating directory: '/home/mpc/.local/share/R/teems/example/nonexistent_dir_xyz'.
 
 # ems_example errors when type is scripts and dat_input is missing
 

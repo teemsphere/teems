@@ -121,3 +121,7 @@
 
     x 9 tuples for "pop" in the pre-swap closure with multiple entries: 1: chn 0, 2: chn 1, 3: chn 2, 4: row 0, 5: row 1, 6: row 2, 7: usa 0, 8: usa 1, and 9: usa 2.
 
+# ems_model errors dots passed without names
+
+    x Coefficients to modify must be passed as named pairs: `RDLT = 1`.
+

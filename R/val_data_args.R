@@ -11,12 +11,19 @@
     )
   }
 
+  a$set_mappings <- .check_named_dots(a$set_mappings)
+  if (isFALSE(a$set_mappings)) {
+    .cli_action(data_err$no_name_mapping,
+      action = "abort",
+      call = call
+    )
+  }
+
   checklist <- list(
-    dat_input = "character",
-    par_input = "character",
-    set_input = "character",
+    dat_input = c("character", "list"),
+    par_input = c("character", "list"),
+    set_input = c("character", "list"),
     time_steps = c("NULL", "numeric", "integer"),
-    target_format = c("NULL", "character"),
     set_mappings = "list"
   )
 
@@ -35,14 +42,5 @@
   )
 
   a <- .data_inputs(a = a, call = call)
-
-  if (!is.null(a$tab_file)) {
-    a$tab_file <- .check_input(
-      file = a$tab_file,
-      valid_ext = "tab",
-      call = call
-    )
-  }
-
   return(a)
 }

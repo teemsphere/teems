@@ -4,30 +4,27 @@
                              ...) {
   UseMethod(".finalize_shocks")
 }
+
 #' @keywords internal
 #' @noRd
 #' @export
 #' @method .finalize_shocks default
 .finalize_shocks.default <- function(shock,
-                                     shock_file,
                                      closure,
                                      sets,
                                      var_extract,
                                      ...) {
-  if (is.null(shock_file)) {
-    shock <- .shock_load(
-      shocks = shock,
-      closure = closure,
-      sets = sets,
-      var_extract = var_extract
-    )
-  } else {
-    shock <- .usr_shock(shock_file = shock_file)
-  }
+  shock <- .shock_load(
+    shocks = shock,
+    closure = closure,
+    sets = sets,
+    var_extract = var_extract
+  )
 
   class(shock) <- c("shock", class(shock))
   return(shock)
 }
+
 #' @keywords internal
 #' @noRd
 #' @export
@@ -38,5 +35,16 @@
     file = "null_shock.shf",
     class = c("shock", class(NA))
   )
+
+  return(shock)
+}
+
+#' @keywords internal
+#' @noRd
+#' @export
+#' @method .finalize_shocks character
+.finalize_shocks.character <- function(shock,
+                                       ...) {
+  shock <- .usr_shock(shock_file = shock)
   return(shock)
 }

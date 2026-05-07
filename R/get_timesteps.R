@@ -17,10 +17,7 @@
   
   timestep_coeff <- model$name[match(.o_timestep_header(), model$header)]
   
-  output_paths <- .get_output_paths(
-    cmf_path = cmf_path,
-    type = "coefficient"
-  )$coeff
+  output_paths <- .get_output_paths(cmf_path = cmf_path)$coeff
   
   timestep_file <- output_paths[tools::file_path_sans_ext(basename(output_paths)) == timestep_coeff]
   

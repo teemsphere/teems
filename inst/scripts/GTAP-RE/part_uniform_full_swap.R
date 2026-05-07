@@ -6,8 +6,7 @@
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = c(0, 1, 2),
-  target_format = target_format
+  time_steps = c(0, 1, 2)
 )
 
 

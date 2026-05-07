@@ -241,7 +241,7 @@ coeff_conversion <- data.frame(
   ),
   GTAPv6set = c(
     rep(NA, 44),
-    "TRAD_COMM", "TRAD_COMM", "PROD_COMM", "PROD_COMM", "ENDW_COMM",
+    "TRAD_COMM", "TRAD_COMM", "PROD_COMM", "PROD_COMM", "ENDWS_COMM",
     "TRAD_COMM, REG", "TRAD_COMM, REG", NA, "REG", NA,
     NA, NA, NA, NA, NA, NA
   ),
@@ -259,9 +259,8 @@ coeff_conversion$GTAPv6set <- strsplit(coeff_conversion$GTAPv6set, ", ")
 coeff_conversion$GTAPv7set <- strsplit(coeff_conversion$GTAPv7set, ", ")
 
 # messages (definitions in data-raw/R/msg_*.R) -------------------------
-aux_err <- build_aux_err()
-aux_wrn <- build_aux_wrn()
 compose_err <- build_compose_err()
+convert_err <- build_convert_err()
 data_err <- build_data_err()
 data_info <- build_data_info()
 data_wrn <- build_data_wrn()
@@ -289,9 +288,8 @@ usethis::use_data(
   param_weights,
   set_conversion,
   coeff_conversion,
-  aux_err,
-  aux_wrn,
   compose_err,
+  convert_err,
   data_err,
   data_info,
   data_wrn,

@@ -15,7 +15,8 @@ ems_solve(
   laD = 200L,
   laDi = 500L,
   suppress_outputs = FALSE,
-  terminal_run = FALSE
+  terminal_run = FALSE,
+  append_args = NULL
 )
 }
 \arguments{
@@ -35,9 +36,8 @@ large shock magnitudes.}
 method (default is \code{"LU"}). Choices:
 \itemize{
 \item \code{"LU"}: Standard LU decomposition, the most robust and
-potentially slowest for a large model. \code{"n_tasks"} must be
-\code{1L} if \code{"matrix_method"} == "LU". For use with both static
-and dynamic models.
+potentially slowest for a large model. For use with both
+static and dynamic models.
 \item \code{"DBBD"}: Doubly bordered block diagonal, parallel solution
 method for static models. Potentially faster than \code{"LU"}
 although less robust.
@@ -55,10 +55,10 @@ is the "one-step" \code{"Johansen"}. Choices:
 \item \code{"Johansen"}: The Johansen method is fast however it should
 only be used as a rough approximation due to handling of
 nonlinear equations. See:
-https://www.copsmodels.com/gpmanual.htm#gpd1.2.13
+\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
 \item \code{"mod_midpoint"}: The modified midpoint method
-performs multiple passes. See:
-https://www.copsmodels.com/gpmanual.htm#gpd3.12.2
+performs multiple passes. See: \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{modified
+midpoint}
 }}
 
 \item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
@@ -66,22 +66,14 @@ vector of steps for the modified midpoint method, must be
 all odd or all even and length 3. Additional steps may
 improve accuracy for some model runs.}
 
-\item{laA}{Integer length 1 (default is \code{300L}). The laA
-memory parameter for solver pertaining to matrix methods
-\code{"LU"} and \code{"SBBD"}. Value is in percentages. Increase
-gradually if prompted via "Error return from MA48B/BD
-because LA is ..."}
+\item{laA}{Integer length 1 (default is \code{300L}). Memory
+parameter (\%) for \code{"LU"} and \code{"SBBD"}.}
 
-\item{laD}{Integer length 1 (default is \code{200L}). The laD
-memory parameter for solver pertaining to matrix methods
-\code{"DBBD"} and \code{"NDBBD"}. Value is in percentages. Increase
-gradually if prompted via "Error return from MA48B/BD
-because LA is ..."}
+\item{laD}{Integer length 1 (default is \code{200L}). Memory
+parameter (\%) for \code{"DBBD"} and \code{"NDBBD"}.}
 
-\item{laDi}{Integer length 1 (default is \code{500L}). The laDi
-memory parameter for solver pertaining to matrix method
-\code{"NDBBD"}. Value is in percentages. Increase gradually if
-prompted via "Error return from MA48B/BD because LA is ..."}
+\item{laDi}{Integer length 1 (default is \code{500L}). Memory
+parameter (\%) for \code{"NDBBD"} only.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
@@ -93,26 +85,42 @@ solver. This allows the user to close any R IDE or other
 programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
+
+\item{append_args}{Character vector (default \code{NULL}).
+Additional arguments appended to the Docker run command
+(e.g., \code{c("-smllthreads 2", "-maxthreads 2")}).}
 }
 \value{
-A tibble containing model output variables and
-coefficients. Alternatively, if \code{"suppress_outputs"} is
-\code{TRUE}, no return value. Alternatively, if \code{"terminal_run"}
-is \code{TRUE}, instructions for running the model and
-structuring outputs.
+A tibble of model output variables and coefficients.
+\code{invisible(NULL)} if \code{suppress_outputs = TRUE}. Instructions
+for terminal execution if \code{terminal_run = TRUE}.
 }
 \description{
-\code{ems_solve()} solves the constrained optimization
-problem according to a range of runtime configuration
-options. In order to solve the model, a \code{teems} Docker image
-(\href{https://github.com/teemsphere/teems-solver}{teems-solver})
-must be built. Singularity, accuracy, and error checks are
-carried out following a successful run.
+Calls the
+\href{https://github.com/teemsphere/teems-solver}{teems-solver}
+Docker image to solve the constrained optimization problem.
+Runs singularity, accuracy, and error checks on the results
+before calling \code{\link[=ems_compose]{ems_compose()}} to structure outputs.
+}
+\details{
+Increase \code{laA}, \code{laD}, or \code{laDi} gradually if the
+solver returns \code{"Error return from MA48B/BD because LA is ..."}. The relevant parameter depends on the \code{matrix_method}
+in use (see above).
 }
 \examples{
 \dontrun{
-# See \href{https://github.com/teems-org/teems-scripts}{teems-scripts}
-# for a range of solution options.
-}
+# Solving a static model with Johansen:
+ems_solve(cmf_path)
 
+# Solving a dynamic model with the SBBD method:
+ems_solve(cmf_path,
+          n_tasks = 6,
+          matrix_method = "SBBD")
+}
+}
+\seealso{
+\code{\link[=ems_deploy]{ems_deploy()}} for generating \code{"cmf_path"}.
+\code{\link[=solve_in_situ]{solve_in_situ()}} for calling the solver on existing input
+files. \code{\link[=ems_compose]{ems_compose()}} for structuring data when
+\code{"suppress_outputs"} or \code{"terminal_run"} is \code{TRUE}.
 }

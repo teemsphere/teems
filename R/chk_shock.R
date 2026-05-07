@@ -29,6 +29,7 @@
 .check_shock.uniform <- function(shock,
                                  var_extract,
                                  sets) {
+
   if (is.null(names(shock))) {
     shock <- shock[[1]]
   }

@@ -4,8 +4,8 @@
 #'
 #' @keywords internal
 #' @noRd
-.parse_solution <- function(sol_prefix) {
-  raw <- parse_solution_bins(sol_prefix)
+.parse_solution_meta <- function(sol_prefix) {
+  raw <- parse_solution_meta(sol_prefix)
 
   set_union <- tibble::as_tibble(data.frame(
     r_idx     = seq_along(raw$set$header) - 1L,
@@ -44,17 +44,9 @@
     mapped_ele = raw$sel$setele
   )
 
-  xc <- data.table::data.table(
-    r_idx = seq_along(raw$bin) - 1L,
-    Value = raw$bin
-  )
-
-  parsed <- list(
+  list(
     set_union = set_union,
     var_union = var_union,
-    setele    = setele,
-    xc        = xc
+    setele    = setele
   )
-  
-  return(parsed)
 }

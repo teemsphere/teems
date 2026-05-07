@@ -34,7 +34,7 @@
 
 # ems_scenario_shock errors when not all preaggregation tuples provided
 
-    x 1 tuple missing from the scenario shock: 1: afg 2017.
+    x 1 tuple missing from the scenario shock: 1: afg 2023.
     i Scenario shocks must cover all pre-aggregation tuples for associated sets.
     i Call: `ems_scenario_shock(var = "pop", input = pop)`
 

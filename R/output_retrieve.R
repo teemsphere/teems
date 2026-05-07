@@ -6,14 +6,11 @@
                              var_data,
                              type,
                              comp_extract,
-                             name,
                              paths,
-                             parsed,
                              sets,
                              time_steps,
-                             minimal,
                              call) {
-  
+
   compose_variable <- type %in% c("variable", "all")
   compose_coefficient <- type %in% c("coefficient", "all")
   output <- list()
@@ -25,7 +22,6 @@
       vars = var_tbl,
       sets = sets,
       time_steps = time_steps,
-      minimal = minimal,
       call = call
     )
   }
@@ -45,21 +41,6 @@
   } else {
     output <- output[[1]]
   }
-  
-  # integrate this filter earlier and only parse specified names
-  if (!is.null(name)) {
-    if (!name %in% output$name) {
-      .cli_action(compose_err$invalid_name,
-                  action = "abort",
-                  call = call)
-    }
-    
-    if (length(name) > 1) {
-      output <- output[output$name %in% name, ]
-    } else {
-      output <- purrr::pluck(output, "dat", name)
-    }
-  }
-  
+
   return(output)
 }

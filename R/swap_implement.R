@@ -6,7 +6,7 @@
     a = args_list,
     call = call
   )
-  
+
   if (!is.null(v$subset)) {
     breadth <- "partial"
     if (any(lengths(v$subset) > 1)) {

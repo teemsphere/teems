@@ -40,12 +40,7 @@
 #' @export
 .write_shock.user <- function(shock,
                               write_path) {
-  cat(
-    shock,
-    file = write_path,
-    append = TRUE
-  )
-
+  file.copy(shock, write_path)
   return(write_path)
 }
 

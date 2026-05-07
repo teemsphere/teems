@@ -13,14 +13,9 @@
     dat_input = v$dat_input,
     par_input = v$par_input,
     set_input = v$set_input,
-    target_format = v$target_format,
     data_call = call
   )
 
-  if (!is.null(v$target_format) && v$target_format %!=% attr(i_data, "metadata")$data_format) {
-    i_data <- .convert_data(i_data = i_data)
-  }
-  
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,
     set_data = i_data[purrr::map_lgl(i_data, inherits, "set")],
@@ -28,7 +23,7 @@
     metadata = attr(i_data, "metadata"),
     call = call
   )
-  
+
   i_data <- .process_data(
     i_data = i_data,
     set_mappings = set_mappings,

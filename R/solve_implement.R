@@ -2,6 +2,7 @@
 #' @noRd
 .implement_solve <- function(args_list,
                              call) {
+
   .check_docker(
     image_name = "teems",
     call = call
@@ -32,7 +33,8 @@
     solmed = v$solmed,
     n_subintervals = v$n_subintervals,
     nesteddbbd = v$nesteddbbd,
-    enable_time = v$enable_time
+    enable_time = v$enable_time,
+    append_args = v$append_args
   )
 
   # need a process running in parallel, grepping output for error and then kill appropriate PID
@@ -54,10 +56,7 @@
     call = call
   )
   if (!v$suppress_outputs) {
-    output <- ems_compose(
-      cmf_path = v$cmf_path,
-      type = "all"
-    )
+    output <- ems_compose(cmf_path = v$cmf_path)
     return(output)
   }
   return(invisible(NULL))

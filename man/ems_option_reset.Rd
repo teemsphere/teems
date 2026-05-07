@@ -15,6 +15,5 @@ options to default values.
 }
 \seealso{
 \code{\link[=ems_option_set]{ems_option_set()}} for setting package options.
-
 \code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.
 }

@@ -16,7 +16,15 @@
     call = call
   )
   
-  if (length(a$subset) %=% 0L) {
+  a$subset <- .check_named_dots(a$subset)
+  if (isFALSE(a$subset)) {
+    .cli_action(shk_err$uni_named_lst,
+                action = c("abort", "inform", "inform"),
+                call = call
+    )
+  }
+
+  if (a$subset %=% NA) {
     a$subset <- NULL
   }
   

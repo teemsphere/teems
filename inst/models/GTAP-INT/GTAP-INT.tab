@@ -2220,7 +2220,7 @@ Equation ENDW_PRICE
 (all,i,ENDWS_COMM)(all,r,REG)(all,t,ALLTIME)
     pm(i,r,t) = sum(k,PROD_COMM, REVSHR(i,k,r,t) * pmes(i,k,r,t));
 
-Coefficient (parameter)(all,i,ENDW_COMM)(all,t,ALLTIME)
+Coefficient (parameter)(all,i,ENDWS_COMM)(all,t,ALLTIME)
     ETRAE(i,t) # elst. of transformation for sluggish primary factor endowments #;
 Read
     ETRAE from file GTAPPARM header "ETRE";

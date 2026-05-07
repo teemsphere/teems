@@ -27,6 +27,12 @@
     i For "qfd" these include: COMMc, ACTSa, REGr, and ALLTIMEt.
     i Call: `ems_swap(var = "qfd", REGs = "row")`
 
+# ems_swap errors when dots passed without names
+
+    x Subset arguments in `...` must be named pairs: `SETi = "component"`.
+    i Note that set names consist of the concatenation of the set name and variable-specific lowercase index.
+    i Call: `ems_swap(var = "tfd", "usa")`
+
 # ems_swap errors when invalid set provided to swap-out
 
     x Set "REGs" is not associated with "tfd".

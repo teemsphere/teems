@@ -14,9 +14,12 @@
                                shocks,
                                metadata) {
 
-  if (!is.null(shocks)) {
+  if (!is.null(shocks) && !is.character(shocks)) {
     shocks <- purrr::map_chr(shocks, "var")
     shock_var <- paste0(unique(shocks), collapse = ", ")
+  } else if (is.character(shocks)) {
+    shocks <- NULL
+    shock_var <- "user-defined; undetermined"
   } else {
     shocks <- NULL
     shock_var <- NULL

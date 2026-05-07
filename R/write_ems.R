@@ -100,15 +100,14 @@
 .ems_write.shock <- function(input,
                              write_dir,
                              ...) {
-
   write_path <- file.path(write_dir, attr(input, "file"))
-    for (shk in input) {
-      .write_shock(
-        shock = shk,
-        write_path = write_path
-      )
-    }
-  
+  for (shk in input) {
+    .write_shock(
+      shock = shk,
+      write_path = write_path
+    )
+  }
+
   return(write_path)
 }
 

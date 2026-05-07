@@ -181,9 +181,13 @@
 .header2GTAPv7.ETRE <- function(input,
                                 i_data,
                                 ...) {
-
   classes <- class(input)
   input[which(tolower(names(input)) == "natlres")] <- -1e-5
+  new_ele <- setdiff(tolower(i_data$H6), tolower(names(input)))
+  new_vals <- array(0, length(new_ele), list(new_ele))
+  input <- as.array(c(input, new_vals))
+  names(dimnames(input)) <- "ENDW_COMM"
+
   input <- .add_REG(
     input = input,
     REG = i_data$H1

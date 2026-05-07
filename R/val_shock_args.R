@@ -12,7 +12,7 @@
   checklist <- list(
     var = "character",
     input = "numeric",
-    subset = c("NULL", "list")
+    subset = c("logical", "list")
   )
 
   .check_arg_class(
@@ -21,12 +21,18 @@
     call = call
   )
 
-  if (any(lengths(shock$subset) > 1)) {
-    depth <- "multi"
+  if (shock$subset %!=% NA) {
+    if (any(lengths(shock$subset) > 1)) {
+      depth <- "multi"
+    } else {
+      depth <- "single"
+    }
   } else {
+    shock$subset <- NULL
     depth <- "single"
   }
 
+  # might be able to reduce depth to an attribute
   shock <- structure(shock,
     call = call,
     class = c(depth, class(shock))

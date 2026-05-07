@@ -12,14 +12,14 @@
     values = c("LU", "DBBD", "SBBD", "NDBBD"),
     error_call = call
   )
-  
+
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
     arg = solution_method,
     values = c("Johansen", "mod_midpoint"),
     error_call = call
   )
-  
+
   checklist <- list(
     cmf_path = "character",
     n_tasks = c("numeric", "integer"),
@@ -31,7 +31,8 @@
     laD = c("numeric", "integer"),
     laDi = c("numeric", "integer"),
     suppress_outputs = "logical",
-    terminal_run = "logical"
+    terminal_run = "logical",
+    append_args = c("NULL", "character")
   )
 
   .check_arg_class(

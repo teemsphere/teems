@@ -10,7 +10,7 @@ db_inputs <- list(
 )
 
 model <- "GTAP-INT"
-model_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"))
+model_dir <- file.path(tools::R_user_dir("teems", "data"))
 model_files <- ems_example(model, write_dir = model_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
@@ -21,9 +21,10 @@ for (db in data_db) {
   set_input <- db_inputs[[db]]$set
 
   if (db %in% c("v11", "v12")) {
-    target_format <- "GTAPv6"
-  } else {
-    target_format <- NULL
+    v6_data <- GTAP_convert(dat_input, par_input, set_input, "GTAPv7", "GTAPv6")
+    dat_input <- v6_data$dat
+    par_input <- v6_data$par
+    set_input <- v6_data$set
   }
 
   year <- switch(db,
@@ -146,6 +147,11 @@ for (db in data_db) {
         "whs", "wtp", "wtr"
       ),
       "v11" = c(
+        "afs", "atp", "cmn", "cns", "crops", "dwe", "edu", "food", "hht", "ins",
+        "livestock", "mnfcs", "obs", "ofi", "osg", "otp", "ros", "rsa", "trd",
+        "whs", "wtp", "wtr"
+      ),
+      "v12" = c(
         "afs", "atp", "cmn", "cns", "crops", "dwe", "edu", "food", "hht", "ins",
         "livestock", "mnfcs", "obs", "ofi", "osg", "otp", "ros", "rsa", "trd",
         "whs", "wtp", "wtr"

@@ -16,19 +16,15 @@
 
 # ems_data rejects non-character dat_input
 
-    x `dat_input` must be a character, not a number.
+    x `dat_input` must be a character or list, not a number.
 
 # ems_data rejects non-character par_input
 
-    x `par_input` must be a character, not a number.
+    x `par_input` must be a character or list, not a number.
 
 # ems_data rejects non-character set_input
 
-    x `set_input` must be a character, not a number.
-
-# ems_data rejects non-character aux_input
-
-    x `aux_input` must be a NULL, list, array, or character, not a number.
+    x `set_input` must be a character or list, not a number.
 
 # ems_data rejects non-character REG
 
@@ -51,22 +47,13 @@
 
     x The REG mapping has no entries for "afg".
 
-# ems_data rejects CSV with extra columns
+# ems_data warns CSV with extra columns
 
     ! The REG mapping has more than 2 columns; only columns 1 (origin) and 2 (destination) will be used.
 
 # ems_data rejects CSV with insufficient columns
 
     x The REG mapping requires both an origin and destination column.
-
-# ems_data rejects invalid target_format
-
-    x Invalid `target_format`.
-    i Valid target formats: "GTAPv6" and "GTAPv7".
-
-# ems_data unnecessary convert
-
-    ! Data format already matches `target_format`; no conversion applied.
 
 # ems_data rejects unrecognized set arguments
 
@@ -82,5 +69,9 @@
 
 # ems_data warns wrong initial year
 
-    ! Initial timestep is neither "0" nor the dat reference year (2017).
+    ! Initial timestep is neither "0" nor the dat reference year (2023).
+
+# ems_data errors when dots passed without names
+
+    x Set mappings must be passed as named pairs: `REG = "mapping"`
 

@@ -6,16 +6,24 @@
 #include <R_ext/Visibility.h>
 
 // parse_solution.cpp
-cpp11::list parse_solution_bins(std::string path_prefix);
-extern "C" SEXP _teems_parse_solution_bins(SEXP path_prefix) {
+cpp11::list parse_solution_meta(std::string path_prefix);
+extern "C" SEXP _teems_parse_solution_meta(SEXP path_prefix) {
   BEGIN_CPP11
-    return cpp11::as_sexp(parse_solution_bins(cpp11::as_cpp<cpp11::decay_t<std::string>>(path_prefix)));
+    return cpp11::as_sexp(parse_solution_meta(cpp11::as_cpp<cpp11::decay_t<std::string>>(path_prefix)));
+  END_CPP11
+}
+// parse_solution.cpp
+cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_filter);
+extern "C" SEXP _teems_parse_solution_bins(SEXP path_prefix, SEXP names_filter) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(parse_solution_bins(cpp11::as_cpp<cpp11::decay_t<std::string>>(path_prefix), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(names_filter)));
   END_CPP11
 }
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
-    {"_teems_parse_solution_bins", (DL_FUNC) &_teems_parse_solution_bins, 1},
+    {"_teems_parse_solution_bins", (DL_FUNC) &_teems_parse_solution_bins, 2},
+    {"_teems_parse_solution_meta", (DL_FUNC) &_teems_parse_solution_meta, 1},
     {NULL, NULL, 0}
 };
 }

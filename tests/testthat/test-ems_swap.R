@@ -3,9 +3,9 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset())
 
-dat_input <- Sys.getenv("GTAP11c_dat")
-par_input <- Sys.getenv("GTAP11c_par")
-set_input <- Sys.getenv("GTAP11c_set")
+dat_input <- Sys.getenv("GTAP12_dat")
+par_input <- Sys.getenv("GTAP12_par")
+set_input <- Sys.getenv("GTAP12_set")
 
 write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "deploy")
 
@@ -137,6 +137,12 @@ test_that("ems_swap errors when invalid set provided to swap-in", {
       swap_in = swap_in,
       write_dir = write_dir
     )
+  )
+})
+
+test_that("ems_swap errors when dots passed without names", {
+  expect_snapshot_error(
+    ems_swap("tfd", "usa")
   )
 })
 

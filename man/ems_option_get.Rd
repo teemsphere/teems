@@ -13,9 +13,17 @@ value. One of:
 \item \code{NULL} Returns all option values.
 \item \code{"verbose"} Logical. If \code{FALSE}, function-specific
 diagnostics are silenced.
+\item \code{"write_sub_dir"} Character. Name of the
+subdirectory within the base directory set by
+\code{\link[=ems_deploy]{ems_deploy()}}.
 \item \code{"ndigits"} Integer. Exact number of digits to the
 right of the decimal point written to file for numeric
 type double.
+\item \code{"docker_tag"} Character. Docker tag specifying
+which Docker image to use.
+\item \code{"accuracy_threshold"} Numeric. Threshold
+(converted to a percentage) against which 4-digit
+precision is compared.
 \item \code{"check_shock_status"} Logical. If \code{FALSE}, no
 check on shock element endogenous/exogenous status is
 conducted.
@@ -26,18 +34,6 @@ containing a numeric vector length one with sum of
 timestep intervals.
 \item \code{"full_exclude"} Character vector. Headers to
 fully exclude from all aspects of the model run.
-\item \code{"docker_tag"} Character. Docker tag specifying
-which Docker image to use.
-\item \code{"accuracy_threshold"} Numeric. Threshold
-(converted to a percentage) against which 4 digit
-precision is compared.
-\item \code{"expand_ETRE"} Logical. If \code{TRUE}, missing
-tuples in the ETRE header are added with value
--1e-05 and the sluggish endowment set is replaced
-with the general endowment set.
-\item \code{"write_sub_dir"} Character. Name of the
-subdirectory within the base directory set by
-\code{ems_deploy()}.
 }}
 }
 \value{
@@ -51,6 +47,5 @@ values are returned as a list.
 }
 \seealso{
 \code{\link[=ems_option_set]{ems_option_set()}} for setting package options.
-
 \code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.
 }

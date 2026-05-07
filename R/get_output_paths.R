@@ -1,9 +1,6 @@
 #' @keywords internal
 #' @noRd
-.get_output_paths <- function(cmf_path,
-                              type,
-                              # select = NULL,
-                              call) {
+.get_output_paths <- function(cmf_path) {
   model_dir <- dirname(normalizePath(cmf_path))
   if ("tab_path" %in% names(attributes(cmf_path))) {
     tab_path <- attr(cmf_path, "tab_path")
@@ -21,41 +18,22 @@
   }
 
   set_paths <- list.files(
-    path = file.path(
-      model_dir,
-      "out",
-      "sets"
-    ),
+    path = file.path(model_dir, "out", "sets"),
     pattern = "csv",
     full.names = TRUE
   )
 
-  if (type %in% c("all", "coefficient")) {
-    coeff_paths <- list.files(
-      path = file.path(
-        model_dir,
-        "out",
-        "coefficients"
-      ),
-      pattern = "csv",
-      full.names = TRUE
-    )
-
-    # reintegrate this
-    # if (!is.null(select)) {
-    #   coeff_paths <- coeff_paths[tools::file_path_sans_ext(basename(coeff_paths)) %in% select]
-    # }
-  } else {
-    coeff_paths <- NULL
-  }
-
-  paths <- list(
-    tab = tab_path,
-    model = model_dir,
-    metadata = metadata_path,
-    coeff = coeff_paths,
-    sets = set_paths
+  coeff_paths <- list.files(
+    path = file.path(model_dir, "out", "coefficients"),
+    pattern = "csv",
+    full.names = TRUE
   )
 
-  return(paths)
+  list(
+    tab      = tab_path,
+    model    = model_dir,
+    metadata = metadata_path,
+    coeff    = coeff_paths,
+    sets     = set_paths
+  )
 }

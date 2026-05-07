@@ -48,12 +48,6 @@
 
 #' @noRd
 #' @keywords internal
-.o_expand_ETRE <- function() {
-  ems_option_get("expand_ETRE")
-}
-
-#' @noRd
-#' @keywords internal
 .o_write_sub_dir <- function() {
   ems_option_get("write_sub_dir")
 }

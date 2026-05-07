@@ -10,7 +10,6 @@
 #' @noRd
 #' @export
 .convert_data.GTAPv6 <- function(i_data) {
-  
   metadata <- attr(i_data, "metadata")
   missing_par <- coeff_conversion[
     is.na(coeff_conversion$GTAPv6header) &

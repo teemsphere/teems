@@ -10,13 +10,12 @@ ems_example(
   dat_input = NULL,
   par_input = NULL,
   set_input = NULL,
-  target_format = NULL,
   write_dir = tools::R_user_dir("teems", "cache")
 )
 }
 \arguments{
-\item{model}{Character vector of length 1, (default is
-\code{NULL}). Name of model. Options include:
+\item{model}{Character vector of length 1, name of model.
+Options include:
 \itemize{
 \item \code{"GTAP-RE"}: GTAP Rational Expectations
 \item \code{"GTAP-INT"}: GTAP Intertemporal
@@ -24,34 +23,29 @@ ems_example(
 \item \code{"GTAPv6"}: Classic GTAP model
 }}
 
-\item{type}{Character vector of length 1. Determines the
-example output. Options include:
+\item{type}{Character vector of length 1, (default is
+\code{"model_files"}). Determines the example output. Options
+include:
 \itemize{
 \item \code{"model_files"}: Model file and closure file
 \item \code{"scripts"}: Example scripts for the chosen \code{model}.
 \code{dat_input}, \code{par_input}, and \code{set_input} are required.
-\code{target_format} must be specified if a data format
-conversion is to take place.
 }}
 
-\item{dat_input}{Character vector of length 1, file name in
+\item{dat_input}{Character vector of length 1, (default is
+\code{NULL}, only used when \code{type = "scripts"}) file name in
 working directory or path to a data input containing
-basedata coefficient data. Currently supports GTAP "dat" HAR
-files.}
+basedata coefficient data (e.g., a HAR file).}
 
-\item{par_input}{Character vector of length 1, file name in
+\item{par_input}{Character vector of length 1, (default is
+\code{NULL}, only used when \code{type = "scripts"}) file name in
 working directory or path to a data input containing
-parameter coefficient data. Currently supports GTAP "par"
-HAR files.}
+parameter coefficient data (e.g., a HAR file).}
 
-\item{set_input}{Character vector of length 1, file name in
+\item{set_input}{Character vector of length 1, (default is
+\code{NULL}, only used when \code{type = "scripts"}) file name in
 working directory or path to a data input containing set
-elements and attributes. Currently supports GTAP "set" HAR
-files.}
-
-\item{target_format}{Character vector of length 1 (default is
-\code{NULL}). If not \code{NULL}, data will be converted to the target
-format. Currently supports "GTAPv6" and "GTAPv7".}
+elements and attributes (e.g., a HAR file).}
 
 \item{write_dir}{Character vector of length 1, (default is
 \code{tools::R_user_dir("teems", "cache")}). Directory where
@@ -67,6 +61,16 @@ teems comes bundled with example models and scripts. This
 function facilitates access.
 }
 \examples{
-# write GTAP-RE model files to `tools::R_user_dir("teems", "cache")`
+\dontrun{
+# Write GTAP-RE model files to `tools::R_user_dir("teems", "cache")`
 ems_example("GTAP-RE")
+
+# Generate GTAP-RE example scripts
+ems_example(model = "GTAP-RE",
+            type = "scripts",
+            dat_input = "v7data/gsdfdat.har",
+            par_input = "v7data/gsdfpar.har",
+            set_input = "v7data/gsdfset.har",
+            write_dir = getwd())
+}
 }

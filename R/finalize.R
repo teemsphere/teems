@@ -37,7 +37,6 @@
   )
   shocks <- .finalize_shocks(
     shock = v$shock,
-    shock_file = v$shock_file,
     closure = closure,
     sets = sets,
     var_extract = var_extract

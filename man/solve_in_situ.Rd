@@ -18,9 +18,9 @@ solve_in_situ(
   laA = 300L,
   laD = 200L,
   laDi = 500L,
-  terminal_run = FALSE,
   suppress_outputs = FALSE,
-  writeout = FALSE
+  terminal_run = FALSE,
+  append_args = NULL
 )
 }
 \arguments{
@@ -33,24 +33,20 @@ this manner. All model declared input files as well as
 \code{"model_file"}, \code{"closure_file"}, and \code{"shock_file"} are
 required for in-situ model runs.}
 
-\item{model_file}{File containing the model. Character vector
-of length 1, file name in working directory or path to a
-.tab file. See
+\item{model_file}{Path to a \code{.tab} Tablo file. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted models and compatible Tablo file formatting.}
 
 \item{model_dir}{Character of length 1, base directory where
 input files will be copied and the model will be run.}
 
-\item{closure_file}{A character of length 1. File name in
-working directory or path to a ".cls" closure file. See
+\item{closure_file}{Path to a \code{.cls} closure file. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
-for formatting of closure files.}
+for closure file formatting.}
 
-\item{shock_file}{Character of length 1, file name in working
-directory or path to a csv representing a user-provided
-final shock file (default is \code{NULL}). No checks or
-modifications will be conducted on this file.}
+\item{shock_file}{Path to a file with ".shf" extension
+representing a fully prepared shock file (default \code{NULL}).
+No checks or modifications are applied to this file.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
@@ -65,9 +61,8 @@ large shock magnitudes.}
 method (default is \code{"LU"}). Choices:
 \itemize{
 \item \code{"LU"}: Standard LU decomposition, the most robust and
-potentially slowest for a large model. \code{"n_tasks"} must be
-\code{1L} if \code{"matrix_method"} == "LU". For use with both static
-and dynamic models.
+potentially slowest for a large model. For use with both
+static and dynamic models.
 \item \code{"DBBD"}: Doubly bordered block diagonal, parallel solution
 method for static models. Potentially faster than \code{"LU"}
 although less robust.
@@ -85,10 +80,10 @@ is the "one-step" \code{"Johansen"}. Choices:
 \item \code{"Johansen"}: The Johansen method is fast however it should
 only be used as a rough approximation due to handling of
 nonlinear equations. See:
-https://www.copsmodels.com/gpmanual.htm#gpd1.2.13
+\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
 \item \code{"mod_midpoint"}: The modified midpoint method
-performs multiple passes. See:
-https://www.copsmodels.com/gpmanual.htm#gpd3.12.2
+performs multiple passes. See: \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{modified
+midpoint}
 }}
 
 \item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
@@ -96,22 +91,18 @@ vector of steps for the modified midpoint method, must be
 all odd or all even and length 3. Additional steps may
 improve accuracy for some model runs.}
 
-\item{laA}{Integer length 1 (default is \code{300L}). The laA
-memory parameter for solver pertaining to matrix methods
-\code{"LU"} and \code{"SBBD"}. Value is in percentages. Increase
-gradually if prompted via "Error return from MA48B/BD
-because LA is ..."}
+\item{laA}{Integer length 1 (default is \code{300L}). Memory
+parameter (\%) for \code{"LU"} and \code{"SBBD"}.}
 
-\item{laD}{Integer length 1 (default is \code{200L}). The laD
-memory parameter for solver pertaining to matrix methods
-\code{"DBBD"} and \code{"NDBBD"}. Value is in percentages. Increase
-gradually if prompted via "Error return from MA48B/BD
-because LA is ..."}
+\item{laD}{Integer length 1 (default is \code{200L}). Memory
+parameter (\%) for \code{"DBBD"} and \code{"NDBBD"}.}
 
-\item{laDi}{Integer length 1 (default is \code{500L}). The laDi
-memory parameter for solver pertaining to matrix method
-\code{"NDBBD"}. Value is in percentages. Increase gradually if
-prompted via "Error return from MA48B/BD because LA is ..."}
+\item{laDi}{Integer length 1 (default is \code{500L}). Memory
+parameter (\%) for \code{"NDBBD"} only.}
+
+\item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
+When \code{TRUE} solver outputs are not automatically converted
+into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{terminal_run}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE}, the function is exited without running the
@@ -120,37 +111,22 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
-When \code{TRUE} solver outputs are not automatically converted
-into structured data with \code{\link[=ems_compose]{ems_compose()}}.}
-
-\item{writeout}{Logical length 1, default \code{FALSE}. Whether to
-attempt to parse the Tablo file and append "Write"
-declarations for out all model output coefficients and sets.
-Note that if \code{TRUE} a successful writeout may require
-modifications to the \code{"model_file"} provided. If \code{FALSE},
-outputs will consist of model variables.}
+\item{append_args}{Character vector (default \code{NULL}).
+Additional arguments appended to the Docker run command
+(e.g., \code{c("-smllthreads 2", "-maxthreads 2")}).}
 }
 \value{
-A list of data.tables (if \code{"writeout"} == \code{FALSE}). A
-tibble containing model output variables and coefficients (if
-\code{"writeout"} == \code{TRUE}). Alternatively, if
-\code{"suppress_outputs"} is \code{TRUE}, file path to a CMF file that
-may be used with \code{\link[=ems_compose]{ems_compose()}}.
+A tibble containing model output variables and
+coefficients. Alternatively, if \code{"suppress_outputs"} is
+\code{TRUE}, file path to a CMF file that may be used with
+\code{\link[=ems_compose]{ems_compose()}}.
 }
 \description{
-\code{solve_in_situ()} is a wrapper for the
+Calls the
 \href{https://github.com/teemsphere/teems-solver}{teems-solver}
-which conducts a minimal number of checks prior to attempting
-to solve the constrained optimization problem according to a
-range of runtime configuration options. In order to solve the
-model, a \code{teems} Docker image
-(\href{https://github.com/teemsphere/teems-solver}{teems-solver})
-must be built. Singularity, accuracy, and error checks are
-carried out following a successful run.
-
-In contrast to \code{\link[=ems_solve]{ems_solve()}}, all model input files
-must be provided by the user in their final form.
+Docker image directly with user-supplied input files, bypassing
+the \code{\link[=ems_data]{ems_data()}} / \code{\link[=ems_model]{ems_model()}} / \code{\link[=ems_deploy]{ems_deploy()}}
+pipeline. All input files must be provided in their final form.
 }
 \seealso{
 \code{\link[=ems_solve]{ems_solve()}} for the standard package-supported

@@ -6,8 +6,7 @@
   REG = "big3",
   PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
-  time_steps = c(0, 1, 2),
-  target_format = target_format
+  time_steps = c(0, 1, 2)
 )
 
 # parse the model Tablo file and load the closure

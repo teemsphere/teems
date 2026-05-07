@@ -19,7 +19,9 @@ build_solve_err <- function() {
     docker_sudo = "Docker is installed but cannot be called without sudo.",
     docker_not_running = "Docker is installed but the daemon is not running. Start Docker Desktop and try again.",
     docker_x_image = "The {.val {image_name}} Docker image is not present.",
-    no_model_dir = "The {.arg model_dir} provided {.path {model_dir}} does not exist."
+    no_model_dir = "The {.arg model_dir} provided {.path {model_dir}} does not exist.",
+    no_arg_name = "Additional arguments to be passed to the solver must be named: {.code smllthreads = 1}",
+    no_input_names = "Input files provided to {.arg ...} must be named as the appear within the {.arg model_file}."
   )
 }
 

@@ -6,3 +6,5 @@
 ^README\.Rmd$
 ^beta$
 ^dev$
+^\.positai$
+^\.claude$

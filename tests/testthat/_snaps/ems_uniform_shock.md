@@ -14,18 +14,6 @@
 
     x `input` must be a numeric, not a string.
 
-# ems_uniform_shock subsets are provided as named lists
-
-    x Subset arguments in `...` must be named pairs: `SETi = "set_element"` or `SETi = c("set_element1", "set_element2")`.
-    i Note that set names consist of the concatenation of the set name and variable-specific lowercase index.
-    i Call: `ems_uniform_shock(var = "aoall", value = -1, "chn")`
-
----
-
-    x Subset arguments in `...` must be named pairs: `SETi = "set_element"` or `SETi = c("set_element1", "set_element2")`.
-    i Note that set names consist of the concatenation of the set name and variable-specific lowercase index.
-    i Call: `ems_uniform_shock(var = "aoall", value = -1, China)`
-
 # ems_uniform_shock errors when variable is not present in the model file
 
     x Shock variable "not_a_var" not found in the model.
@@ -42,7 +30,7 @@
 # ems_uniform_shock errors when both int set and year are provided
 
     x Either Year or intertemporal set ALLTIMEt should be provided, not both.
-    i Call: `ems_uniform_shock(var = "pop", value = 1, ALLTIMEt = 0, Year = 2017)`
+    i Call: `ems_uniform_shock(var = "pop", value = 1, ALLTIMEt = 0, Year = 2023)`
 
 # ems_uniform_shock errors when full var shock is applied to not fully exogenous variable
 
@@ -55,9 +43,9 @@
     x No exogenous components in qfd; partial shocks require at least one.
     i Call: `ems_uniform_shock(var = "qfd", value = 1, REGr = "row")`
 
-# ems_uniform_shock errors when invalid year provide
+# ems_uniform_shock errors when invalid year provided
 
-    x 2014 is not among the valid years for the provided time steps: 2017, 2018, and 2019.
+    x 2014 is not among the valid years for the provided time steps: 2023, 2024, and 2025.
     i Call: `ems_uniform_shock(var = "pop", value = 1, REGr = "row", Year = 2014)`
 
 # ems_uniform_shock errors when invalid elements are
@@ -71,4 +59,10 @@
 
     x Shock allocated to non-exogenous tuples: 1: capital chn 1, 2: capital row 1, and 3: capital usa 1.
     i Call: `ems_uniform_shock(var = "qe", value = 1, ENDWMSe = "capital", ` and ` ALLTIMEt = 1)`
+
+# ems_uniform_shock errors dots passed without names
+
+    x Subset arguments in `...` must be named pairs: `SETi = "component"`.
+    i Note that set names consist of the concatenation of the set name and variable-specific lowercase index.
+    i Call: `ems_uniform_shock(var = "qe", value = 1, "capital", ALLTIMEt = 1)`
 

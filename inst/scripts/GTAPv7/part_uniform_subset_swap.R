@@ -5,8 +5,7 @@
   set_input = set_input,
   REG = "big3",
   ACTS = "macro_sector",
-  ENDW = "labor_agg",
-  target_format = target_format
+  ENDW = "labor_agg"
 )
 
 # parse the model Tablo file and load the closure
@@ -19,7 +18,7 @@ model <- ems_model(
 partial <- ems_uniform_shock(
   var = "qxs",
   COMMc = "MARG",
-  REGs = "chn",
+  REGs = c("chn", "usa"),
   value = -1
 )
 
@@ -27,14 +26,14 @@ partial <- ems_uniform_shock(
 qxs <- ems_swap(
   var = "qxs",
   COMMc = "MARG",
-  REGs = "chn"
+  REGs = c("chn", "usa"),
 )
 
 # prepare a partial closure swap making tfd subset endogenous
 txs <- ems_swap(
   var = "txs",
   COMMc = "MARG",
-  REGs = "chn"
+  REGs = c("chn", "usa"),
 )
 
 # set the output subdirectory name within write_dir
@@ -58,9 +57,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qxs[REGs == "chn" & COMMc == "svces"]$Value == -1
-endo1 <- outputs$dat$qxs[!(REGs == "chn" & COMMc == "svces")]$Value != 0
-endo2 <- outputs$dat$txs[REGs == "chn" & COMMc == "svces"]$Value != 0
-exo_null <- outputs$dat$txs[!(REGs == "chn" & COMMc == "svces")]$Value == 0
+exo_shk <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value == -1
+endo1 <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value != 0
+endo2 <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value != 0
+exo_null <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value == 0
 
 checks <- c(exo_shk, endo1, endo2, exo_null)

@@ -1,6 +1,6 @@
 #' @importFrom purrr map_lgl
 #' @importFrom tools file_path_sans_ext
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .in_situ_cmf <- function(input_files,
@@ -8,9 +8,16 @@
                          model_dir,
                          shock_file,
                          closure_file,
-                         writeout,
                          call) {
-  
+  input_files <- .check_named_dots(input_files)
+
+  if (isFALSE(input_files)) {
+    .cli_action(solve_err$no_input_names,
+      action = "abort",
+      call = call
+    )
+  }
+
   model_file <- .check_input(
     file = model_file,
     valid_ext = "tab",
@@ -19,10 +26,11 @@
 
   if (!dir.exists(model_dir)) {
     .cli_action(solve_err$no_model_dir,
-                action = "abort",
-                call = call)
+      action = "abort",
+      call = call
+    )
   }
-  
+
   shock_file <- .check_input(
     file = shock_file,
     valid_ext = "shf",
@@ -43,41 +51,39 @@
     model_dir = model_dir
   )
 
-  if (writeout) {
-    model <- .process_tablo(
-      tab_file = model_file,
-      quiet = TRUE,
+  model <- .process_tablo(
+    tab_file = model_file,
+    quiet = TRUE,
+    call = call
+  )
+
+  req_inputs <- setdiff(unique(model$file), NA)
+
+  if (!all(req_inputs %in% names(input_files))) {
+    missing_files <- setdiff(req_inputs, names(input_files))
+    .cli_action(solve_err$missing_insitu_inputs,
+      action = "abort",
       call = call
     )
-
-    req_inputs <- setdiff(unique(model$file), NA)
-
-    if (!all(req_inputs %in% names(input_files))) {
-      missing_files <- setdiff(req_inputs, names(input_files))
-      .cli_action(solve_err$missing_insitu_inputs,
-        action = "abort",
-        call = call
-      )
-    }
-
-    if (!all(purrr::map_lgl(input_files, file.exists))) {
-      nonexist_files <- input_files[!purrr::map_lgl(input_files, file.exists)]
-      .cli_action(solve_err$insitu_no_file,
-        action = "abort",
-      )
-    }
-
-    tab <- .finalize_tab(model = model)
-    .ems_write(
-      input = tab,
-      write_dir = model_dir
-    )
-    cmf_writeout <- .writeout(
-      model = model,
-      write_dir = model_dir
-    )
-    cmf <- c(cmf, cmf_writeout)
   }
+
+  if (!all(purrr::map_lgl(input_files, file.exists))) {
+    nonexist_files <- input_files[!purrr::map_lgl(input_files, file.exists)]
+    .cli_action(solve_err$insitu_no_file,
+      action = "abort",
+    )
+  }
+
+  tab <- .finalize_tab(model = model)
+  .ems_write(
+    input = tab,
+    write_dir = model_dir
+  )
+  cmf_writeout <- .writeout(
+    model = model,
+    write_dir = model_dir
+  )
+  cmf <- c(cmf, cmf_writeout)
 
   cmf_file <- paste0(tools::file_path_sans_ext(basename(model_file)), ".cmf")
   cmf_path <- file.path(model_dir, cmf_file)

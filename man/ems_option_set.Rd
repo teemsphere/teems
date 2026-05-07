@@ -6,20 +6,24 @@
 \usage{
 ems_option_set(
   verbose = NULL,
+  write_sub_dir = NULL,
   ndigits = NULL,
+  docker_tag = NULL,
+  accuracy_threshold = NULL,
   check_shock_status = NULL,
   timestep_header = NULL,
   n_timestep_header = NULL,
-  full_exclude = NULL,
-  docker_tag = NULL,
-  accuracy_threshold = NULL,
-  expand_ETRE = NULL,
-  write_sub_dir = NULL
+  full_exclude = NULL
 )
 }
 \arguments{
 \item{verbose}{Logical of length 1 (default is \code{TRUE}). If
 \code{FALSE}, function-specific diagnostics are silenced.}
+
+\item{write_sub_dir}{A character vector (default \code{"teems"}).
+Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a base
+directory for model files, \code{"write_sub_dir"} sets the name
+of the subdirectory within the base directory.}
 
 \item{ndigits}{Integer (default is \code{6}). Exact number of
 digits to the right of the decimal point to be written to
@@ -27,49 +31,32 @@ file for numeric type double (GEMPack equivalent "real").
 This value is passed to the \code{format()} nsmall argument and
 \code{round()} digits argument.}
 
+\item{docker_tag}{Character length 1 (default \code{"latest"}).
+Docker tag specifying which Docker image to use.}
+
+\item{accuracy_threshold}{Numeric length 1 (default \code{0.8}),
+converted to a percentage. 4-digit precision is compared
+against this threshold; a warning is generated if it is not
+met.}
+
 \item{check_shock_status}{Logical of length 1 (default is
 \code{TRUE}). If \code{FALSE}, no check on shock element
 endogenous/exogenous status is conducted.}
 
 \item{timestep_header}{A character vector length 1 (default is
 \code{"YEAR"}). Coefficient containing a numeric vector of
-timestep intervals. For novel intertemporal models - modify
+timestep intervals. For novel intertemporal models — modify
 with caution.}
 
 \item{n_timestep_header}{A character vector length 1 (default
 is \code{"NTSP"}). Coefficient containing a numeric vector length
 one with sum of timestep intervals. For novel intertemporal
-models - modify with caution.}
+models — modify with caution.}
 
-\item{full_exclude}{A character vector (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Specifies
-headers to fully exclude from all aspects of the model run.
-Failure to designate these headers properly will result in
-errors because some headers cannot be aggregated or mapped.
+\item{full_exclude}{A character vector (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers
+to fully exclude from all aspects of the model run. Failure
+to designate these headers properly will result in errors.
 Modify with caution.}
-
-\item{docker_tag}{Character length 1 (default \code{"latest"}).
-Docker tag to specify the which Docker image is use.}
-
-\item{accuracy_threshold}{Numeric length 1 (default 0.8),
-converted to a percentage. 4 digit precision will be
-compared against this threshold, generating a warning if it
-is not met.}
-
-\item{expand_ETRE}{Logical of length 1 (default \code{TRUE}). If
-\code{FALSE}, no expansion to the ETRE (ETRAE) data header are
-carried out. When \code{TRUE}, if ETRE header data does not
-contain the full endowment set, missing tuples will be added
-with value -1e-05. The sluggish endowment set will be
-replaced with the general endowment set. ETRE header
-elements are not consistent across databases regarding
-inclusion of non-sluggish endowments, leading to issues with
-the ETRAE coefficient which is read-in with the full set of
-endowments.}
-
-\item{write_sub_dir}{A character vector (default \code{"teems"}).
-Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a base
-directory for model files, \code{"write_sub_dir"} sets the name
-of the subdirectory within the base directory.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.
@@ -80,6 +67,5 @@ advanced options.
 }
 \seealso{
 \code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.
-
 \code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.
 }

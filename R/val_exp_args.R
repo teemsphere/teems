@@ -19,7 +19,6 @@
     dat_input = c("NULL", "character"),
     par_input = c("NULL", "character"),
     set_input = c("NULL", "character"),
-    target_format = c("NULL", "character"),
     write_dir = "character"
   )
 
@@ -33,6 +32,7 @@
 
   a$write_dir <- .check_write_dir(
     write_dir = a$write_dir,
+    append_subdir = FALSE,
     call = call
   )
 

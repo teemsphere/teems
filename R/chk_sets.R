@@ -7,7 +7,6 @@
                         set_ele,
                         model_dir,
                         set_path,
-                        minimal,
                         call) {
 
   sets <- .match_set_ele(
@@ -15,7 +14,7 @@
     setele_dt = set_ele
   )
 
-  if (!minimal) {
+  if (length(set_path) > 0) {
     tab_sets <- lapply(set_path, function(s) {
       utils::tail(utils::head(readLines(s), -1), -1)
     })

@@ -1,17 +1,14 @@
 #' Prepare closure swaps
 #'
-#' @description `ems_swap()` is a helper function that prepares
-#'   swaps, allowing for a change of endogenous/exogenous
-#'   variable status. If a swap is specified using this function,
-#'   the output is a required input to the `swap_in` or
-#'   `swap_out` arguments of the [`ems_deploy()`] function.
+#' Prepares a partial or full variable swap for use as `swap_in`
+#' or `swap_out` in [`ems_deploy()`].
 #'
 #' @param var Character of length 1, model variable to swap.
-#' @param ... One or more key-value pairs separated by commas,
-#'   where "SET" represents the standard set name and "i" denotes
-#'   the variable-specific index (see examples). Unspecified sets
-#'   default to all elements (i.e. the swap applies across the
-#'   full extent of those sets). Three forms are accepted:
+#' @param ... Optional named arguments restricting the swap to a
+#'   subset of the variable's elements. Each name must use the
+#'   model-specific set-index format (set name concatenated with
+#'   its index letter, e.g., `REGr`, `COMMc`). Unspecified sets
+#'   default to all elements. Three value forms are accepted:
 #'   * Single element: `SETi = "element"`
 #'   * Multiple elements: `SETi = c("element1", "element2")`
 #'   * Subset: `SETi = "SUBSET"`
@@ -28,8 +25,7 @@
 #'   `"swap_out"` arguments of [`ems_deploy()`].
 #'
 #' @seealso [`ems_model()`] for loading a model closure.
-#' @seealso [`ems_deploy()`] for loading the output of this
-#'   function.
+#'   [`ems_deploy()`] for loading the output of this function.
 #'
 #' @examples
 #' # Full variable swaps
@@ -72,9 +68,9 @@ ems_swap <- function(var,
 if (missing(var)) {
   .cli_missing(var)
 }
-call <- match.call()
 args_list <- mget(names(formals()))
 args_list$subset <- list(...)
+call <- match.call()
 swap <- .implement_swap(
   args_list = args_list,
   call = call

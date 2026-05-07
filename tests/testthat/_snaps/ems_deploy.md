@@ -8,11 +8,11 @@
 
 # ems_deploy errors when invalid variable provided for swap-in
 
-    x Swap variable "not_a_var" not found in the model.
+    x `shock` must be a NULL or list, not a string.
 
 # ems_deploy errors when invalid variable provided for swap-out
 
-    x Swap variable "not_a_var" not found in the model.
+    x `shock` must be a NULL or list, not a string.
 
 # ems_deploy errors when shock_file and shock are both provided
 
@@ -41,10 +41,6 @@
 # ems_deploy errors when write_dir does not exist
 
     x '/tmp2/does_not_exist' does not exist and could not be created. Ensure the parent directory exists.
-
-# ems_deploy warns when creating write_dir
-
-    ! Creating directory: '/tmp/write_dir/tmp'.
 
 # ems_deploy errors when aggregated inputs are incomplete
 

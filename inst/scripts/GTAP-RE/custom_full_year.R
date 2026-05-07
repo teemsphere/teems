@@ -8,8 +8,7 @@ time_steps <- year + c(0, 1, 2, 3)
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = time_steps,
-  target_format = target_format
+  time_steps = time_steps
 )
 
 # parse the model Tablo file and load the closure

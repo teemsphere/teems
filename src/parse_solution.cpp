@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <set>
+#include <numeric>
 #include <cstring>
 #include <cstdint>
 
@@ -52,8 +54,10 @@ struct hcge_cof {
   ha_floattype glval;
 };
 
+// --- parse_solution_meta: reads .mds, .var, .sel, .set (no .bin) ---
+
 [[cpp11::register]]
-cpp11::list parse_solution_bins(std::string path_prefix) {
+cpp11::list parse_solution_meta(std::string path_prefix) {
 
   // --- Read .mds file: 4 long ints ---
   std::string mds_path = path_prefix + "mds";
@@ -67,18 +71,7 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
 
   uvadd nsetspace = modeldes[0];
   uvadd nvar      = modeldes[1];
-  uvadd nvarele   = modeldes[2];
   uvadd nset      = modeldes[3];
-
-  // --- Read .bin file: nvarele doubles ---
-  std::string bin_path = path_prefix + "bin";
-  std::ifstream bin_file(bin_path, std::ios::binary);
-  if (!bin_file.is_open()) {
-    cpp11::stop("Cannot open .bin file: %s", bin_path.c_str());
-  }
-  cpp11::writable::doubles bin_vec(static_cast<R_xlen_t>(nvarele));
-  bin_file.read(reinterpret_cast<char*>(REAL(bin_vec)), sizeof(forreal) * nvarele);
-  bin_file.close();
 
   // --- Read .var file: nvar hcge_cof structs ---
   std::string var_path = path_prefix + "var";
@@ -90,6 +83,8 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
   var_file.read(reinterpret_cast<char*>(var_structs.data()),
                 sizeof(hcge_cof) * nvar);
   var_file.close();
+
+  using namespace cpp11::literals;
 
   cpp11::writable::strings var_cofname(static_cast<R_xlen_t>(nvar));
   cpp11::writable::doubles var_begadd(static_cast<R_xlen_t>(nvar));
@@ -129,7 +124,6 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
     var_antidims[i] = adim;
   }
 
-  using namespace cpp11::literals;
   cpp11::writable::list var_list(
     {"cofname"_nm = (SEXP)var_cofname,
      "begadd"_nm = (SEXP)var_begadd,
@@ -230,12 +224,155 @@ cpp11::list parse_solution_bins(std::string path_prefix) {
      "regsup"_nm = (SEXP)set_regsup}
   );
 
-  // --- Return combined list ---
   cpp11::writable::list result(
-    {"bin"_nm = (SEXP)bin_vec,
-     "var"_nm = (SEXP)var_list,
+    {"var"_nm = (SEXP)var_list,
      "sel"_nm = (SEXP)sel_list,
      "set"_nm = (SEXP)set_list}
+  );
+
+  return result;
+}
+
+// --- parse_solution_bins: reads .mds, .var, and .bin selectively ---
+// names_filter: character vector of variable names to extract.
+// Empty vector reads all variables.
+
+[[cpp11::register]]
+cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_filter) {
+
+  // --- Read .mds ---
+  std::string mds_path = path_prefix + "mds";
+  std::ifstream mds_file(mds_path, std::ios::binary);
+  if (!mds_file.is_open()) {
+    cpp11::stop("Cannot open .mds file: %s", mds_path.c_str());
+  }
+  uvadd modeldes[4];
+  mds_file.read(reinterpret_cast<char*>(modeldes), sizeof(uvadd) * 4);
+  mds_file.close();
+
+  uvadd nvar    = modeldes[1];
+  uvadd nvarele = modeldes[2];
+
+  // --- Read .var ---
+  std::string var_path = path_prefix + "var";
+  std::ifstream var_file(var_path, std::ios::binary);
+  if (!var_file.is_open()) {
+    cpp11::stop("Cannot open .var file: %s", var_path.c_str());
+  }
+  std::vector<hcge_cof> var_structs(nvar);
+  var_file.read(reinterpret_cast<char*>(var_structs.data()),
+                sizeof(hcge_cof) * nvar);
+  var_file.close();
+
+  // --- Determine selection ---
+  bool filter = (names_filter.size() > 0);
+  std::vector<R_xlen_t> sel_idx;
+
+  if (filter) {
+    std::set<std::string> name_set;
+    for (R_xlen_t k = 0; k < names_filter.size(); k++) {
+      name_set.insert(std::string(names_filter[k]));
+    }
+    for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nvar); i++) {
+      if (name_set.count(std::string(var_structs[i].cofname))) {
+        sel_idx.push_back(i);
+      }
+    }
+  } else {
+    sel_idx.resize(static_cast<size_t>(nvar));
+    std::iota(sel_idx.begin(), sel_idx.end(), 0);
+  }
+
+  // --- Read .bin selectively ---
+  uvadd total_ele = 0;
+  for (auto i : sel_idx) total_ele += var_structs[i].matsize;
+
+  std::string bin_path = path_prefix + "bin";
+  std::ifstream bin_file(bin_path, std::ios::binary);
+  if (!bin_file.is_open()) {
+    cpp11::stop("Cannot open .bin file: %s", bin_path.c_str());
+  }
+
+  cpp11::writable::doubles bin_vec(static_cast<R_xlen_t>(total_ele));
+
+  if (filter) {
+    R_xlen_t write_pos = 0;
+    for (auto i : sel_idx) {
+      uvadd beg = var_structs[i].begadd;
+      uvadd mat = var_structs[i].matsize;
+      bin_file.seekg(static_cast<std::streamoff>(beg) * sizeof(forreal),
+                     std::ios::beg);
+      bin_file.read(reinterpret_cast<char*>(REAL(bin_vec) + write_pos),
+                    sizeof(forreal) * mat);
+      write_pos += static_cast<R_xlen_t>(mat);
+    }
+  } else {
+    bin_file.read(reinterpret_cast<char*>(REAL(bin_vec)),
+                  sizeof(forreal) * nvarele);
+  }
+  bin_file.close();
+
+  // --- Build filtered var arrays ---
+  R_xlen_t nsel = static_cast<R_xlen_t>(sel_idx.size());
+
+  using namespace cpp11::literals;
+
+  cpp11::writable::strings var_cofname(nsel);
+  cpp11::writable::doubles var_begadd(nsel);
+  cpp11::writable::integers var_size(nsel);
+  cpp11::writable::doubles var_matsize(nsel);
+  cpp11::writable::integers var_level_par(nsel);
+  cpp11::writable::integers var_change_real(nsel);
+  cpp11::writable::integers var_suplval(nsel);
+  cpp11::writable::integers var_gltype(nsel);
+  cpp11::writable::doubles var_glval(nsel);
+  cpp11::writable::strings var_setid(nsel);
+  cpp11::writable::strings var_antidims(nsel);
+
+  for (R_xlen_t j = 0; j < nsel; j++) {
+    R_xlen_t i = sel_idx[j];
+    var_cofname[j] = std::string(var_structs[i].cofname);
+    var_begadd[j]  = static_cast<double>(var_structs[i].begadd);
+    var_size[j]    = var_structs[i].size;
+    var_matsize[j] = static_cast<double>(var_structs[i].matsize);
+    var_level_par[j]   = static_cast<int>(var_structs[i].level_par);
+    var_change_real[j] = static_cast<int>(var_structs[i].change_real);
+    var_suplval[j]     = static_cast<int>(var_structs[i].suplval);
+    var_gltype[j]      = var_structs[i].gltype;
+    var_glval[j]       = static_cast<double>(var_structs[i].glval);
+
+    std::string sid;
+    for (int k = 0; k < MAXVARDIM; k++) {
+      if (k > 0) sid += ",";
+      sid += std::to_string(var_structs[i].setid[k]);
+    }
+    var_setid[j] = sid;
+
+    std::string adim;
+    for (int k = 0; k < MAXVARDIM; k++) {
+      if (k > 0) adim += ",";
+      adim += std::to_string(var_structs[i].antidims[k]);
+    }
+    var_antidims[j] = adim;
+  }
+
+  cpp11::writable::list var_list(
+    {"cofname"_nm = (SEXP)var_cofname,
+     "begadd"_nm = (SEXP)var_begadd,
+     "size"_nm = (SEXP)var_size,
+     "setid"_nm = (SEXP)var_setid,
+     "antidims"_nm = (SEXP)var_antidims,
+     "matsize"_nm = (SEXP)var_matsize,
+     "level_par"_nm = (SEXP)var_level_par,
+     "change_real"_nm = (SEXP)var_change_real,
+     "suplval"_nm = (SEXP)var_suplval,
+     "gltype"_nm = (SEXP)var_gltype,
+     "glval"_nm = (SEXP)var_glval}
+  );
+
+  cpp11::writable::list result(
+    {"bin"_nm = (SEXP)bin_vec,
+     "var"_nm = (SEXP)var_list}
   );
 
   return result;

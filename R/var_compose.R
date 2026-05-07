@@ -9,7 +9,6 @@
                          vars,
                          sets,
                          time_steps,
-                         minimal,
                          call) {
   
   vars$setid <- strsplit(vars$setid, split = ",")
@@ -71,83 +70,79 @@
 
   names(data_dt) <- vars$cofname
 
-  if (minimal) {
-    return(data_dt)
-  } else {
-    var_extract$ls_upper_idx <- ifelse(is.na(var_extract$ls_upper_idx),
-      "null_set",
-      var_extract$ls_upper_idx
+  var_extract$ls_upper_idx <- ifelse(is.na(var_extract$ls_upper_idx),
+    "null_set",
+    var_extract$ls_upper_idx
+  )
+
+  lax_check <- all(unlist(purrr::map2(
+    var_extract$ls_upper_idx,
+    purrr::map(data_dt, colnames),
+    function(check, parsed) {
+      all(is.element(tolower(check), tolower(parsed[parsed != "Value"])))
+    }
+  )))
+  if (!lax_check) {
+    .cli_action(compose_err$lax_check,
+      action = "abort",
+      .internal = TRUE,
+      call = call
     )
-
-    lax_check <- all(unlist(purrr::map2(
-      var_extract$ls_upper_idx,
-      purrr::map(data_dt, colnames),
-      function(check, parsed) {
-        all(is.element(check, parsed[parsed != "Value"]))
-      }
-    )))
-    if (!lax_check) {
-      .cli_action(compose_err$lax_check,
-        action = "abort",
-        .internal = TRUE,
-        call = call
-      )
-    }
-
-    strict_check <- all(unlist(purrr::map2(
-      var_extract$ls_upper_idx,
-      purrr::map(data_dt, colnames),
-      function(check, parsed) {
-        all(check == parsed[parsed != "Value"])
-      }
-    )))
-    if (!strict_check) {
-      .cli_action(compose_err$strict_check,
-        action = "abort",
-        .internal = TRUE,
-        call = call
-      )
-    }
-
-    if (!all(names(data_dt) == tolower(var_extract$name))) {
-      .cli_action(compose_err$var_check,
-        action = "abort",
-        call = call
-      )
-    }
-
-    purrr::map2(
-      data_dt,
-      var_extract$ls_mixed_idx,
-      function(dt, mixed_col) {
-        if (mixed_col %!=% NA_character_) {
-          data.table::setnames(dt, new = c(mixed_col, "Value"))
-          data.table::setkeyv(dt, cols = mixed_col)
-        } else {
-          dt[, let(null_set = NULL)]
-        }
-      }
-    )
-
-    r_idx <- match(names(data_dt), tolower(var_extract$name))
-
-    var_tib <- tibble::tibble(
-      name = var_extract$name[r_idx],
-      label = var_extract$label[r_idx],
-      dat = data_dt
-    )
-
-    names(var_tib$dat) <- var_tib$name
-
-    if (!is.null(time_steps)) {
-      var_tib$dat <- lapply(var_tib$dat,
-        FUN = .match_year,
-        sets = sets$sets,
-        time_steps = time_steps
-      )
-    }
-
-    var_tib <- tibble::add_column(var_tib, type = "variable", .after = "label")
-    return(var_tib)
   }
+
+  strict_check <- all(unlist(purrr::map2(
+    var_extract$ls_upper_idx,
+    purrr::map(data_dt, colnames),
+    function(check, parsed) {
+      all(tolower(check) == tolower(parsed[parsed != "Value"]))
+    }
+  )))
+  if (!strict_check) {
+    .cli_action(compose_err$strict_check,
+      action = "abort",
+      .internal = TRUE,
+      call = call
+    )
+  }
+
+  if (!all(names(data_dt) == tolower(var_extract$name))) {
+    .cli_action(compose_err$var_check,
+      action = "abort",
+      call = call
+    )
+  }
+
+  purrr::map2(
+    data_dt,
+    var_extract$ls_mixed_idx,
+    function(dt, mixed_col) {
+      if (mixed_col %!=% NA_character_) {
+        data.table::setnames(dt, new = c(mixed_col, "Value"))
+        data.table::setkeyv(dt, cols = mixed_col)
+      } else {
+        dt[, let(null_set = NULL)]
+      }
+    }
+  )
+
+  r_idx <- match(names(data_dt), tolower(var_extract$name))
+
+  var_tib <- tibble::tibble(
+    name = var_extract$name[r_idx],
+    label = var_extract$label[r_idx],
+    dat = data_dt
+  )
+
+  names(var_tib$dat) <- var_tib$name
+
+  if (!is.null(time_steps)) {
+    var_tib$dat <- lapply(var_tib$dat,
+      FUN = .match_year,
+      sets = sets$sets,
+      time_steps = time_steps
+    )
+  }
+
+  var_tib <- tibble::add_column(var_tib, type = "variable", .after = "label")
+  return(var_tib)
 }

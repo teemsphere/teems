@@ -2,19 +2,11 @@
 #' 
 #' @keywords internal
 #' @noRd
-.implement_model <- function(...,
-                             args_list,
+.implement_model <- function(args_list,
                              call) {
-  checklist <- list(
-    model_file = "character",
-    closure_file = "character",
-    var_omit = c("NULL", "character")
-  )
 
-  args_list$... <- NULL
   v <- .validate_model_args(
     a = args_list,
-    checklist = checklist,
     call = call
   )
 
@@ -28,10 +20,9 @@
     model_summary <- attr(model, "model_summary")
   }
 
-  if (length(list(...)) > 0L) {
-    mod_coeff <- list(...)
+  if (v$mod_coeff %!=% NA) {
     model <- .coeff_mod(
-      mod_coeff = mod_coeff,
+      mod_coeff = v$mod_coeff,
       model = model,
       call = call
     )

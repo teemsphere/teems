@@ -3,16 +3,15 @@ ems_option_set(verbose = FALSE)
 
 data_db <- c("v9", "v10", "v11", "v12")
 db_inputs <- list(
-  v9  = list(dat = Sys.getenv("GTAP9_dat"),   par = Sys.getenv("GTAP9_par"),   set = Sys.getenv("GTAP9_set")),
-  v10 = list(dat = Sys.getenv("GTAP10A_dat"),  par = Sys.getenv("GTAP10A_par"),  set = Sys.getenv("GTAP10A_set")),
-  v11 = list(dat = Sys.getenv("GTAP11c_dat"),  par = Sys.getenv("GTAP11c_par"),  set = Sys.getenv("GTAP11c_set")),
-  v12 = list(dat = Sys.getenv("GTAP12_dat"),  par = Sys.getenv("GTAP12_par"),  set = Sys.getenv("GTAP12_set"))
+  v9  = list(dat = Sys.getenv("GTAP9_dat"), par = Sys.getenv("GTAP9_par"), set = Sys.getenv("GTAP9_set")),
+  v10 = list(dat = Sys.getenv("GTAP10A_dat"), par = Sys.getenv("GTAP10A_par"), set = Sys.getenv("GTAP10A_set")),
+  v11 = list(dat = Sys.getenv("GTAP11c_dat"), par = Sys.getenv("GTAP11c_par"), set = Sys.getenv("GTAP11c_set")),
+  v12 = list(dat = Sys.getenv("GTAP12_dat"), par = Sys.getenv("GTAP12_par"), set = Sys.getenv("GTAP12_set"))
 )
 
 model <- "GTAPv7"
 model_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"))
 model_files <- ems_example(model, write_dir = model_dir)
-model_files <- ems_example(model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -22,14 +21,15 @@ for (db in data_db) {
   set_input <- db_inputs[[db]]$set
 
   if (db %in% c("v9", "v10")) {
-    target_format <- "GTAPv7"
-  } else {
-    target_format <- NULL
+    v6_data <- GTAP_convert(dat_input, par_input, set_input, "GTAPv6", "GTAPv7")
+    dat_input <- v6_data$dat
+    par_input <- v6_data$par
+    set_input <- v6_data$set
   }
 
   write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), db, model)
 
-  if (dir.exists(write_dir)) { 
+  if (dir.exists(write_dir)) {
     unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
   } else {
     dir.create(write_dir, recursive = TRUE)
@@ -123,6 +123,11 @@ for (db in data_db) {
         "afs", "atp", "cmn", "cns", "crops", "dwe", "edu", "food", "hht", "ins",
         "livestock", "mnfcs", "obs", "ofi", "osg", "otp", "ros", "rsa", "trd",
         "whs", "wtp", "wtr"
+      ),
+      "v12" = c(
+        "afs", "atp", "cmn", "cns", "crops", "dwe", "edu", "food", "hht", "ins",
+        "livestock", "mnfcs", "obs", "ofi", "osg", "otp", "ros", "rsa", "trd",
+        "whs", "wtp", "wtr"
       )
     )
     run_script(file.path(model, "custom_partial_4d_k3.R"))
@@ -138,5 +143,4 @@ for (db in data_db) {
     run_script(file.path(model, "custom_full_csv.R"))
     expect_all_true(checks)
   })
-
 }

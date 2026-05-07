@@ -45,12 +45,9 @@
       ems_solve(cmf_path = cmf_path, terminal_run = TRUE)
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      1. Run the following command in your OS terminal: docker run --rm --mount
-      type=bind,src=/home/mpc/.local/share/R/teems/deploy/solve_info_terminal,dst=/opt/teems
-      teems:latest /bin/bash -c "/opt/teems-solver/lib/mpi/bin/mpiexec -n 1
-      /opt/teems-solver/solver/hsl -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -regset
-      REG -nsubints 1 -solmed Johansen -nesteddbbd 0 -presol 1 -laA 300 -laDi 500
-      -laD 200 -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=/home/mpc/.local/share/R/teems/deploy/solve_info_terminal,dst=/opt/teems teems:latest /bin/bash -c "/opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/hsl -cmdfile /opt/teems/GTAPv7.cmf -matsol 0  -regset REG  -nsubints 1 -solmed Johansen -nesteddbbd 0 -presol 1 -laA 300 -laDi 500 -laD 200 -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      
+      1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is
       possible to stop the relevant hsl process early according to your OS-specific
       system activity monitor.

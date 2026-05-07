@@ -13,7 +13,7 @@ build_shk_err <- function() {
     ),
     # test-ems_uniform_shock.R: "ems_uniform_shock subsets are provided as named lists"
     uni_named_lst = c(
-      "Subset arguments in {.arg ...} must be named pairs: {.code SETi = \"set_element\"} or {.code SETi = c(\"set_element1\", \"set_element2\")}.",
+      "Subset arguments in {.arg ...} must be named pairs: {.code SETi = \"component\"}.",
       "Note that set names consist of the concatenation of the set name and variable-specific lowercase index.",
       "Call: {.code {deparse(call)}}"
     ),

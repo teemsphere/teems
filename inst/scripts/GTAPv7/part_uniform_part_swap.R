@@ -5,8 +5,7 @@
   set_input = set_input,
   REG = "big3",
   ACTS = "macro_sector",
-  ENDW = "labor_agg",
-  target_format = target_format
+  ENDW = "labor_agg"
 )
 
 # parse the model Tablo file and load the closure

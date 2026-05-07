@@ -2,58 +2,46 @@
 % Please edit documentation in R/ems_shock_cstm.R
 \name{ems_custom_shock}
 \alias{ems_custom_shock}
-\title{Load custom shock}
+\title{Prepare a custom shock}
 \usage{
-ems_custom_shock(var, input, ...)
+ems_custom_shock(var, input)
 }
 \arguments{
 \item{var}{Character of length 1, the variable to be shocked.}
 
-\item{input}{character length 1, path to a csv file; a data
-frame or data frame extension (e.g., tibble, data table).
-Must contain "Value" as last column representing
-percentage-change shocks to each respective tuple.}
-
-\item{...}{These dots are for future extensions and must be empty.}
+\item{input}{Path to a CSV file, or a data frame or data frame
+extension (e.g., tibble, data.table). Must contain one
+column named \code{"Value"} with the percentage-change shock for
+each tuple, plus one column per set index for the variable.
+Note that set names must conform to the model-specific
+hybrid format (e.g., \code{ACTSa}, \code{REGr}). Column order is
+inconsequential.}
 }
 \value{
-A \code{list} object to be passed to the \code{shock} argument of
-\code{\link[=ems_deploy]{ems_deploy()}}.
+A \code{list} object with shock configuration to be passed
+to the \code{shock} argument of \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_custom_shock()} loads custom shocks for
-processing as well as conducts a series of compatibility
-checks. A custom shock is one which allows for granular
-control over heterogeneous shocks that are allocated on a
-tuple-specific basis, inputted as a CSV file or dataframe
-(or dataframe equivalent) through \code{"input"}.  The accepted
-set values within \code{"input"} depend on the \code{"var"} specified
-and set mappings associated with this variable. If a custom
-shock is to be carried out, the output of this function is a
-required input to the \code{"shock"} argument within the
-\code{\link[=ems_deploy]{ems_deploy()}} function.
+Prepares heterogeneous percentage-change shocks
+specified on a tuple-by-tuple basis. Only the tuples present
+in \code{input} are shocked.
 }
 \examples{
-REGr <- c("asia", "eit", "lam", "maf", "oecd")
-ACTSa <- c("svces", "food", "crops", "mnfcs", "livestock")
-ALLTIMEt <- c(0, 1, 2, 3, 4, 5)
+sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
+regions <- c("asia", "eit", "lam", "maf", "oecd")
+time_steps <- 0:5
 
-aoall <- expand.grid(ACTSa = ACTSa,
-                     REGr = REGr,
-                     ALLTIMEt = ALLTIMEt,
+aoall <- expand.grid(ACTSa = sectors,
+                     REGr = regions,
+                     ALLTIMEt = time_steps,
                      stringsAsFactors = FALSE)
 
 aoall <- aoall[do.call(order, aoall), ]
 aoall$Value <- runif(nrow(aoall))
-aoall_shk <- ems_custom_shock(
- var = "aoall",
- input = aoall)
-
+aoall_shk <- ems_custom_shock("aoall", aoall)
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
-function.
-
-\code{\link[=ems_swap]{ems_swap()}} for changing the standard model
+function, \code{\link[=ems_swap]{ems_swap()}} for changing the standard model
 closure.
 }

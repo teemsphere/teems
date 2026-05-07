@@ -62,7 +62,8 @@ build_model_err <- function() {
     ele_invalid = "The closure entry tuple {.field {cls_entry}} is invalid under the current set mapping.",
     # test-ems_model.R: "ems_model errors when invalid closure subset entry present preswap"
     subset_invalid = c("Some subsets in {.field {cls_entry}} do not belong to {.field {var_name}}.",
-                       "Parent sets include: {.field {var_sets}}.")
+                       "Parent sets include: {.field {var_sets}}."),
+    no_name_coeff = "Coefficients to modify must be passed as named pairs: {.code RDLT = 1}."
     )
 }
 

@@ -1,4 +1,4 @@
-#' @importFrom purrr map2
+#' @importFrom purrr map2_chr
 #' 
 #' @keywords internal
 #' @noRd
@@ -19,18 +19,18 @@
   )
   paths <- file.path(v$write_dir, c(model_file, closure_file))
   names(paths) <- c("model_file", "closure_file")
-
+  
   if (v$type %=% "scripts") {
     dir <- system.file(file.path("scripts", v$model), package = "teems", mustWork = TRUE)
     scripts <- list.files(dir, full.names = TRUE)
+    scripts <- scripts[!grepl(paste0(2:5, "d", collapse = "|"), scripts)]
     templates <- lapply(scripts, readLines)
-    paths <- purrr::map2(templates,
+    paths <- purrr::map2_chr(templates,
       scripts,
       .inject_script,
       dat_input = v$dat_input,
       par_input = v$par_input,
       set_input = v$set_input,
-      target_format = v$target_format,
       write_dir = v$write_dir,
       model_file = paths[["model_file"]],
       closure_file = paths[["closure_file"]]

@@ -5,21 +5,38 @@ withr::defer(ems_option_reset())
 
 temp_dir <- withr::local_tempdir()
 
-data_dir <- "~/src/teems/teems_dat"
-dat_input <- file.path(data_dir, "gsdfdat.har")
-par_input <- file.path(data_dir, "gsdfpar.har")
-set_input <- file.path(data_dir, "gsdfset.har")
+dat_input <- Sys.getenv("GTAP12_dat")
+par_input <- Sys.getenv("GTAP12_par")
+set_input <- Sys.getenv("GTAP12_set")
 
-# --- error tests ---
+write_dir <- file.path(tools::R_user_dir("teems", "data"), "example")
+
+if (dir.exists(write_dir)) {
+  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(write_dir, recursive = TRUE)
+}
+
 
 test_that("ems_example errors when model is missing", {
   expect_snapshot_error(ems_example())
 })
 
-test_that("ems_example warns when write_dir does not exist", {
+test_that("ems_example errors when write_dir parent dir does not exist", {
   write_dir <- file.path(tools::R_user_dir("teems", "cache"), "nonexistent_dir_xyz")
+  parent_dir <- dirname(write_dir)
+  if (dir.exists(parent_dir)) {
+    unlink(parent_dir, recursive = TRUE)
+  }
+  expect_snapshot_error(
+    ems_example("GTAPv7", write_dir = write_dir)
+  )
+})
+
+test_that("ems_example warns when write_dir does not exist", {
+  write_dir <- file.path(write_dir, "nonexistent_dir_xyz")
   if (dir.exists(write_dir)) {
-  unlink(write_dir, recursive = TRUE)
+    unlink(write_dir)
   }
   expect_snapshot_warning(
     ems_example("GTAPv7", write_dir = write_dir)
@@ -28,22 +45,28 @@ test_that("ems_example warns when write_dir does not exist", {
 
 test_that("ems_example errors when type is scripts and dat_input is missing", {
   expect_snapshot_error(
-    ems_example("GTAPv7", write_dir = temp_dir, type = "scripts",
-                par_input = par_input, set_input = set_input)
+    ems_example("GTAPv7",
+      write_dir = temp_dir, type = "scripts",
+      par_input = par_input, set_input = set_input
+    )
   )
 })
 
 test_that("ems_example errors when type is scripts and par_input is missing", {
   expect_snapshot_error(
-    ems_example("GTAPv7", write_dir = temp_dir, type = "scripts",
-                dat_input = dat_input, set_input = set_input)
+    ems_example("GTAPv7",
+      write_dir = temp_dir, type = "scripts",
+      dat_input = dat_input, set_input = set_input
+    )
   )
 })
 
 test_that("ems_example errors when type is scripts and set_input is missing", {
   expect_snapshot_error(
-    ems_example("GTAPv7", write_dir = temp_dir, type = "scripts",
-                dat_input = dat_input, par_input = par_input)
+    ems_example("GTAPv7",
+      write_dir = temp_dir, type = "scripts",
+      dat_input = dat_input, par_input = par_input
+    )
   )
 })
 
@@ -95,29 +118,26 @@ test_that("ems_example returns list for GTAP-RE", {
   expect_true(file.exists(result[["model_file"]]))
 })
 
-# --- acceptance tests: scripts type ---
-
 test_that("ems_example scripts type returns list of script paths for GTAPv7", {
   result <- ems_example(
     "GTAPv7",
-    write_dir = temp_dir,
-    type = "scripts",
-    dat_input = dat_input,
-    par_input = par_input,
-    set_input = set_input
+    "scripts",
+    dat_input,
+    par_input,
+    set_input,
+    temp_dir
   )
-  expect_type(result, "list")
-  expect_true(length(result) > 0)
+  expect_type(result, "character")
 })
 
 test_that("ems_example scripts type writes files that exist", {
   result <- ems_example(
     "GTAPv7",
-    write_dir = temp_dir,
-    type = "scripts",
-    dat_input = dat_input,
-    par_input = par_input,
-    set_input = set_input
+    "scripts",
+    dat_input,
+    par_input,
+    set_input,
+    temp_dir
   )
   expect_true(all(file.exists(unlist(result))))
 })

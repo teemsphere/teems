@@ -44,10 +44,6 @@ test_that("ems_option_get returns numeric for accuracy_threshold", {
   expect_type(ems_option_get("accuracy_threshold"), "double")
 })
 
-test_that("ems_option_get returns logical for expand_ETRE", {
-  expect_type(ems_option_get("expand_ETRE"), "logical")
-})
-
 test_that("ems_option_get returns character for write_sub_dir", {
   expect_type(ems_option_get("write_sub_dir"), "character")
 })

@@ -8,8 +8,7 @@ time_steps <- year + c(0, 1, 2, 3)
   REG = "big3",
   PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
-  time_steps = time_steps,
-  target_format = target_format
+  time_steps = time_steps
 )
 
 # parse the model Tablo file and load the closure
@@ -25,8 +24,7 @@ pop <- ems_data(
   set_input = set_input,
   REG = "full",
   PROD_COMM = "macro_sector",
-  ENDW_COMM = "labor_agg",
-  target_format = target_format
+  ENDW_COMM = "labor_agg"
 )$POP
 
 # tag base year rows with reference year, create placeholder rows for future timesteps, and combine

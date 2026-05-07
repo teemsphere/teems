@@ -17,7 +17,6 @@ options_class <- R6::R6Class(
     full_exclude = NULL,
     docker_tag = NULL,
     accuracy_threshold = NULL,
-    expand_ETRE = NULL,
     write_sub_dir = NULL,
 
     # Initialize method
@@ -29,7 +28,6 @@ options_class <- R6::R6Class(
                           full_exclude = NULL,
                           docker_tag = NULL,
                           accuracy_threshold = NULL,
-                          expand_ETRE = NULL,
                           write_sub_dir = NULL) {
       self$verbose <- verbose
       self$ndigits <- ndigits
@@ -39,7 +37,6 @@ options_class <- R6::R6Class(
       self$full_exclude <- full_exclude
       self$docker_tag <- docker_tag
       self$accuracy_threshold <- accuracy_threshold
-      self$expand_ETRE <- expand_ETRE
       self$write_sub_dir <- write_sub_dir
     },
     
@@ -54,7 +51,6 @@ options_class <- R6::R6Class(
         full_exclude = self$get_full_exclude(),
         docker_tag = self$get_docker_tag(),
         accuracy_threshold = self$get_accuracy_threshold(),
-        expand_ETRE = self$get_expand_ETRE(),
         write_sub_dir = self$get_write_sub_dir()
       )
     },
@@ -69,7 +65,6 @@ options_class <- R6::R6Class(
       self$set_full_exclude(list$full_exclude)
       self$set_docker_tag(list$docker_tag)
       self$set_accuracy_threshold(list$accuracy_threshold)
-      self$set_expand_ETRE(list$expand_ETRE)
       self$set_write_sub_dir(list$write_sub_dir)
     },
     
@@ -83,7 +78,6 @@ options_class <- R6::R6Class(
       self$full_exclude <- NULL
       self$docker_tag <- NULL
       self$accuracy_threshold <- NULL
-      self$expand_ETRE <- NULL
       self$write_sub_dir <- NULL
     },
     
@@ -118,10 +112,6 @@ options_class <- R6::R6Class(
 
     get_accuracy_threshold = function() {
       self$accuracy_threshold %|||% 0.8
-    },
-    
-    get_expand_ETRE = function() {
-      self$expand_ETRE %|||% TRUE
     },
     
     get_write_sub_dir = function() {
@@ -167,11 +157,6 @@ options_class <- R6::R6Class(
     set_accuracy_threshold = function(accuracy_threshold) {
       self$validate_accuracy_threshold(accuracy_threshold)
       self$accuracy_threshold <- accuracy_threshold
-    },
-
-    set_expand_ETRE = function(expand_ETRE) {
-      self$validate_expand_ETRE(expand_ETRE)
-      self$expand_ETRE <- expand_ETRE
     },
 
     set_write_sub_dir = function(write_sub_dir) {
@@ -228,12 +213,6 @@ options_class <- R6::R6Class(
       }
     },
     
-    validate_expand_ETRE = function(expand_ETRE) {
-      if (!is.logical(expand_ETRE) || length(expand_ETRE) != 1 || is.na(expand_ETRE)) {
-        cli::cli_abort("{.arg expand_ETRE} must be TRUE or FALSE.")
-      }
-    },
-    
     validate_write_sub_dir = function(write_sub_dir) {
       if (!is.character(write_sub_dir) || length(write_sub_dir) != 1) {
         cli::cli_abort("{.arg write_sub_dir} must be a character vector length 1")
@@ -250,7 +229,6 @@ options_class <- R6::R6Class(
       self$validate_full_exclude(self$get_full_exclude())
       self$validate_docker_tag(self$get_docker_tag())
       self$validate_accuracy_threshold(self$get_accuracy_threshold())
-      self$validate_expand_ETRE(self$get_expand_ETRE())
       self$validate_write_sub_dir(self$get_write_sub_dir())
     }
   )
@@ -267,7 +245,6 @@ options_new <- function(verbose = NULL,
                         full_exclude = NULL,
                         docker_tag = NULL,
                         accuracy_threshold = NULL,
-                        expand_ETRE = NULL,
                         write_sub_dir = NULL) {
   options_class$new(
     verbose = verbose,
@@ -278,7 +255,6 @@ options_new <- function(verbose = NULL,
     full_exclude = full_exclude,
     docker_tag = docker_tag,
     accuracy_threshold = accuracy_threshold,
-    expand_ETRE = expand_ETRE,
     write_sub_dir = write_sub_dir
   )
 }

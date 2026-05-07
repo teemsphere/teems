@@ -6,7 +6,6 @@
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  target_format = target_format,
   time_steps = time_steps
 )
 
@@ -20,7 +19,7 @@ model <- ems_model(
 partial <- ems_uniform_shock(
   var = "qxs",
   COMMc = "MARG",
-  REGs = "chn",
+  REGs = c("chn", "usa"),
   ALLTIMEt = "FWDTIME",
   value = -1
 )
@@ -29,7 +28,7 @@ partial <- ems_uniform_shock(
 qxs <- ems_swap(
   var = "qxs",
   COMMc = "MARG",
-  REGs = "chn",
+  REGs = c("chn", "usa"),
   ALLTIMEt = "FWDTIME"
 )
 
@@ -37,7 +36,7 @@ qxs <- ems_swap(
 txs <- ems_swap(
   var = "txs",
   COMMc = "MARG",
-  REGs = "chn",
+  REGs = c("chn", "usa"),
   ALLTIMEt = "FWDTIME"
 )
 
@@ -62,9 +61,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qxs[REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value == -1
-endo1 <- outputs$dat$qxs[!(REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
-endo2 <- outputs$dat$txs[REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value != 0
-exo_null <- outputs$dat$txs[!(REGs == "chn" & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
+exo_shk <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value == -1
+endo1 <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
+endo2 <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value != 0
+exo_null <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
 
 checks <- c(exo_shk, endo1, endo2, exo_null)

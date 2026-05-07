@@ -5,8 +5,7 @@
   set_input = set_input,
   REG = "big3",
   PROD_COMM = "macro_sector",
-  ENDW_COMM = "labor_agg",
-  target_format = target_format
+  ENDW_COMM = "labor_agg"
 )
 
 # parse the model Tablo file and load the closure
@@ -18,7 +17,7 @@ model <- ems_model(
 # define a uniform shock on a subset of qfd elements
 partial <- ems_uniform_shock(
   var = "qfd",
-  REGs = "usa",
+  REGs = c("usa", "chn"),
   PROD_COMMj = "TRAD_COMM",
   value = -1
 )
@@ -26,14 +25,14 @@ partial <- ems_uniform_shock(
 # prepare a partial closure swap making qfd subset exogenous
 qfd <- ems_swap(
   var = "qfd",
-  REGs = "usa",
+  REGs = c("usa", "chn"),
   PROD_COMMj = "TRAD_COMM"
 )
 
 # prepare a partial closure swap making tfd subset endogenous
 tfd <- ems_swap(
   var = "tfd",
-  REGr = "usa",
+  REGr = c("usa", "chn"),
   PROD_COMMj = "TRAD_COMM"
 )
 
@@ -58,9 +57,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[(REGs == "usa" & PROD_COMMj != "cgds")]$Value == -1
-endo1 <- outputs$dat$qfd[(REGs != "usa" & PROD_COMMj == "cgds")]$Value != 0
-endo2 <- outputs$dat$tfd[(REGr == "usa" & PROD_COMMj != "cgds")]$Value != 0
-exo_null <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj == "cgds"]$Value == 0
+exo_shk <- outputs$dat$qfd[(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value == -1
+endo1 <- outputs$dat$qfd[(!REGs %in% c("usa", "chn") & PROD_COMMj == "cgds")]$Value != 0
+endo2 <- outputs$dat$tfd[(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
+exo_null <- outputs$dat$tfd[REGr %in% c("usa", "chn") & PROD_COMMj == "cgds"]$Value == 0
 
 checks <- c(exo_shk, endo1, endo2, exo_null)

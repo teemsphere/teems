@@ -3,9 +3,9 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset())
 
-dat_input <- Sys.getenv("GTAP11c_dat")
-par_input <- Sys.getenv("GTAP11c_par")
-set_input <- Sys.getenv("GTAP11c_set")
+dat_input <- Sys.getenv("GTAP12_dat")
+par_input <- Sys.getenv("GTAP12_par")
+set_input <- Sys.getenv("GTAP12_set")
 
 # general test data
 static_data <- ems_data(
@@ -169,7 +169,7 @@ test_that("ems_solve returns the same output across static matrix methods", {
   expect_true(check)
 })
 
-test_that("ems_solve returns the same output across static matrix methods", {
+test_that("ems_solve returns the same output across dynamic matrix methods", {
   ems_option_set(write_sub_dir = "solve_dynamic_method")
   numeraire <- ems_uniform_shock(
     var = "pfactwld",
@@ -201,5 +201,6 @@ test_that("ems_solve returns the same output across static matrix methods", {
   
   LU_SBBD_check <- all.equal(LU, SBBD, tolerance = 1e-4)
   LU_NDBBD_check <- all.equal(LU, NDBBD, tolerance = 1e-4)
-  expect_all_true(check1, check2)
+  check <- c(LU_SBBD_check, LU_NDBBD_check)
+  expect_all_true(check)
 })

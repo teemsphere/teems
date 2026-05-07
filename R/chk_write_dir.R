@@ -1,6 +1,7 @@
 #' @keywords internal
 #' @noRd
 .check_write_dir <- function(write_dir,
+                             append_subdir = TRUE,
                              call) {
   subdir <- .o_write_sub_dir()
 
@@ -29,7 +30,11 @@
     )
   }
 
-  sub_path <- file.path(write_dir, subdir)
+  if (append_subdir) {
+    sub_path <- file.path(write_dir, subdir)
+  } else {
+    sub_path <- write_dir
+  }
 
   if (dir.exists(sub_path)) {
     existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)

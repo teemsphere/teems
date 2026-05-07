@@ -70,6 +70,7 @@
     }
     
     if (classes[1] %=% "ETRE") {
+      input <- input[tolower(names(input)) %in% tolower(c(i_data$ENDS, i_data$ENDF))]
       input[which(tolower(names(input)) == "natlres")] <- -1e-3
     }
 

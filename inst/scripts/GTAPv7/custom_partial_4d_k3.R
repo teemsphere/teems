@@ -13,8 +13,7 @@
   set_input = set_input,
   REG = "big3",
   ACTS = "services",
-  ENDW = "labor_agg",
-  target_format = target_format
+  ENDW = "labor_agg"
 )
 
 model <- ems_model(

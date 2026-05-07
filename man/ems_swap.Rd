@@ -9,11 +9,11 @@ ems_swap(var, ...)
 \arguments{
 \item{var}{Character of length 1, model variable to swap.}
 
-\item{...}{One or more key-value pairs separated by commas,
-where "SET" represents the standard set name and "i" denotes
-the variable-specific index (see examples). Unspecified sets
-default to all elements (i.e. the swap applies across the
-full extent of those sets). Three forms are accepted:
+\item{...}{Optional named arguments restricting the swap to a
+subset of the variable's elements. Each name must use the
+model-specific set-index format (set name concatenated with
+its index letter, e.g., \code{REGr}, \code{COMMc}). Unspecified sets
+default to all elements. Three value forms are accepted:
 \itemize{
 \item Single element: \code{SETi = "element"}
 \item Multiple elements: \code{SETi = c("element1", "element2")}
@@ -26,11 +26,8 @@ or\code{"multi"} containing the swap specification. Intended for
 use as \code{swap_in} or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_swap()} is a helper function that prepares
-swaps, allowing for a change of endogenous/exogenous
-variable status. If a swap is specified using this function,
-the output is a required input to the \code{swap_in} or
-\code{swap_out} arguments of the \code{\link[=ems_deploy]{ems_deploy()}} function.
+Prepares a partial or full variable swap for use as \code{swap_in}
+or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \details{
 \code{ems_swap()} return values have no purpose used in
@@ -77,7 +74,5 @@ txs_out <- ems_swap(var = "txs",
 }
 \seealso{
 \code{\link[=ems_model]{ems_model()}} for loading a model closure.
-
-\code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
-function.
+\code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this function.
 }

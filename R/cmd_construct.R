@@ -1,5 +1,5 @@
 #' @importFrom cli cli_verbatim cli_ol
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .construct_cmd <- function(paths,
@@ -14,7 +14,8 @@
                            laD,
                            matsol,
                            steps,
-                           enable_time) {
+                           enable_time,
+                           append_args) {
   docker_preamble <- paste(
     "docker run --rm --mount",
     paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ","),
@@ -28,6 +29,7 @@
     "/opt/teems-solver/solver/hsl",
     "-cmdfile", paths$docker_cmf
   )
+
   docker_diagnostic_out <- file.path(paths$docker_run, "out", paste0("solver_out", "_", timeID, ".txt"))
   solver_param <- paste(
     "-matsol", matsol,
@@ -48,11 +50,15 @@
     "-laDi", laDi,
     "-laD", laD,
     paste("-maxthreads", 1),
-    "-nox",
-    "2>&1 | tee",
-    paste0(docker_diagnostic_out, "\"")
+    "-nox"
   )
 
+  if (!is.null(append_args)) {
+    solver_param <- paste(solver_param, paste(append_args, collapse = " "))
+  }
+
+  solver_out <- paste("2>&1 | tee", paste0(docker_diagnostic_out, "\""))
+  solver_param <- paste(solver_param, solver_out)
   solve_cmd <- paste(exec_preamble, solver_param)
 
   if (terminal_run) {

@@ -1,72 +1,56 @@
-#' Load general model specifications
+#' Parse and modify model and closure files
 #'
-#' @description `ems_model` loads the model and its closure,
-#'   conducts pre-deployment checks, determines temporal
-#'   dynamics, and allows for the loading of aggregated data. The
-#'   output of this function is a required input to the `"model"`
-#'   argument of the [`ems_deploy()`] function.
+#' Parses the Tablo model file and closure, conducts
+#' pre-deployment checks, and determines temporal dynamics.
 #'
-#'
-#' @param model_file File containing the model. Character vector
-#'   of length 1, file name in working directory or path to a
-#'   .tab file. See
+#' @param model_file Path to a `.tab` Tablo file. See
 #'   \href{https://github.com/teemsphere/teems-models}{teems-models}
 #'   for vetted models and compatible Tablo file formatting.
-#' @param closure_file A character of length 1. File name in
-#'   working directory or path to a ".cls" closure file. See
+#' @param closure_file Path to a `.cls` closure file. See
 #'   \href{https://github.com/teemsphere/teems-models}{teems-models}
-#'   for formatting of closure files.
-#' @param var_omit A character vector (default is `NULL`).
-#'   Variables that to be substituted with `0` within the Tablo
-#'   model file and removed from the designated closure (if
-#'   present).
-#' @param ... A named pairlist assigning aggregation-specific
-#'   values to model coefficients. The LHS must correspond to a
-#'   model coefficient declared within the loaded model. The RHS
-#'   is the value to be assigned and may be either a numeric
-#'   length 1, a data frame or data frame extension (e.g.,
-#'   tibble, data table), or path to a CSV file.
+#'   for closure file formatting.
+#' @param var_omit Character vector of variable names to
+#'   substitute with `0` in the model and remove from the closure
+#'   (default `NULL`).
+#' @param ... A named pairlist assigning values to model
+#'   coefficients. Each name must match a coefficient declared in
+#'   the model file. Each value may be a length-1 numeric, a data
+#'   frame or data frame extension (e.g., tibble, data.table), or
+#'   a path to a CSV file.
 #'
-#'   If a numeric length 1 is provided to a non-binary
-#'   coefficient or coefficient with a set affiliation, all set
-#'   combinations will be assigned this uniform value. Data frame
-#'   equivalent and CSV inputs must contain all set
-#'   aggregation-specific elements to be replaced (with sets as
-#'   columns) as well as a "Value" column with new values. This
-#'   replacement will be subject to structure checks according to
+#' @details
+#'   A length-1 numeric supplied via `...` is applied uniformly
+#'   across all set combinations for that coefficient. Data frame
+#'   and CSV inputs must contain a `Value` column and one column
+#'   per set index using the model-specific naming convention (set
+#'   name concatenated with its index letter, e.g., `REGr`,
+#'   `COMMc`). Inputs are subject to structure checks against the
 #'   set aggregations specified in [`ems_data()`].
 #'
-#'   Note that set names in any loaded data must be provided as
-#'   the model-specific concatenation of the standard set name
-#'   plus the variable-specific index. For example, the standard
-#'   set name "REG" with subindex "r" would be "REGr".
-#'
-#' @return A tibble with attributes containing the parsed model
-#'   input for use within the `"model"` argument of
+#' @return A tibble passed to the `model` argument of
 #'   [`ems_deploy()`].
 #'
 #' @seealso [`ems_example()`] for loading example models and
-#'   scripts
-#' @seealso [`ems_deploy()`] for loading the output of this
+#'   scripts. [`ems_deploy()`] for loading the output of this
 #'   function as well as conducting any closure swaps.
 #' 
 #' @examples
 #' # simple model load
 #' GTAPv7 <- ems_example("GTAPv7")
-#' model <- ems_model(model_file = GTAPv7[["model_file"]],
-#'                    closure_file = GTAPv7[["closure_file"]])
+#' model <- ems_model(GTAPv7[["model_file"]],
+#'                    GTAPv7[["closure_file"]])
 #' 
 #' # model load with variable omission
 #' # uniform numeric value applied to KAPPA coefficient
 #' # heterogeneous values allocated to SUBPAR via data frame
 #' GTAP_RE <- ems_example("GTAP-RE")
-#' COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")
-#' REGr <- c("usa", "chn", "row")
-#' ALLTIMEt <- seq_len(5)
+#' sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
+#' regions <- c("usa", "chn", "row")
+#' time_steps <- 0:5
 #' 
-#' SUBPAR <- expand.grid(COMMc = COMMc,
-#'                       REGr = REGr,
-#'                       ALLTIMEt = ALLTIMEt)
+#' SUBPAR <- expand.grid(COMMc = sectors,
+#'                       REGr = regions,
+#'                       ALLTIMEt = time_steps)
 #' SUBPAR$Value <- runif(nrow(SUBPAR))
 #' model <- ems_model(model_file = GTAP_RE[["model_file"]],
 #'                    closure_file = GTAP_RE[["closure_file"]],
@@ -87,9 +71,11 @@ if (missing(closure_file)) {
   .cli_missing(closure_file)
 }
 args_list <- mget(names(formals()))
+args_list$mod_coeff <- list(...)
 call <- match.call()
-model <- .implement_model(args_list = args_list,
-                          call = call,
-                          ... = ...)
+model <- .implement_model(
+  args_list = args_list,
+  call = call
+)
 model
 }

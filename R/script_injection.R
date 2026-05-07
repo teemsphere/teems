@@ -5,7 +5,6 @@
                            dat_input,
                            par_input,
                            set_input,
-                           target_format,
                            write_dir,
                            model_file,
                            closure_file) {
@@ -16,7 +15,6 @@
     dat_input    = dat_input,
     par_input    = par_input,
     set_input    = set_input,
-    target_format = target_format,
     write_dir    = write_dir,
     model_file   = model_file,
     closure_file = closure_file

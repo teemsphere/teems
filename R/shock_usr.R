@@ -1,15 +1,9 @@
 #' @noRd
 #' @keywords internal
 .usr_shock <- function(shock_file) {
-  final_shock <- readLines(shock_file)
-  class(final_shock) <- "user"
-  shock <- list(final_shock)
-  class(shock) <- "shock"
-
-  shock_list <- list(
-    shocks = shock,
-    shock_file = basename(shock_file)
-  )
-
-  return(shock_list)
+  class(shock_file) <- "user"
+  shock <- list(shock_file)
+  class(shock) <- c("shock", class(shock))
+  attr(shock, "file") <- basename(shock_file)
+  return(shock)
 }

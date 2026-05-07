@@ -1,8 +1,25 @@
 #' @keywords internal
 #' @noRd
 .validate_model_args <- function(a,
-                                 checklist,
                                  call) {
+  a[["..."]] <- NULL
+
+  a$mod_coeff <- .check_named_dots(a$mod_coeff)
+  
+  if (isFALSE(a$mod_coeff)) {
+    .cli_action(model_err$no_name_coeff,
+                action = "abort",
+                call = call
+    )
+  }
+  
+  checklist <- list(
+    model_file = "character",
+    closure_file = "character",
+    var_omit = c("NULL", "character"),
+    mod_coeff = c("logical", "list")
+  )
+  
   .check_arg_class(
     args_list = a,
     checklist = checklist,

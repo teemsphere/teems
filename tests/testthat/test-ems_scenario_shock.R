@@ -3,9 +3,9 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset())
 
-dat_input <- Sys.getenv("GTAP11c_dat")
-par_input <- Sys.getenv("GTAP11c_par")
-set_input <- Sys.getenv("GTAP11c_set")
+dat_input <- Sys.getenv("GTAP12_dat")
+par_input <- Sys.getenv("GTAP12_par")
+set_input <- Sys.getenv("GTAP12_set")
 
 write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "uniform_shock")
 
@@ -38,7 +38,7 @@ temp_dir <- withr::local_tempdir()
 
 # minimal data frame for scenario shock input (absolute values with Year column)
 REGr <- c("usa", "chn", "row")
-Year <- c(2017, 2018, 2019)
+Year <- c(2023, 2024, 2025)
 df_input <- expand.grid(REGr = REGr, Year = Year, stringsAsFactors = FALSE)
 df_input$Value <- runif(nrow(df_input), min = 1e6, max = 1e9)
 
@@ -126,12 +126,12 @@ test_that("ems_scenario_shock errors when used with a static model", {
 })
 
 test_that("ems_scenario_shock errors when not all preaggregation tuples provided", {
-  year <- 2017
+  year <- 2023
   time_steps <- year + c(0, 1, 2)
-  chron_data <- ems_data(
-    dat_input = Sys.getenv("GTAP11c_dat"),
-    par_input = Sys.getenv("GTAP11c_par"),
-    set_input = Sys.getenv("GTAP11c_set"),
+  dat <- ems_data(
+    dat_input = Sys.getenv("GTAP12_dat"),
+    par_input = Sys.getenv("GTAP12_par"),
+    set_input = Sys.getenv("GTAP12_set"),
     REG = "big3",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
@@ -139,12 +139,12 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
   )
 
   pop <- ems_data(
-    dat_input = Sys.getenv("GTAP11c_dat"),
-    par_input = Sys.getenv("GTAP11c_par"),
-    set_input = Sys.getenv("GTAP11c_set"),
+    dat_input = Sys.getenv("GTAP12_dat"),
+    par_input = Sys.getenv("GTAP12_par"),
+    set_input = Sys.getenv("GTAP12_set"),
     REG = "full",
     ACTS = "macro_sector",
-    ENDW = "labor_agg",
+    ENDW = "labor_agg"
   )$POP
 
   pop$Year <- year
@@ -185,7 +185,7 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
 
   ems_option_set(write_sub_dir = "scen_missing_tup")
   expect_snapshot_error(ems_deploy(
-    .data = chron_data,
+    .data = dat,
     model = model,
     shock = pop_trajectory,
     write_dir = write_dir

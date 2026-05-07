@@ -2,50 +2,55 @@
 % Please edit documentation in R/ems_shock_uni.R
 \name{ems_uniform_shock}
 \alias{ems_uniform_shock}
-\title{Load uniform shock}
+\title{Prepare a uniform shock}
 \usage{
 ems_uniform_shock(var, value, ...)
 }
 \arguments{
 \item{var}{Character of length 1, the variable to be shocked.}
 
-\item{value}{Numeric length 1, value of uniform shock.}
+\item{value}{Numeric length 1, percentage-change value of the
+shock.}
 
-\item{...}{One or more variable-specific key-value pairs
-separated by commas corresponding to the parts of a variable
-that will receive a uniform shock.}
+\item{...}{Optional named arguments restricting the shock to a
+subset of the variable's elements. Each name must use the
+model-specific set-index format (set name concatenated with
+its index letter, e.g., \code{REGr}, \code{COMMc}). Value may consist
+of one or more elements or a subset. When omitted, the shock
+is applied to all elements of the variable.}
 }
 \value{
 A \code{list} object to be passed to the \code{shock} argument of
 \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-\code{ems_uniform_shock()} loads uniform shocks for
-processing as well as conducts a series of compatibility
-checks. A uniform shock is one which applies a homogeneous
-value across all or part of a variable (using \code{...}).  The
-accepted values for \code{...} depend on the \code{"var"} specified
-and set mappings associated with this variable. If a uniform
-shock is to be carried out, the output of this function is a
-required input to the \code{"shock"} argument within the
-\code{\link[=ems_deploy]{ems_deploy()}} function.
+Applies a single percentage-change value uniformly across all
+or a subset of a variable's elements.
 }
 \examples{
-# fully uniform: all variable elements receive the same shock value
+# Fully uniform: all variable elements receive the same shock 
+# value
 afeall_full <- ems_uniform_shock(var = "afeall",
                                  value = 2)
 
-# partially uniform: applied only to the "chn" element in set REGr (REG)
-# Note that set designations must consist of the concatenation of the
-# standard set (e.g., REG) and variable-specific index (e.g., r).
+# Partially uniform by element: applied only to the "chn" 
+# element in set REGr (REG). Note that set designations must 
+# consist of the concatenation of the standard set (e.g., REG) 
+# and variable-specific index (e.g., r).
 afeall_chn <- ems_uniform_shock(var = "afeall",
                                 REGr = "chn",
                                 value = 2)
+
+# Partially uniform by subset and element: applied to "chn" 
+# and "usa" across the MARG and FWDTIME subsets. 
+qxs_chn <- ems_uniform_shock(var = "qxs",
+                             COMMc = "MARG",
+                             REGs = c("chn", "usa"),
+                             ALLTIMEt = "FWDTIME",
+                             value = -1)
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
-function.
-
-\code{\link[=ems_swap]{ems_swap()}} for changing the standard model
+function. \code{\link[=ems_swap]{ems_swap()}} for changing the standard model
 closure.
 }

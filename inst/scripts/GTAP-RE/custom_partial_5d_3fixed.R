@@ -14,8 +14,7 @@ time_steps <- c(0, 1, 2, 3)
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = time_steps,
-  target_format = target_format
+  time_steps = time_steps
 )
 
 model <- ems_model(

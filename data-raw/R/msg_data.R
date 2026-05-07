@@ -19,7 +19,8 @@ build_data_err <- function() {
       "Available internal mappings for {.val {map_name}} include {.val {available_map_names}}"
     ),
     # test-ems_data.R: "ems_data requires REG argument"
-    missing_set_mappings = "Set mappings are required as named arguments in {.arg ...}."
+    missing_set_mappings = "Set mappings are required as named arguments in {.arg ...}.",
+    no_name_mapping = "Set mappings must be passed as named pairs: {.code REG = \"mapping\"}"
   )
 }
 
@@ -27,8 +28,6 @@ build_data_wrn <- function() {
   list(
     # test-ems_data.R: "ems_data warns wrong initial year"
     time_steps = "Initial timestep is neither {.val 0} nor the {.field dat} reference year ({.val {t0}}).",
-    # test-ems_data.R: "ems_data unnecessary convert"
-    unnecessary_cvrt = "Data format already matches {.arg target_format}; no conversion applied.",
     # test-ems_data.R: "ems_data rejects CSV with extra columns"
     invalid_user_input = "The {.field {map_name}} mapping has more than 2 columns; only columns 1 (origin) and 2 (destination) will be used.",
     # no need to spoof this one

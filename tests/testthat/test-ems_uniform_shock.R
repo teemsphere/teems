@@ -3,13 +3,13 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset())
 
-dat_input <- Sys.getenv("GTAP11c_dat")
-par_input <- Sys.getenv("GTAP11c_par")
-set_input <- Sys.getenv("GTAP11c_set")
+dat_input <- Sys.getenv("GTAP12_dat")
+par_input <- Sys.getenv("GTAP12_par")
+set_input <- Sys.getenv("GTAP12_set")
 
 write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "uniform_shock")
 
-if (dir.exists(write_dir)) { 
+if (dir.exists(write_dir)) {
   unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
 } else {
   dir.create(write_dir, recursive = TRUE)
@@ -93,21 +93,6 @@ test_that("ems_uniform_shock accepts partial shock with multiple set filters", {
   expect_true(inherits(result[[1]], "uniform"))
 })
 
-test_that("ems_uniform_shock subsets are provided as named lists", {
-  expect_snapshot_error(ems_uniform_shock(
-    var = "aoall",
-    "chn",
-    value = -1
-  ))
-  
-  China <- "chn"
-  expect_snapshot_error(ems_uniform_shock(
-    var = "aoall",
-    China,
-    value = -1
-  ))
-})
-
 test_that("ems_uniform_shock errors when variable is not present in the model file", {
   not_a_var <- ems_uniform_shock(
     var = "not_a_var",
@@ -143,7 +128,7 @@ test_that("ems_uniform_shock errors when both int set and year are provided", {
   extra_col <- ems_uniform_shock(
     var = "pop",
     ALLTIMEt = 0,
-    Year = 2017,
+    Year = 2023,
     value = 1
   )
 
@@ -187,7 +172,7 @@ test_that("ems_uniform_shock errors when part var shock is applied to fully endo
   ))
 })
 
-test_that("ems_uniform_shock errors when invalid year provide", {
+test_that("ems_uniform_shock errors when invalid year provided", {
   invalid_year <- ems_uniform_shock(
     REGr = "row",
     Year = 2014,
@@ -234,5 +219,14 @@ test_that("ems_uniform_shock errors when endogenous components are allocated sho
     model = model,
     shock = endo_ele,
     write_dir = write_dir
+  ))
+})
+
+test_that("ems_uniform_shock errors dots passed without names", {
+  expect_snapshot_error(ems_uniform_shock(
+    var = "qe",
+    value = 1,
+    "capital",
+    ALLTIMEt = 1
   ))
 })

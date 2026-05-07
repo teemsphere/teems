@@ -65,7 +65,7 @@
       )
     }
 
-    a$shock_file <- .check_input(
+    a$shock <- .check_input(
       file = a$shock_file,
       valid_ext = "shf",
       call = call

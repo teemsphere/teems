@@ -7,7 +7,7 @@
 
 time_steps <- c(0, 1, 2, 3)
 
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -55,7 +55,7 @@ ems_option_set(write_sub_dir = "custom_partial_5d_3fixed")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = atall_shk
 )

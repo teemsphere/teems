@@ -1,5 +1,5 @@
 # load GTAP HAR files, apply set mappings, and aggregate data
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -45,7 +45,7 @@ ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = partial,
   swap_in = qfd,

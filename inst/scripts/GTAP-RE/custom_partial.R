@@ -1,7 +1,7 @@
 time_steps <- c(0, 1, 2, 3)
 
 # load GTAP HAR files, apply set mappings, and aggregate data
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -93,7 +93,7 @@ ems_option_set(write_sub_dir = "custom_partial")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
 )

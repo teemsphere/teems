@@ -3,7 +3,7 @@
 #   {REGd}(size-1, factor=3) ties {MARGm,REGd}(size-2, factor=3) -> smaller size wins
 # write_ragged: single-column branch
 
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -46,7 +46,7 @@ ems_option_set(write_sub_dir = "custom_partial_4d_2fixed")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = atall_shk
 )

@@ -7,7 +7,7 @@
 # stride ordering: free_idx=[1,3,4], full_dimsizes=[3,1,3,3]
 #   antidim=[1,1,3,9] -> strides=[1,3,9] -> write_order=[REGs,REGr,MARG]
 
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -48,7 +48,7 @@ ems_option_set(write_sub_dir = "custom_partial_4d_k3")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = atall_shk
 )

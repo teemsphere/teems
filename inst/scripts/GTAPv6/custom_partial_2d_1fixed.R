@@ -2,7 +2,7 @@
 # reduce_shock picks free_idx=[PROD_COMMj] (k=1)
 # write_ragged: single-column branch
 
-.data <- ems_data(
+dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
   set_input = set_input,
@@ -40,7 +40,7 @@ ems_option_set(write_sub_dir = "custom_partial_2d_1fixed")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  .data = .data,
+  dat = dat,
   model = model,
   shock = aoall_shk
 )

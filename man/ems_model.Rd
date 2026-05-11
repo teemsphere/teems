@@ -44,14 +44,14 @@ set aggregations specified in \code{\link[=ems_data]{ems_data()}}.
 }
 \examples{
 # simple model load
-GTAPv7 <- ems_example("GTAPv7")
+GTAPv7 <- ems_example("GTAPv7", write_dir = tempdir())
 model <- ems_model(GTAPv7[["model_file"]],
                    GTAPv7[["closure_file"]])
 
 # model load with variable omission
 # uniform numeric value applied to KAPPA coefficient
 # heterogeneous values allocated to SUBPAR via data frame
-GTAP_RE <- ems_example("GTAP-RE")
+GTAP_RE <- ems_example("GTAP-RE", write_dir = tempdir())
 sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 regions <- c("usa", "chn", "row")
 time_steps <- 0:5

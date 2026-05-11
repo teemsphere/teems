@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .check_int_headers <- function(coeff_extract,
-                               call = call) {
+                               call) {
 
   if (!.o_timestep_header() %in% coeff_extract$header) {
     timestep_header <- .o_timestep_header()

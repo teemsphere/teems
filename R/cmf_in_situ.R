@@ -71,6 +71,7 @@
     nonexist_files <- input_files[!purrr::map_lgl(input_files, file.exists)]
     .cli_action(solve_err$insitu_no_file,
       action = "abort",
+      call = call
     )
   }
 

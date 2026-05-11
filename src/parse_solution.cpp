@@ -6,6 +6,7 @@
 #include <numeric>
 #include <cstring>
 #include <cstdint>
+#include <algorithm>
 
 // Constants matching teems-solver/teems-parser/export_solution.c
 #define NAMESIZE 256
@@ -53,6 +54,28 @@ struct hcge_cof {
   int gltype;
   ha_floattype glval;
 };
+
+// Returns the number of active (non-zero) entries from the front of a
+// fixed-length integer array, trimming trailing zeros.
+template<typename T, int N>
+static int active_count(const T (&arr)[N]) {
+  int last = 0;
+  for (int k = 0; k < N; k++) {
+    if (arr[k] != 0) last = k + 1;
+  }
+  return last;
+}
+
+// Packs the first `n` elements of a fixed-length array into a comma string.
+template<typename T, int N>
+static std::string pack_n(const T (&arr)[N], int n) {
+  std::string s;
+  for (int k = 0; k < n; k++) {
+    if (k > 0) s += ",";
+    s += std::to_string(arr[k]);
+  }
+  return s;
+}
 
 // --- parse_solution_meta: reads .mds, .var, .sel, .set (no .bin) ---
 
@@ -109,19 +132,9 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
     var_gltype[i]      = var_structs[i].gltype;
     var_glval[i]       = static_cast<double>(var_structs[i].glval);
 
-    std::string sid;
-    for (int k = 0; k < MAXVARDIM; k++) {
-      if (k > 0) sid += ",";
-      sid += std::to_string(var_structs[i].setid[k]);
-    }
-    var_setid[i] = sid;
-
-    std::string adim;
-    for (int k = 0; k < MAXVARDIM; k++) {
-      if (k > 0) adim += ",";
-      adim += std::to_string(var_structs[i].antidims[k]);
-    }
-    var_antidims[i] = adim;
+    int ndim = active_count(var_structs[i].antidims);
+    var_setid[i]    = pack_n(var_structs[i].setid,    ndim);
+    var_antidims[i] = pack_n(var_structs[i].antidims, ndim);
   }
 
   cpp11::writable::list var_list(
@@ -154,12 +167,7 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
 
   for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nsetspace); i++) {
     sel_setele[i] = std::string(sel_structs[i].setele);
-    std::string sh;
-    for (int k = 0; k < MAXSUPSET; k++) {
-      if (k > 0) sh += ",";
-      sh += std::to_string(sel_structs[i].setsh[k]);
-    }
-    sel_setsh[i] = sh;
+    sel_setsh[i] = pack_n(sel_structs[i].setsh, active_count(sel_structs[i].setsh));
   }
 
   cpp11::writable::list sel_list(
@@ -202,12 +210,7 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
     set_regional[i]  = static_cast<int>(set_structs[i].regional);
     set_regsup[i]    = set_structs[i].regsup;
 
-    std::string ssid;
-    for (int k = 0; k < MAXSUPSET; k++) {
-      if (k > 0) ssid += ",";
-      ssid += std::to_string(set_structs[i].subsetid[k]);
-    }
-    set_subsetid[i] = ssid;
+    set_subsetid[i] = pack_n(set_structs[i].subsetid, active_count(set_structs[i].subsetid));
   }
 
   cpp11::writable::list set_list(
@@ -341,19 +344,9 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
     var_gltype[j]      = var_structs[i].gltype;
     var_glval[j]       = static_cast<double>(var_structs[i].glval);
 
-    std::string sid;
-    for (int k = 0; k < MAXVARDIM; k++) {
-      if (k > 0) sid += ",";
-      sid += std::to_string(var_structs[i].setid[k]);
-    }
-    var_setid[j] = sid;
-
-    std::string adim;
-    for (int k = 0; k < MAXVARDIM; k++) {
-      if (k > 0) adim += ",";
-      adim += std::to_string(var_structs[i].antidims[k]);
-    }
-    var_antidims[j] = adim;
+    int ndim = active_count(var_structs[i].antidims);
+    var_setid[j]    = pack_n(var_structs[i].setid,    ndim);
+    var_antidims[j] = pack_n(var_structs[i].antidims, ndim);
   }
 
   cpp11::writable::list var_list(

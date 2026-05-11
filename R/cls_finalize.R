@@ -12,6 +12,7 @@
                               var_extract,
                               call,
                               model_call) {
+
   closure <- .validate_closure(
     closure = closure,
     sets = sets,

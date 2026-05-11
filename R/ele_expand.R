@@ -5,14 +5,8 @@
 .expand_ele <- function(input,
                         nested = FALSE) {
 
-  if (nested && is.list(input)) {
-    fl_input <- purrr::list_flatten(input)
-  } else {
-    fl_input <- input
-  }
-  
-  if (any(purrr::map_lgl(fl_input, inherits, "multi"))) {
-    multi_ele <- lapply(fl_input, function(m) {
+  if (any(purrr::map_lgl(input, inherits, "multi"))) {
+    multi_ele <- lapply(input, function(m) {
       if (inherits(m, "multi")) {
         ele_comb <- expand.grid(m$subset, stringsAsFactors = FALSE)
         purrr::map(

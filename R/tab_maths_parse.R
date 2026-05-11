@@ -32,17 +32,12 @@
     }
   ))
 
-  maths$label <- sapply(
-    strsplit(
-      maths$remainder,
-      split = "#"
-    ),
-    FUN = function(spl) {
-      if (length(spl) > 1) {
-        trimws(spl[2])
-      } else {
-        NA
-      }
+  maths$label <- purrr::map_chr(
+    strsplit(maths$remainder, split = "#"),
+    \(spl) if (length(spl) > 1) {
+      trimws(spl[2])
+    } else {
+      NA_character_
     }
   )
 

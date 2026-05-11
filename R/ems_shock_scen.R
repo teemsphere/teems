@@ -26,9 +26,9 @@
 #'  
 #'  # Input data
 #'  dat <- ems_data(
-#'    dat_input = "v7data/gsdfdat.har",
-#'    par_input = "v7data/gsdfpar.har",
-#'    set_input = "v7data/gsdfset.har",
+#'    dat_input = "v7_data/gsdfdat.har",
+#'    par_input = "v7_data/gsdfpar.har",
+#'    set_input = "v7_data/gsdfset.har",
 #'    REG = "big3",
 #'    ACTS = "macro_sector",
 #'    ENDW = "labor_agg",
@@ -37,9 +37,9 @@
 #'  
 #'  # Population data at full resolution
 #'  pop <- ems_data(
-#'    dat_input = "v7data/gsdfdat.har",
-#'    par_input = "v7data/gsdfpar.har",
-#'    set_input = "v7data/gsdfset.har",
+#'    dat_input = "v7_data/gsdfdat.har",
+#'    par_input = "v7_data/gsdfpar.har",
+#'    set_input = "v7_data/gsdfset.har",
 #'    REG = "full",
 #'    ACTS = "macro_sector",
 #'    ENDW = "labor_agg",

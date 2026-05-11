@@ -48,9 +48,8 @@
 #' # Uniform shock with multiple heterogeneous swaps 
 #' yp_row <- ems_swap("yp", REGr = "row")
 #' dppriv_row <- ems_swap("dppriv", REGr = "row")
-#' 
 #'
-#'cmf_path <- ems_deploy(
+#' cmf_path <- ems_deploy(
 #'  .data = dat,
 #'  model = model,
 #'  shock = shock,

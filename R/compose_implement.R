@@ -6,7 +6,6 @@
 #' @noRd
 .implement_compose <- function(args_list,
                                call) {
-  args_list[["..."]] <- NULL
 
   v <- .validate_compose_args(
     a = args_list,

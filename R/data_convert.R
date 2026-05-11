@@ -68,8 +68,8 @@
   )
 
   i_data$ENDC <- .GTAPv7_set(
-    header = "ENDL",
-    name = "ENDWL",
+    header = "ENDC",
+    name = "ENDWC",
     ele = setdiff(tolower(i_data$ENDM), tolower(i_data$ENDL))
   )
 

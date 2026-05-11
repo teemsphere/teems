@@ -32,21 +32,20 @@
 
   if (append_subdir) {
     sub_path <- file.path(write_dir, subdir)
-  } else {
-    sub_path <- write_dir
-  }
-
-  if (dir.exists(sub_path)) {
-    existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)
-    if (length(existing) > 0) {
-      .cli_action(gen_info$unlink,
-        action = "inform",
-        call = call
-      )
-      unlink(file.path(sub_path, "*"), expand = TRUE)
+    if (dir.exists(sub_path)) {
+      existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)
+      if (length(existing) > 0) {
+        .cli_action(gen_info$unlink,
+          action = "inform",
+          call = call
+        )
+        unlink(file.path(sub_path, "*"), expand = TRUE)
+      }
+    } else {
+      dir.create(sub_path, recursive = FALSE)
     }
   } else {
-    dir.create(sub_path, recursive = FALSE)
+    sub_path <- write_dir
   }
 
   return(sub_path)

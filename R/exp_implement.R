@@ -24,6 +24,9 @@
     dir <- system.file(file.path("scripts", v$model), package = "teems", mustWork = TRUE)
     scripts <- list.files(dir, full.names = TRUE)
     scripts <- scripts[!grepl(paste0(2:5, "d", collapse = "|"), scripts)]
+    # prep exported ems_meta function to get year quickly
+    scripts <- scripts[!grepl("_year", scripts)]
+    scripts <- scripts[!grepl("scenario", scripts)]
     templates <- lapply(scripts, readLines)
     paths <- purrr::map2_chr(templates,
       scripts,
@@ -33,7 +36,8 @@
       set_input = v$set_input,
       write_dir = v$write_dir,
       model_file = paths[["model_file"]],
-      closure_file = paths[["closure_file"]]
+      closure_file = paths[["closure_file"]],
+      call = call
     )
   }
   return(paths)

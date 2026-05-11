@@ -20,8 +20,7 @@
 #' @keywords internal
 .check_database_version <- function(vetted,
                                     provided,
-                                    call,
-                                    quiet) {
+                                    call) {
   if (!provided %in% vetted) {
     teems_version <- utils::packageVersion("teems")
     .cli_action(data_wrn$db_version,

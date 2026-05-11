@@ -16,7 +16,7 @@
     )
   }
 
-  if (!is.null(a$set_input) && !is.list(a$par_input)) {
+  if (!is.null(a$set_input) && !is.list(a$set_input)) {
     a$set_input <- .check_input(a$set_input,
       valid_ext = "har",
       call = call

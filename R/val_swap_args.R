@@ -1,7 +1,6 @@
 #' @keywords internal
 #' @noRd
 .validate_swap_args <- function(a,
-                                checklist,
                                 call) {
   a[["..."]] <- NULL
   

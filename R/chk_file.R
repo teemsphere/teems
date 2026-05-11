@@ -6,7 +6,7 @@
                         call,
                         file_ext) {
   
-  if (!file.exists(file) || length(file) %=% 0L) {
+  if (length(file) %=% 0L || !file.exists(file)) {
     .cli_action(gen_err$no_file,
       action = "abort",
       call = call

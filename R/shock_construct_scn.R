@@ -38,7 +38,7 @@
 
 
   raw_shock$input <- value
-  class(raw_shock) <- "custom"
+  class(raw_shock)[[1]] <- "custom"
 
   .construct_shock(
     raw_shock = raw_shock,

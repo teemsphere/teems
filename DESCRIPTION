@@ -15,7 +15,7 @@ Authors@R:
     comment = c(ORCID = "0000-0003-3729-1764")
   )
 License: AGPL (>= 3)
-URL: https://teemsphere.github.io/, https://github.com/teemsphere/teems/                                                                
+URL: https://teemsphere.github.io/, https://github.com/teemsphere/teems/
 BugReports: https://github.com/teemsphere/teems-R/issues
 Depends: 
     R (>= 4.3.0)

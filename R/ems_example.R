@@ -62,7 +62,9 @@ if (missing(model)) {
 }
 args_list <- mget(names(formals()))
 call <- match.call()
-path <- .implement_exp(args_list = args_list,
-                       call = call)
+path <- .implement_exp(
+  args_list = args_list,
+  call = call
+)
 path
 }

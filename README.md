@@ -12,13 +12,12 @@ TEEMS provides a complete pipeline from raw GTAP data through model solution:
 data loading, aggregation, model parsing, shock specification, and
 Docker-based solving --- all from R.
 
-> **Status:** Beta (v0.0.4) --- under active development.
+> **Status:** Beta (v0.0.5)
 
 ## Overview
 
 | Function | Purpose |
 |:---------|:--------|
-| `ems_aux()` | Load auxiliary data
 | `ems_data()` | Load input data, apply set mappings and time steps, aggregate and convert data |
 | `ems_model()` | Load model and closure files |
 | `ems_uniform_shock()`/`ems_custom_shock()`/`ems_scenario_shock()` | Load shocks |
@@ -29,6 +28,7 @@ Docker-based solving --- all from R.
 | `ems_option_set()`/`ems_option_get()`/`ems_option_reset()` | Get, set, and reset advanced package options |
 | `ems_example()` | Get example model files and write ready-to-run scripts to disk |
 | `solve_in_situ()` | Solve user-provided input files |
+| `GTAP_convert()` | Convert between GTAP v6.2 and v7.0 data formats |
 
 ## Installation
 
@@ -42,7 +42,7 @@ Docker-based solving --- all from R.
 
 ```r
 # install.packages("remotes")
-remotes::install_github("teemsphere/teems-R@v0.0.4")
+remotes::install_github("teemsphere/teems-R@v0.0.5")
 ```
 
 If the installation fails citing a missing package, install that package first
@@ -54,12 +54,11 @@ and retry.
 library(teems)
 
 # 1. Load and aggregate data
-.data <- ems_data(
-  dat_input = "path/to/gsdfdat.har",
-  par_input = "path/to/gsdfpar.har",
-  set_input = "path/to/gsdfset.har",
+dat <- ems_data(
+  dat_input = "v7_data/gsdfdat.har",
+  par_input = "v7_data/gsdfpar.har",
+  set_input = "v7_data/gsdfset.har",
   REG  = "AR5",
-  COMM = "macro_sector",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
   time_steps = c(0, 1, 2, 3)
@@ -75,7 +74,7 @@ shock <- ems_uniform_shock(var = "pop",
                            value = 1)
 
 # 4. Validate and write solver inputs
-cmf_path <- ems_deploy(.data = .data,
+cmf_path <- ems_deploy(.data = dat,
                        model = model,
                        shock = shock)
 

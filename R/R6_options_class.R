@@ -1,4 +1,5 @@
 #' @importFrom R6 R6Class
+#' @importFrom rlang is_integerish
 #' 
 #' @noRd
 #' @keywords internal
@@ -172,8 +173,8 @@ options_class <- R6::R6Class(
     },
     
     validate_ndigits = function(ndigits) {
-      if (!is.numeric(ndigits)) {
-        cli::cli_abort("{.arg ndigits} must be numeric.")
+      if (!rlang::is_integerish(ndigits)) {
+        cli::cli_abort("{.arg ndigits} must be an integer or coercible to one.")
       }
     },
     
@@ -208,8 +209,8 @@ options_class <- R6::R6Class(
     },
 
     validate_accuracy_threshold = function(accuracy_threshold) {
-      if (!is.numeric(accuracy_threshold) || accuracy_threshold > 1) {
-        cli::cli_abort("{.arg accuracy_threshold} must be a numeric less than or equal to 1.")
+      if (!is.numeric(accuracy_threshold) || accuracy_threshold > 1 || accuracy_threshold < 0) {
+        cli::cli_abort("{.arg accuracy_threshold} must be a numeric between 0 and 1.")
       }
     },
     

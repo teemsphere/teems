@@ -291,7 +291,7 @@
 
   names(sets$subsets) <- sets$name
 
-  for (i in 1:nrow(sets)) {
+  for (i in seq_len(nrow(sets))) {
     nm <- sets$name[i]
     e_ss <- sets$subsets[[nm]]
     if (!all(is.na(e_ss))) {

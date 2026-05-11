@@ -1,8 +1,5 @@
 build_data_err <- function() {
   list(
-    # test-ems_data.R: "ems_data rejects invalid target_format"
-    invalid_target = c("Invalid {.arg target_format}.",
-    "Valid target formats: {.val {valid_formats}}."),
     # test-ems_data.R: "ems_data rejects duplicate time_steps"
     invalid_time_step = "One or more {.arg time_steps} does not progress into the future.",
     # test-ems_data.R: "ems_data rejects CSV with insufficient columns"

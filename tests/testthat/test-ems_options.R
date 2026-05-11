@@ -1,6 +1,6 @@
 skip_on_cran()
 
-withr::defer(ems_option_reset())
+withr::defer(ems_option_reset(), teardown_env())
 
 # --- ems_option_get error tests ---
 

@@ -19,7 +19,7 @@ partial <- ems_uniform_shock(
   var = "qfd",
   REGs = c("usa", "chn"),
   PROD_COMMj = "TRAD_COMM",
-  value = -1
+  value = -0.5
 )
 
 # prepare a partial closure swap making qfd subset exogenous
@@ -42,7 +42,7 @@ ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = partial,
   swap_in = qfd,
@@ -57,9 +57,10 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value == -1
-endo1 <- outputs$dat$qfd[(!REGs %in% c("usa", "chn") & PROD_COMMj == "cgds")]$Value != 0
-endo2 <- outputs$dat$tfd[(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
-exo_null <- outputs$dat$tfd[REGr %in% c("usa", "chn") & PROD_COMMj == "cgds"]$Value == 0
-
-checks <- c(exo_shk, endo1, endo2, exo_null)
+exo_shk       <- outputs$dat$qfd[(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value == -0.5
+endo1         <- outputs$dat$qfd[!(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
+endo2         <- outputs$dat$tfd[(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
+exo_null      <- outputs$dat$tfd[!(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value == 0
+qfd_len_check <- (length(exo_shk) + length(endo1)) == nrow(outputs$dat$qfd)
+tfd_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$tfd)
+checks <- c(exo_shk, endo1, endo2, exo_null, qfd_len_check, tfd_len_check)

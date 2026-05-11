@@ -1,7 +1,7 @@
 skip_on_cran()
 
 ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset())
+withr::defer(ems_option_reset(), teardown_env())
 
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
@@ -43,6 +43,10 @@ test_that("ems_compose errors when cmf_path is missing", {
 
 test_that("ems_compose errors when which is not character", {
   expect_snapshot_error(ems_compose(cmf_path, which = 1))
+})
+
+test_that("ems_compose errors when invalid shich", {
+  expect_snapshot_error(ems_compose(cmf_path, which = "not_a_var"))
 })
 
 # --- acceptance tests ---

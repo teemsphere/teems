@@ -28,7 +28,7 @@ ems_option_set(write_sub_dir = "part_uniform_full_swap")
 # validate inputs, write solver files, with full variable swaps passed as strings
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = partial,
   swap_in = "qfd",
@@ -43,7 +43,9 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj == "crops"]$Value == -1
-exo_null <- outputs$dat$qfd[!(REGs == "usa" & PROD_COMMj == "crops")]$Value == 0
-endo <- outputs$dat$tfd$Value != 0
-checks <- c(exo_shk, exo_null, endo)
+exo_shk       <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj == "crops"]$Value == -1
+exo_null      <- outputs$dat$qfd[!(REGs == "usa" & PROD_COMMj == "crops")]$Value == 0
+endo          <- outputs$dat$tfd$Value != 0
+qfd_len_check <- (length(exo_shk) + length(exo_null)) == nrow(outputs$dat$qfd)
+tfd_len_check <- length(endo) == nrow(outputs$dat$tfd)
+checks <- c(exo_shk, exo_null, endo, qfd_len_check, tfd_len_check)

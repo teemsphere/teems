@@ -26,14 +26,14 @@ partial <- ems_uniform_shock(
 qxs <- ems_swap(
   var = "qxs",
   COMMc = "MARG",
-  REGs = c("chn", "usa"),
+  REGs = c("chn", "usa")
 )
 
 # prepare a partial closure swap making tfd subset endogenous
 txs <- ems_swap(
   var = "txs",
   COMMc = "MARG",
-  REGs = c("chn", "usa"),
+  REGs = c("chn", "usa")
 )
 
 # set the output subdirectory name within write_dir
@@ -42,7 +42,7 @@ ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = partial,
   swap_in = qxs,
@@ -57,9 +57,10 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value == -1
-endo1 <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value != 0
-endo2 <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value != 0
-exo_null <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value == 0
-
-checks <- c(exo_shk, endo1, endo2, exo_null)
+exo_shk       <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value == -1
+endo1         <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value != 0
+endo2         <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces"]$Value != 0
+exo_null      <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces")]$Value == 0
+qxs_len_check <- (length(exo_shk) + length(endo1)) == nrow(outputs$dat$qxs)
+txs_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$txs)
+checks <- c(exo_shk, endo1, endo2, exo_null, qxs_len_check, txs_len_check)

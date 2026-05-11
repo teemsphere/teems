@@ -1,4 +1,5 @@
 # load GTAP HAR files, apply set mappings, and aggregate data
+time_steps <- c(0, 1, 2)
 dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
@@ -6,7 +7,7 @@ dat <- ems_data(
   REG = "big3",
   ACTS = "macro_sector",
   ENDW = "labor_agg",
-  time_steps = c(0, 1, 2)
+  time_steps = time_steps
 )
 
 # parse the model Tablo file and load the closure
@@ -21,7 +22,7 @@ ems_option_set(write_sub_dir = "null")
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model
 )
 

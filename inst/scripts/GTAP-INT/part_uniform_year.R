@@ -1,4 +1,5 @@
 # load GTAP HAR files, apply set mappings, and aggregate data
+time_steps <- c(0, 1, 2)
 dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
@@ -6,7 +7,7 @@ dat <- ems_data(
   REG = "big3",
   PROD_COMM = "macro_sector",
   ENDW_COMM = "labor_agg",
-  time_steps = c(0, 1, 2)
+  time_steps = time_steps
 )
 
 # parse the model Tablo file and load the closure
@@ -30,7 +31,7 @@ ems_option_set(write_sub_dir = "part_uniform_year")
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = partial
 )
@@ -43,6 +44,7 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops" & Year == year]$Value == -1
-exo_null <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops" & Year == year)]$Value == 0
-checks <- c(exo_shk, exo_null)
+exo_shk       <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops" & Year == year]$Value == -1
+exo_null      <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops" & Year == year)]$Value == 0
+len_check     <- (length(exo_shk) + length(exo_null)) == nrow(outputs$dat$aoall)
+checks <- c(exo_shk, exo_null, len_check)

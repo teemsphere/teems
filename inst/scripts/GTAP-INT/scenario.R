@@ -74,7 +74,7 @@ ems_option_set(write_sub_dir = "scenario")
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = pop_trajectory
 )
@@ -97,17 +97,18 @@ pop$REGr <- ifelse(pop$REGr == "chn",
 
 pop <- aggregate(Value ~ REGr + Year, data = pop, FUN = sum)
 
-check <- merge(pop,
-  outputs$dat$pop[, !"ALLTIMEt"],
-  by = colnames(pop)[-ncol(pop)]
-)
+pop_out <- outputs$dat$pop[, !"ALLTIMEt"]
 
-check$check <- ave(check$Value.x, check$REGr, FUN = function(x) {
+check_tbl <- merge(pop, pop_out, by = colnames(pop)[-ncol(pop)])
+
+len_check <- nrow(check_tbl) == nrow(pop_out)
+
+check_tbl$check <- ave(check_tbl$Value.x, check_tbl$REGr, FUN = function(x) {
   base <- x[1]
   ((x - base) / base) * 100
 })
 
-check <- isTRUE(all.equal(check$Value.y,
-  check$check,
-  tolerance = 1e-6
-))
+checks <- c(
+  isTRUE(all.equal(check_tbl$Value.y, check_tbl$check, tolerance = 1e-6)),
+  len_check
+)

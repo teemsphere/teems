@@ -26,7 +26,7 @@ ems_option_set(write_sub_dir = "numeraire")
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = numeraire
 )
@@ -39,4 +39,6 @@ outputs <- ems_solve(
 )
 
 # checks
-check <- outputs$dat$pfactwld$Value == 1
+shk       <- outputs$dat$pfactwld$Value == 1
+len_check <- length(shk) == nrow(outputs$dat$pfactwld)
+checks    <- c(shk, len_check)

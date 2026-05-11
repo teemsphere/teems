@@ -100,7 +100,7 @@ ems_option_set(write_sub_dir = "custom_full")
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
 )

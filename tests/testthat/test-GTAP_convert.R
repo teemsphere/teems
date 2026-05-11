@@ -1,7 +1,7 @@
 skip_on_cran()
 
 ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset())
+withr::defer(ems_option_reset(), teardown_env())
 
 test_that("GTAP_convert errors when invalid origin", {
   expect_snapshot_error(GTAP_convert(
@@ -13,7 +13,7 @@ test_that("GTAP_convert errors when invalid origin", {
   ))
 })
 
-test_that("GTAP_convert errors when invalid targert", {
+test_that("GTAP_convert errors when invalid target", {
   expect_snapshot_error(GTAP_convert(
     Sys.getenv("GTAP9_dat"),
     Sys.getenv("GTAP9_par"),
@@ -23,12 +23,22 @@ test_that("GTAP_convert errors when invalid targert", {
   ))
 })
 
-test_that("GTAP_convert errors when invalid targert", {
+test_that("GTAP_convert errors when incorrect origin", {
   expect_snapshot_error(GTAP_convert(
     Sys.getenv("GTAP9_dat"),
     Sys.getenv("GTAP9_par"),
     Sys.getenv("GTAP9_set"),
     "GTAPv7",
+    "GTAPv6"
+  ))
+})
+
+test_that("GTAP_convert errors when origin equals target", {
+  expect_snapshot_error(GTAP_convert(
+    Sys.getenv("GTAP9_dat"),
+    Sys.getenv("GTAP9_par"),
+    Sys.getenv("GTAP9_set"),
+    "GTAPv6",
     "GTAPv6"
   ))
 })

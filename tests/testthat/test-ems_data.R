@@ -4,7 +4,7 @@ ems_option_set(verbose = FALSE)
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
-REG <- teems:::mappings$GTAPv12$GTAPv7$REG[, c(1, 2)]
+REG <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG[, c(1, 2)]
 
 test_that("ems_data requires dat_input argument", {
   expect_snapshot_error(ems_data())

@@ -25,7 +25,7 @@ partial <- ems_uniform_shock(
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = partial
 )
@@ -38,4 +38,7 @@ outputs <- ems_solve(
 )
 
 # checks
-check <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops"]$Value == -1
+shk       <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops"]$Value == -1
+null      <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops")]$Value == 0
+len_check <- (length(shk) + length(null)) == nrow(outputs$dat$aoall)
+checks    <- c(shk, null, len_check)

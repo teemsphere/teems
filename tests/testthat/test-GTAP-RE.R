@@ -51,17 +51,17 @@ for (db in data_db) {
 
   test_that(paste(db, paste(model, "numeraire")), {
     run_script(file.path(model, "numeraire.R"))
-    expect_true(check)
+    expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "full uniform")), {
     run_script(file.path(model, "full_uniform.R"))
-    expect_true(check)
+    expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform")), {
     run_script(file.path(model, "part_uniform.R"))
-    expect_true(check)
+    expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform full swap")), {
@@ -81,6 +81,11 @@ for (db in data_db) {
 
   test_that(paste(db, paste(model, "partial uniform part swap mixed entry")), {
     run_script(file.path(model, "part_uniform_part_swap_mixed.R"))
+    expect_all_true(checks)
+  })
+  
+  test_that(paste(db, paste(model, "partial uniform part swap mixed multi subset entry")), {
+    run_script(file.path(model, "part_uniform_subset_swap.R"))
     expect_all_true(checks)
   })
 
@@ -178,6 +183,6 @@ for (db in data_db) {
 
   test_that(paste(db, paste(model, "scenario")), {
     run_script(file.path(model, "scenario.R"))
-    expect_true(check)
+    expect_all_true(checks)
   })
 }

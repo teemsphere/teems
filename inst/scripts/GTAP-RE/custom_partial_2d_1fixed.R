@@ -43,7 +43,7 @@ ems_option_set(write_sub_dir = "custom_partial_2d_1fixed")
 
 cmf_path <- ems_deploy(
   write_dir = write_dir,
-  dat = dat,
+  .data = dat,
   model = model,
   shock = pop_shk
 )

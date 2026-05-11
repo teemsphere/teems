@@ -1,4 +1,4 @@
-#' @importFrom data.table fsetdiff copy fsetequal `:=` setnames
+#' @importFrom data.table fsetdiff copy fsetequal `:=` setnames setkeyv
 #' @importFrom purrr list_flatten map2_lgl compact map_chr
 #' @importFrom stats setNames
 #'
@@ -8,10 +8,10 @@
                                  swap,
                                  reduced_entry,
                                  ...) {
+
   var_name <- attr(preswap, "var_name")
   preswap_comp <- attr(preswap, "comp")
   swap_comp <- attr(swap, "comp")
-
   full_dt <- data.table::copy(attr(preswap, "ele"))
   swap_ele <- data.table::copy(attr(swap, "ele"))
 
@@ -19,25 +19,34 @@
   unique_names <- make.unique(orig_names)
   has_dupes <- orig_names %!=% unique_names
   if (has_dupes) {
+    # setkey explicitly, issue submitted to dt
     data.table::setnames(full_dt, unique_names)
+    data.table::setkeyv(full_dt, unique_names)
     data.table::setnames(swap_ele, unique_names)
+    data.table::setkeyv(swap_ele, unique_names)
   }
   name_map <- stats::setNames(orig_names, unique_names)
 
-  swapped_positions <- which(swap_comp != preswap_comp)
-  swapped_sets <- unique_names[swapped_positions]
+  mixed_comp <- integer(0)
+  if (inherits(preswap, "mixed")) {
+    mixed_comp <- which(preswap_comp != orig_names)
+  }
 
   diff_dt <- data.table::fsetdiff(full_dt, swap_ele)
 
-  if (inherits(preswap, "mixed")) {
-    mixed_comp <- which(preswap_comp != orig_names)
-    colnames(full_dt)[mixed_comp] <- paste0("\"", preswap_comp[mixed_comp], "\"")
-    colnames(diff_dt)[mixed_comp] <- paste0("\"", preswap_comp[mixed_comp], "\"")
+  if (length(mixed_comp) > 0L) {
+    new_mixed_names <- paste0("\"", preswap_comp[mixed_comp], "\"")
+    colnames(full_dt)[mixed_comp] <- new_mixed_names
+    colnames(diff_dt)[mixed_comp] <- new_mixed_names
+    unique_names[mixed_comp] <- new_mixed_names
   }
+
+  swapped_positions <- which(swap_comp != preswap_comp)
+  swapped_positions <- swapped_positions[!swapped_positions %in% mixed_comp]
+  swapped_sets <- unique_names[swapped_positions]
 
   for (d in seq_along(swapped_sets)) {
     set_name <- swapped_sets[d]
-
     if (d %=% 1L) {
       full_dt <- split(full_dt, by = set_name)
       diff_dt <- split(diff_dt, by = set_name)

@@ -19,6 +19,13 @@
     error_call = call
   )
 
+  if (origin %=% target) {
+    .cli_action(convert_err$same_format,
+      action = "abort",
+      call = call
+    )
+  }
+
   checklist <- list(
     dat_input = "character",
     par_input = "character",

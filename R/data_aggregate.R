@@ -67,6 +67,7 @@
     if (sets %!=% character(0)) {
       dt <- dt[, list(Value = mean(Value)), by = sets]
     }
+    # perhaps a message here to inform mean used
   }
   if (!rlang::is_integerish(dt$Value)) {
     dt[, let(Value = round(Value, ndigits))]

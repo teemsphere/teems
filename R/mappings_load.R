@@ -1,4 +1,4 @@
-#' @importFrom purrr map map2
+#' @importFrom purrr map map2 walk2
 #' @importFrom data.table data.table rbindlist
 #' @importFrom tools file_ext
 #' @importFrom cli cli_h1 cli_text
@@ -78,7 +78,7 @@
   if (.o_verbose()) {
     broadcast <- which(provided_mappings %in% names(set_mappings))
     cli::cli_h1("Set elements")
-    purrr::map2(
+    purrr::walk2(
       names(set_mappings)[broadcast],
       set_mappings[broadcast],
       function(set_name, ele) {

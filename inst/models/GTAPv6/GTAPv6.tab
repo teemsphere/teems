@@ -2141,7 +2141,7 @@ Equation ENDW_PRICE
 (all,i,ENDWS_COMM)(all,r,REG)
     pm(i,r) = sum(k,PROD_COMM, REVSHR(i,k,r) * pmes(i,k,r));
 
-Coefficient (parameter)(all,i,ENDW_COMM)
+Coefficient (parameter)(all,i,ENDWS_COMM)
     ETRAE(i)
     # elst. of transformation for sluggish primary factor endowments #;
 Read

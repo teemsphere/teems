@@ -11,6 +11,11 @@ db_inputs <- list(
 
 model <- "GTAPv6"
 model_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"))
+
+if (!dir.exists(model_dir)) {
+  dir.create(model_dir, recursive = TRUE, showWarnings = FALSE)
+}
+
 model_files <- ems_example(model, write_dir = model_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]

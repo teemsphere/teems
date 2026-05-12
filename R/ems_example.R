@@ -33,8 +33,8 @@
 #' 
 #' @importFrom tools R_user_dir
 #'
-#' @return For `type = "model_files"`: a named list with elements
-#'   `model_file` and `closure_file`. For `type = "scripts"`: a
+#' @return For `type = "model_files"`: a named character vector with
+#'   elements `model_file` and `closure_file`. For `type = "scripts"`: a
 #'   character vector of paths to the written script files.
 #' @examples
 #' \dontrun{

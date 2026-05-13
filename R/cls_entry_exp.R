@@ -7,7 +7,7 @@
   UseMethod(".exp_cls_entry")
 }
 
-#' @importFrom data.table CJ setkey
+#' @importFrom data.table CJ setkey setnames
 #' @importFrom purrr pluck
 #' 
 #' @method .exp_cls_entry full
@@ -23,12 +23,17 @@
       data.table::CJ,
       c(with(sets, mget(var_sets, ifnotfound = "")), sorted = FALSE)
     )
+
+    if (any(duplicated(var_sets))) {
+      data.table::setnames(exp_entry, make.unique(var_sets))
+    }
     data.table::setkey(exp_entry)
   } else {
     exp_entry <- NA
   }
 
-  attr(cls_entry, "comp") <- colnames(exp_entry)
+  attr(cls_entry, "sets") <- var_sets
+  attr(cls_entry, "comp") <- var_sets
   attr(cls_entry, "ele") <- exp_entry
   return(cls_entry)
 }

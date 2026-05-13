@@ -31,10 +31,9 @@ dat <- ems_data(
   time_steps = c(0, 1, 2)
 )
 
-# general test model
 model <- ems_model(model_file, closure_file)
 
-# --- error tests ---
+variant <- Sys.info()["sysname"]
 
 test_that("ems_deploy errors when .data is missing", {
   expect_snapshot_error(ems_deploy())
@@ -43,8 +42,6 @@ test_that("ems_deploy errors when .data is missing", {
 test_that("ems_deploy errors when model is missing", {
   expect_snapshot_error(ems_deploy(dat))
 })
-
-# --- acceptance tests ---
 
 test_that("ems_deploy returns character path to CMF file", {
   ems_option_set(write_sub_dir = "deploy_test")
@@ -217,7 +214,8 @@ test_that("ems_deploy errors when set-calculated number of entries does not matc
 
 test_that("ems_deploy errors when write_dir does not exist", {
   expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = "/tmp2/does_not_exist")
+    ems_deploy(dat, model, write_dir = "/tmp2/does_not_exist"),
+    variant = variant
   )
 })
 

@@ -10,6 +10,7 @@
                                      sets,
                                      var_extract,
                                      ...) {
+  
   call <- attr(raw_shock, "call")
   if (attr(raw_shock, "full_var")) {
     if (.o_check_shock_status()) {
@@ -68,8 +69,8 @@
 
       if (attr(check[[1]], "ele") %!=% NA) {
         check <- data.table::rbindlist(purrr::map(check, attr, "ele"))
-        data.table::setnames(check, new = raw_shock$ls_mixed)
-        check2 <- data.table::setnames(attr(expanded_shk, "ele"), new = raw_shock$ls_mixed)
+        data.table::setnames(check, raw_shock$ls_mixed)
+        check2 <- data.table::setnames(attr(expanded_shk, "ele"), raw_shock$ls_mixed)
         if (nrow(data.table::fsetdiff(check2, check)) %!=% 0L) {
           errant_tup <- data.table::fsetdiff(check2, check)
           errant_tup <- utils::capture.output(print(errant_tup))[-c(1, 2, 3)]

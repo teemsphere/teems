@@ -15,16 +15,8 @@
   full_dt <- data.table::copy(attr(preswap, "ele"))
   swap_ele <- data.table::copy(attr(swap, "ele"))
 
-  orig_names <- colnames(attr(preswap, "ele"))
-  unique_names <- make.unique(orig_names)
-  has_dupes <- orig_names %!=% unique_names
-  if (has_dupes) {
-    # setkey explicitly, issue submitted to dt
-    data.table::setnames(full_dt, unique_names)
-    data.table::setkeyv(full_dt, unique_names)
-    data.table::setnames(swap_ele, unique_names)
-    data.table::setkeyv(swap_ele, unique_names)
-  }
+  orig_names <- attr(preswap, "sets")
+  unique_names <- colnames(attr(preswap, "ele"))
   name_map <- stats::setNames(orig_names, unique_names)
 
   mixed_comp <- integer(0)

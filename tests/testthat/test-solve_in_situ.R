@@ -124,7 +124,7 @@ test_that("solve_in_situ solves", {
     shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
   )
 
-  insitu_dir <- file.path(write_dir, write_sub_dir)
+  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/")
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")
@@ -190,7 +190,7 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
     shock = pop
   )
   
-  insitu_dir <- file.path(write_dir, "diff_dir")
+  insitu_dir <- normalizePath(file.path(write_dir, "diff_dir"), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")
@@ -228,7 +228,7 @@ test_that("solve_in_situ errors when missing input file", {
     model = model
   )
   
-  insitu_dir <- file.path(write_dir, write_sub_dir)
+  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
@@ -264,7 +264,7 @@ test_that("solve_in_situ errors when input file is without name", {
     model = model
   )
   
-  insitu_dir <- file.path(write_dir, write_sub_dir)
+  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")

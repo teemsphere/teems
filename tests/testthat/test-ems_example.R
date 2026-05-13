@@ -3,8 +3,6 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset(), teardown_env())
 
-temp_dir <- withr::local_tempdir()
-
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
@@ -102,24 +100,24 @@ test_that("ems_example errors when type is scripts and set_input is missing", {
 })
 
 test_that("ems_example returns model_file path for GTAPv7", {
-  result <- ems_example("GTAPv7", write_dir = temp_dir)
+  result <- ems_example("GTAPv7", write_dir = write_dir)
   expect_true("model_file" %in% names(result))
   expect_true(file.exists(result[["model_file"]]))
 })
 
 test_that("ems_example returns closure_file path for GTAPv7", {
-  result <- ems_example("GTAPv7", write_dir = temp_dir)
+  result <- ems_example("GTAPv7", write_dir = write_dir)
   expect_true("closure_file" %in% names(result))
   expect_true(file.exists(result[["closure_file"]]))
 })
 
 test_that("ems_example model_file is a .tab file", {
-  result <- ems_example("GTAPv7", write_dir = temp_dir)
+  result <- ems_example("GTAPv7", write_dir = write_dir)
   expect_true(grepl("\\.tab$", result[["model_file"]]))
 })
 
 test_that("ems_example closure_file is a .cls file", {
-  result <- ems_example("GTAPv7", write_dir = temp_dir)
+  result <- ems_example("GTAPv7", write_dir = write_dir)
   expect_true(grepl("\\.cls$", result[["closure_file"]]))
 })
 

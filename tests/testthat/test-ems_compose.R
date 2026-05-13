@@ -45,7 +45,7 @@ test_that("ems_compose errors when which is not character", {
   expect_snapshot_error(ems_compose(cmf_path, which = 1))
 })
 
-test_that("ems_compose errors when invalid shich", {
+test_that("ems_compose errors when invalid which", {
   expect_snapshot_error(ems_compose(cmf_path, which = "not_a_var"))
 })
 

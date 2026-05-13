@@ -32,7 +32,7 @@
     if (length(invalid) > 0) {
       name <- invalid
       .cli_action(compose_err$invalid_name,
-        action = c("abort", "inform"),
+        action = "abort",
         call = call
       )
     }

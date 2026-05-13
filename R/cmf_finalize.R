@@ -8,7 +8,7 @@
                           cls_file,
                           write_dir) {
 
-  write_dir   <- normalizePath(write_dir, winslash = "/")
+  write_dir   <- normalizePath(write_dir, "/")
   input_names <- paste0(unique(model[!is.na(model$file), "file"][[1]]))
   input_files <- file.path(write_dir, paste0(input_names, ".txt"))
   names(input_files) <- input_names

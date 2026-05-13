@@ -9,7 +9,7 @@
   )
 
   file_entry <- sub("/opt/teems",
-                    normalizePath(dirname(cmf_path), winslash = "/"),
+                    normalizePath(dirname(cmf_path), "/"),
                     docker_path,
                     fixed = TRUE)
   

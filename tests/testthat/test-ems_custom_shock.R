@@ -162,3 +162,5 @@ test_that("ems_custom_shock errors when some shock tuples are endogenous", {
     write_dir = write_dir
   ))
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

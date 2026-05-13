@@ -27,7 +27,7 @@ of the subdirectory within the base directory.}
 
 \item{ndigits}{Integer (default is \code{6}). Exact number of
 digits to the right of the decimal point to be written to
-file for numeric type double (GEMPack equivalent "real").
+file for numeric type double.
 This value is passed to the \code{format()} nsmall argument and
 \code{round()} digits argument.}
 

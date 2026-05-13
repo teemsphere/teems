@@ -154,3 +154,5 @@ for (db in data_db) {
     expect_all_true(checks)
   })
 }
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

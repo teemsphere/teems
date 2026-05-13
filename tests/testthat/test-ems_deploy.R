@@ -294,3 +294,5 @@ test_that("ems_deploy warns when creating write_dir", {
     regexp = "Creating directory:"
   )
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

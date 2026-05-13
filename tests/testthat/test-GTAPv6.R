@@ -155,3 +155,5 @@ for (db in data_db) {
   })
 
 }
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

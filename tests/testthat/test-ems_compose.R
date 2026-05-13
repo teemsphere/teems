@@ -35,7 +35,7 @@ n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
 cmf_path <- ems_deploy(dat, model, write_dir = write_dir)
 ems_solve(cmf_path, suppress_outputs = TRUE)
 
-# --- error tests ---
+variant <- Sys.info()["sysname"]
 
 test_that("ems_compose errors when cmf_path is missing", {
   expect_snapshot_error(ems_compose())
@@ -48,8 +48,6 @@ test_that("ems_compose errors when which is not character", {
 test_that("ems_compose errors when invalid shich", {
   expect_snapshot_error(ems_compose(cmf_path, which = "not_a_var"))
 })
-
-# --- acceptance tests ---
 
 test_that("ems_compose returns tibble for which = 'all'", {
   result <- ems_compose(cmf_path)
@@ -99,7 +97,10 @@ test_that("ems_compose errors when cmf_path does not exist", {
 })
 
 test_that("ems_compose errors when model run has not taken place", {
-  cmf_path <- file.path("/tmp", "not_a_cmf.cmf")
+  cmf_path <- file.path(write_dir, "not_a_cmf.cmf")
   file.create(cmf_path)
-  expect_snapshot_error(ems_compose(cmf_path))
+  expect_snapshot_error(ems_compose(cmf_path),
+                        variant = variant)
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

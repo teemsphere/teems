@@ -47,9 +47,9 @@
         call = call
       )
     }
-    a$dat_input <- normalizePath(a$dat_input, winslash = "/", mustWork = FALSE)
-    a$par_input <- normalizePath(a$par_input, winslash = "/", mustWork = FALSE)
-    a$set_input <- normalizePath(a$set_input, winslash = "/", mustWork = FALSE)
+    a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
+    a$par_input <- normalizePath(a$par_input, "/", FALSE)
+    a$set_input <- normalizePath(a$set_input, "/", FALSE)
   }
 
   return(a)

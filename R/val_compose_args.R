@@ -22,7 +22,7 @@
   a$sol_prefix <- file.path(dirname(a$cmf_path), "out", "variables", "bin", "sol.")
 
   if (list.files(dirname(a$sol_prefix)) %=% character(0)) {
-    cmf_path <- a$cmf_path
+    cmf_path <- normalizePath(a$cmf_path, "/")
     .cli_action(compose_err$no_sol,
       action = "abort",
       call = call

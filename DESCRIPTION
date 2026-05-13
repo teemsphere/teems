@@ -1,19 +1,14 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Description: Provides a reproducible workflow for Computable 
-  General Equilibrium (CGE) model runs. Handles data loading and 
-  aggregation, model file parsing, closure and shock 
-  specification, and containerized model solution via Docker, 
-  returning structured output for downstream analysis.
 Version: 0.0.5
 Authors@R:
-  person(
-    given = "Matthew",
-    family = "Cantele",
-    role = c("aut", "cre"),
-    email = "matthew.cantele@protonmail.com",
-    comment = c(ORCID = "0000-0003-3729-1764")
-  )
+    person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3729-1764"))
+Description: Provides a reproducible workflow for Computable General
+    Equilibrium (CGE) model runs. Handles data loading and aggregation,
+    model file parsing, closure and shock specification, and containerized
+    model solution via Docker, returning structured output for downstream
+    analysis.
 License: AGPL (>= 3)
 URL: https://teemsphere.github.io/, https://github.com/teemsphere/teems/
 BugReports: https://github.com/teemsphere/teems-R/issues

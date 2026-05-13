@@ -62,10 +62,11 @@
   solve_cmd <- paste(exec_preamble, solver_param)
 
   if (terminal_run) {
-    cat(solve_cmd, file = file.path(paths$run, "model_exec.txt"))
+    m_exec <- normalizePath(file.path(paths$run, "model_exec.txt"), "/")
+    cat(solve_cmd, file = m_exec)
     hsl <- "hsl"
-    diag_out <- paths$diag_out
-    cmf_path <- paste0("\"", paths$cmf, "\"")
+    diag_out <- normalizePath(paths$diag_out, "/")
+    cmf_path <- paste0("\"", normalizePath(paths$cmf, "/"), "\"")
     .cli_action(solve_info$terminal_run,
       action = "inform",
       call = call

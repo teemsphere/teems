@@ -246,3 +246,5 @@ test_that("ems_data examples work", {
   check <- attr(int_data, "metadata")$data_format == "GTAPv7"
   expect_true(check)
 })
+
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

@@ -230,3 +230,5 @@ test_that("ems_uniform_shock errors dots passed without names", {
     ALLTIMEt = 1
   ))
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

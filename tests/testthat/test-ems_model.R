@@ -447,3 +447,5 @@ test_that("ems_model examples run", {
   )
   expect_s3_class(model, "tbl_df")
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

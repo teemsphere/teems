@@ -15,7 +15,3 @@
 
     x Cannot open file 'not_a_path': No such file.
 
-# ems_compose errors when model run has not taken place
-
-    x No solution files found at '/tmp/not_a_cmf.cmf'; the path is wrong or the model has not been run.
-

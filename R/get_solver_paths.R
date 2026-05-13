@@ -9,7 +9,7 @@
                 exist.",
                 call = call)
   }
-  run_dir <- normalizePath(dirname(path = cmf_path), winslash = "/")
+  run_dir <- normalizePath(dirname(path = cmf_path), "/")
   diagnostic_out <- file.path(run_dir,
                               "out",
                               paste0("solver_out", "_", timeID, ".txt"))

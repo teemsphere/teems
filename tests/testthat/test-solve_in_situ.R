@@ -38,6 +38,8 @@ model <- ems_model(
   closure_file = closure_file
 )
 
+variant <- Sys.info()["sysname"]
+
 test_that("solve_in_situ solves", {
   REG <- c("chn", "usa", "row")
   ENDW <- c("labor", "capital", "natlres", "land")
@@ -207,7 +209,8 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
     n_subintervals = 1,
     matrix_method = "SBBD",
     solution_method = "mod_midpoint"
-  ))
+  ),
+  variant = variant)
 })
 
 test_that("solve_in_situ errors when missing input file", {
@@ -283,3 +286,5 @@ test_that("solve_in_situ errors when input file is without name", {
     solution_method = "mod_midpoint"
   ))
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

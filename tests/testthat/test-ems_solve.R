@@ -7,7 +7,6 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-# general test data
 static_data <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
@@ -27,7 +26,7 @@ dynamic_data <- ems_data(
   time_steps = c(0, 1, 2)
 )
 
-write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "deploy")
+write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "solve")
 
 if (dir.exists(write_dir)) {
   unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
@@ -39,19 +38,15 @@ dynamic_model <- "GTAP-RE"
 dynamic_model_files <- ems_example(dynamic_model, write_dir = write_dir)
 dynamic_model_file <- dynamic_model_files[["model_file"]]
 dynamic_closure_file <- dynamic_model_files[["closure_file"]]
-
-# dynamic test model
 dynamic_model <- ems_model(model_file = dynamic_model_file, closure_file = dynamic_closure_file)
 
 static_model <- "GTAPv7"
 static_model_files <- ems_example(static_model, write_dir = write_dir)
 static_model_file <- static_model_files[["model_file"]]
 static_closure_file <- static_model_files[["closure_file"]]
-
-# static test model
 static_model <- ems_model(model_file = static_model_file, closure_file = static_closure_file)
 
-# --- integration tests ---
+variant <- Sys.info()["sysname"]
 
 test_that("ems_solve suppress_outputs returns cmf_path character", {
   ems_option_set(write_sub_dir = "solve_suppress")
@@ -59,8 +54,6 @@ test_that("ems_solve suppress_outputs returns cmf_path character", {
   result <- ems_solve(cmf_path = cmf_path, suppress_outputs = TRUE)
   expect_type(result, "NULL")
 })
-
-# --- error tests ---
 
 test_that("ems_solve errors when cmf_path is missing", {
   expect_snapshot_error(ems_solve())
@@ -101,7 +94,8 @@ test_that("ems_solve errors when solution errors detected", {
     error = TRUE,
     transform = function(lines) {
       gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
-    }
+    },
+    variant = variant
   )
 })
 
@@ -112,7 +106,8 @@ test_that("ems_solve errors when solution singularity detected", {
     error = TRUE,
     transform = function(lines) {
       gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
-    }
+    },
+    variant = variant
   )
 })
 
@@ -148,7 +143,8 @@ test_that("ems_solve informs terminal run", {
     ),
     transform = function(lines) {
       gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
-    }
+    },
+    variant = variant
   )
 })
 
@@ -213,3 +209,5 @@ test_that("ems_solve returns the same output across dynamic matrix methods", {
   check <- c(LU_SBBD_check, LU_NDBBD_check)
   expect_all_true(check)
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

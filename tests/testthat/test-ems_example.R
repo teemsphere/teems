@@ -45,6 +45,8 @@ if (dir.exists(GTAP_INT_dir)) {
   dir.create(GTAP_INT_dir, recursive = TRUE)
 }
 
+variant <- Sys.info()["sysname"]
+
 test_that("ems_example errors when model is missing", {
   expect_snapshot_error(ems_example())
 })
@@ -56,7 +58,8 @@ test_that("ems_example errors when write_dir parent dir does not exist", {
     unlink(parent_dir, recursive = TRUE)
   }
   expect_snapshot_error(
-    ems_example("GTAPv7", write_dir = write_dir)
+    ems_example("GTAPv7", write_dir = write_dir),
+    variant = variant
   )
 })
 
@@ -66,7 +69,8 @@ test_that("ems_example warns when write_dir does not exist", {
     unlink(write_dir)
   }
   expect_snapshot_warning(
-    ems_example("GTAPv7", write_dir = write_dir)
+    ems_example("GTAPv7", write_dir = write_dir),
+    variant = variant
   )
 })
 
@@ -178,3 +182,5 @@ test_that("ems_example GTAP-RE scripts run without errors", {
   checks <- unlist(lapply(checks, \(r) {r$value}))
   expect_all_true(checks)
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

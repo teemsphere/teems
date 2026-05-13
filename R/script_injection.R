@@ -11,7 +11,7 @@
                            call = call) {
   script <- basename(script)
   sub_path <- file.path(write_dir, script)
-  sub_path <- normalizePath(sub_path, winslash = "/", mustWork = FALSE)
+  sub_path <- normalizePath(sub_path, "/", FALSE)
   assignments <- list(
     dat_input    = dat_input,
     par_input    = par_input,

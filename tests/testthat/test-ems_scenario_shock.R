@@ -191,3 +191,5 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
     write_dir = write_dir
   ))
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

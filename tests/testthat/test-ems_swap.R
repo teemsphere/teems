@@ -7,7 +7,7 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "deploy")
+write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "swap")
 
 if (dir.exists(write_dir)) { 
   unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
@@ -318,3 +318,5 @@ test_that("ems_swap out subset not valid", {
     swap_out = swap_out, write_dir = write_dir
   ))
 })
+
+unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)

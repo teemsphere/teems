@@ -52,8 +52,8 @@ elements and attributes (e.g., a HAR file).}
 files will be written.}
 }
 \value{
-For \code{type = "model_files"}: a named list with elements
-\code{model_file} and \code{closure_file}. For \code{type = "scripts"}: a
+For \code{type = "model_files"}: a named character vector with
+elements \code{model_file} and \code{closure_file}. For \code{type = "scripts"}: a
 character vector of paths to the written script files.
 }
 \description{

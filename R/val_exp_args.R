@@ -50,6 +50,7 @@
     a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
     a$par_input <- normalizePath(a$par_input, "/", FALSE)
     a$set_input <- normalizePath(a$set_input, "/", FALSE)
+    a$write_dir <- normalizePath(a$write_dir, "/", FALSE)
   }
 
   return(a)

@@ -25,7 +25,7 @@
   )
 
   if (!dir.exists(model_dir)) {
-    model_dir <- normalizePath(model_dir, "/")
+    model_dir <- normalizePath(model_dir, "/", FALSE)
     .cli_action(solve_err$no_model_dir,
       action = "abort",
       call = call

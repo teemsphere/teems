@@ -7,7 +7,7 @@
 
   if (!dir.exists(write_dir)) {
     created <- dir.create(write_dir, recursive = FALSE, showWarnings = FALSE)
-    write_dir <- normalizePath(write_dir, "/")
+    write_dir <- normalizePath(write_dir, "/", FALSE)
 
     if (!created) {
       .cli_action(deploy_err$invalid_write_dir,
@@ -34,7 +34,7 @@
   if (append_subdir) {
     sub_path <- file.path(write_dir, subdir)
     if (dir.exists(sub_path)) {
-      existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)
+      existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE, full.names = TRUE)
       existing <- normalizePath(existing, "/")
       if (length(existing) > 0) {
         .cli_action(gen_info$unlink,

@@ -13,7 +13,6 @@
                                closure,
                                shocks,
                                metadata) {
-
   if (!is.null(shocks) && !is.character(shocks)) {
     shocks <- purrr::map_chr(shocks, "var")
     shock_var <- paste0(unique(shocks), collapse = ", ")
@@ -40,14 +39,14 @@
     temporal_dynamics <- "static"
   }
 
+  data_path <- toString(normalizePath(unlist(data_path), "/"))
   diagnostic_file <- file.path(dirname(tab_path), "model_diagnostics.txt")
   diag_output <- cli::cli_fmt({
-    # Start output generation
     cli::cli_h1("Diagnostic outputs follow")
     cli::cli_h2("General model specifications")
     cli::cli_dl(c(
-      "Modeled Tablo file" = tab_path,
-      "Input files" = toString(data_path),
+      "Modeled Tablo file" = normalizePath(tab_path, "/"),
+      "Input files" = data_path,
       "Temporal dynamics" = temporal_dynamics,
       "GTAP database version" = metadata$full_database_version,
       "Reference year" = metadata$reference_year,
@@ -59,9 +58,7 @@
       .f = function(nme, ele, info) {
         nme <- toupper(nme)
         info <- trimws(gsub("#", "", info))
-        #cli::cli_h3(text = "Set {nme}")
         cli::cli_text("{nme} ({info}): {.val {paste(ele, collapse = ', ')}}")
-        #cli::cli_text("Elements: {.val {paste(ele, collapse = ', ')}}")
       }
     )
     cli::cli_h2("Closure and shock specifications")

@@ -18,6 +18,7 @@
     overwrite = TRUE
   )
   paths <- file.path(v$write_dir, c(model_file, closure_file))
+  paths <- normalizePath(paths, "/")
   names(paths) <- c("model_file", "closure_file")
   
   if (v$type %=% "scripts") {

@@ -9,8 +9,7 @@ build_compose_err <- function() {
     coeff_check = "One or more Tablo-identified coefficients absent from model output.",
     invalid_coeff_set = "Set not found; a space in a coefficient set declaration may be the cause, e.g. {.code (all, r, REG)} instead of {.code (all,r,REG)}.",
     missing_sets = "Set information missing from binary outputs: {.field {x_sets}}.",
-    invalid_name = c("{.field {name}} is not present in output variables or coefficients.",
-                     "Note that if {.arg minimal} is {.field TRUE}, no model coefficients can be outputted."),
+    invalid_name = "{.field {name}} is not present in output variables or coefficients.",
     no_outputs = "No valid variables or model coefficients are availble to output. Ensure that {.fun teems::ems_compose} arguments are compatible."
   )
 }

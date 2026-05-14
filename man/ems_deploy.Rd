@@ -76,7 +76,6 @@ cmf_path <- ems_deploy(
  swap_out = list(dppriv_row, "tfd")
 )
 }
-
 }
 \seealso{
 \code{\link[=ems_data]{ems_data()}}. \code{\link[=ems_model]{ems_model()}}.

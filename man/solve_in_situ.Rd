@@ -128,6 +128,23 @@ Docker image directly with user-supplied input files, bypassing
 the \code{\link[=ems_data]{ems_data()}} / \code{\link[=ems_model]{ems_model()}} / \code{\link[=ems_deploy]{ems_deploy()}}
 pipeline. All input files must be provided in their final form.
 }
+\examples{
+\dontrun{
+solve_in_situ(
+ GTAPDATA = "path/to/dat_file.txt",
+ GTAPPARM = "path/to/par_file.txt",
+ GTAPSETS = "path/to/sets_file.txt",
+ model_file = "path/to/model_file.tab",
+ closure_file = "path/to/closure_file.cls",
+ model_dir = "existing/dir/for/model_run",
+ shock_file = "path/to/shock_file.shf",
+ n_tasks = 1,
+ n_subintervals = 1,
+ matrix_method = "SBBD",
+ solution_method = "mod_midpoint"
+ )
+}
+}
 \seealso{
 \code{\link[=ems_solve]{ems_solve()}} for the standard package-supported
 solver.

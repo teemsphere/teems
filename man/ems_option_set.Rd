@@ -65,6 +65,12 @@ Modify with caution.}
 \code{ems_option_set()} allows the user to customize
 advanced options.
 }
+\examples{
+ems_option_set(verbose = FALSE)
+ems_option_set(ndigits = 8, write_sub_dir = "my_run")
+ems_option_reset()
+
+}
 \seealso{
 \code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.
 \code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.

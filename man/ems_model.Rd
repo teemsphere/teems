@@ -43,15 +43,16 @@ name concatenated with its index letter, e.g., \code{REGr},
 set aggregations specified in \code{\link[=ems_data]{ems_data()}}.
 }
 \examples{
+\dontrun{
 # simple model load
-GTAPv7 <- ems_example("GTAPv7", write_dir = tempdir())
+GTAPv7 <- ems_example("GTAPv7")
 model <- ems_model(GTAPv7[["model_file"]],
                    GTAPv7[["closure_file"]])
 
 # model load with variable omission
 # uniform numeric value applied to KAPPA coefficient
 # heterogeneous values allocated to SUBPAR via data frame
-GTAP_RE <- ems_example("GTAP-RE", write_dir = tempdir())
+GTAP_RE <- ems_example("GTAP-RE")
 sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 regions <- c("usa", "chn", "row")
 time_steps <- 0:5
@@ -65,6 +66,7 @@ model <- ems_model(model_file = GTAP_RE[["model_file"]],
                    var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
                    KAPPA = 0.03,
                    SUBPAR = SUBPAR)
+}
 }
 \seealso{
 \code{\link[=ems_example]{ems_example()}} for loading example models and

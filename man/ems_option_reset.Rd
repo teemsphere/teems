@@ -13,6 +13,12 @@ ems_option_reset()
 \code{ems_option_reset()} resets all package
 options to default values.
 }
+\examples{
+ems_option_set(verbose = FALSE, ndigits = 8)
+ems_option_reset()
+ems_option_get("verbose")  # TRUE
+
+}
 \seealso{
 \code{\link[=ems_option_set]{ems_option_set()}} for setting package options.
 \code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.

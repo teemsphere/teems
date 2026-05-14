@@ -64,7 +64,6 @@ converted <- GTAP_convert(
   target    = "GTAPv7"
 )
 }
-
 }
 \seealso{
 \code{\link[=ems_data]{ems_data()}} for loading and preparing converted

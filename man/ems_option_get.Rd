@@ -45,6 +45,11 @@ Otherwise, the value of the requested option.
 options. If \code{name} is \code{NULL} (the default), all option
 values are returned as a list.
 }
+\examples{
+ems_option_get()
+ems_option_get("ndigits")
+
+}
 \seealso{
 \code{\link[=ems_option_set]{ems_option_set()}} for setting package options.
 \code{\link[=ems_option_reset]{ems_option_reset()}} for resetting package options.

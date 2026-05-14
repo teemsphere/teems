@@ -35,15 +35,16 @@
 #'   function as well as conducting any closure swaps.
 #' 
 #' @examples
+#' \dontrun{
 #' # simple model load
-#' GTAPv7 <- ems_example("GTAPv7", write_dir = tempdir())
+#' GTAPv7 <- ems_example("GTAPv7")
 #' model <- ems_model(GTAPv7[["model_file"]],
 #'                    GTAPv7[["closure_file"]])
 #'
 #' # model load with variable omission
 #' # uniform numeric value applied to KAPPA coefficient
 #' # heterogeneous values allocated to SUBPAR via data frame
-#' GTAP_RE <- ems_example("GTAP-RE", write_dir = tempdir())
+#' GTAP_RE <- ems_example("GTAP-RE")
 #' sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 #' regions <- c("usa", "chn", "row")
 #' time_steps <- 0:5
@@ -57,6 +58,7 @@
 #'                    var_omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
 #'                    KAPPA = 0.03,
 #'                    SUBPAR = SUBPAR)
+#' }
 #' @export
 ems_model <- function(
     model_file,

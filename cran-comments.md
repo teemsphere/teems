@@ -4,4 +4,4 @@
 
 ## CRAN testing
 
-Several package components (data availability and solver build) preclude systematic testing on CRAN; checks have passed on both Linux and Windows OS.
+Several package components (data availability and solver build) preclude systematic testing on CRAN; all checks have passed on both Linux and Windows OS.

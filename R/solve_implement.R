@@ -41,16 +41,20 @@
   if (isFALSE(cmds)) {
     return(invisible(NULL))
   }
-  if (.o_verbose()) {
+  
+  if (Sys.info()[["sysname"]] == "Windows") {
+    captured <- character(0)
+    elapsed_time <- system.time(captured <- system(cmds$solve, intern = TRUE))
+    if (.o_verbose()) cat(captured, sep = "\n")
+  } else if (.o_verbose()) {
     elapsed_time <- system.time(system(cmds$solve))
-  } else if (Sys.info()[["sysname"]] == "Windows") {
-    elapsed_time <- system.time(system(cmds$solve, intern = TRUE))
   } else {
     elapsed_time <- system.time(system(cmds$solve,
       ignore.stdout = TRUE,
       ignore.stderr = TRUE
     ))
   }
+  
   .check_solver_log(
     elapsed_time = elapsed_time,
     solve_cmd = cmds$solve,

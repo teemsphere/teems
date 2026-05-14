@@ -42,6 +42,11 @@
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #'
+#' @examples
+#' ems_option_set(verbose = FALSE)
+#' ems_option_set(ndigits = 8, write_sub_dir = "my_run")
+#' ems_option_reset()
+#'
 #' @importFrom cli cli_abort
 #' @export
 ems_option_set <- function(verbose = NULL,
@@ -104,6 +109,10 @@ ems_option_set <- function(verbose = NULL,
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #'
+#' @examples
+#' ems_option_get()
+#' ems_option_get("ndigits")
+#'
 #' @importFrom cli cli_abort
 #' @export
 ems_option_get <- function(name = NULL) {
@@ -141,6 +150,11 @@ ems_option_get <- function(name = NULL) {
 #'
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_get()`] for retrieving package options.
+#'
+#' @examples
+#' ems_option_set(verbose = FALSE, ndigits = 8)
+#' ems_option_reset()
+#' ems_option_get("verbose")  # TRUE
 #'
 #' @export
 ems_option_reset <- function() {

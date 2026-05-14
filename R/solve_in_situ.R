@@ -28,7 +28,22 @@
 #'   coefficients. Alternatively, if `"suppress_outputs"` is
 #'   `TRUE`, file path to a CMF file that may be used with
 #'   [`ems_compose()`].
-#' 
+#' @examples
+#' \dontrun{
+#' solve_in_situ(
+#'  GTAPDATA = "path/to/dat_file.txt",
+#'  GTAPPARM = "path/to/par_file.txt",
+#'  GTAPSETS = "path/to/sets_file.txt",
+#'  model_file = "path/to/model_file.tab",
+#'  closure_file = "path/to/closure_file.cls",
+#'  model_dir = "existing/dir/for/model_run",
+#'  shock_file = "path/to/shock_file.shf",
+#'  n_tasks = 1,
+#'  n_subintervals = 1,
+#'  matrix_method = "SBBD",
+#'  solution_method = "mod_midpoint"
+#'  )
+#' }
 #' @export
 solve_in_situ <- function(...,
                           model_file,

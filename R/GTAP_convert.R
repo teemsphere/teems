@@ -41,7 +41,6 @@
 #'   target    = "GTAPv7"
 #' )
 #' }
-#'
 #' @export
 GTAP_convert <- function(dat_input,
                          par_input,

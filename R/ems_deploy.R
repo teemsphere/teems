@@ -57,7 +57,6 @@
 #'  swap_out = list(dppriv_row, "tfd")
 #' )
 #' }
-#'
 #' @export
 ems_deploy <- function(.data,
                        model,

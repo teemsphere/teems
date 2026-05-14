@@ -43,6 +43,8 @@
   }
   if (.o_verbose()) {
     elapsed_time <- system.time(system(cmds$solve))
+  } else if (Sys.info()[["sysname"]] == "Windows") {
+    elapsed_time <- system.time(system(cmds$solve, intern = TRUE))
   } else {
     elapsed_time <- system.time(system(cmds$solve,
       ignore.stdout = TRUE,

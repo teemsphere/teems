@@ -4,5 +4,5 @@
 
 # ems_example warns when write_dir does not exist
 
-    ! Creating directory: 'C:/Users/PC/AppData/Local/R/cache/R/teems/example/nonexistent_dir_xyz'.
+    ! Creating directory: 'C:/Users/PC/AppData/Local/R/cache/R/teems/example/tmp/nonexistent_dir_xyz'.
 

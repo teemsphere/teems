@@ -12,7 +12,7 @@
       ems_solve(cmf_path = cmf_path)
     Condition
       Error in `ems_solve()`:
-      x Singularity detected during solution. See 'C:/Users/PC/AppData/Roaming/R/data/R/teems/solve/solve_err_sing/out/solver_out_HHMM.txt'.
+      x Singularity detected during solution. See 'C:/Users/PC/AppData/Local/R/cache/R/teems/solve/solve_err_sing/out/solver_out_HHMM.txt'.
 
 # ems_solve informs terminal run
 

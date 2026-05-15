@@ -1,20 +1,17 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Description: Equilibrium models are frequently employed to
-    examine the potential impacts of economic, energy, and trade
-    policies as well as form the foundation of most integrated
-    assessment models. The 'teems' package handles all aspects of
-    running equilibrium models while facilitating transparent and
-    reproducible workflows.
 Version: 0.0.5
-Authors@R: person(given = "Matthew",
-           family = "Cantele",
-           role = c("aut", "cre", "cph"),
-           email = "matthew.cantele@protonmail.com",
+Authors@R: 
+    person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-3729-1764"))
+Description: Equilibrium models are frequently employed to examine the
+    potential impacts of economic, energy, and trade policies as well as
+    form the foundation of most integrated assessment models. The 'teems'
+    package handles all aspects of running equilibrium models while
+    facilitating transparent and reproducible workflows.
 License: AGPL (>= 3)
 URL: https://teemsphere.github.io/, https://github.com/teemsphere/teems/
-BugReports: https://github.com/teemsphere/teems-R/issues
+BugReports: https://github.com/teemsphere/teems/issues
 Depends: 
     R (>= 4.3.0)
 Imports:

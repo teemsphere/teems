@@ -10,7 +10,7 @@ ems_example(
   dat_input = NULL,
   par_input = NULL,
   set_input = NULL,
-  write_dir = tools::R_user_dir("teems", "cache")
+  write_dir = tools::R_user_dir("teems")
 )
 }
 \arguments{
@@ -48,7 +48,7 @@ working directory or path to a data input containing set
 elements and attributes (e.g., a HAR file).}
 
 \item{write_dir}{Character vector of length 1, (default is
-\code{tools::R_user_dir("teems", "cache")}). Directory where
+\code{tools::R_user_dir("teems")}). Directory where
 files will be written.}
 }
 \value{
@@ -62,7 +62,7 @@ function facilitates access.
 }
 \examples{
 \dontrun{
-# Write GTAP-RE model files to `tools::R_user_dir("teems", "cache")`
+# Write GTAP-RE model files to `tools::R_user_dir("teems")`
 ems_example("GTAP-RE")
 
 # Generate GTAP-RE example scripts

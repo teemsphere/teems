@@ -10,7 +10,7 @@ ems_deploy(
   shock = NULL,
   swap_in = NULL,
   swap_out = NULL,
-  write_dir = tools::R_user_dir("teems", "cache"),
+  write_dir = tools::R_user_dir("teems"),
   shock_file = NULL
 )
 }
@@ -35,8 +35,9 @@ endogenous (default \code{NULL}).}
 
 \item{write_dir}{Path to the base directory where a \verb{teems/}
 subdirectory will be created for input files and solver
-output. Defaults to a session-scoped cache cleared on exit;
-specify a path for persistent output.}
+output. Defaults to \code{tools::R_user_dir("teems")} which is
+cleared upon loading a new session; specify a path for
+persistent output.}
 
 \item{shock_file}{Path to a file with ".shf" extension
 representing a fully prepared shock file (default \code{NULL}).

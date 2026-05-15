@@ -28,7 +28,7 @@
 #'   working directory or path to a data input containing set
 #'   elements and attributes (e.g., a HAR file).
 #' @param write_dir Character vector of length 1, (default is
-#'   `tools::R_user_dir("teems", "cache")`). Directory where
+#'   `tools::R_user_dir("teems")`). Directory where
 #'   files will be written.
 #' 
 #' @importFrom tools R_user_dir
@@ -38,7 +38,7 @@
 #'   character vector of paths to the written script files.
 #' @examples
 #' \dontrun{
-#' # Write GTAP-RE model files to `tools::R_user_dir("teems", "cache")`
+#' # Write GTAP-RE model files to `tools::R_user_dir("teems")`
 #' ems_example("GTAP-RE")
 #' 
 #' # Generate GTAP-RE example scripts
@@ -55,7 +55,7 @@ ems_example <- function(model,
                         dat_input = NULL,
                         par_input = NULL,
                         set_input = NULL,
-                        write_dir = tools::R_user_dir("teems", "cache")
+                        write_dir = tools::R_user_dir("teems")
 ) {
 if (missing(model)) {
   .cli_missing(model)

@@ -7,13 +7,14 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-write_dir <- file.path(tools::R_user_dir("teems", "data"), "example")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "example")
+temp_dir <- file.path(write_dir, "tmp")
 
 if (dir.exists(write_dir)) {
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(temp_dir, recursive = TRUE)
 
 GTAPv6_dir <- file.path(write_dir, "GTAPv6")
 if (dir.exists(GTAPv6_dir)) {
@@ -50,7 +51,7 @@ test_that("ems_example errors when model is missing", {
 })
 
 test_that("ems_example errors when write_dir parent dir does not exist", {
-  write_dir <- file.path(tools::R_user_dir("teems", "cache"), "nonexistent_dir_xyz")
+  write_dir <- file.path(temp_dir, "parent_dir", "nonexistent_dir_xyz")
   parent_dir <- dirname(write_dir)
   if (dir.exists(parent_dir)) {
     unlink(parent_dir, recursive = TRUE)
@@ -62,7 +63,7 @@ test_that("ems_example errors when write_dir parent dir does not exist", {
 })
 
 test_that("ems_example warns when write_dir does not exist", {
-  write_dir <- file.path(write_dir, "nonexistent_dir_xyz")
+  write_dir <- file.path(temp_dir, "nonexistent_dir_xyz")
   if (dir.exists(write_dir)) {
     unlink(write_dir)
   }
@@ -181,4 +182,4 @@ test_that("ems_example GTAP-RE scripts run without errors", {
   expect_all_true(checks)
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

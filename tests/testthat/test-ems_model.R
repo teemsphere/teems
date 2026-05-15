@@ -18,13 +18,14 @@ write_modified_closure <- function(closure_file, text, .fn = cat) {
   out_path
 }
 
-write_dir <- file.path(tools::R_user_dir("teems", "data"), "model")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "model")
+temp_dir <- file.path(write_dir, "tmp")
 
 if (dir.exists(write_dir)) {
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(temp_dir, recursive = TRUE)
 
 model_file <- ems_example("GTAP-RE", write_dir = write_dir)[["model_file"]]
 closure_file <- ems_example("GTAP-RE", write_dir = write_dir)[["closure_file"]]
@@ -149,8 +150,6 @@ test_that("aggregated data frame to a read", {
 
 test_that("aggregated csv to a read", {
   set.seed(42)
-  temp_dir <- withr::local_tempdir()
-
   COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")
   REGr <- c("usa", "chn", "row")
   ALLTIMEt <- seq(0, length(c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16)) - 1)
@@ -200,8 +199,6 @@ test_that("aggregated data frame to a formula", {
 
 test_that("aggregated csv to a formula", {
   set.seed(42)
-  temp_dir <- withr::local_tempdir()
-
   REGr <- c("usa", "chn", "row")
   ALLTIMEt <- seq(0, length(c(0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16)) - 1)
   CPHI <- expand.grid(
@@ -448,4 +445,4 @@ test_that("ems_model examples run", {
   expect_s3_class(model, "tbl_df")
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

@@ -7,13 +7,13 @@ set_input <- Sys.getenv("GTAP12_set")
 
 year <- 2023
 
-write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "in_situ")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "in_situ")
 
 if (dir.exists(write_dir)) {
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(write_dir, recursive = TRUE)
 
 model <- "GTAP-RE"
 
@@ -287,4 +287,4 @@ test_that("solve_in_situ errors when input file is without name", {
   ))
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

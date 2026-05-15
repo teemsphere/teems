@@ -7,13 +7,14 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), "uniform_shock")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "scenario_shock")
+temp_dir <- file.path(write_dir, "tmp")
 
-if (dir.exists(write_dir)) { 
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+if (dir.exists(write_dir)) {
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(temp_dir, recursive = TRUE)
 
 model <- "GTAP-RE"
 model_files <- ems_example(model, write_dir = write_dir)
@@ -33,8 +34,6 @@ dat <- ems_data(
 
 # general test model
 model <- ems_model(model_file = model_file, closure_file = closure_file)
-
-temp_dir <- withr::local_tempdir()
 
 # minimal data frame for scenario shock input (absolute values with Year column)
 REGr <- c("usa", "chn", "row")
@@ -192,4 +191,4 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
   ))
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

@@ -6,6 +6,17 @@ par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 REG <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG[, c(1, 2)]
 
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "custom_shock")
+
+if (dir.exists(write_dir)) {
+  unlink(write_dir, recursive = TRUE)
+}
+
+dir.create(write_dir, recursive = TRUE)
+REG_csv <- file.path(write_dir, "REG.csv")
+tmp_txt <- file.path(write_dir, "wrong_ext.txt")
+file.create(tmp_txt)
+
 test_that("ems_data requires dat_input argument", {
   expect_snapshot_error(ems_data())
 })
@@ -92,8 +103,6 @@ test_that("ems_data rejects non-existent CSV file", {
 })
 
 test_that("ems_data rejects wrong file extension for mapping", {
-  tmp_txt <- tempfile(fileext = ".txt")
-  file.create(tmp_txt)
   expect_snapshot_error(ems_data(
     dat_input,
     par_input,
@@ -104,10 +113,6 @@ test_that("ems_data rejects wrong file extension for mapping", {
 
 test_that("ems_data rejects invalid mapping values in CSV", {
   REG[1, ] <- "invalid"
-  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
-    dir.create(tools::R_user_dir("teems", "cache"))
-  }
-  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input,
@@ -119,10 +124,6 @@ test_that("ems_data rejects invalid mapping values in CSV", {
 
 test_that("ems_data warns CSV with extra columns", {
   REG$extra_col <- NA
-  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
-    dir.create(tools::R_user_dir("teems", "cache"))
-  }
-  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_warning(ems_data(
     dat_input,
@@ -134,10 +135,6 @@ test_that("ems_data warns CSV with extra columns", {
 
 test_that("ems_data rejects CSV with insufficient columns", {
   REG <- REG[, 1]
-  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
-    dir.create(tools::R_user_dir("teems", "cache"))
-  }
-  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input,
@@ -159,10 +156,6 @@ test_that("ems_data rejects unrecognized set arguments", {
 })
 
 test_that("ems_data rejects unrecognized set arguments with CSV mapping", {
-  if (!dir.exists(tools::R_user_dir("teems", "cache"))) {
-    dir.create(tools::R_user_dir("teems", "cache"))
-  }
-  REG_csv <- file.path(tools::R_user_dir("teems", "cache"), "REG.csv")
   write.csv(REG, REG_csv, row.names = FALSE)
   expect_snapshot_error(ems_data(
     dat_input,

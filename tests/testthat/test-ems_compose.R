@@ -7,13 +7,13 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-write_dir <- file.path(tools::R_user_dir("teems", "data"), "compose")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "compose")
 
 if (dir.exists(write_dir)) {
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(write_dir, recursive = TRUE)
 
 model <- "GTAP-RE"
 model_files <- ems_example(model, write_dir = write_dir)
@@ -103,4 +103,4 @@ test_that("ems_compose errors when model run has not taken place", {
                         variant = variant)
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

@@ -7,13 +7,14 @@ dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
 
-write_dir <- file.path(tools::R_user_dir("teems", "data"), "deploy")
+write_dir <- file.path(tools::R_user_dir("teems", "cache"), "deploy")
+temp_dir <- file.path(write_dir, "tmp")
 
 if (dir.exists(write_dir)) {
-  unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(write_dir, recursive = TRUE)
+  unlink(write_dir, recursive = TRUE)
 }
+
+dir.create(temp_dir, recursive = TRUE)
 
 model <- "GTAP-RE"
 model_files <- ems_example(model, write_dir = write_dir)
@@ -242,7 +243,7 @@ test_that("ems_deploy errors when aggregated inputs are incomplete", {
 
 test_that("ems_deploy accepts a shock file", {
   shock <- "Shock pfactwld(ALLTIME) = uniform 1;\n"
-  temp <- tempfile(fileext = ".shf")
+  temp <- tempfile(tmpdir = temp_dir, fileext = ".shf")
   cat(shock, file = temp)
   ems_option_set(write_sub_dir = "shock_file")
   cmf_path <- ems_deploy(dat, model, write_dir = write_dir, shock_file = temp)
@@ -284,13 +285,12 @@ test_that("ems_deploy examples work", {
 })
 
 test_that("ems_deploy warns when creating write_dir", {
-  dir <- file.path(dirname(tempdir()), "write_dir")
+  dir <- file.path(temp_dir, "write_dir")
   dir.create(dir, showWarnings = FALSE)
-  on.exit(unlink(dir, recursive = TRUE))
   expect_warning(
     ems_deploy(dat, model, write_dir = file.path(dir, "tmp")),
     regexp = "Creating directory:"
   )
 })
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

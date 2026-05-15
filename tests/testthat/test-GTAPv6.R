@@ -10,11 +10,13 @@ db_inputs <- list(
 )
 
 model <- "GTAPv6"
-model_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"))
+model_dir <- file.path(tools::R_user_dir("teems", "cache"), model)
 
-if (!dir.exists(model_dir)) {
-  dir.create(model_dir, recursive = TRUE, showWarnings = FALSE)
+if (dir.exists(model_dir)) {
+  unlink(model_dir, recursive = TRUE)
 }
+
+dir.create(model_dir, recursive = TRUE)
 
 model_files <- ems_example(model, write_dir = model_dir)
 model_file <- model_files[["model_file"]]
@@ -32,13 +34,13 @@ for (db in data_db) {
     set_input <- v6_data$set
   }
 
-  write_dir <- file.path(tools::R_user_dir(package = "teems", which = "data"), db, model)
-
-  if (dir.exists(write_dir)) { 
-    unlink(list.dirs(write_dir, recursive = FALSE), recursive = TRUE)
-  } else {
-    dir.create(write_dir, recursive = TRUE)
+  write_dir <- file.path(tools::R_user_dir("teems", "cache"), db, model)
+  
+  if (dir.exists(write_dir)) {
+    unlink(write_dir, recursive = TRUE)
   }
+  
+  dir.create(write_dir, recursive = TRUE)
 
   test_that(paste(db, paste(model, "null")), {
     run_script(file.path(model, "null.R"))
@@ -156,4 +158,4 @@ for (db in data_db) {
 
 }
 
-unlink(tools::R_user_dir("teems", "data"), recursive = TRUE)
+unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

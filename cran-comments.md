@@ -8,4 +8,4 @@ Several package components (data availability and solver build) preclude systema
 
 ## General testing
 
-All tests here have been conducted (https://github.com/ThinkR-open/prepare-for-cran).
+All tests here (except revdep) have been conducted (https://github.com/ThinkR-open/prepare-for-cran).

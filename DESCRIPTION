@@ -1,9 +1,35 @@
 Package: teems
 Title: Trade and Environment Equilibrium Modeling System
-Version: 0.0.5
-Authors@R: 
-    person("Matthew", "Cantele", , "matthew.cantele@protonmail.com", role = c("aut", "cre", "cph"),
-           comment = c(ORCID = "0000-0003-3729-1764"))
+Version: 0.1.0
+Authors@R: c(
+    person(
+      given = "Matthew",
+      family = "Cantele",
+      role = c("aut", "cre", "cph"),
+      email = "matthew.cantele@protonmail.com",
+      comment = c(ORCID = "0000-0003-3729-1764")
+    ),
+    person(
+      given = "Tom",
+      family = "Kompas",
+      role = c("ctb", "ths"),
+      email = "tom.kompas@unimelb.edu.au",
+      comment = c(ORCID = "0000-0002-0665-0966")
+    ),
+    person(
+      given = c("Ha", "Van"),
+      family = "Pham",
+      role = "ctb",
+      email = "havan.pham@unimelb.edu.au",
+      comment = c(ORCID = "0000-0002-5927-6568")
+    ),
+    person(
+      given = "Martin",
+      family = "Ingram",
+      role = "ctb",
+      email = "martin.ingram@gmail.com ",
+      comment = c(ORCID = "0000-0001-6269-8342")
+    ))
 Description: Equilibrium models are frequently employed to examine the
     potential impacts of economic, energy, and trade policies as well as
     form the foundation of most integrated assessment models. The 'teems'
@@ -31,6 +57,6 @@ LinkingTo:
     cpp11
 Config/testthat/edition: 3
 Encoding: UTF-8
+SystemRequirements: Docker (https://www.docker.com)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-SystemRequirements: Docker (https://www.docker.com)

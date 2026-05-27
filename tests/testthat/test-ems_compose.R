@@ -1,8 +1,5 @@
 skip_on_cran()
 
-ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset(), teardown_env())
-
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
@@ -14,9 +11,12 @@ if (dir.exists(write_dir)) {
 }
 
 dir.create(write_dir, recursive = TRUE)
+ems_option_set(verbose = FALSE,
+               tempdir = write_dir)
+withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(model, write_dir = write_dir)
+model_files <- ems_example(write_dir, model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -32,7 +32,7 @@ dat <- ems_data(
 model <- ems_model(model_file, closure_file)
 n_var <- nrow(model[which(model$type == "Variable"), ])
 n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
-cmf_path <- ems_deploy(dat, model, write_dir = write_dir)
+cmf_path <- ems_deploy(dat, model)
 ems_solve(cmf_path, suppress_outputs = TRUE)
 
 variant <- Sys.info()["sysname"]
@@ -96,9 +96,20 @@ test_that("ems_compose errors when cmf_path does not exist", {
   expect_snapshot_error(ems_compose(cmf_path = file.path("not_a_path")))
 })
 
+test_that("ems_compose examples run", {
+  # All variables and coefficients
+  outputs <- ems_compose(cmf_path)
+  
+  # Specific variables and/or coefficients by name
+  outputs <- ems_compose(cmf_path, c("qfd", "EVFP"))
+  expect_equal(nrow(outputs), 2)
+  expect_equal(ncol(outputs), 4)
+  expect_equal(names(outputs), c("name", "label", "type", "dat"))
+  expect_equal(names(outputs$dat), c("qfd", "EVFP"))
+})
+
 test_that("ems_compose errors when model run has not taken place", {
-  cmf_path <- file.path(write_dir, "not_a_cmf.cmf")
-  file.create(cmf_path)
+  unlink(file.path(write_dir, "out"), recursive = TRUE)
   expect_snapshot_error(ems_compose(cmf_path),
                         variant = variant)
 })

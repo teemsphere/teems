@@ -53,8 +53,12 @@
 
 # invalid tab statement
 
-    x teems 0.0.5 does not support Omit statements.
-    i Supported statements include: File, Coefficient, Read, Update, Set, Subset, Formula, Assertion, Variable, Equation, Write, and Zerodivide.
+    Code
+      ems_model(err_model, closure_file)
+    Condition
+      Error in `ems_model()`:
+      x teems version_number does not support Omit statements.
+      i Supported statements include: File, Coefficient, Read, Update, Set, Subset, Formula, Assertion, Variable, Equation, Write, and Zerodivide.
 
 # invalid intertemporal header
 

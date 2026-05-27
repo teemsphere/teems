@@ -21,9 +21,8 @@
 
 # ems_custom_shock errors when both year and int set are provided
 
-    ! Could not evaluate cli `{}` expression: `time_set`.
-    Caused by error in `eval(expr, envir = envir)`:
-    ! object 'time_set' not found
+    x Either Year or intertemporal set ALLTIMEt should be provided, not both.
+    i Call: `ems_custom_shock(var = "pop", input = extra_col)`
 
 # ems_custom_shock errors when invalid year is provided
 

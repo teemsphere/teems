@@ -1,5 +1,4 @@
 skip_on_cran()
-ems_option_set(verbose = FALSE)
 
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
@@ -13,6 +12,12 @@ if (dir.exists(write_dir)) {
 }
 
 dir.create(write_dir, recursive = TRUE)
+ems_option_set(
+  verbose = FALSE,
+  tempdir = write_dir
+)
+withr::defer(ems_option_reset(), teardown_env())
+
 REG_csv <- file.path(write_dir, "REG.csv")
 tmp_txt <- file.path(write_dir, "wrong_ext.txt")
 file.create(tmp_txt)
@@ -26,18 +31,11 @@ test_that("ems_data requires par_input argument", {
 })
 
 test_that("ems_data requires set_input argument", {
-  expect_snapshot_error(ems_data(
-    dat_input,
-    par_input
-  ))
+  expect_snapshot_error(ems_data(dat_input, par_input))
 })
 
 test_that("ems_data requires REG argument", {
-  expect_snapshot_error(ems_data(
-    dat_input,
-    par_input,
-    set_input
-  ))
+  expect_snapshot_error(ems_data(dat_input, par_input, set_input))
 })
 
 test_that("ems_data rejects non-character dat_input", {

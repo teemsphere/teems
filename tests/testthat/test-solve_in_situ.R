@@ -1,5 +1,4 @@
 skip_on_cran()
-ems_option_set(verbose = FALSE)
 
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
@@ -12,12 +11,14 @@ write_dir <- file.path(tools::R_user_dir("teems", "cache"), "in_situ")
 if (dir.exists(write_dir)) {
   unlink(write_dir, recursive = TRUE)
 }
-
 dir.create(write_dir, recursive = TRUE)
+ems_option_set(verbose = FALSE,
+               tempdir = write_dir)
+withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
 
-model_files <- ems_example(model, write_dir = write_dir)
+model_files <- ems_example(write_dir, model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -33,10 +34,7 @@ dat <- ems_data(
   time_steps = time_steps
 )
 
-model <- ems_model(
-  model_file = model_file,
-  closure_file = closure_file
-)
+model <- ems_model(model_file, closure_file)
 
 variant <- Sys.info()["sysname"]
 
@@ -95,36 +93,19 @@ test_that("solve_in_situ solves", {
   atall <- atall[do.call(order, atall), ]
   atall$Value <- runif(nrow(atall))
 
-  pop_shk <- ems_custom_shock(
-    var = "pop",
-    input = pop
-  )
+  pop_shk <- ems_custom_shock( "pop", pop)
+  aoall_shk <- ems_custom_shock("aoall", aoall)
+  afeall_shk <- ems_custom_shock("afeall", afeall)
+  atall_shk <- ems_custom_shock("atall", atall)
 
-  aoall_shk <- ems_custom_shock(
-    var = "aoall",
-    input = aoall
-  )
+  subdir <- "custom_full"
+  nest_temp(subdir, write_dir)
 
-  afeall_shk <- ems_custom_shock(
-    var = "afeall",
-    input = afeall
-  )
+  cmf_path <- ems_deploy(dat,
+                         model,
+                         list(pop_shk, aoall_shk, afeall_shk, atall_shk))
 
-  atall_shk <- ems_custom_shock(
-    var = "atall",
-    input = atall
-  )
-
-  write_sub_dir <- "custom_full"
-  ems_option_set(write_sub_dir = write_sub_dir)
-  cmf_path <- ems_deploy(
-    write_dir = write_dir,
-    .data = dat,
-    model = model,
-    shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
-  )
-
-  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/")
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/")
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")
@@ -178,18 +159,8 @@ test_that("solve_in_situ solves", {
 })
 
 test_that("solve_in_situ errors when model directory doesn't exist", {
-  pop <- ems_uniform_shock(
-    var = "pop",
-    value = 1
-  )
-
-  cmf_path <- ems_deploy(
-    write_dir = write_dir,
-    .data = dat,
-    model = model,
-    shock = pop
-  )
-  
+  pop <- ems_uniform_shock("pop", 1)
+  cmf_path <- ems_deploy(dat, model, pop)
   insitu_dir <- normalizePath(file.path(write_dir, "diff_dir"), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
@@ -214,21 +185,12 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
 })
 
 test_that("solve_in_situ errors when missing input file", {
-  pop <- ems_uniform_shock(
-    var = "pop",
-    value = 1
-  )
+  pop <- ems_uniform_shock("pop", 1)
+  subdir <- "missing_file"
+  nest_temp(subdir, write_dir)
+  cmf_path <- ems_deploy(dat, model)
   
-  write_sub_dir <- "missing_file"
-  ems_option_set(write_sub_dir = write_sub_dir)
-  
-  cmf_path <- ems_deploy(
-    write_dir = write_dir,
-    .data = dat,
-    model = model
-  )
-  
-  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/", FALSE)
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
@@ -250,21 +212,12 @@ test_that("solve_in_situ errors when missing input file", {
 })
 
 test_that("solve_in_situ errors when input file is without name", {
-  pop <- ems_uniform_shock(
-    var = "pop",
-    value = 1
-  )
+  pop <- ems_uniform_shock("pop", 1)
+  subdir <- "no_name"
+  nest_temp(subdir, write_dir)
+  cmf_path <- ems_deploy(dat, model)
   
-  write_sub_dir <- "no_name"
-  ems_option_set(write_sub_dir = write_sub_dir)
-  
-  cmf_path <- ems_deploy(
-    write_dir = write_dir,
-    .data = dat,
-    model = model
-  )
-  
-  insitu_dir <- normalizePath(file.path(write_dir, write_sub_dir), "/", FALSE)
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
   GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
   GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
   GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")

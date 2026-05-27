@@ -26,11 +26,8 @@
 
 # ems_scenario_shock errors when used with a static model
 
-    x Set Set1 is not associated with "pop".
-    i Set designations within teems comprise the variable-specific uppercase set name and lowercase index.
-    i For "pop" these include: REGr and ALLTIMEt.
-    i In intertemporal models, Year may be provided in lieu of an intertemporal set.
-    i Call: `ems_scenario_shock(var = "pop", input = static)`
+    x Scenario shocks can only be employed with a temporally dynamic model.
+    i Call: `ems_scenario_shock(var = "pop", input = shock)`
 
 # ems_scenario_shock errors when not all preaggregation tuples provided
 

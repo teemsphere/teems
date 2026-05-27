@@ -1,14 +1,11 @@
 skip_on_cran()
 
 withr::defer(ems_option_reset(), teardown_env())
-
-# --- ems_option_get error tests ---
+variant <- Sys.info()["sysname"]
 
 test_that("ems_option_get errors on invalid name", {
   expect_snapshot_error(ems_option_get("not_an_option"))
 })
-
-# --- ems_option_get acceptance tests ---
 
 test_that("ems_option_get returns list of all options when name is NULL", {
   opts <- ems_option_get()
@@ -18,6 +15,10 @@ test_that("ems_option_get returns list of all options when name is NULL", {
 
 test_that("ems_option_get returns logical for verbose", {
   expect_type(ems_option_get("verbose"), "logical")
+})
+
+test_that("ems_option_get returns character for tempdir", {
+  expect_type(ems_option_get("tempdir"), "character")
 })
 
 test_that("ems_option_get returns numeric for ndigits", {
@@ -44,15 +45,15 @@ test_that("ems_option_get returns numeric for accuracy_threshold", {
   expect_type(ems_option_get("accuracy_threshold"), "double")
 })
 
-test_that("ems_option_get returns character for write_sub_dir", {
-  expect_type(ems_option_get("write_sub_dir"), "character")
-})
-
-# --- ems_option_set acceptance tests ---
-
 test_that("ems_option_set sets verbose", {
   ems_option_set(verbose = FALSE)
   expect_false(ems_option_get("verbose"))
+  ems_option_reset()
+})
+
+test_that("ems_option_set sets tempdir", {
+  ems_option_set(tempdir = getwd())
+  expect_equal(ems_option_get("tempdir"), getwd())
   ems_option_reset()
 })
 
@@ -74,12 +75,6 @@ test_that("ems_option_set sets docker_tag", {
   ems_option_reset()
 })
 
-test_that("ems_option_set sets write_sub_dir", {
-  ems_option_set(write_sub_dir = "mydir")
-  expect_equal(ems_option_get("write_sub_dir"), "mydir")
-  ems_option_reset()
-})
-
 test_that("ems_option_set sets accuracy_threshold", {
   ems_option_set(accuracy_threshold = 0.95)
   expect_equal(ems_option_get("accuracy_threshold"), 0.95)
@@ -92,6 +87,13 @@ test_that("ems_option_set sets timestep_header", {
   ems_option_reset()
 })
 
+test_that("ems_option errors when write_dir does not exist", {
+  expect_snapshot_error(
+    ems_option_set(tempdir = file.path(basename(getwd()), "does_not_exist")),
+    variant = variant
+  )
+})
+
 test_that("ems_option_set sets n_timestep_header", {
   ems_option_set(n_timestep_header = "NINTERVAL")
   expect_equal(ems_option_get("n_timestep_header"), "NINTERVAL")
@@ -102,8 +104,6 @@ test_that("ems_option_set returns NULL invisibly", {
   expect_null(ems_option_set(verbose = FALSE))
   ems_option_reset()
 })
-
-# --- ems_option_reset acceptance tests ---
 
 test_that("ems_option_reset restores default verbose", {
   ems_option_set(verbose = FALSE)

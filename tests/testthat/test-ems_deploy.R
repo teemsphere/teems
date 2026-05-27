@@ -1,8 +1,5 @@
 skip_on_cran()
 
-ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset(), teardown_env())
-
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
@@ -15,13 +12,16 @@ if (dir.exists(write_dir)) {
 }
 
 dir.create(temp_dir, recursive = TRUE)
+ems_option_set(
+  verbose = FALSE,
+  tempdir = write_dir
+)
+withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(model, write_dir = write_dir)
+model_files <- ems_example(write_dir, model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
-
-# general test data
 dat <- ems_data(
   dat_input,
   par_input,
@@ -33,7 +33,6 @@ dat <- ems_data(
 )
 
 model <- ems_model(model_file, closure_file)
-
 variant <- Sys.info()["sysname"]
 
 test_that("ems_deploy errors when .data is missing", {
@@ -45,14 +44,14 @@ test_that("ems_deploy errors when model is missing", {
 })
 
 test_that("ems_deploy returns character path to CMF file", {
-  ems_option_set(write_sub_dir = "deploy_test")
-  cmf_path <- ems_deploy(dat, model, write_dir = write_dir)
+  nest_temp("deploy_test", write_dir)
+  cmf_path <- ems_deploy(dat, model)
   expect_type(cmf_path, "character")
 })
 
 test_that("ems_deploy returns path to an existing CMF file", {
-  ems_option_set(write_sub_dir = "deploy_test2")
-  cmf_path <- ems_deploy(dat, model, write_dir = write_dir)
+  nest_temp("deploy_test2", write_dir)
+  cmf_path <- ems_deploy(dat, model)
   expect_true(file.exists(cmf_path))
 })
 
@@ -60,15 +59,15 @@ test_that("ems_deploy accepts ems_swap variable swap", {
   shk <- ems_uniform_shock("qfd", 1)
   swap_in <- ems_swap("qfd")
   swap_out <- ems_swap("tfd")
-  ems_option_set(write_sub_dir = "deploy_swap")
-  cmf_path <- ems_deploy(dat, model, shk, swap_in, swap_out, write_dir)
+  nest_temp("deploy_swap", write_dir)
+  cmf_path <- ems_deploy(dat, model, shk, swap_in, swap_out)
   expect_true(file.exists(cmf_path))
 })
 
 test_that("ems_deploy accepts direct input full variable swap", {
   shk <- ems_uniform_shock("qfd", 1)
-  ems_option_set(write_sub_dir = "deploy_swap")
-  cmf_path <- ems_deploy(dat, model, shk, "qfd", "tfd", write_dir)
+  nest_temp("deploy_swap2", write_dir)
+  cmf_path <- ems_deploy(dat, model, shk, "qfd", "tfd")
   expect_true(file.exists(cmf_path))
 })
 
@@ -76,15 +75,8 @@ test_that("ems_deploy accepts mixed direct input ems_swap full variable swap", {
   shk <- ems_uniform_shock("qfd", 1)
   swap_in <- ems_swap("yp")
   swap_out <- ems_swap("dppriv")
-  ems_option_set(write_sub_dir = "deploy_swap")
-  cmf_path <- ems_deploy(
-    dat,
-    model,
-    shk,
-    list(swap_in, "qfd"),
-    list(swap_out, "tfd"),
-    write_dir
-  )
+  nest_temp("deploy_swap3", write_dir)
+  cmf_path <- ems_deploy(dat, model, shk, list(swap_in, "qfd"), list(swap_out, "tfd"))
   expect_true(file.exists(cmf_path))
 })
 
@@ -92,37 +84,30 @@ test_that("ems_deploy accepts mixed direct input ems_swap partial variable swap"
   shk <- ems_uniform_shock("qfd", 1)
   swap_in <- ems_swap("yp", REGr = "row")
   swap_out <- ems_swap("dppriv", REGr = "row")
-  ems_option_set(write_sub_dir = "deploy_swap")
-  cmf_path <- ems_deploy(
-    dat,
-    model,
-    shk,
-    list(swap_in, "qfd"),
-    list(swap_out, "tfd"),
-    write_dir
-  )
+  nest_temp("deploy_swap4", write_dir)
+  cmf_path <- ems_deploy(dat, model, shk, list(swap_in, "qfd"), list(swap_out, "tfd"))
   expect_true(file.exists(cmf_path))
 })
 
 test_that("ems_deploy errors when invalid variable provided for swap-in", {
-  ems_option_set(write_sub_dir = "invalid_swap")
+  nest_temp("invalid_swap", write_dir)
   expect_snapshot_error(
-    ems_deploy(dat, model, swap_in = "not_a_var", swap_out = "tfd", write_dir)
+    ems_deploy(dat, model, swap_in = "not_a_var", swap_out = "tfd")
   )
 })
 
 test_that("ems_deploy errors when invalid variable provided for swap-out", {
-  ems_option_set(write_sub_dir = "invalid_swap")
+  nest_temp("invalid_swap2", write_dir)
   expect_snapshot_error(
-    ems_deploy(dat, model, swap_in = "qfd", swap_out = "not_a_var", write_dir)
+    ems_deploy(dat, model, swap_in = "qfd", swap_out = "not_a_var")
   )
 })
 
 test_that("ems_deploy errors when shock_file and shock are both provided", {
   shk <- ems_uniform_shock("pop", 1)
-  ems_option_set(write_sub_dir = "deploy_shk_file")
+  nest_temp("deploy_shk_file", write_dir)
   expect_snapshot_error(
-    ems_deploy(dat, model, shk, write_dir = write_dir, shock_file = "fake.shf")
+    ems_deploy(dat, model, shk, shock_file = "fake.shf")
   )
 })
 
@@ -138,9 +123,9 @@ test_that("ems_deploy errors when read-in headers not present in data", {
   )
 
   mod_data <- mod_data[!names(mod_data) %in% "SAVE"]
-  ems_option_set(write_sub_dir = "deploy_missing_hdr")
+  nest_temp("deploy_missing_hdr", write_dir)
   expect_snapshot_error(
-    ems_deploy(mod_data, model, write_dir = write_dir)
+    ems_deploy(mod_data, model)
   )
 })
 
@@ -156,26 +141,19 @@ test_that("ems_deploy errors when read-in headers are missing mapping", {
   )
 
   mod_data <- mod_data[!names(mod_data) %in% "REG"]
-  ems_option_set(write_sub_dir = "deploy_missing_map")
-  expect_snapshot_error(
-    ems_deploy(mod_data, model, write_dir = write_dir)
-  )
+  nest_temp("deploy_missing_map", write_dir)
+  expect_snapshot_error(ems_deploy(mod_data, model))
 })
 
 test_that("ems_deploy errors when timesteps provided to static model", {
   write_dir <- file.path(write_dir, "gtapv7")
   dir.create(write_dir, recursive = TRUE, showWarnings = FALSE)
-  model_files <- ems_example("GTAPv7", write_dir = write_dir)
+  model_files <- ems_example(write_dir, "GTAPv7")
   model_file <- model_files[["model_file"]]
   closure_file <- model_files[["closure_file"]]
-
   model <- ems_model(model_file, closure_file)
-  write_sub_dir <- "deploy_static_ts"
-  ems_option_set(write_sub_dir = write_sub_dir)
-  dir.create(file.path(write_dir, write_sub_dir), showWarnings = FALSE)
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = write_dir)
-  )
+  nest_temp("deploy_static_ts", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model))
 })
 
 test_that("ems_deploy errors when timesteps not provided to a dynamic model", {
@@ -187,11 +165,8 @@ test_that("ems_deploy errors when timesteps not provided to a dynamic model", {
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   )
-
-  ems_option_set(write_sub_dir = "deploy_dynamic_no_ts")
-  expect_snapshot_error(
-    ems_deploy(static_data, model, write_dir = write_dir)
-  )
+  nest_temp("deploy_dynamic_no_ts", write_dir)
+  expect_snapshot_error(ems_deploy(static_data, model))
 })
 
 test_that("ems_deploy errors when set-calculated number of entries does not match a finalized data header", {
@@ -206,18 +181,8 @@ test_that("ems_deploy errors when set-calculated number of entries does not matc
   )
 
   mod_data$REG[.N, mapping := "row"]
-
-  ems_option_set(write_sub_dir = "deploy_set_mismatch")
-  expect_snapshot_error(
-    ems_deploy(mod_data, model, write_dir = write_dir)
-  )
-})
-
-test_that("ems_deploy errors when write_dir does not exist", {
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = "/tmp2/does_not_exist"),
-    variant = variant
-  )
+  nest_temp("deploy_set_mismatch", write_dir)
+  expect_snapshot_error(ems_deploy(mod_data, model))
 })
 
 test_that("ems_deploy errors when aggregated inputs are incomplete", {
@@ -235,18 +200,16 @@ test_that("ems_deploy errors when aggregated inputs are incomplete", {
   SAVE$ALLTIMEt <- 0
   colnames(SAVE)[1] <- "REGr"
   model <- ems_model(model_file, closure_file, SAVE = SAVE)
-  ems_option_set(write_sub_dir = "deploy_incomplete")
-  expect_snapshot_error(
-    ems_deploy(mod_data, model, write_dir = write_dir)
-  )
+  nest_temp("deploy_incomplete", write_dir)
+  expect_snapshot_error(ems_deploy(mod_data, model))
 })
 
 test_that("ems_deploy accepts a shock file", {
   shock <- "Shock pfactwld(ALLTIME) = uniform 1;\n"
   temp <- tempfile(tmpdir = temp_dir, fileext = ".shf")
   cat(shock, file = temp)
-  ems_option_set(write_sub_dir = "shock_file")
-  cmf_path <- ems_deploy(dat, model, write_dir = write_dir, shock_file = temp)
+  nest_temp("shock_file", write_dir)
+  cmf_path <- ems_deploy(dat, model, shock_file = temp)
   outputs <- ems_solve(cmf_path)
   expect_all_true(outputs$dat$pfactwld$Value == 1)
 })
@@ -255,42 +218,22 @@ test_that("ems_deploy examples work", {
   # Uniform shock with a full variable closure swap
   shock <- ems_uniform_shock("qfd", value = 1)
 
-  cmf_path <- ems_deploy(
-    .data = dat,
-    model = model,
-    shock = shock,
-    swap_in = "qfd",
-    swap_out = "tfd",
-    write_dir = write_dir
-  )
-
+  cmf_path <- ems_deploy(dat, model, shock, "qfd", "tfd")
   expect_true(is.character(cmf_path))
   # Uniform shocks with multiple swaps
   yp_row <- ems_swap("yp", REGr = "row")
   dppriv_row <- ems_swap("dppriv", REGr = "row")
 
-  write_sub_dir <- "examples"
-  ems_option_set(write_sub_dir = write_sub_dir)
-  write_dir <- file.path(write_dir, write_sub_dir)
-  dir.create(write_dir, recursive = TRUE, showWarnings = FALSE)
+  subdir <- "examples"
+  nest_temp(subdir, write_dir)
   cmf_path <- ems_deploy(
    .data = dat,
    model = model,
    shock = shock,
    swap_in = list(yp_row, "qfd"),
-   swap_out = list(dppriv_row, "tfd"),
-   write_dir = write_dir
+   swap_out = list(dppriv_row, "tfd")
   )
   expect_true(is.character(cmf_path))
-})
-
-test_that("ems_deploy warns when creating write_dir", {
-  dir <- file.path(temp_dir, "write_dir")
-  dir.create(dir, showWarnings = FALSE)
-  expect_warning(
-    ems_deploy(dat, model, write_dir = file.path(dir, "tmp")),
-    regexp = "Creating directory:"
-  )
 })
 
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

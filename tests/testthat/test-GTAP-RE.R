@@ -1,5 +1,6 @@
 skip_on_cran()
 ems_option_set(verbose = FALSE)
+withr::defer(ems_option_reset(), teardown_env())
 
 data_db <- c("v9", "v10", "v11", "v12")
 db_inputs <- list(
@@ -18,7 +19,7 @@ if (dir.exists(model_dir)) {
 
 dir.create(model_dir, recursive = TRUE)
 
-model_files <- ems_example(model, write_dir = model_dir)
+model_files <- ems_example(model_dir, model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -50,99 +51,99 @@ for (db in data_db) {
   dir.create(write_dir, recursive = TRUE)
 
   test_that(paste(db, paste(model, "null scenario")), {
-    run_script(file.path(model, "null.R"))
+    run_script(file.path(model, "null.R"), write_dir)
     expect_true(check)
     expect_true(var_check)
     expect_true(coeff_check)
   })
 
   test_that(paste(db, paste(model, "numeraire")), {
-    run_script(file.path(model, "numeraire.R"))
+    run_script(file.path(model, "numeraire.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "full uniform")), {
-    run_script(file.path(model, "full_uniform.R"))
+    run_script(file.path(model, "full_uniform.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform")), {
-    run_script(file.path(model, "part_uniform.R"))
+    run_script(file.path(model, "part_uniform.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform full swap")), {
-    run_script(file.path(model, "part_uniform_full_swap.R"))
+    run_script(file.path(model, "part_uniform_full_swap.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform part swap")), {
-    run_script(file.path(model, "part_uniform_part_swap.R"))
+    run_script(file.path(model, "part_uniform_part_swap.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform explicit year")), {
-    run_script(file.path(model, "part_uniform_year.R"))
+    run_script(file.path(model, "part_uniform_year.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "partial uniform part swap mixed entry")), {
-    run_script(file.path(model, "part_uniform_part_swap_mixed.R"))
+    run_script(file.path(model, "part_uniform_part_swap_mixed.R"), write_dir)
     expect_all_true(checks)
   })
   
   test_that(paste(db, paste(model, "partial uniform part swap mixed multi subset entry")), {
-    run_script(file.path(model, "part_uniform_subset_swap.R"))
+    run_script(file.path(model, "part_uniform_subset_swap.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "custom partial all dim")), {
-    run_script(file.path(model, "custom_partial.R"))
+    run_script(file.path(model, "custom_partial.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "custom partial 2d 1fixed")), {
-    run_script(file.path(model, "custom_partial_2d_1fixed.R"))
+    run_script(file.path(model, "custom_partial_2d_1fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 3d 1fixed")), {
-    run_script(file.path(model, "custom_partial_3d_1fixed.R"))
+    run_script(file.path(model, "custom_partial_3d_1fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 3d 2fixed")), {
-    run_script(file.path(model, "custom_partial_3d_2fixed.R"))
+    run_script(file.path(model, "custom_partial_3d_2fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 4d 1fixed")), {
-    run_script(file.path(model, "custom_partial_4d_1fixed.R"))
+    run_script(file.path(model, "custom_partial_4d_1fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 4d 2fixed")), {
-    run_script(file.path(model, "custom_partial_4d_2fixed.R"))
+    run_script(file.path(model, "custom_partial_4d_2fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 4d 3fixed")), {
-    run_script(file.path(model, "custom_partial_4d_3fixed.R"))
+    run_script(file.path(model, "custom_partial_4d_3fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 5d 1fixed")), {
-    run_script(file.path(model, "custom_partial_5d_1fixed.R"))
+    run_script(file.path(model, "custom_partial_5d_1fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 5d 2fixed")), {
-    run_script(file.path(model, "custom_partial_5d_2fixed.R"))
+    run_script(file.path(model, "custom_partial_5d_2fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom partial 5d 3fixed")), {
-    run_script(file.path(model, "custom_partial_5d_3fixed.R"))
+    run_script(file.path(model, "custom_partial_5d_3fixed.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
@@ -169,27 +170,27 @@ for (db in data_db) {
         "whs", "wtp", "wtr"
       )
     )
-    run_script(file.path(model, "custom_partial_5d_k4.R"))
+    run_script(file.path(model, "custom_partial_5d_k4.R"), write_dir)
     expect_true(isTRUE(check))
   })
 
   test_that(paste(db, paste(model, "custom full all dim")), {
-    run_script(file.path(model, "custom_full.R"))
+    run_script(file.path(model, "custom_full.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "custom full csv all dim")), {
-    run_script(file.path(model, "custom_full_csv.R"))
+    run_script(file.path(model, "custom_full_csv.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "custom full all dim year")), {
-    run_script(file.path(model, "custom_full_year.R"))
+    run_script(file.path(model, "custom_full_year.R"), write_dir)
     expect_all_true(checks)
   })
 
   test_that(paste(db, paste(model, "scenario")), {
-    run_script(file.path(model, "scenario.R"))
+    run_script(file.path(model, "scenario.R"), write_dir)
     expect_all_true(checks)
   })
 }

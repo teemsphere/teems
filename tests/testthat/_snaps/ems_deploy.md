@@ -8,11 +8,11 @@
 
 # ems_deploy errors when invalid variable provided for swap-in
 
-    x `shock` must be a NULL or list, not a string.
+    x Swap variable "not_a_var" not found in the model.
 
 # ems_deploy errors when invalid variable provided for swap-out
 
-    x `shock` must be a NULL or list, not a string.
+    x Swap variable "not_a_var" not found in the model.
 
 # ems_deploy errors when shock_file and shock are both provided
 

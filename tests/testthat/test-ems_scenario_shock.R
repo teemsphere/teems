@@ -1,8 +1,5 @@
 skip_on_cran()
 
-ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset(), teardown_env())
-
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
@@ -16,12 +13,15 @@ if (dir.exists(write_dir)) {
 
 dir.create(temp_dir, recursive = TRUE)
 
+ems_option_set(verbose = FALSE,
+               tempdir = write_dir)
+withr::defer(ems_option_reset(), teardown_env())
+
 model <- "GTAP-RE"
-model_files <- ems_example(model, write_dir = write_dir)
+model_files <- ems_example(write_dir, model)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
-# general test data
 dat <- ems_data(
   dat_input = dat_input,
   par_input = par_input,
@@ -32,10 +32,7 @@ dat <- ems_data(
   time_steps = c(0, 1, 2)
 )
 
-# general test model
-model <- ems_model(model_file = model_file, closure_file = closure_file)
-
-# minimal data frame for scenario shock input (absolute values with Year column)
+model <- ems_model(model_file, closure_file)
 REGr <- c("usa", "chn", "row")
 Year <- c(2023, 2024, 2025)
 df_input <- expand.grid(REGr = REGr, Year = Year, stringsAsFactors = FALSE)
@@ -44,84 +41,76 @@ df_input$Value <- runif(nrow(df_input), min = 1e6, max = 1e9)
 csv_path <- file.path(temp_dir, "pop_scenario.csv")
 write.csv(df_input, csv_path, row.names = FALSE)
 
-# --- error tests ---
-
 test_that("ems_scenario_shock errors when var is missing", {
   expect_snapshot_error(ems_scenario_shock())
 })
 
 test_that("ems_scenario_shock errors when input is missing", {
-  expect_snapshot_error(ems_scenario_shock(var = "pop"))
+  expect_snapshot_error(ems_scenario_shock("pop"))
 })
 
 test_that("ems_scenario_shock errors when var is not character", {
-  expect_snapshot_error(ems_scenario_shock(var = 1, input = df_input))
+  expect_snapshot_error(ems_scenario_shock( 1,  df_input))
 })
 
 test_that("ems_scenario_shock errors when input is numeric", {
-  expect_snapshot_error(ems_scenario_shock(var = "pop", input = 42))
+  expect_snapshot_error(ems_scenario_shock( "pop",  42))
 })
 
 test_that("ems_scenario_shock errors when input data frame lacks Value column", {
   no_val <- df_input
   no_val$Value <- NULL
-  expect_snapshot_error(ems_scenario_shock(var = "pop", input = no_val))
+  expect_snapshot_error(ems_scenario_shock("pop", no_val))
 })
 
-# --- acceptance tests: data frame input ---
-
 test_that("ems_scenario_shock accepts data frame input", {
-  result <- ems_scenario_shock(var = "pop", input = df_input)
+  result <- ems_scenario_shock("pop", df_input)
   expect_type(result, "list")
 })
 
 test_that("ems_scenario_shock result inherits 'scenario' class", {
-  result <- ems_scenario_shock(var = "pop", input = df_input)
+  result <- ems_scenario_shock("pop", df_input)
   expect_true(inherits(result[[1]], "scenario"))
 })
 
 test_that("ems_scenario_shock result carries call attribute", {
-  result <- ems_scenario_shock(var = "pop", input = df_input)
+  result <- ems_scenario_shock("pop", df_input)
   expect_false(is.null(attr(result[[1]], "call")))
 })
 
 test_that("ems_scenario_shock result carries var attribute", {
-  result <- ems_scenario_shock(var = "pop", input = df_input)
+  result <- ems_scenario_shock("pop", df_input)
   expect_equal(result[[1]]$var, "pop")
 })
 
-# --- acceptance tests: CSV input ---
-
 test_that("ems_scenario_shock accepts CSV path input", {
-  result <- ems_scenario_shock(var = "pop", input = csv_path)
+  result <- ems_scenario_shock("pop", csv_path)
   expect_type(result, "list")
   expect_true(inherits(result[[1]], "scenario"))
 })
 
 test_that("ems_scenario_shock errors when no year df provided", {
   no_year <- data.frame(Set1 = "a", Value = 2)
-
-  expect_snapshot_error(ems_scenario_shock(
-    var = "pop",
-    input = no_year
-  ))
+  expect_snapshot_error(ems_scenario_shock("pop", no_year))
 })
 
 test_that("ems_scenario_shock errors when used with a static model", {
-  static <- data.frame(Set1 = "a", Year = 2017, Value = 2)
-
-  static <- ems_scenario_shock(
-    var = "pop",
-    input = static
+  static_dat <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
   )
-
-  ems_option_set(write_sub_dir = "scen_static")
-  expect_snapshot_error(ems_deploy(
-    model = model,
-    .data = dat,
-    shock = static,
-    write_dir = write_dir
-  ))
+  static_model_files <- ems_example(write_dir, "GTAPv7")
+  static_model_file <- static_model_files[["model_file"]]
+  static_closure_file <- static_model_files[["closure_file"]]
+  static_model <- ems_model(static_model_file, static_closure_file)
+  shock <- data.frame(REGr = "a", Year = 2017, Value = 2)
+  shock <- ems_scenario_shock("pop", shock)
+  nest_temp("scen_static", write_dir)
+  expect_snapshot_error(ems_deploy(static_dat, static_model, shock))
 })
 
 test_that("ems_scenario_shock errors when not all preaggregation tuples provided", {
@@ -177,17 +166,12 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
   colnames(pop)[1] <- "REGr"
 
   pop <- tail(pop, -1)
-  pop_trajectory <- ems_scenario_shock(
-    var = "pop",
-    input = pop
-  )
-
-  ems_option_set(write_sub_dir = "scen_missing_tup")
+  pop_trajectory <- ems_scenario_shock("pop", pop)
+  nest_temp("scen_missing_tup", write_dir)
   expect_snapshot_error(ems_deploy(
     .data = dat,
     model = model,
-    shock = pop_trajectory,
-    write_dir = write_dir
+    shock = pop_trajectory
   ))
 })
 

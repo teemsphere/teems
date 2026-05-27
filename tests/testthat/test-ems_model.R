@@ -1,22 +1,4 @@
 skip_on_cran()
-ems_option_set(verbose = FALSE)
-withr::defer(ems_option_reset(), teardown_env())
-
-write_modified_model <- function(model_file, text, .fn = paste) {
-  model_text <- readChar(model_file, file.info(model_file)[["size"]])
-  modified <- .fn(model_text, text)
-  out_path <- file.path(dirname(model_file), "error.tab")
-  writeLines(modified, out_path)
-  out_path
-}
-
-write_modified_closure <- function(closure_file, text, .fn = cat) {
-  closure_text <- readLines(closure_file)
-  modified <- capture.output(.fn(closure_text[[1]], text, tail(closure_text, -1), sep = "\n"))
-  out_path <- file.path(dirname(closure_file), "error.cls")
-  writeLines(modified, out_path)
-  out_path
-}
 
 write_dir <- file.path(tools::R_user_dir("teems", "cache"), "model")
 temp_dir <- file.path(write_dir, "tmp")
@@ -26,11 +8,16 @@ if (dir.exists(write_dir)) {
 }
 
 dir.create(temp_dir, recursive = TRUE)
+ems_option_set(
+  verbose = FALSE,
+  tempdir = write_dir
+)
+withr::defer(ems_option_reset(), teardown_env())
 
-model_file <- ems_example("GTAP-RE", write_dir = write_dir)[["model_file"]]
-closure_file <- ems_example("GTAP-RE", write_dir = write_dir)[["closure_file"]]
+model_files <- ems_example(write_dir, "GTAP-RE")
+model_file <- model_files[["model_file"]]
+closure_file <- model_files[["closure_file"]]
 
-# general data
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
 set_input <- Sys.getenv("GTAP12_set")
@@ -230,7 +217,11 @@ test_that("ignored tab statement", {
 
 test_that("invalid tab statement", {
   err_model <- write_modified_model(model_file, "OMIT  a1  a1oct  a1mar  a1_s  a2  a2mar  ;")
-  expect_snapshot_error(ems_model(err_model, closure_file))
+  expect_snapshot(ems_model(err_model, closure_file),
+                  error = TRUE,
+                  transform = function(lines) {
+                    gsub(utils::packageVersion("teems"), "version_number", lines)
+                  },)
 })
 
 test_that("invalid intertemporal header", {
@@ -317,10 +308,7 @@ test_that("invalid var in closure", {
     "not_a_var"
   )
 
-  expect_snapshot_error(ems_model(
-    model_file,
-    err_closure
-  ))
+  expect_snapshot_error(ems_model(model_file, err_closure))
 })
 
 test_that("closure missing exo/endo spec", {
@@ -328,11 +316,7 @@ test_that("closure missing exo/endo spec", {
   err_closure <- tail(err_closure, -1)
   err_file <- file.path(dirname(closure_file), "error.cls")
   writeLines(err_closure, err_file)
-
-  expect_snapshot_error(ems_model(
-    model_file,
-    err_file
-  ))
+  expect_snapshot_error(ems_model(model_file, err_file))
 })
 
 test_that("ems_model errors when invalid closure mixed entry present preswap", {
@@ -343,12 +327,9 @@ test_that("ems_model errors when invalid closure mixed entry present preswap", {
   mod_closure <- c(append_cls, mod_closure)
   invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
   writeLines(mod_closure, invalid_cls)
-
   model <- ems_model(model_file, invalid_cls)
-  ems_option_set(write_sub_dir = "invalid_closure")
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = write_dir)
-  )
+  nest_temp("invalid_closure", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model))
 })
 
 test_that("ems_model errors when invalid closure subset entry present preswap", {
@@ -361,10 +342,8 @@ test_that("ems_model errors when invalid closure subset entry present preswap", 
   writeLines(mod_closure, invalid_cls)
 
   model <- ems_model(model_file, invalid_cls)
-  ems_option_set(write_sub_dir = "invalid_closure")
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = write_dir)
-  )
+  nest_temp("invalid_closure2", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model))
 })
 
 test_that("ems_model errors when invalid closure pure element entry present preswap", {
@@ -382,10 +361,8 @@ test_that("ems_model errors when invalid closure pure element entry present pres
   writeLines(mod_closure, invalid_cls)
 
   model <- ems_model(model_file, invalid_cls)
-  ems_option_set(write_sub_dir = "invalid_closure")
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = write_dir)
-  )
+  nest_temp("invalid_closure3", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model))
 })
 
 test_that("ems_model errors when duplicate closure entry present preswap", {
@@ -397,10 +374,8 @@ test_that("ems_model errors when duplicate closure entry present preswap", {
   writeLines(mod_closure, invalid_cls)
 
   model <- ems_model(model_file, invalid_cls)
-  ems_option_set(write_sub_dir = "invalid_closure")
-  expect_snapshot_error(
-    ems_deploy(dat, model, write_dir = write_dir)
-  )
+  nest_temp("invalid_closure4", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model))
 })
 
 test_that("ems_model errors dots passed without names", {
@@ -415,7 +390,7 @@ test_that("ems_model errors dots passed without names", {
 
 test_that("ems_model examples run", {
   # simple model load
-  GTAPv7 <- ems_example("GTAPv7", write_dir = write_dir)
+  GTAPv7 <- ems_example(write_dir, "GTAPv7")
   model <- ems_model(
     GTAPv7[["model_file"]],
     GTAPv7[["closure_file"]]
@@ -424,7 +399,7 @@ test_that("ems_model examples run", {
   # model load with variable omission
   # uniform numeric value applied to KAPPA coefficient
   # heterogeneous values allocated to SUBPAR via data frame
-  GTAP_RE <- ems_example("GTAP-RE", write_dir = write_dir)
+  GTAP_RE <- ems_example(write_dir, "GTAP-RE")
   sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
   regions <- c("usa", "chn", "row")
   time_steps <- seq_len(5)

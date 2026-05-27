@@ -1,15 +1,18 @@
-#' Configure and solve model in-situ
-#'
-#' Calls the
-#' \href{https://github.com/teemsphere/teems-solver}{teems-solver}
-#' Docker image directly with user-supplied input files, bypassing
-#' the [`ems_data()`] / [`ems_model()`] / [`ems_deploy()`]
-#' pipeline. All input files must be provided in their final form.
-#'
+#' @title Configure and solve model in-situ
+#' @export
+#' @description Calls the
+#'   \href{https://github.com/teemsphere/teems-solver}{teems-solver}
+#'   Docker image directly with user-supplied input files,
+#'   bypassing the [`ems_data()`] / [`ems_model()`] /
+#'   [`ems_deploy()`] pipeline. All input files must be provided
+#'   in their final form.
+#' @return A tibble containing model output variables and
+#'   coefficients. Alternatively, if `"suppress_outputs"` is
+#'   `TRUE`, file path to a CMF file that may be used with
+#'   [`ems_compose()`].
 #' @inheritParams ems_model
 #' @inheritParams ems_solve
 #' @inheritParams ems_deploy
-#'
 #' @param ... Named arguments corresponding to input files
 #'   necessary for an in-situ model run. Names must correspond to
 #'   "File" statements within the model Tablo file. Values
@@ -20,16 +23,13 @@
 #'   required for in-situ model runs.
 #' @param model_dir Character of length 1, base directory where
 #'   input files will be copied and the model will be run.
-#'
 #' @seealso [`ems_solve()`] for the standard package-supported
 #'   solver.
-#'
-#' @return A tibble containing model output variables and
-#'   coefficients. Alternatively, if `"suppress_outputs"` is
-#'   `TRUE`, file path to a CMF file that may be used with
-#'   [`ems_compose()`].
 #' @examples
 #' \dontrun{
+#' # The following examples require the teems solver to be built.
+#' # See https://teemsphere.github.io/ to get started.
+#'
 #' solve_in_situ(
 #'  GTAPDATA = "path/to/dat_file.txt",
 #'  GTAPPARM = "path/to/par_file.txt",
@@ -44,7 +44,6 @@
 #'  solution_method = "mod_midpoint"
 #'  )
 #' }
-#' @export
 solve_in_situ <- function(...,
                           model_file,
                           model_dir,

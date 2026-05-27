@@ -10,10 +10,12 @@ ems_swap(var, ...)
 \item{var}{Character of length 1, model variable to swap.}
 
 \item{...}{Optional named arguments restricting the swap to a
-subset of the variable's elements. Each name must use the
+subset of variable elements. Each name must use the
 model-specific set-index format (set name concatenated with
 its index letter, e.g., \code{REGr}, \code{COMMc}). Unspecified sets
-default to all elements. Three value forms are accepted:
+default to all elements. \code{SET} corresponds to the generic
+set name while \code{i} is specific to the variable index. Three
+forms are accepted:
 \itemize{
 \item Single element: \code{SETi = "element"}
 \item Multiple elements: \code{SETi = c("element1", "element2")}
@@ -26,8 +28,8 @@ or\code{"multi"} containing the swap specification. Intended for
 use as \code{swap_in} or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
-Prepares a partial or full variable swap for use as \code{swap_in}
-or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
+Prepares a closure swap for input into the
+\code{swap_in} or \code{swap_out} arguments of \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \details{
 \code{ems_swap()} return values have no purpose used in
@@ -36,41 +38,31 @@ argument of \code{\link[=ems_model]{ems_model()}} will be used if no swaps are
 specified. Note that full variable swaps can be directly
 inputted as a character string in the \code{"swap_in"} and
 \code{"swap_out"} arguments of \code{\link[=ems_deploy]{ems_deploy()}}.
+
+Swaps "in" (joining the list of exogenous variables) are
+processed prior to swaps out (leaving the list of exogenous
+variables), and in the same order as they are loaded into
+\code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \examples{
 # Full variable swaps
-tfd_out <- ems_swap(var = "tfd")
-qfd_in <- ems_swap(var = "qfd")
+ems_swap("tfd") # out
+ems_swap("qfd") # in
 
 # Partial variable swaps with uniform "PROD_COMM" set
 # application (note distinction between "REGr" and "REGs") in
 # the classic GTAP model (version 6.2)
-chn_food_tfd_out <- ems_swap(var = "tfd",
-                             TRAD_COMMi = "food",
-                             REGr = "chn")
-
-chn_food_qfd_in <- ems_swap(var = "qfd",
-                            TRAD_COMMi = "food",
-                            REGs = "chn")
+ems_swap("tfd", TRAD_COMMi = "food", REGr = "chn") # out
+ems_swap("qfd", TRAD_COMMi = "food", REGs = "chn") # in
 
 # Partial variable, multiple element swaps with uniform "ACTS"
 # set application in the standard GTAP model (version 7.0).
-usa_multi_tfd_out <- ems_swap(var = "tfd",
-                              COMMc = c("food", "crops"),
-                              REGr = "usa")
+ems_swap("tfd", COMMc = c("food", "crops"), REGr = "usa") # out
+ems_swap("qfd", COMMc = c("food", "crops"), REGr = "usa") # in
 
-usa_multi_qfd_in <- ems_swap(var = "qfd",
-                             COMMc = c("food", "crops"),
-                             REGr = "usa")
-                             
 # Valid subsets may also be selected.
-qxs_in <- ems_swap(var = "qxs",
-                   COMMc = "NMRG",
-                   ALLTIMEt = "FWDTIME")
-
-txs_out <- ems_swap(var = "txs",
-                    COMMc = "NMRG",
-                    ALLTIMEt = "FWDTIME")
+ems_swap("txs", COMMc = "NMRG", ALLTIMEt = "FWDTIME") # out
+ems_swap("qxs", COMMc = "NMRG", ALLTIMEt = "FWDTIME") # in
 }
 \seealso{
 \code{\link[=ems_model]{ems_model()}} for loading a model closure.

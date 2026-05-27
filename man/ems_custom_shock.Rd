@@ -27,18 +27,32 @@ specified on a tuple-by-tuple basis. Only the tuples present
 in \code{input} are shocked.
 }
 \examples{
+# Set elements
 sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 regions <- c("asia", "eit", "lam", "maf", "oecd")
-time_steps <- 0:5
+time_steps <- 0:7
 
-aoall <- expand.grid(ACTSa = sectors,
-                     REGr = regions,
-                     ALLTIMEt = time_steps,
-                     stringsAsFactors = FALSE)
+# Create data frame
+aoall_data <- expand.grid(ACTSa = sectors,
+                          REGr = regions,
+                          ALLTIMEt = time_steps)
 
-aoall <- aoall[do.call(order, aoall), ]
-aoall$Value <- runif(nrow(aoall))
-aoall_shk <- ems_custom_shock("aoall", aoall)
+aoall_data$Value <- runif(nrow(aoall_data))
+head(aoall_data)
+
+# Assign values to a model variable (aoall)
+ems_custom_shock("aoall", aoall_data)
+
+# In the case of temporally dynamic models, chronological
+# year(s) specified by the column "Year" may be used instead
+# of the the time set.
+pop_data <- data.frame(REGr = "asia",
+                       Year = 2023:2030)
+
+pop_data$Value <- runif(nrow(pop_data))
+pop_data
+
+ems_custom_shock("pop", pop_data)
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this

@@ -33,20 +33,23 @@ this manner. All model declared input files as well as
 \code{"model_file"}, \code{"closure_file"}, and \code{"shock_file"} are
 required for in-situ model runs.}
 
-\item{model_file}{Path to a \code{.tab} Tablo file. See
+\item{model_file}{Character vector length 1, path to a TABLO
+file with .tab extension. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted models and compatible Tablo file formatting.}
 
 \item{model_dir}{Character of length 1, base directory where
 input files will be copied and the model will be run.}
 
-\item{closure_file}{Path to a \code{.cls} closure file. See
+\item{closure_file}{Character vector length 1, path to a
+closure file with .cls extension. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for closure file formatting.}
 
-\item{shock_file}{Path to a file with ".shf" extension
-representing a fully prepared shock file (default \code{NULL}).
-No checks or modifications are applied to this file.}
+\item{shock_file}{A character vector length 1 (default
+\code{NULL}). Path to a file with .shf extension representing a
+fully prepared shock file. No checks or modifications are
+carried out on this file.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
@@ -75,7 +78,7 @@ timesteps.
 }}
 
 \item{solution_method}{The solution method to be used, default
-is the "one-step" \code{"Johansen"}. Choices:
+is the one-step \code{"Johansen"}. Choices:
 \itemize{
 \item \code{"Johansen"}: The Johansen method is fast however it should
 only be used as a rough approximation due to handling of
@@ -88,8 +91,8 @@ midpoint}
 
 \item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
 vector of steps for the modified midpoint method, must be
-all odd or all even and length 3. Additional steps may
-improve accuracy for some model runs.}
+all odd or all even and length 3. A larger number of steps
+may improve accuracy for some model runs.}
 
 \item{laA}{Integer length 1 (default is \code{300L}). Memory
 parameter (\%) for \code{"LU"} and \code{"SBBD"}.}
@@ -124,12 +127,16 @@ coefficients. Alternatively, if \code{"suppress_outputs"} is
 \description{
 Calls the
 \href{https://github.com/teemsphere/teems-solver}{teems-solver}
-Docker image directly with user-supplied input files, bypassing
-the \code{\link[=ems_data]{ems_data()}} / \code{\link[=ems_model]{ems_model()}} / \code{\link[=ems_deploy]{ems_deploy()}}
-pipeline. All input files must be provided in their final form.
+Docker image directly with user-supplied input files,
+bypassing the \code{\link[=ems_data]{ems_data()}} / \code{\link[=ems_model]{ems_model()}} /
+\code{\link[=ems_deploy]{ems_deploy()}} pipeline. All input files must be provided
+in their final form.
 }
 \examples{
 \dontrun{
+# The following examples require the teems solver to be built.
+# See https://teemsphere.github.io/ to get started.
+
 solve_in_situ(
  GTAPDATA = "path/to/dat_file.txt",
  GTAPPARM = "path/to/par_file.txt",

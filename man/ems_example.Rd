@@ -5,15 +5,18 @@
 \title{Write teems example models and scripts to file}
 \usage{
 ems_example(
+  path,
   model,
   type = c("model_files", "scripts"),
   dat_input = NULL,
   par_input = NULL,
-  set_input = NULL,
-  write_dir = tools::R_user_dir("teems")
+  set_input = NULL
 )
 }
 \arguments{
+\item{path}{Character vector of length 1. Directory where
+files will be written.}
+
 \item{model}{Character vector of length 1, name of model.
 Options include:
 \itemize{
@@ -46,31 +49,32 @@ parameter coefficient data (e.g., a HAR file).}
 \code{NULL}, only used when \code{type = "scripts"}) file name in
 working directory or path to a data input containing set
 elements and attributes (e.g., a HAR file).}
-
-\item{write_dir}{Character vector of length 1, (default is
-\code{tools::R_user_dir("teems")}). Directory where
-files will be written.}
 }
 \value{
-For \code{type = "model_files"}: a named character vector with
-elements \code{model_file} and \code{closure_file}. For \code{type = "scripts"}: a
-character vector of paths to the written script files.
+For \code{type = "model_files"}: a named character vector
+with elements \code{model_file} and \code{closure_file}. For \code{type = "scripts"}: a character vector of paths to the written
+script files.
 }
 \description{
-teems comes bundled with example models and scripts. This
-function facilitates access.
+The teems package includes example models and
+scripts. This function facilitates access to both, allowing
+new users to immediately peruse compatible models or
+generate scripts containing a range of package features.
 }
 \examples{
+# Write GTAP-RE model files
+ems_example(tempdir(), "GTAP-RE")
+
 \dontrun{
-# Write GTAP-RE model files to `tools::R_user_dir("teems")`
-ems_example("GTAP-RE")
+# The following example requires input data. See
+# https://teemsphere.github.io/ to get started.
 
 # Generate GTAP-RE example scripts
-ems_example(model = "GTAP-RE",
+ems_example(path = "path/to/example/scripts",
+            model = "GTAP-RE",
             type = "scripts",
             dat_input = "v7data/gsdfdat.har",
             par_input = "v7data/gsdfpar.har",
-            set_input = "v7data/gsdfset.har",
-            write_dir = getwd())
+            set_input = "v7data/gsdfset.har")
 }
 }

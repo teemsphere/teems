@@ -10,14 +10,14 @@ ems_option_reset()
 \code{invisible(NULL)}, called for its side effects.
 }
 \description{
-\code{ems_option_reset()} resets all package
-options to default values.
+\code{ems_option_reset()} resets all package options
+to default values.
 }
 \examples{
 ems_option_set(verbose = FALSE, ndigits = 8)
+ems_option_get("verbose")
 ems_option_reset()
-ems_option_get("verbose")  # TRUE
-
+ems_option_get("verbose")
 }
 \seealso{
 \code{\link[=ems_option_set]{ems_option_set()}} for setting package options.

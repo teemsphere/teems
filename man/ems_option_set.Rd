@@ -6,33 +6,27 @@
 \usage{
 ems_option_set(
   verbose = NULL,
-  write_sub_dir = NULL,
+  tempdir = NULL,
   ndigits = NULL,
-  docker_tag = NULL,
   accuracy_threshold = NULL,
   check_shock_status = NULL,
   timestep_header = NULL,
   n_timestep_header = NULL,
-  full_exclude = NULL
+  full_exclude = NULL,
+  docker_tag = NULL
 )
 }
 \arguments{
 \item{verbose}{Logical of length 1 (default is \code{TRUE}). If
 \code{FALSE}, function-specific diagnostics are silenced.}
 
-\item{write_sub_dir}{A character vector (default \code{"teems"}).
-Where \code{\link[=ems_deploy]{ems_deploy()}} \code{"write_dir"} specifies a base
-directory for model files, \code{"write_sub_dir"} sets the name
-of the subdirectory within the base directory.}
+\item{tempdir}{A character vector length 1. Default is what is
+returned by \code{tempdir()}.}
 
 \item{ndigits}{Integer (default is \code{6}). Exact number of
 digits to the right of the decimal point to be written to
-file for numeric type double.
-This value is passed to the \code{format()} nsmall argument and
-\code{round()} digits argument.}
-
-\item{docker_tag}{Character length 1 (default \code{"latest"}).
-Docker tag specifying which Docker image to use.}
+file for numeric type double. This value is passed to the
+\code{format()} nsmall argument and \code{round()} digits argument.}
 
 \item{accuracy_threshold}{Numeric length 1 (default \code{0.8}),
 converted to a percentage. 4-digit precision is compared
@@ -53,10 +47,13 @@ is \code{"NTSP"}). Coefficient containing a numeric vector length
 one with sum of timestep intervals. For novel intertemporal
 models — modify with caution.}
 
-\item{full_exclude}{A character vector (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers
-to fully exclude from all aspects of the model run. Failure
-to designate these headers properly will result in errors.
-Modify with caution.}
+\item{full_exclude}{A character vector of variable length
+(default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers to fully exclude from all aspects
+of the model run. Failure to designate these headers
+properly will result in errors. Modify with caution.}
+
+\item{docker_tag}{Character length 1 (default \code{"latest"}).
+Docker tag specifying which Docker image to use.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.
@@ -67,9 +64,8 @@ advanced options.
 }
 \examples{
 ems_option_set(verbose = FALSE)
-ems_option_set(ndigits = 8, write_sub_dir = "my_run")
+ems_option_set(ndigits = 8)
 ems_option_reset()
-
 }
 \seealso{
 \code{\link[=ems_option_get]{ems_option_get()}} for retrieving package options.

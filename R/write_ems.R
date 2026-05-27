@@ -12,9 +12,10 @@
 .ems_write.default <- function(input,
                                write_dir,
                                ...) {
+  write_path <- file.path(write_dir, paste0(attr(input, "file"), ".txt"))
   .ragged_write(
     input = input,
-    write_dir = write_dir
+    write_path = write_path
   )
 }
 
@@ -25,6 +26,7 @@
 .ems_write.set <- function(input,
                            write_dir,
                            ...) {
+
   write_path <- file.path(write_dir, paste0(attr(input, "file"), ".txt"))
 
   cat(attr(input, "lead"),

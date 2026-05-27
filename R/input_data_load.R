@@ -7,7 +7,7 @@
                              set_input,
                              data_call,
                              convert = FALSE) {
-  
+
   if (!is.list(dat_input)) {
     dat_input <- .read_input(
       input = dat_input,

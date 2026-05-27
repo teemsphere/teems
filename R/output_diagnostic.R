@@ -1,5 +1,4 @@
-#' @importFrom cli cli_fmt cli_h1 cli_h2 cli_dl cli_text cli_ul
-#'   cli_verbatim cli_alert_warning ansi_strip
+#' @importFrom cli cli_fmt cli_h1 cli_h2 cli_dl cli_text cli_ul cli_verbatim cli_alert_warning ansi_strip
 #' @importFrom purrr pmap map_chr
 #'
 #' @keywords internal

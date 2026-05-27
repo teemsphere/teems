@@ -60,6 +60,7 @@
     time_set_upper <- intersect(shk$ls_upper, int_set_names)
     time_set <- shk$ls_mixed[match(time_set_upper, shk$ls_upper)]
     if (time_set %in% names(shk$subset)) {
+      supplied_int_set <- time_set
       .cli_action(
         shk_err$extra_col,
         action = c("abort", "inform"),

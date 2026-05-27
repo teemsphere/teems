@@ -2,6 +2,7 @@
 #' @noRd
 .retrieve_cmf <- function(file,
                           cmf_path) {
+
   docker_path <- grep(
     pattern = file,
     readLines(cmf_path),

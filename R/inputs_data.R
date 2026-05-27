@@ -2,6 +2,7 @@
 #' @keywords internal
 .data_inputs <- function(a,
                          call) {
+  
   if (!is.null(a$dat_input) && !is.list(a$dat_input)) {
     a$dat_input <- .check_input(a$dat_input,
       valid_ext = "har",

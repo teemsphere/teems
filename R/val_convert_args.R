@@ -27,9 +27,9 @@
   }
 
   checklist <- list(
-    dat_input = "character",
-    par_input = "character",
-    set_input = "character",
+    dat_har = "character",
+    par_har = "character",
+    set_har = "character",
     origin = "character",
     target = "character"
   )
@@ -40,6 +40,7 @@
     call = call
   )
 
+  names(a) <- gsub("_har", "_input", names(a))
   a <- .data_inputs(a = a, call = call)
   return(a)
 }

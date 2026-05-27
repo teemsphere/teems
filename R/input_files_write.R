@@ -1,7 +1,6 @@
 #' @keywords internal
 #' @noRd
-.write_input_files <- function(write_dir,
-                               tab,
+.write_input_files <- function(tab,
                                closure,
                                shocks,
                                cmf,
@@ -9,6 +8,7 @@
                                v_shock,
                                metadata,
                                sets) {
+  write_dir <- .o_tempdir()
   tab_path <- .ems_write(
     input = tab,
     write_dir = write_dir
@@ -23,6 +23,8 @@
   )
   cmf_path <- .ems_write(input = cmf)
   attr(cmf_path, "tab_path") <- tab_path
+  input_files <- file.path(write_dir, paste0(unique(lapply(.data, attr, "file")), ".txt"))
+  file.create(input_files)
   data_path <- lapply(.data,
     .ems_write,
     write_dir = write_dir

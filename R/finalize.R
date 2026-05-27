@@ -45,7 +45,6 @@
     .data = v$.data,
     sets = sets,
     model = v$model,
-    write_dir = v$write_dir,
     call = call,
     model_call = model_call
   )
@@ -54,11 +53,9 @@
     model = v$model,
     shock_file = attr(shocks, "file"),
     tab_file = attr(tab, "file"),
-    cls_file = attr(closure, "file"),
-    write_dir = v$write_dir
+    cls_file = attr(closure, "file")
   )
   cmf_path <- .write_input_files(
-    write_dir = v$write_dir,
     tab = tab,
     closure = closure,
     shocks = shocks,

@@ -7,7 +7,6 @@
 .finalize_data <- function(.data,
                            sets,
                            model,
-                           write_dir,
                            call,
                            model_call) {
   # NSE

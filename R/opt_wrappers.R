@@ -6,6 +6,12 @@
 
 #' @noRd
 #' @keywords internal
+.o_tempdir <- function() {
+  ems_option_get("tempdir")
+}
+
+#' @noRd
+#' @keywords internal
 .o_ndigits <- function() {
   ems_option_get("ndigits")
 }

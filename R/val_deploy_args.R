@@ -12,7 +12,6 @@
     shock = c("NULL", "list"),
     swap_in = c("NULL", "character", "list"),
     swap_out = c("NULL", "character", "list"),
-    write_dir = "character",
     shock_file = c("NULL", "character")
   )
   
@@ -22,11 +21,6 @@
     call = call
   )
 
-  a$write_dir <- .check_write_dir(
-    write_dir = a$write_dir,
-    call = call
-  )
-  
   if (!is.null(a$shock)) {
     a$shock <- .expand_ele(input = a$shock)
     a$shock <- lapply(

@@ -14,10 +14,10 @@
   origin <- system.file(file.path("models", v$model, c(model_file, closure_file)), package = "teems", mustWork = TRUE)
   file.copy(
     from = origin,
-    to = v$write_dir,
+    to = v$path,
     overwrite = TRUE
   )
-  paths <- file.path(v$write_dir, c(model_file, closure_file))
+  paths <- file.path(v$path, c(model_file, closure_file))
   paths <- normalizePath(paths, "/")
   names(paths) <- c("model_file", "closure_file")
   
@@ -35,7 +35,7 @@
       dat_input = v$dat_input,
       par_input = v$par_input,
       set_input = v$set_input,
-      write_dir = v$write_dir,
+      path = v$path,
       model_file = paths[["model_file"]],
       closure_file = paths[["closure_file"]],
       call = call

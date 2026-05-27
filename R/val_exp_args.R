@@ -14,12 +14,12 @@
   )
 
   checklist <- list(
+    path = "character",
     model = "character",
     type = "character",
     dat_input = c("NULL", "character"),
     par_input = c("NULL", "character"),
-    set_input = c("NULL", "character"),
-    write_dir = "character"
+    set_input = c("NULL", "character")
   )
 
   .check_arg_class(
@@ -27,15 +27,18 @@
     checklist = checklist,
     call = call
   )
-
   a <- .data_inputs(a = a, call = call)
 
-  a$write_dir <- .check_write_dir(
-    write_dir = a$write_dir,
-    append_subdir = FALSE,
-    call = call
-  )
-
+  if (!dir.exists(a$path) || file.access(a$path, 2) != 0L) {
+    path <- a$path
+    .cli_action(exp_err$invalid_path,
+      action = "abort",
+      call = call
+    )
+  }
+  
+  a$path <- normalizePath(a$path, "/")
+  
   if (a$type %=% "scripts") {
     if (any(
       is.null(a$dat_input),
@@ -50,7 +53,6 @@
     a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
     a$par_input <- normalizePath(a$par_input, "/", FALSE)
     a$set_input <- normalizePath(a$set_input, "/", FALSE)
-    a$write_dir <- normalizePath(a$write_dir, "/", FALSE)
   }
 
   return(a)

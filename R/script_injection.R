@@ -5,18 +5,17 @@
                            dat_input,
                            par_input,
                            set_input,
-                           write_dir,
+                           path,
                            model_file,
                            closure_file,
                            call = call) {
   script <- basename(script)
-  sub_path <- file.path(write_dir, script)
+  sub_path <- file.path(path, script)
   sub_path <- normalizePath(sub_path, "/", FALSE)
   assignments <- list(
     dat_input    = dat_input,
     par_input    = par_input,
     set_input    = set_input,
-    write_dir    = write_dir,
     model_file   = model_file,
     closure_file = closure_file
   )

@@ -12,10 +12,6 @@ build_deploy_err <- function() {
     missing_tsteps = "{.arg time_steps} required for intertemporal models. See {.fun teems::ems_data}.",
     # test-ems_deploy.R: "ems_deploy errors when set-calculated number of entries does not match a finalized data header"
     data_set_mismatch = "{.field {class(dt)[1]}} has {.val {nrow(dt)}} entries; {.val {expected}} expected.",
-    # test-ems_deploy.R: "ems_deploy errors when write_dir does not exist"
-    invalid_write_dir = "{.path {write_dir}} does not exist and could not be created. Ensure the parent directory exists.",
-    # not in tests
-    write_dir_not_writable = "The directory {.path {write_dir}} exists but is not writable.",
     # not in tests
     invalid_plus = "Set operator {.code +} requires disjoint sets; overlapping elements: {.field {d}}.",
     # test-ems_deploy.R: "ems_deploy errors when aggregated inputs are incomplete"
@@ -24,12 +20,5 @@ build_deploy_err <- function() {
     shk_file_shocks = c(
       "No additional shocks are accepted if a shock file is provided."
     )
-  )
-}
-
-build_deploy_wrn <- function() {
-  list(
-    # test-ems_deploy.R: "ems_deploy warns when creating write_dir"
-    mkdir = "Creating directory: {.path {write_dir}}."
   )
 }

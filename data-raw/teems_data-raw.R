@@ -265,7 +265,6 @@ data_err <- build_data_err()
 data_info <- build_data_info()
 data_wrn <- build_data_wrn()
 deploy_err <- build_deploy_err()
-deploy_wrn <- build_deploy_wrn()
 exp_err <- build_exp_err()
 gen_err <- build_gen_err()
 gen_info <- build_gen_info()
@@ -277,7 +276,6 @@ solve_info <- build_solve_info()
 solve_wrn <- build_solve_wrn()
 swap_err <- build_swap_err()
 
-# internal data
 usethis::use_data(
   vetted_db_versions,
   mappings,
@@ -294,7 +292,6 @@ usethis::use_data(
   data_info,
   data_wrn,
   deploy_err,
-  deploy_wrn,
   exp_err,
   gen_err,
   gen_info,
@@ -306,5 +303,6 @@ usethis::use_data(
   solve_wrn,
   swap_err,
   overwrite = TRUE,
-  internal = TRUE
+  internal = TRUE,
+  compress = "gzip"
 )

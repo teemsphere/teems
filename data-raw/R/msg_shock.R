@@ -25,7 +25,7 @@ build_shk_err <- function() {
     # test-ems_uniform_shock.R: "ems_uniform_shock errors when both int set and year are provided"
     # test-ems_custom_shock.R: "ems_custom_shock errors when both year and int set are provided"
     extra_col = c(
-      "Either {.field Year} or intertemporal set {.field {time_set}} should be provided, not both.",
+      "Either {.field Year} or intertemporal set {.field {supplied_int_set}} should be provided, not both.",
       "Call: {.code {deparse(call)}}"
     ),
     # test-ems_uniform_shock.R: "ems_uniform_shock errors when a set is specified that does not belong to a variable"
@@ -86,7 +86,7 @@ build_shk_err <- function() {
     ),
     # leaving this as a failsafe (not possible to get this far)
     scen_dynamic = c(
-      "Scenario shocks require a dynamic model.",
+      "Scenario shocks can only be employed with a temporally dynamic model.",
       "Call: {.code {deparse(call)}}"
     ),
     # test-ems_scenario_shock.R: "ems_scenario_shock errors when not all preaggregation tuples provided"

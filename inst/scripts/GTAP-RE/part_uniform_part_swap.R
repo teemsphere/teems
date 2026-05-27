@@ -38,12 +38,9 @@ tfd <- ems_swap(
   ACTSa = "crops"
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_part_swap")
 
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = partial,
@@ -59,10 +56,10 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk       <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
-endo1         <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
-endo2         <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null      <- outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
+exo_shk <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
+endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
+endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
+exo_null <- outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
 qfd_len_check <- (length(exo_shk) + length(endo1)) == nrow(outputs$dat$qfd)
 tfd_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$tfd)
 checks <- c(exo_shk, endo1, endo2, exo_null, qfd_len_check, tfd_len_check)

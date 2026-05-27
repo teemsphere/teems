@@ -43,10 +43,8 @@ aoall$Value <- runif(nrow(aoall))
 
 aoall_shk <- ems_custom_shock(var = "aoall", input = aoall)
 
-ems_option_set(write_sub_dir = "custom_partial_3d_1fixed")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = aoall_shk

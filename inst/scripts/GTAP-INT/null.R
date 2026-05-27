@@ -16,12 +16,9 @@ model <- ems_model(
   closure_file = closure_file
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "null")
 
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model
 )
@@ -41,8 +38,8 @@ check <- all(unlist(lapply(
   }
 )))
 
-n_var <- nrow(model[which(model$type == "Variable"),])
-n_coeff <- nrow(model[which(model$type == "Coefficient"),])
+n_var <- nrow(model[which(model$type == "Variable"), ])
+n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
 
-var_check <- isTRUE(all.equal(n_var, nrow(outputs[which(outputs$type == "variable"),])))
-coeff_check <- isTRUE(all.equal(n_coeff, nrow(outputs[which(outputs$type == "coefficient"),])))
+var_check <- isTRUE(all.equal(n_var, nrow(outputs[which(outputs$type == "variable"), ])))
+coeff_check <- isTRUE(all.equal(n_coeff, nrow(outputs[which(outputs$type == "coefficient"), ])))

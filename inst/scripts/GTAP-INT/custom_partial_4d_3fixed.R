@@ -40,17 +40,15 @@ afeall_full <- afeall_full[do.call(order, afeall_full), ]
 # reduce_shock: all 2-element free subsets need >=9 rows; only [ALLTIMEt](4) matches -> k=1
 afeall <- afeall_full[
   afeall_full$ENDW_COMMi == "natlres" &
-  afeall_full$PROD_COMMj == "crops" &
-  afeall_full$REGr == "chn",
+    afeall_full$PROD_COMMj == "crops" &
+    afeall_full$REGr == "chn",
 ]
 afeall$Value <- runif(nrow(afeall))
 
 afeall_shk <- ems_custom_shock(var = "afeall", input = afeall)
 
-ems_option_set(write_sub_dir = "custom_partial_4d_3fixed")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = afeall_shk

@@ -36,17 +36,15 @@ atall_full <- atall_full[do.call(order, atall_full), ]
 # reduce_shock: free_idx=[MARG_COMMm], k=1
 atall <- atall_full[
   atall_full$TRAD_COMMi == "crops" &
-  atall_full$REGr == "chn" &
-  atall_full$REGs == "usa",
+    atall_full$REGr == "chn" &
+    atall_full$REGs == "usa",
 ]
 atall$Value <- runif(nrow(atall))
 
 atall_shk <- ems_custom_shock(var = "atall", input = atall)
 
-ems_option_set(write_sub_dir = "custom_partial_4d_3fixed")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = atall_shk

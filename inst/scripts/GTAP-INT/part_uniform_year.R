@@ -25,12 +25,9 @@ partial <- ems_uniform_shock(
   value = -1
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_year")
 
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = partial
@@ -44,7 +41,7 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk       <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops" & Year == year]$Value == -1
-exo_null      <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops" & Year == year)]$Value == 0
-len_check     <- (length(exo_shk) + length(exo_null)) == nrow(outputs$dat$aoall)
+exo_shk <- outputs$dat$aoall[REGr == "chn" & PROD_COMMj == "crops" & Year == year]$Value == -1
+exo_null <- outputs$dat$aoall[!(REGr == "chn" & PROD_COMMj == "crops" & Year == year)]$Value == 0
+len_check <- (length(exo_shk) + length(exo_null)) == nrow(outputs$dat$aoall)
 checks <- c(exo_shk, exo_null, len_check)

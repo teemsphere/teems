@@ -42,12 +42,9 @@ tfd <- ems_swap(
   PROD_COMMj = "crops"
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_part_swap_mixed")
 
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = list(partial, full),
@@ -63,15 +60,17 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk1         <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj == "crops"]$Value == -1
-endo1            <- outputs$dat$qfd[!(REGs == "usa" & PROD_COMMj == "crops")]$Value != 0
-endo2            <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj == "crops"]$Value != 0
-exo_null         <- outputs$dat$tfd[!(REGr == "usa" & PROD_COMMj == "crops")]$Value == 0
-endo3            <- outputs$dat$dppriv$Value != 0
-exo_shk2         <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
-qfd_len_check    <- (length(exo_shk1) + length(endo1)) == nrow(outputs$dat$qfd)
-tfd_len_check    <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$tfd)
+exo_shk1 <- outputs$dat$qfd[REGs == "usa" & PROD_COMMj == "crops"]$Value == -1
+endo1 <- outputs$dat$qfd[!(REGs == "usa" & PROD_COMMj == "crops")]$Value != 0
+endo2 <- outputs$dat$tfd[REGr == "usa" & PROD_COMMj == "crops"]$Value != 0
+exo_null <- outputs$dat$tfd[!(REGr == "usa" & PROD_COMMj == "crops")]$Value == 0
+endo3 <- outputs$dat$dppriv$Value != 0
+exo_shk2 <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
+qfd_len_check <- (length(exo_shk1) + length(endo1)) == nrow(outputs$dat$qfd)
+tfd_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$tfd)
 dppriv_len_check <- length(endo3) == nrow(outputs$dat$dppriv)
-yp_len_check     <- length(exo_shk2) == nrow(outputs$dat$yp)
-checks <- c(exo_shk1, endo1, endo2, exo_null, endo3, exo_shk2,
-            qfd_len_check, tfd_len_check, dppriv_len_check, yp_len_check)
+yp_len_check <- length(exo_shk2) == nrow(outputs$dat$yp)
+checks <- c(
+  exo_shk1, endo1, endo2, exo_null, endo3, exo_shk2,
+  qfd_len_check, tfd_len_check, dppriv_len_check, yp_len_check
+)

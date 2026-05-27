@@ -39,10 +39,8 @@ pop$Value <- runif(nrow(pop))
 
 pop_shk <- ems_custom_shock(var = "pop", input = pop)
 
-ems_option_set(write_sub_dir = "custom_partial_2d_1fixed")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = pop_shk

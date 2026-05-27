@@ -22,12 +22,9 @@ numeraire <- ems_uniform_shock(
   value = 1
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "full_uniform")
 
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = numeraire
@@ -41,6 +38,6 @@ outputs <- ems_solve(
 )
 
 # checks
-shk       <- outputs$dat$pop$Value == 1
+shk <- outputs$dat$pop$Value == 1
 len_check <- length(shk) == nrow(outputs$dat$pop)
-checks    <- c(shk, len_check)
+checks <- c(shk, len_check)

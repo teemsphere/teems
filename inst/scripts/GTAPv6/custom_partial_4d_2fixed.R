@@ -42,10 +42,8 @@ atall$Value <- runif(nrow(atall))
 
 atall_shk <- ems_custom_shock(var = "atall", input = atall)
 
-ems_option_set(write_sub_dir = "custom_partial_4d_2fixed")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = atall_shk

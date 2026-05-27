@@ -68,12 +68,9 @@ pop_trajectory <- ems_scenario_shock(
   input = pop
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "scenario")
 
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = pop_trajectory

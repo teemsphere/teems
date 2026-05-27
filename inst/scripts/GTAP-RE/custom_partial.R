@@ -48,7 +48,7 @@ aoall_full$Value <- 0
 aoall_full <- aoall_full[do.call(order, aoall_full), ]
 aoall <- aoall_full[
   !(aoall_full$ACTSa == "crops" & aoall_full$REGr == "usa") &
-  aoall_full$ALLTIMEt != 3,
+    aoall_full$ALLTIMEt != 3,
 ]
 aoall$Value <- runif(nrow(aoall))
 
@@ -84,15 +84,13 @@ atall <- atall_full[
 atall$Value <- runif(nrow(atall))
 
 # define custom percentage change shocks
-pop_shk   <- ems_custom_shock(var = "pop",    input = pop)
-aoall_shk  <- ems_custom_shock(var = "aoall",  input = aoall)
+pop_shk <- ems_custom_shock(var = "pop", input = pop)
+aoall_shk <- ems_custom_shock(var = "aoall", input = aoall)
 afeall_shk <- ems_custom_shock(var = "afeall", input = afeall)
-atall_shk  <- ems_custom_shock(var = "atall",  input = atall)
+atall_shk <- ems_custom_shock(var = "atall", input = atall)
 
-ems_option_set(write_sub_dir = "custom_partial")
 
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = list(pop_shk, aoall_shk, afeall_shk, atall_shk)
@@ -113,14 +111,14 @@ fill_missing <- function(partial, full) {
   merged
 }
 
-pop    <- fill_missing(pop,    pop_full)
-aoall  <- fill_missing(aoall,  aoall_full)
+pop <- fill_missing(pop, pop_full)
+aoall <- fill_missing(aoall, aoall_full)
 afeall <- fill_missing(afeall, afeall_full)
-atall  <- fill_missing(atall,  atall_full)
+atall <- fill_missing(atall, atall_full)
 
-pop_check    <- all.equal(pop,    outputs$dat$pop[, !"Year"],    check.attributes = FALSE, tolerance = 1e-6)
-aoall_check  <- all.equal(aoall,  outputs$dat$aoall[, !"Year"],  check.attributes = FALSE, tolerance = 1e-6)
+pop_check <- all.equal(pop, outputs$dat$pop[, !"Year"], check.attributes = FALSE, tolerance = 1e-6)
+aoall_check <- all.equal(aoall, outputs$dat$aoall[, !"Year"], check.attributes = FALSE, tolerance = 1e-6)
 afeall_check <- all.equal(afeall, outputs$dat$afeall[, !"Year"], check.attributes = FALSE, tolerance = 1e-6)
-atall_check  <- all.equal(atall,  outputs$dat$atall[, !"Year"],  check.attributes = FALSE, tolerance = 1e-6)
+atall_check <- all.equal(atall, outputs$dat$atall[, !"Year"], check.attributes = FALSE, tolerance = 1e-6)
 
 checks <- c(pop_check, aoall_check, afeall_check, atall_check)

@@ -41,12 +41,9 @@ txs <- ems_swap(
   ALLTIMEt = "FWDTIME"
 )
 
-# set the output subdirectory name within write_dir
-ems_option_set(write_sub_dir = "part_uniform_subset_swap")
 
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
-  write_dir = write_dir,
   .data = dat,
   model = model,
   shock = partial,
@@ -62,10 +59,10 @@ outputs <- ems_solve(
 )
 
 # checks
-exo_shk       <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value == -1
-endo1         <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
-endo2         <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value != 0
-exo_null      <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
+exo_shk <- outputs$dat$qxs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value == -1
+endo1 <- outputs$dat$qxs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value != 0
+endo2 <- outputs$dat$txs[REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1]$Value != 0
+exo_null <- outputs$dat$txs[!(REGs %in% c("chn", "usa") & COMMc == "svces" & ALLTIMEt != length(time_steps) - 1)]$Value == 0
 qxs_len_check <- (length(exo_shk) + length(endo1)) == nrow(outputs$dat$qxs)
 txs_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$txs)
 checks <- c(exo_shk, endo1, endo2, exo_null, qxs_len_check, txs_len_check)

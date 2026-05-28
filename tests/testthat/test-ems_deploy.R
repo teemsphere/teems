@@ -33,7 +33,6 @@ dat <- ems_data(
 )
 
 model <- ems_model(model_file, closure_file)
-variant <- Sys.info()["sysname"]
 
 test_that("ems_deploy errors when .data is missing", {
   expect_snapshot_error(ems_deploy())

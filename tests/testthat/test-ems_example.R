@@ -17,7 +17,6 @@ ems_option_set(
   tempdir = write_dir
 )
 withr::defer(ems_option_reset(), teardown_env())
-variant <- Sys.info()["sysname"]
 
 GTAPv6_dir <- file.path(write_dir, "GTAPv6")
 if (dir.exists(GTAPv6_dir)) {
@@ -47,6 +46,8 @@ if (dir.exists(GTAP_INT_dir)) {
   dir.create(GTAP_INT_dir, recursive = TRUE)
 }
 
+variant <- Sys.info()["sysname"]
+
 test_that("ems_example errors when path is missing", {
   expect_snapshot_error(ems_example())
 })
@@ -57,7 +58,8 @@ test_that("ems_example errors when model is missing", {
 
 test_that("ems_example errors when path does not exist", {
   expect_snapshot_error(
-    ems_example(file.path(write_dir, "not_a_dir"), "GTAPv7")
+    ems_example(file.path(write_dir, "not_a_dir"), "GTAPv7"),
+    variant = variant
   )
 })
 

@@ -1,8 +1,4 @@
-# ems_example errors when write_dir parent dir does not exist
+# ems_example errors when path does not exist
 
-    x 'C:/Users/PC/AppData/Local/R/cache/R/teems/example/tmp/parent_dir/nonexistent_dir_xyz' does not exist and could not be created. Ensure the parent directory exists.
-
-# ems_example warns when write_dir does not exist
-
-    ! Creating directory: 'C:/Users/PC/AppData/Local/R/cache/R/teems/example/tmp/nonexistent_dir_xyz'.
+    x 'C:\Users\PC\AppData\Local/R/cache/R/teems/example/not_a_dir' does not exist or is not writable.
 

@@ -64,26 +64,29 @@ dat <- ems_data(
   time_steps = c(0, 1, 2, 3)
 )
 
-# 2. Configure model and closure
-model <- ems_model(model_file = "path/to/model",
-                   closure_file = "path/to/closure")
+# 2. Retrieve a model
+model_files <- ems_example("GTAP-RE", tempdir())
 
-# 3. Define shocks
+# 3. Load model and closure
+model <- ems_model(model_file = model_files[["model_file"]],
+                   closure_file = model_files[["closure_file"]])
+
+# 4. Define shocks
 shock <- ems_uniform_shock(var = "pop",
                            REGr = "lam",
                            value = 1)
 
-# 4. Validate and write solver inputs
+# 5. Validate and write solver inputs
 cmf_path <- ems_deploy(.data = dat,
                        model = model,
                        shock = shock)
 
-# 5. Solve
+# 6. Solve
 results <- ems_solve(cmf_path = cmf_path,
-                     n_tasks = 2,
-                     n_subintervals = 6,
+                     solution_method = "mod_midpoint"
                      matrix_method = "SBBD",
-                     solution_method = "mod_midpoint")
+                     n_subintervals = 2,
+                     n_tasks = 2)
 ```
 
 ## Data requirements

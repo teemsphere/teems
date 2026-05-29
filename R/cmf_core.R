@@ -19,16 +19,20 @@
   .out_mkdir(write_dir = write_dir,
              sets = FALSE,
              coeff = FALSE)
-  
-  files <- purrr::map(
-    files,
-    function(f) {
-      nme <- basename(f)
-      new_path <- file.path(write_dir, nme)
-      file.copy(f, new_path)
-      return(new_path)
-    }
-  )
+
+  uni_dir <- length(unique(normalizePath(c(dirname(unlist(files)), model_dir), mustWork = FALSE)))
+
+  if (uni_dir %!=% 1L) {
+    files <- purrr::map(
+      files,
+      function(f) {
+        nme <- basename(f)
+        new_path <- file.path(write_dir, nme)
+        file.copy(f, new_path)
+        return(new_path)
+      }
+    )
+  }
 
   input_files <- files[names(files) %in% names(input_files)]
   input_files <- paste(

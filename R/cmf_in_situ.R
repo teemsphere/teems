@@ -17,20 +17,20 @@
       call = call
     )
   }
-
+  
+  if (!dir.exists(model_dir)) {
+    model_dir <- normalizePath(model_dir, "/", FALSE)
+    .cli_action(solve_err$no_model_dir,
+                action = "abort",
+                call = call
+    )
+  }
+  
   model_file <- .check_input(
     file = model_file,
     valid_ext = "tab",
     call = call
   )
-
-  if (!dir.exists(model_dir)) {
-    model_dir <- normalizePath(model_dir, "/", FALSE)
-    .cli_action(solve_err$no_model_dir,
-      action = "abort",
-      call = call
-    )
-  }
 
   shock_file <- .check_input(
     file = shock_file,

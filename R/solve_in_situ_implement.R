@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
-.implement_solve_in_situ <- function(model_file,
-                                     model_dir,
+.implement_solve_in_situ <- function(model_dir,
+                                     model_file,
                                      closure_file,
                                      input_files,
                                      shock_file,

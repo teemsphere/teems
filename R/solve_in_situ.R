@@ -22,7 +22,8 @@
 #'   `"model_file"`, `"closure_file"`, and `"shock_file"` are
 #'   required for in-situ model runs.
 #' @param model_dir Character of length 1, base directory where
-#'   input files will be copied and the model will be run.
+#'   input files will be copied (if not all already present) and
+#'   model outputs will be written.
 #' @seealso [`ems_solve()`] for the standard package-supported
 #'   solver.
 #' @examples
@@ -34,9 +35,9 @@
 #'  GTAPDATA = "path/to/dat_file.txt",
 #'  GTAPPARM = "path/to/par_file.txt",
 #'  GTAPSETS = "path/to/sets_file.txt",
+#'  model_dir = "existing/dir/for/model_run",
 #'  model_file = "path/to/model_file.tab",
 #'  closure_file = "path/to/closure_file.cls",
-#'  model_dir = "existing/dir/for/model_run",
 #'  shock_file = "path/to/shock_file.shf",
 #'  n_tasks = 1,
 #'  n_subintervals = 1,
@@ -45,8 +46,8 @@
 #'  )
 #' }
 solve_in_situ <- function(...,
-                          model_file,
                           model_dir,
+                          model_file,
                           closure_file,
                           shock_file,
                           n_tasks = 1L,
@@ -62,11 +63,11 @@ solve_in_situ <- function(...,
                           append_args = NULL
 ) {
 call <- match.call()
-if (missing(model_file)) {
-  .cli_missing(model_file)
-}
 if (missing(model_dir)) {
   .cli_missing(model_dir)
+}
+if (missing(model_file)) {
+  .cli_missing(model_file)
 }
 if (missing(closure_file)) {
   .cli_missing(closure_file)
@@ -82,8 +83,8 @@ if (missing(...)) {
 }
 input_files <- list(...)
 return(.implement_solve_in_situ(
-  model_file = model_file,
   model_dir = model_dir,
+  model_file = model_file,
   closure_file = closure_file,
   input_files = input_files,
   shock_file = shock_file,

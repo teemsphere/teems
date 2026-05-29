@@ -19,7 +19,7 @@ if (dir.exists(model_dir)) {
 
 dir.create(model_dir, recursive = TRUE)
 
-model_files <- ems_example(model_dir, model)
+model_files <- ems_example(model, model_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 

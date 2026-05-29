@@ -6,27 +6,27 @@
                                   paths,
                                   call) {
   
-  matrix_method <- a$matrix_method
-  a$matrix_method <- rlang::arg_match(
-    arg = matrix_method,
-    values = c("LU", "DBBD", "SBBD", "NDBBD"),
-    error_call = call
-  )
-
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
     arg = solution_method,
     values = c("Johansen", "mod_midpoint"),
     error_call = call
   )
-
+  
+  matrix_method <- a$matrix_method
+  a$matrix_method <- rlang::arg_match(
+    arg = matrix_method,
+    values = c("LU", "DBBD", "SBBD", "NDBBD"),
+    error_call = call
+  )
+  
   checklist <- list(
     cmf_path = "character",
-    n_tasks = c("numeric", "integer"),
-    n_subintervals = c("numeric", "integer"),
-    matrix_method = "character",
     solution_method = "character",
+    matrix_method = "character",
+    n_subintervals = c("numeric", "integer"),
     steps = c("numeric", "integer"),
+    n_tasks = c("numeric", "integer"),
     laA = c("numeric", "integer"),
     laD = c("numeric", "integer"),
     laDi = c("numeric", "integer"),

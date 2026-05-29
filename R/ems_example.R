@@ -8,14 +8,14 @@
 #'   with elements `model_file` and `closure_file`. For `type =
 #'   "scripts"`: a character vector of paths to the written
 #'   script files.
-#' @param path Character vector of length 1. Directory where
-#'   files will be written.
 #' @param model Character vector of length 1, name of model.
 #'   Options include:
 #'   * `"GTAP-RE"`: GTAP Rational Expectations
 #'   * `"GTAP-INT"`: GTAP Intertemporal
 #'   * `"GTAPv7"`: Standard GTAP model
 #'   * `"GTAPv6"`: Classic GTAP model
+#' @param path Character vector of length 1. Directory where
+#'   files will be written.
 #' @param type Character vector of length 1, (default is
 #'   `"model_files"`). Determines the example output. Options
 #'   include:
@@ -36,32 +36,32 @@
 #'   elements and attributes (e.g., a HAR file).
 #' @examples
 #' # Write GTAP-RE model files
-#' ems_example(tempdir(), "GTAP-RE")
+#' ems_example("GTAP-RE", tempdir())
 #'
 #' \dontrun{
 #' # The following example requires input data. See
 #' # https://teemsphere.github.io/ to get started.
 #'
 #' # Generate GTAP-RE example scripts
-#' ems_example(path = "path/to/example/scripts",
-#'             model = "GTAP-RE",
+#' ems_example(model = "GTAP-RE",
+#'             path = "path/to/example/scripts",
 #'             type = "scripts",
 #'             dat_input = "v7data/gsdfdat.har",
 #'             par_input = "v7data/gsdfpar.har",
 #'             set_input = "v7data/gsdfset.har")
 #' }
-ems_example <- function(path,
-                        model,
+ems_example <- function(model,
+                        path,
                         type = c("model_files", "scripts"),
                         dat_input = NULL,
                         par_input = NULL,
                         set_input = NULL
 ) {
-if (missing(path)) {
-  .cli_missing(path)
-}
 if (missing(model)) {
   .cli_missing(model)
+}
+if (missing(path)) {
+  .cli_missing(path)
 }
 args_list <- mget(names(formals()))
 call <- match.call()

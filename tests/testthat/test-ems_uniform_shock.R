@@ -16,7 +16,7 @@ ems_option_set(verbose = FALSE,
 withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(write_dir, model)
+model_files <- ems_example(model, write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 

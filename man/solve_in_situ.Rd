@@ -6,15 +6,15 @@
 \usage{
 solve_in_situ(
   ...,
-  model_file,
   model_dir,
+  model_file,
   closure_file,
   shock_file,
-  n_tasks = 1L,
-  n_subintervals = 1L,
-  matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   solution_method = c("Johansen", "mod_midpoint"),
+  matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
+  n_subintervals = 1L,
   steps = c(2L, 4L, 8L),
+  n_tasks = 1L,
   laA = 300L,
   laD = 200L,
   laDi = 500L,
@@ -33,13 +33,14 @@ this manner. All model declared input files as well as
 \code{"model_file"}, \code{"closure_file"}, and \code{"shock_file"} are
 required for in-situ model runs.}
 
+\item{model_dir}{Character of length 1, base directory where
+input files will be copied (if not all already present) and
+model outputs will be written.}
+
 \item{model_file}{Character vector length 1, path to a TABLO
 file with .tab extension. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for vetted models and compatible Tablo file formatting.}
-
-\item{model_dir}{Character of length 1, base directory where
-input files will be copied and the model will be run.}
 
 \item{closure_file}{Character vector length 1, path to a
 closure file with .cls extension. See
@@ -51,14 +52,17 @@ for closure file formatting.}
 fully prepared shock file. No checks or modifications are
 carried out on this file.}
 
-\item{n_tasks}{Integer length 1 (default is \code{1L}), number of
-tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
-== "LU".}
-
-\item{n_subintervals}{Integer length 1 (default is \code{1L}),
-number of subintervals for the applied shock. More
-subintervals may alleviate accuracy issues stemming from
-large shock magnitudes.}
+\item{solution_method}{The solution method to be used, default
+is the one-step \code{"Johansen"}. Choices:
+\itemize{
+\item \code{"Johansen"}: The Johansen method is fast however it should
+only be used as a rough approximation due to handling of
+nonlinear equations. See:
+\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
+\item \code{"mod_midpoint"}: The modified midpoint method
+performs multiple passes. See: \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{modified
+midpoint}
+}}
 
 \item{matrix_method}{Character of length 1, matrix solution
 method (default is \code{"LU"}). Choices:
@@ -77,22 +81,19 @@ solution method for large intertemporal models with many
 timesteps.
 }}
 
-\item{solution_method}{The solution method to be used, default
-is the one-step \code{"Johansen"}. Choices:
-\itemize{
-\item \code{"Johansen"}: The Johansen method is fast however it should
-only be used as a rough approximation due to handling of
-nonlinear equations. See:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
-\item \code{"mod_midpoint"}: The modified midpoint method
-performs multiple passes. See: \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{modified
-midpoint}
-}}
+\item{n_subintervals}{Integer length 1 (default is \code{1L}),
+number of subintervals for the applied shock. More
+subintervals may alleviate accuracy issues stemming from
+large shock magnitudes.}
 
 \item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
 vector of steps for the modified midpoint method, must be
 all odd or all even and length 3. A larger number of steps
 may improve accuracy for some model runs.}
+
+\item{n_tasks}{Integer length 1 (default is \code{1L}), number of
+tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
+== "LU".}
 
 \item{laA}{Integer length 1 (default is \code{300L}). Memory
 parameter (\%) for \code{"LU"} and \code{"SBBD"}.}
@@ -141,14 +142,10 @@ solve_in_situ(
  GTAPDATA = "path/to/dat_file.txt",
  GTAPPARM = "path/to/par_file.txt",
  GTAPSETS = "path/to/sets_file.txt",
+ model_dir = "existing/dir/for/model_run",
  model_file = "path/to/model_file.tab",
  closure_file = "path/to/closure_file.cls",
- model_dir = "existing/dir/for/model_run",
- shock_file = "path/to/shock_file.shf",
- n_tasks = 1,
- n_subintervals = 1,
- matrix_method = "SBBD",
- solution_method = "mod_midpoint"
+ shock_file = "path/to/shock_file.shf"
  )
 }
 }

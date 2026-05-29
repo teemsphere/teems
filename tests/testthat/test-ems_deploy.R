@@ -19,7 +19,7 @@ ems_option_set(
 withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(write_dir, model)
+model_files <- ems_example(model, write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 dat <- ems_data(
@@ -147,7 +147,7 @@ test_that("ems_deploy errors when read-in headers are missing mapping", {
 test_that("ems_deploy errors when timesteps provided to static model", {
   write_dir <- file.path(write_dir, "gtapv7")
   dir.create(write_dir, recursive = TRUE, showWarnings = FALSE)
-  model_files <- ems_example(write_dir, "GTAPv7")
+  model_files <- ems_example("GTAPv7", write_dir)
   model_file <- model_files[["model_file"]]
   closure_file <- model_files[["closure_file"]]
   model <- ems_model(model_file, closure_file)

@@ -14,7 +14,7 @@ ems_option_set(
 )
 withr::defer(ems_option_reset(), teardown_env())
 
-model_files <- ems_example(write_dir, "GTAP-RE")
+model_files <- ems_example("GTAP-RE", write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -390,7 +390,7 @@ test_that("ems_model errors dots passed without names", {
 
 test_that("ems_model examples run", {
   # simple model load
-  GTAPv7 <- ems_example(write_dir, "GTAPv7")
+  GTAPv7 <- ems_example("GTAPv7", write_dir)
   model <- ems_model(
     GTAPv7[["model_file"]],
     GTAPv7[["closure_file"]]
@@ -399,7 +399,7 @@ test_that("ems_model examples run", {
   # model load with variable omission
   # uniform numeric value applied to KAPPA coefficient
   # heterogeneous values allocated to SUBPAR via data frame
-  GTAP_RE <- ems_example(write_dir, "GTAP-RE")
+  GTAP_RE <- ems_example("GTAP-RE", write_dir)
   sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
   regions <- c("usa", "chn", "row")
   time_steps <- seq_len(5)

@@ -18,7 +18,7 @@ withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
 
-model_files <- ems_example(write_dir, model)
+model_files <- ems_example(model, write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -121,10 +121,10 @@ test_that("solve_in_situ solves", {
     model_dir = insitu_dir,
     closure_file = model_files[["closure_file"]],
     shock_file = shock_file,
-    n_tasks = 1,
-    n_subintervals = 1,
+    solution_method = "mod_midpoint",
     matrix_method = "SBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 1,
+    n_tasks = 1
   )
 
   expect_s3_class(outputs, "tbl")
@@ -176,10 +176,10 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
     closure_file = model_files[["closure_file"]],
     model_dir = file.path(insitu_dir, "no_dir"),
     shock_file = shock_file,
-    n_tasks = 1,
-    n_subintervals = 1,
+    solution_method = "mod_midpoint",
     matrix_method = "SBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 1,
+    n_tasks = 1
   ),
   variant = variant)
 })
@@ -204,10 +204,10 @@ test_that("solve_in_situ errors when missing input file", {
     closure_file = model_files[["closure_file"]],
     model_dir = insitu_dir,
     shock_file = shock_file,
-    n_tasks = 1,
-    n_subintervals = 1,
+    solution_method = "mod_midpoint",
     matrix_method = "SBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 1,
+    n_tasks = 1
   ))
 })
 
@@ -233,10 +233,10 @@ test_that("solve_in_situ errors when input file is without name", {
     closure_file = model_files[["closure_file"]],
     model_dir = insitu_dir,
     shock_file = shock_file,
-    n_tasks = 1,
-    n_subintervals = 1,
+    solution_method = "mod_midpoint",
     matrix_method = "SBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 1,
+    n_tasks = 1
   ))
 })
 

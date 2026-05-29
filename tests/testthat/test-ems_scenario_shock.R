@@ -18,7 +18,7 @@ ems_option_set(verbose = FALSE,
 withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(write_dir, model)
+model_files <- ems_example(model, write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 
@@ -103,7 +103,7 @@ test_that("ems_scenario_shock errors when used with a static model", {
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   )
-  static_model_files <- ems_example(write_dir, "GTAPv7")
+  static_model_files <- ems_example("GTAPv7", write_dir)
   static_model_file <- static_model_files[["model_file"]]
   static_closure_file <- static_model_files[["closure_file"]]
   static_model <- ems_model(static_model_file, static_closure_file)

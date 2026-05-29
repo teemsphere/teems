@@ -19,7 +19,7 @@ ems_option_set(
 withr::defer(ems_option_reset(), teardown_env())
 
 model <- "GTAP-RE"
-model_files <- ems_example(write_dir, model)
+model_files <- ems_example(model, write_dir)
 model_file <- model_files[["model_file"]]
 closure_file <- model_files[["closure_file"]]
 dat <- ems_data(
@@ -125,7 +125,7 @@ test_that("ems_custom_shock errors when some shock tuples are endogenous", {
 
 test_that("ems_custom_shock example runs", {
   model <- "GTAP-RE"
-  model_files <- ems_example(write_dir, model)
+  model_files <- ems_example(model, write_dir)
   model_file <- model_files[["model_file"]]
   closure_file <- model_files[["closure_file"]]
   dat <- ems_data(

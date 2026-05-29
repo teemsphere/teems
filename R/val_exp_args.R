@@ -14,8 +14,8 @@
   )
 
   checklist <- list(
-    path = "character",
     model = "character",
+    path = "character",
     type = "character",
     dat_input = c("NULL", "character"),
     par_input = c("NULL", "character"),

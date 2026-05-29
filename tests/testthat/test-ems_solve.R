@@ -35,13 +35,13 @@ dynamic_data <- ems_data(
 )
 
 dynamic_model <- "GTAP-RE"
-dynamic_model_files <- ems_example(write_dir, dynamic_model)
+dynamic_model_files <- ems_example(dynamic_model, write_dir)
 dynamic_model_file <- dynamic_model_files[["model_file"]]
 dynamic_closure_file <- dynamic_model_files[["closure_file"]]
 dynamic_model <- ems_model(dynamic_model_file, dynamic_closure_file)
 
 static_model <- "GTAPv7"
-static_model_files <- ems_example(write_dir, static_model)
+static_model_files <- ems_example(static_model, write_dir)
 static_model_file <- static_model_files[["model_file"]]
 static_closure_file <- static_model_files[["closure_file"]]
 static_model <- ems_model(static_model_file, static_closure_file)
@@ -142,17 +142,17 @@ test_that("ems_solve returns the same output across static matrix methods", {
   cmf_path <- ems_deploy(static_data, static_model, numeraire)
   LU <- ems_solve(
     cmf_path,
-    n_subintervals = 2,
+    solution_method = "mod_midpoint",
     matrix_method = "LU",
-    solution_method = "mod_midpoint"
+    n_subintervals = 2
   )
 
   DBBD <- ems_solve(
     cmf_path,
-    n_tasks = 2,
-    n_subintervals = 2,
+    solution_method = "mod_midpoint",
     matrix_method = "DBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 2,
+    n_tasks = 2
   )
 
   check <- all.equal(LU, DBBD, tolerance = 1e-4)
@@ -165,25 +165,25 @@ test_that("ems_solve returns the same output across dynamic matrix methods", {
   cmf_path <- ems_deploy(dynamic_data, dynamic_model, numeraire)
   LU <- ems_solve(
     cmf_path,
-    n_subintervals = 2,
+    solution_method = "mod_midpoint",
     matrix_method = "LU",
-    solution_method = "mod_midpoint"
+    n_subintervals = 2
   )
-  
+
   SBBD <- ems_solve(
     cmf_path,
-    n_tasks = 2,
-    n_subintervals = 2,
+    solution_method = "mod_midpoint",
     matrix_method = "SBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 2,
+    n_tasks = 2
   )
-  
+
   NDBBD <- ems_solve(
     cmf_path,
-    n_tasks = 2,
-    n_subintervals = 2,
+    solution_method = "mod_midpoint",
     matrix_method = "NDBBD",
-    solution_method = "mod_midpoint"
+    n_subintervals = 2,
+    n_tasks = 2
   )
   
   LU_SBBD_check <- all.equal(LU, SBBD, tolerance = 1e-4)

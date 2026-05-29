@@ -48,53 +48,53 @@ if (dir.exists(GTAP_INT_dir)) {
 
 variant <- Sys.info()["sysname"]
 
-test_that("ems_example errors when path is missing", {
+test_that("ems_example errors when model is missing", {
   expect_snapshot_error(ems_example())
 })
 
-test_that("ems_example errors when model is missing", {
-  expect_snapshot_error(ems_example(write_dir))
+test_that("ems_example errors when path is missing", {
+  expect_snapshot_error(ems_example("GTAPv7"))
 })
 
 test_that("ems_example errors when path does not exist", {
   expect_snapshot_error(
-    ems_example(file.path(write_dir, "not_a_dir"), "GTAPv7"),
+    ems_example("GTAPv7", file.path(write_dir, "not_a_dir")),
     variant = variant
   )
 })
 
 test_that("ems_example errors when type is scripts and an input is missing", {
   expect_snapshot_error(
-    ems_example(write_dir, "GTAPv7", "scripts", par_input = par_input, set_input = set_input)
+    ems_example("GTAPv7", write_dir, "scripts", par_input = par_input, set_input = set_input)
   )
 })
 
 test_that("ems_example returns model_file path for GTAPv7", {
-  result <- ems_example(write_dir, "GTAPv7")
+  result <- ems_example("GTAPv7", write_dir)
   expect_true("model_file" %in% names(result))
   expect_true(file.exists(result[["model_file"]]))
 })
 
 test_that("ems_example returns closure_file path for GTAPv7", {
-  result <- ems_example(write_dir, "GTAPv7")
+  result <- ems_example("GTAPv7", write_dir)
   expect_true("closure_file" %in% names(result))
   expect_true(file.exists(result[["closure_file"]]))
 })
 
 test_that("ems_example model_file is a .tab file", {
-  result <- ems_example(write_dir, "GTAPv7")
+  result <- ems_example("GTAPv7", write_dir)
   expect_true(grepl("\\.tab$", result[["model_file"]]))
 })
 
 test_that("ems_example closure_file is a .cls file", {
-  result <- ems_example(write_dir, "GTAPv7")
+  result <- ems_example("GTAPv7", write_dir)
   expect_true(grepl("\\.cls$", result[["closure_file"]]))
 })
 
 test_that("ems_example GTAPv6 scripts run without errors", {
   scripts <- ems_example(
-    GTAPv6_dir,
     "GTAPv6",
+    GTAPv6_dir,
     "scripts",
     dat_input = Sys.getenv("GTAP10A_dat"),
     par_input = Sys.getenv("GTAP10A_par"),
@@ -117,8 +117,8 @@ test_that("ems_example GTAPv6 scripts run without errors", {
  
 test_that("ems_example GTAPv7 scripts run without errors", {
   scripts <- ems_example(
-    GTAPv7_dir,
     "GTAPv7",
+    GTAPv7_dir,
     "scripts",
     dat_input,
     par_input,
@@ -141,8 +141,8 @@ test_that("ems_example GTAPv7 scripts run without errors", {
 
 test_that("ems_example GTAP-INT scripts run without errors", {
   scripts <- ems_example(
-    GTAP_INT_dir,
     "GTAP-INT",
+    GTAP_INT_dir,
     "scripts",
     dat_input = Sys.getenv("GTAP10A_dat"),
     par_input = Sys.getenv("GTAP10A_par"),
@@ -165,8 +165,8 @@ test_that("ems_example GTAP-INT scripts run without errors", {
 
 test_that("ems_example GTAP-RE scripts run without errors", {
   scripts <- ems_example(
-    GTAP_RE_dir,
     "GTAP-RE",
+    GTAP_RE_dir,
     "scripts",
     dat_input,
     par_input,

@@ -5,8 +5,8 @@
 \title{Write teems example models and scripts to file}
 \usage{
 ems_example(
-  path,
   model,
+  path,
   type = c("model_files", "scripts"),
   dat_input = NULL,
   par_input = NULL,
@@ -14,9 +14,6 @@ ems_example(
 )
 }
 \arguments{
-\item{path}{Character vector of length 1. Directory where
-files will be written.}
-
 \item{model}{Character vector of length 1, name of model.
 Options include:
 \itemize{
@@ -25,6 +22,9 @@ Options include:
 \item \code{"GTAPv7"}: Standard GTAP model
 \item \code{"GTAPv6"}: Classic GTAP model
 }}
+
+\item{path}{Character vector of length 1. Directory where
+files will be written.}
 
 \item{type}{Character vector of length 1, (default is
 \code{"model_files"}). Determines the example output. Options
@@ -63,15 +63,15 @@ generate scripts containing a range of package features.
 }
 \examples{
 # Write GTAP-RE model files
-ems_example(tempdir(), "GTAP-RE")
+ems_example("GTAP-RE", tempdir())
 
 \dontrun{
 # The following example requires input data. See
 # https://teemsphere.github.io/ to get started.
 
 # Generate GTAP-RE example scripts
-ems_example(path = "path/to/example/scripts",
-            model = "GTAP-RE",
+ems_example(model = "GTAP-RE",
+            path = "path/to/example/scripts",
             type = "scripts",
             dat_input = "v7data/gsdfdat.har",
             par_input = "v7data/gsdfpar.har",

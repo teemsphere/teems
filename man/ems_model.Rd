@@ -49,11 +49,11 @@ be present.
 }
 \examples{
 # Simple static model retrieval and load
-GTAPv7 <- ems_example(tempdir(), "GTAPv7")
+GTAPv7 <- ems_example("GTAPv7", tempdir())
 ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
 
 # Intertemporal model
-GTAP_RE <- ems_example(tempdir(), "GTAP-RE")
+GTAP_RE <- ems_example("GTAP-RE", tempdir())
 
 # Construct data frame
 sectors <- c("crops", "food", "livestock", "mnfcs", "svces")

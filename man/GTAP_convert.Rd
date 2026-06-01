@@ -51,17 +51,17 @@ ls_arrays <- GTAP_convert(
 
 # Convert v7.0 files to v6.2 format
 converted2v6 <- GTAP_convert(
-  dat_har = "path/to/gsdfdat.har",
-  par_har = "path/to/gsdfpar.har",
-  set_har = "path/to/gsdfset.har",
+  dat_har = "v7_data/gsdfdat.har",
+  par_har = "v7_data/gsdfpar.har",
+  set_har = "v7_data/gsdfset.har",
   target    = "GTAPv6"
 )
 
 # Convert v6.2 files to v7.0 format
 converted2v7 <- GTAP_convert(
-  dat_har = "path/to/gsddat.har",
-  par_har = "path/to/gsdpar.har",
-  set_har = "path/to/gsdset.har",
+  dat_har = "v6_data/gsddat.har",
+  par_har = "v6_data/gsdpar.har",
+  set_har = "v6_data/gsdset.har",
   target    = "GTAPv7"
 )
 }

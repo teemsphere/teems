@@ -76,14 +76,14 @@ ems_example("GTAP-RE", tempdir())
 ems_example(model = "GTAP-RE",
             path = "path/to/example/scripts",
             type = "scripts",
-            dat_input = "v7data/gsdfdat.har",
-            par_input = "v7data/gsdfpar.har",
-            set_input = "v7data/gsdfset.har")
+            dat_input = "v7_data/gsdfdat.har",
+            par_input = "v7_data/gsdfpar.har",
+            set_input = "v7_data/gsdfset.har")
 
 # Generate GTAPv7 example scripts from a v6.2 format database
-converted <- GTAP_convert(dat_input = "v6data/gsddat.har",
-                          par_input = "v6data/gsdpar.har",
-                          set_input = "v6data/gsdset.har")
+converted <- GTAP_convert(dat_input = "v6_data/gsddat.har",
+                          par_input = "v6_data/gsdpar.har",
+                          set_input = "v6_data/gsdset.har")
                           target = "GTAPv7")
 
 ems_example(model = "GTAPv7",

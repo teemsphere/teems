@@ -1,4 +1,4 @@
-#' @title Compose model results
+#' @title Compose model results into structured data objects
 #' @export
 #' @description `ems_compose()` retrieves and processes results
 #'   from a solved model run. Data validation and consistency

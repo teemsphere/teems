@@ -18,17 +18,17 @@ Docker-based solving --- all from R.
 
 | Function | Purpose |
 |:---------|:--------|
-| `ems_data()` | Load input data, apply set mappings and time steps, aggregate and convert data |
-| `ems_model()` | Load model and closure files |
-| `ems_uniform_shock()`/`ems_custom_shock()`/`ems_scenario_shock()` | Load shocks |
-| `ems_swap()` | Load closure swaps |
-| `ems_deploy()` | Validate inputs and write solver input files |
-| `ems_solve()` | Execute the Docker-based solver |
-| `ems_compose()` | Parse solver outputs into structured R objects |
+| `ems_data()` | Load and prepare data inputs |
+| `ems_model()` | Parse and modify model and closure files |
+| `ems_uniform_shock()`/`ems_custom_shock()`/`ems_scenario_shock()` | Prepare shocks |
+| `ems_swap()` | Prepare closure swaps |
+| `ems_deploy()` | Validate and write all model inputs |
+| `ems_solve()` | Configure and solve model |
+| `ems_compose()` | Compose model results into structured data objects |
 | `ems_option_set()`/`ems_option_get()`/`ems_option_reset()` | Get, set, and reset advanced package options |
-| `ems_example()` | Get example model files and write ready-to-run scripts to disk |
-| `solve_in_situ()` | Solve user-provided input files |
-| `GTAP_convert()` | Convert between GTAP v6.2 and v7.0 data formats |
+| `ems_example()` | Write teems example models and scripts to file |
+| `solve_in_situ()` | Configure and solve model in-situ |
+| `GTAP_convert()` | Convert GTAP HAR files and data formats |
 
 ## Installation
 

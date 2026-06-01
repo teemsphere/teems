@@ -4,7 +4,7 @@
 \alias{GTAP_convert}
 \title{Convert data between GTAP v6.2 and v7.0 formats}
 \usage{
-GTAP_convert(dat_har, par_har, set_har, origin, target)
+GTAP_convert(dat_har, par_har, set_har, target = NULL)
 }
 \arguments{
 \item{dat_har}{Character vector of length 1, file name in
@@ -19,46 +19,49 @@ coefficient data.}
 working directory or path to a GTAP HAR file with set
 elements and attributes.}
 
-\item{origin}{Character vector of length 1. The format of the
-input HAR files. One of \code{"GTAPv6"} or \code{"GTAPv7"}. Must
-differ from \code{target}.}
-
-\item{target}{Character vector of length 1. The target format
-to convert to. One of \code{"GTAPv6"} or \code{"GTAPv7"}. Must differ
-from \code{origin}.}
+\item{target}{Character vector of length 1 (default is
+\code{NULL}). The target format to convert to. Currently supports
+\code{"GTAPv6"} or \code{"GTAPv7"}. If \code{NULL}, no data format
+conversion will take place.}
 }
 \value{
 A named list with elements \code{dat}, \code{par}, and \code{set},
-each containing the converted data tables in the target
-format. Suitable for direct use with \code{\link[=ems_data]{ems_data()}}.
+each containing a list of arrays corresponding to database
+headers. Suitable for direct use with \code{\link[=ems_data]{ems_data()}}.
 }
 \description{
 \code{GTAP_convert()} converts GTAP HAR database files
-between the classic v6.2 and standard v7.0 data formats. The
-converted output can then be passed directly to
-\code{\link[=ems_data]{ems_data()}} via its \code{dat_input}, \code{par_input}, and
-\code{set_input} arguments, or written to disk for later use.
+into lists of arrays as well as converts between the classic
+v6.2 and standard v7.0 data formats. The output can then be
+passed directly to \code{\link[=ems_data]{ems_data()}} via its \code{dat_input},
+\code{par_input}, and \code{set_input} arguments, or written to disk
+for later use.
 }
 \examples{
 \dontrun{
 # The following examples require input data. See
 # https://teemsphere.github.io/ to get started.
 
+# Convert HAR files to lists of arrays
+ls_arrays <- GTAP_convert(
+  dat_har = "path/to/gsdfdat.har",
+  par_har = "path/to/gsdfpar.har",
+  set_har = "path/to/gsdfset.har"
+)
+
 # Convert v7.0 files to v6.2 format
-converted <- GTAP_convert(
+converted2v6 <- GTAP_convert(
   dat_har = "path/to/gsdfdat.har",
   par_har = "path/to/gsdfpar.har",
   set_har = "path/to/gsdfset.har",
-  origin    = "GTAPv7",
   target    = "GTAPv6"
 )
 
 # Convert v6.2 files to v7.0 format
-converted <- GTAP_convert(
+converted2v7 <- GTAP_convert(
   dat_har = "path/to/gsddat.har",
   par_har = "path/to/gsdpar.har",
   set_har = "path/to/gsdset.har",
-  origin    = "GTAPv6",
   target    = "GTAPv7"
 )
 }

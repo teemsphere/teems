@@ -17,9 +17,9 @@
     model = "character",
     path = "character",
     type = "character",
-    dat_input = c("NULL", "character"),
-    par_input = c("NULL", "character"),
-    set_input = c("NULL", "character")
+    dat_input = c("NULL", "character", "list"),
+    par_input = c("NULL", "character", "list"),
+    set_input = c("NULL", "character", "list")
   )
 
   .check_arg_class(
@@ -50,9 +50,18 @@
         call = call
       )
     }
-    a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
-    a$par_input <- normalizePath(a$par_input, "/", FALSE)
-    a$set_input <- normalizePath(a$set_input, "/", FALSE)
+
+    if (!is.list(a$dat_input)) {
+      a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
+    }
+
+    if (!is.list(a$par_input)) {
+      a$par_input <- normalizePath(a$par_input, "/", FALSE)
+    }
+
+    if (!is.list(a$set_input)) {
+      a$set_input <- normalizePath(a$set_input, "/", FALSE)
+    }
   }
 
   return(a)

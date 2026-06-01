@@ -1,5 +1,3 @@
-#' @importFrom purrr map2_chr
-#' 
 #' @keywords internal
 #' @noRd
 .implement_exp <- function(args_list,
@@ -9,37 +7,22 @@
     call = call
   )
 
-  model_file <- paste0(v$model, ".tab")
-  closure_file <- paste0(v$model, ".cls")
-  origin <- system.file(file.path("models", v$model, c(model_file, closure_file)), package = "teems", mustWork = TRUE)
-  file.copy(
-    from = origin,
-    to = v$path,
-    overwrite = TRUE
+  paths <- .get_model(
+    model = v$model,
+    path = v$path
   )
-  paths <- file.path(v$path, c(model_file, closure_file))
-  paths <- normalizePath(paths, "/")
-  names(paths) <- c("model_file", "closure_file")
-  
+
   if (v$type %=% "scripts") {
-    dir <- system.file(file.path("scripts", v$model), package = "teems", mustWork = TRUE)
-    scripts <- list.files(dir, full.names = TRUE)
-    scripts <- scripts[!grepl(paste0(2:5, "d", collapse = "|"), scripts)]
-    # prep exported ems_meta function to get year quickly
-    scripts <- scripts[!grepl("_year", scripts)]
-    scripts <- scripts[!grepl("scenario", scripts)]
-    templates <- lapply(scripts, readLines)
-    paths <- purrr::map2_chr(templates,
-      scripts,
-      .inject_script,
+    paths <- .get_scripts(
+      path = v$path,
+      model = v$model,
+      model_paths = paths,
       dat_input = v$dat_input,
       par_input = v$par_input,
       set_input = v$set_input,
-      path = v$path,
-      model_file = paths[["model_file"]],
-      closure_file = paths[["closure_file"]],
       call = call
     )
   }
+
   return(paths)
 }

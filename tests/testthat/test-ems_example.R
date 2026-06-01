@@ -46,6 +46,33 @@ if (dir.exists(GTAP_INT_dir)) {
   dir.create(GTAP_INT_dir, recursive = TRUE)
 }
 
+cvrtGTAPv6_dir <- file.path(write_dir, "cvrtGTAPv6")
+if (dir.exists(cvrtGTAPv6_dir)) {
+  unlink(list.dirs(cvrtGTAPv6_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(cvrtGTAPv6_dir, recursive = TRUE)
+}
+
+cvrtGTAPv7_dir <- file.path(write_dir, "cvrtGTAPv7")
+if (dir.exists(cvrtGTAPv7_dir)) {
+  unlink(list.dirs(cvrtGTAPv7_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(cvrtGTAPv7_dir, recursive = TRUE)
+}
+
+cvrtGTAP_RE_dir <- file.path(write_dir, "cvrtGTAP-RE")
+if (dir.exists(cvrtGTAP_RE_dir)) {
+  unlink(list.dirs(cvrtGTAP_RE_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(cvrtGTAP_RE_dir, recursive = TRUE)
+}
+
+cvrtGTAP_INT_dir <- file.path(write_dir, "cvrtGTAP-INT")
+if (dir.exists(cvrtGTAP_INT_dir)) {
+  unlink(list.dirs(cvrtGTAP_INT_dir, recursive = FALSE), recursive = TRUE)
+} else {
+  dir.create(cvrtGTAP_INT_dir, recursive = TRUE)
+}
 variant <- Sys.info()["sysname"]
 
 test_that("ems_example errors when model is missing", {
@@ -114,7 +141,38 @@ test_that("ems_example GTAPv6 scripts run without errors", {
   }))
   expect_all_true(checks)
 })
- 
+
+test_that("ems_example converted GTAPv6 scripts run without errors", {
+  converted <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP12_dat"),
+    par_har = Sys.getenv("GTAP12_par"),
+    set_har = Sys.getenv("GTAP12_set"),
+    target = "GTAPv6"
+  )
+  
+  scripts <- ems_example(
+    "GTAPv6",
+    cvrtGTAPv6_dir,
+    "scripts",
+    dat_input = converted$dat,
+    par_input = converted$par,
+    set_input = converted$set
+  )
+  
+  checks <- lapply(scripts, \(sc) {
+    exmpl_dir <- tools::file_path_sans_ext(basename(sc))
+    write_dir <- file.path(cvrtGTAPv6_dir, exmpl_dir)
+    dir.create(write_dir)
+    ems_option_set(tempdir = write_dir)
+    source(sc, local = TRUE)
+  })
+  
+  checks <- unlist(lapply(checks, \(r) {
+    r$value
+  }))
+  expect_all_true(checks)
+})
+
 test_that("ems_example GTAPv7 scripts run without errors", {
   scripts <- ems_example(
     "GTAPv7",
@@ -128,6 +186,37 @@ test_that("ems_example GTAPv7 scripts run without errors", {
   checks <- lapply(scripts, \(sc) {
     exmpl_dir <- tools::file_path_sans_ext(basename(sc))
     write_dir <- file.path(GTAPv7_dir, exmpl_dir)
+    dir.create(write_dir)
+    ems_option_set(tempdir = write_dir)
+    source(sc, local = TRUE)
+  })
+  
+  checks <- unlist(lapply(checks, \(r) {
+    r$value
+  }))
+  expect_all_true(checks)
+})
+
+test_that("ems_example converted GTAPv7 scripts run without errors", {
+  converted <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP10A_dat"),
+    par_har = Sys.getenv("GTAP10A_par"),
+    set_har = Sys.getenv("GTAP10A_set"),
+    target = "GTAPv7"
+  )
+  
+  scripts <- ems_example(
+    "GTAPv7",
+    cvrtGTAPv7_dir,
+    "scripts",
+    dat_input = converted$dat,
+    par_input = converted$par,
+    set_input = converted$set
+  )
+  
+  checks <- lapply(scripts, \(sc) {
+    exmpl_dir <- tools::file_path_sans_ext(basename(sc))
+    write_dir <- file.path(cvrtGTAPv7_dir, exmpl_dir)
     dir.create(write_dir)
     ems_option_set(tempdir = write_dir)
     source(sc, local = TRUE)
@@ -156,7 +245,38 @@ test_that("ems_example GTAP-INT scripts run without errors", {
     ems_option_set(tempdir = write_dir)
     source(sc, local = TRUE)
   })
-  
+
+  checks <- unlist(lapply(checks, \(r) {
+    r$value
+  }))
+  expect_all_true(checks)
+})
+
+test_that("ems_example converted GTAP-INT scripts run without errors", {
+  converted <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP12_dat"),
+    par_har = Sys.getenv("GTAP12_par"),
+    set_har = Sys.getenv("GTAP12_set"),
+    target = "GTAPv6"
+  )
+
+  scripts <- ems_example(
+    "GTAP-INT",
+    cvrtGTAP_INT_dir,
+    "scripts",
+    dat_input = converted$dat,
+    par_input = converted$par,
+    set_input = converted$set
+  )
+
+  checks <- lapply(scripts, \(sc) {
+    exmpl_dir <- tools::file_path_sans_ext(basename(sc))
+    write_dir <- file.path(cvrtGTAP_INT_dir, exmpl_dir)
+    dir.create(write_dir)
+    ems_option_set(tempdir = write_dir)
+    source(sc, local = TRUE)
+  })
+
   checks <- unlist(lapply(checks, \(r) {
     r$value
   }))
@@ -180,7 +300,38 @@ test_that("ems_example GTAP-RE scripts run without errors", {
     ems_option_set(tempdir = write_dir)
     source(sc, local = TRUE)
   })
-  
+
+  checks <- unlist(lapply(checks, \(r) {
+    r$value
+  }))
+  expect_all_true(checks)
+})
+
+test_that("ems_example converted GTAP-RE scripts run without errors", {
+  converted <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP10A_dat"),
+    par_har = Sys.getenv("GTAP10A_par"),
+    set_har = Sys.getenv("GTAP10A_set"),
+    target = "GTAPv7"
+  )
+
+  scripts <- ems_example(
+    "GTAP-RE",
+    cvrtGTAP_RE_dir,
+    "scripts",
+    dat_input = converted$dat,
+    par_input = converted$par,
+    set_input = converted$set
+  )
+
+  checks <- lapply(scripts, \(sc) {
+    exmpl_dir <- tools::file_path_sans_ext(basename(sc))
+    write_dir <- file.path(cvrtGTAP_RE_dir, exmpl_dir)
+    dir.create(write_dir)
+    ems_option_set(tempdir = write_dir)
+    source(sc, local = TRUE)
+  })
+
   checks <- unlist(lapply(checks, \(r) {
     r$value
   }))

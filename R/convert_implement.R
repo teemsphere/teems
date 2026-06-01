@@ -19,13 +19,18 @@
 
   if (attr(i_data, "metadata")$data_format %=% v$target) {
     target <- v$target
-    .cli_action(convert_err$format,
-      action = "abort",
+    .cli_action(convert_wrn$format,
+      action = "warn",
       call = call
     )
+
+    v$target <- NULL
   }
 
-  i_data <- .convert_data(i_data = i_data)
+  if (!is.null(v$target)) {
+    i_data <- .convert_data(i_data = i_data)
+  }
+
   dat <- i_data[purrr::map_lgl(i_data, \(i) {
     inherits(i, "dat")
   })]

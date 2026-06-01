@@ -4,25 +4,12 @@
 #' @noRd
 .validate_convert_args <- function(a,
                                    call) {
-
-  origin <- a$origin
-  rlang::arg_match(
-    origin,
-    c("GTAPv6", "GTAPv7"),
-    error_call = call
-  )
-
-  target <- a$target
-  rlang::arg_match(
-    target,
-    c("GTAPv6", "GTAPv7"),
-    error_call = call
-  )
-
-  if (origin %=% target) {
-    .cli_action(convert_err$same_format,
-      action = "abort",
-      call = call
+  if (!is.null(a$target)) {
+    target <- a$target
+    rlang::arg_match(
+      target,
+      c("GTAPv6", "GTAPv7"),
+      error_call = call
     )
   }
 
@@ -30,8 +17,7 @@
     dat_har = "character",
     par_har = "character",
     set_har = "character",
-    origin = "character",
-    target = "character"
+    target = c("NULL", "character")
   )
 
   .check_arg_class(

@@ -260,7 +260,7 @@ coeff_conversion$GTAPv7set <- strsplit(coeff_conversion$GTAPv7set, ", ")
 
 # messages (definitions in data-raw/R/msg_*.R) -------------------------
 compose_err <- build_compose_err()
-convert_err <- build_convert_err()
+convert_wrn <- build_convert_wrn()
 data_err <- build_data_err()
 data_info <- build_data_info()
 data_wrn <- build_data_wrn()
@@ -287,7 +287,7 @@ usethis::use_data(
   set_conversion,
   coeff_conversion,
   compose_err,
-  convert_err,
+  convert_wrn,
   data_err,
   data_info,
   data_wrn,

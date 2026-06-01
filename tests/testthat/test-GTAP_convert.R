@@ -3,91 +3,132 @@ skip_on_cran()
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset(), teardown_env())
 
-test_that("GTAP_convert errors when invalid origin", {
-  expect_snapshot_error(GTAP_convert(
-    Sys.getenv("GTAP9_dat"),
-    Sys.getenv("GTAP9_par"),
-    Sys.getenv("GTAP9_set"),
-    "GTAPv8",
-    "GTAPv7"
-  ))
-})
-
 test_that("GTAP_convert errors when invalid target", {
   expect_snapshot_error(GTAP_convert(
     Sys.getenv("GTAP9_dat"),
     Sys.getenv("GTAP9_par"),
     Sys.getenv("GTAP9_set"),
-    "GTAPv6",
     "GTAPv3"
   ))
 })
 
-test_that("GTAP_convert errors when incorrect origin", {
-  expect_snapshot_error(GTAP_convert(
+test_that("GTAP_convert warns when v9 inputs are already in target format", {
+  expect_snapshot_warning(GTAP_convert(
     Sys.getenv("GTAP9_dat"),
     Sys.getenv("GTAP9_par"),
     Sys.getenv("GTAP9_set"),
-    "GTAPv7",
     "GTAPv6"
   ))
 })
 
-test_that("GTAP_convert errors when origin equals target", {
-  expect_snapshot_error(GTAP_convert(
-    Sys.getenv("GTAP9_dat"),
-    Sys.getenv("GTAP9_par"),
-    Sys.getenv("GTAP9_set"),
-    "GTAPv6",
+test_that("GTAP_convert warns when v10 inputs are already in target format", {
+  expect_snapshot_warning(GTAP_convert(
+    Sys.getenv("GTAP10A_dat"),
+    Sys.getenv("GTAP10A_par"),
+    Sys.getenv("GTAP10A_set"),
     "GTAPv6"
   ))
 })
 
-test_that("GTAP_convert GTAP9", {
+test_that("GTAP_convert warns when v11 inputs are already in target format", {
+  expect_snapshot_warning(GTAP_convert(
+    Sys.getenv("GTAP11c_dat"),
+    Sys.getenv("GTAP11c_par"),
+    Sys.getenv("GTAP11c_set"),
+    "GTAPv7"
+  ))
+})
+
+test_that("GTAP_convert warns when v12 inputs are already in target format", {
+  expect_snapshot_warning(GTAP_convert(
+    Sys.getenv("GTAP12_dat"),
+    Sys.getenv("GTAP12_par"),
+    Sys.getenv("GTAP12_set"),
+    "GTAPv7"
+  ))
+})
+
+test_that("GTAP_convert GTAP9 format", {
   v7_9 <- GTAP_convert(
     Sys.getenv("GTAP9_dat"),
     Sys.getenv("GTAP9_par"),
     Sys.getenv("GTAP9_set"),
-    "GTAPv6",
     "GTAPv7"
   )
   check <- attr(v7_9$dat, "metadata")$data_format == "GTAPv7"
   expect_true(check)
 })
 
-test_that("GTAP_convert GTAP10A", {
+test_that("GTAP_convert GTAP10A format", {
   v7_10a <- GTAP_convert(
     Sys.getenv("GTAP10A_dat"),
     Sys.getenv("GTAP10A_par"),
     Sys.getenv("GTAP10A_set"),
-    "GTAPv6",
     "GTAPv7"
   )
   check <- attr(v7_10a$dat, "metadata")$data_format == "GTAPv7"
   expect_true(check)
 })
 
-test_that("GTAP_convert GTAP11c", {
+test_that("GTAP_convert GTAP11c format", {
   v6_11c <- GTAP_convert(
     Sys.getenv("GTAP11c_dat"),
     Sys.getenv("GTAP11c_par"),
     Sys.getenv("GTAP11c_set"),
-    "GTAPv7",
     "GTAPv6"
   )
   check <- attr(v6_11c$dat, "metadata")$data_format == "GTAPv6"
   expect_true(check)
 })
 
-test_that("GTAP_convert GTAP12", {
+test_that("GTAP_convert GTAP12 format", {
   v6_12 <- GTAP_convert(
     Sys.getenv("GTAP12_dat"),
     Sys.getenv("GTAP12_par"),
     Sys.getenv("GTAP12_set"),
-    "GTAPv7",
     "GTAPv6"
   )
   check <- attr(v6_12$dat, "metadata")$data_format == "GTAPv6"
+  expect_true(check)
+})
+
+test_that("GTAP_convert GTAP9", {
+  v9 <- GTAP_convert(
+    Sys.getenv("GTAP9_dat"),
+    Sys.getenv("GTAP9_par"),
+    Sys.getenv("GTAP9_set")
+  )
+  check <- attr(v9$dat, "metadata")$data_format == "GTAPv6"
+  expect_true(check)
+})
+
+test_that("GTAP_convert GTAP10A", {
+  v10a <- GTAP_convert(
+    Sys.getenv("GTAP10A_dat"),
+    Sys.getenv("GTAP10A_par"),
+    Sys.getenv("GTAP10A_set")
+  )
+  check <- attr(v10a$dat, "metadata")$data_format == "GTAPv6"
+  expect_true(check)
+})
+
+test_that("GTAP_convert GTAP11c", {
+  v11c <- GTAP_convert(
+    Sys.getenv("GTAP11c_dat"),
+    Sys.getenv("GTAP11c_par"),
+    Sys.getenv("GTAP11c_set")
+  )
+  check <- attr(v11c$dat, "metadata")$data_format == "GTAPv7"
+  expect_true(check)
+})
+
+test_that("GTAP_convert GTAP12", {
+  v12 <- GTAP_convert(
+    Sys.getenv("GTAP12_dat"),
+    Sys.getenv("GTAP12_par"),
+    Sys.getenv("GTAP12_set")
+  )
+  check <- attr(v12$dat, "metadata")$data_format == "GTAPv7"
   expect_true(check)
 })
 
@@ -96,7 +137,6 @@ test_that("GTAP_convert from v7 to v6", {
     Sys.getenv("GTAP11c_dat"),
     Sys.getenv("GTAP11c_par"),
     Sys.getenv("GTAP11c_set"),
-    "GTAPv7",
     "GTAPv6"
   )
 
@@ -152,7 +192,6 @@ test_that("GTAP_convert from v6 to v7", {
     Sys.getenv("GDYN11c_dat"),
     Sys.getenv("GDYN11c_par"),
     Sys.getenv("GDYN11c_set"),
-    "GTAPv6",
     "GTAPv7"
   )
 

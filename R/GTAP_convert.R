@@ -1,4 +1,4 @@
-#' @title Convert data between GTAP v6.2 and v7.0 formats
+#' @title Convert GTAP HAR files and data formats
 #' @export
 #' @description `GTAP_convert()` converts GTAP HAR database files
 #'   into lists of arrays as well as converts between the classic

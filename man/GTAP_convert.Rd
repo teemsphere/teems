@@ -2,7 +2,7 @@
 % Please edit documentation in R/GTAP_convert.R
 \name{GTAP_convert}
 \alias{GTAP_convert}
-\title{Convert data between GTAP v6.2 and v7.0 formats}
+\title{Convert GTAP HAR files and data formats}
 \usage{
 GTAP_convert(dat_har, par_har, set_har, target = NULL)
 }

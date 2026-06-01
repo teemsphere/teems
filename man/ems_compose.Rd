@@ -2,7 +2,7 @@
 % Please edit documentation in R/ems_compose.R
 \name{ems_compose}
 \alias{ems_compose}
-\title{Compose model results}
+\title{Compose model results into structured data objects}
 \usage{
 ems_compose(cmf_path, which = "all")
 }

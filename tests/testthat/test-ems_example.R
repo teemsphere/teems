@@ -18,61 +18,15 @@ ems_option_set(
 )
 withr::defer(ems_option_reset(), teardown_env())
 
-GTAPv6_dir <- file.path(write_dir, "GTAPv6")
-if (dir.exists(GTAPv6_dir)) {
-  unlink(list.dirs(GTAPv6_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(GTAPv6_dir, recursive = TRUE)
-}
+GTAPv6_dir <- ems_test_dir(write_dir, "GTAPv6")
+cvrtGTAPv6_dir <- ems_test_dir(write_dir, "cvrtGTAPv6")
+GTAPv7_dir <- ems_test_dir(write_dir, "GTAPv7")
+cvrtGTAPv7_dir <- ems_test_dir(write_dir, "cvrtGTAPv7")
+GTAP_RE_dir <- ems_test_dir(write_dir, "GTAP-RE")
+cvrtGTAP_RE_dir <- ems_test_dir(write_dir, "cvrtGTAP-RE")
+GTAP_INT_dir <- ems_test_dir(write_dir, "GTAP-INT")
+cvrtGTAP_INT_dir <- ems_test_dir(write_dir, "cvrtGTAP-INT")
 
-GTAPv7_dir <- file.path(write_dir, "GTAPv7")
-if (dir.exists(GTAPv7_dir)) {
-  unlink(list.dirs(GTAPv7_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(GTAPv7_dir, recursive = TRUE)
-}
-
-GTAP_RE_dir <- file.path(write_dir, "GTAP-RE")
-if (dir.exists(GTAP_RE_dir)) {
-  unlink(list.dirs(GTAP_RE_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(GTAP_RE_dir, recursive = TRUE)
-}
-
-GTAP_INT_dir <- file.path(write_dir, "GTAP-INT")
-if (dir.exists(GTAP_INT_dir)) {
-  unlink(list.dirs(GTAP_INT_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(GTAP_INT_dir, recursive = TRUE)
-}
-
-cvrtGTAPv6_dir <- file.path(write_dir, "cvrtGTAPv6")
-if (dir.exists(cvrtGTAPv6_dir)) {
-  unlink(list.dirs(cvrtGTAPv6_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(cvrtGTAPv6_dir, recursive = TRUE)
-}
-
-cvrtGTAPv7_dir <- file.path(write_dir, "cvrtGTAPv7")
-if (dir.exists(cvrtGTAPv7_dir)) {
-  unlink(list.dirs(cvrtGTAPv7_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(cvrtGTAPv7_dir, recursive = TRUE)
-}
-
-cvrtGTAP_RE_dir <- file.path(write_dir, "cvrtGTAP-RE")
-if (dir.exists(cvrtGTAP_RE_dir)) {
-  unlink(list.dirs(cvrtGTAP_RE_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(cvrtGTAP_RE_dir, recursive = TRUE)
-}
-
-cvrtGTAP_INT_dir <- file.path(write_dir, "cvrtGTAP-INT")
-if (dir.exists(cvrtGTAP_INT_dir)) {
-  unlink(list.dirs(cvrtGTAP_INT_dir, recursive = FALSE), recursive = TRUE)
-} else {
-  dir.create(cvrtGTAP_INT_dir, recursive = TRUE)
-}
 variant <- Sys.info()["sysname"]
 
 test_that("ems_example errors when model is missing", {

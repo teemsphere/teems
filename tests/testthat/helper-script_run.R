@@ -42,3 +42,13 @@ write_modified_closure <- function(closure_file, text, .fn = cat) {
   writeLines(modified, out_path)
   out_path
 }
+
+ems_test_dir <- function(write_dir, name) {
+  test_dir <- file.path(write_dir, name)
+  if (dir.exists(test_dir)) {
+    unlink(list.dirs(test_dir, recursive = FALSE), recursive = TRUE)
+  } else {
+    dir.create(test_dir, recursive = TRUE)
+  }
+  return(test_dir)
+}

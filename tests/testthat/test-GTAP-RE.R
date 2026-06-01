@@ -29,7 +29,7 @@ for (db in data_db) {
   set_input <- db_inputs[[db]]$set
 
   if (db %in% c("v9", "v10")) {
-    v6_data <- GTAP_convert(dat_input, par_input, set_input, "GTAPv6", "GTAPv7")
+    v6_data <- GTAP_convert(dat_input, par_input, set_input, "GTAPv7")
     dat_input <- v6_data$dat
     par_input <- v6_data$par
     set_input <- v6_data$set

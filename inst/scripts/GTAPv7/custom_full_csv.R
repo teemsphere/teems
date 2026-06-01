@@ -94,7 +94,6 @@ atall_shk <- ems_custom_shock(
   input = atall_csv
 )
 
-
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   .data = dat,

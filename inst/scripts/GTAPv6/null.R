@@ -14,7 +14,6 @@ model <- ems_model(
   closure_file = closure_file
 )
 
-
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   .data = dat,

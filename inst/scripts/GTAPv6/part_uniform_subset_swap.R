@@ -36,7 +36,6 @@ tfd <- ems_swap(
   PROD_COMMj = "TRAD_COMM"
 )
 
-
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   .data = dat,

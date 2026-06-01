@@ -38,7 +38,6 @@ tfd <- ems_swap(
   ACTSa = "crops"
 )
 
-
 # validate inputs, write solver files, and return the CMF path
 cmf_path <- ems_deploy(
   .data = dat,

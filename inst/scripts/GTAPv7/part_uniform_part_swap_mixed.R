@@ -42,7 +42,6 @@ tfd <- ems_swap(
   ACTSa = "crops"
 )
 
-
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   .data = dat,

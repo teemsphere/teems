@@ -41,7 +41,6 @@ tfd <- ems_swap(
   ALLTIMEt = "FWDTIME"
 )
 
-
 # validate inputs, write solver files, with mixed partial and full variable swaps
 cmf_path <- ems_deploy(
   .data = dat,

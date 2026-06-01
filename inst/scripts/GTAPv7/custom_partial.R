@@ -80,7 +80,6 @@ aoall_shk <- ems_custom_shock(var = "aoall", input = aoall)
 afeall_shk <- ems_custom_shock(var = "afeall", input = afeall)
 atall_shk <- ems_custom_shock(var = "atall", input = atall)
 
-
 cmf_path <- ems_deploy(
   .data = dat,
   model = model,

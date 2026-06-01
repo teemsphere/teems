@@ -22,7 +22,6 @@ partial <- ems_uniform_shock(
   value = -1
 )
 
-
 # validate inputs, write solver files, with full variable swaps passed as strings
 cmf_path <- ems_deploy(
   .data = dat,

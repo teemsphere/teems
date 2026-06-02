@@ -40,7 +40,6 @@
 #'
 #' # Retrieve intertemporal model
 #' GTAP_RE <- ems_example("GTAP-RE", tempdir())
-#' 
 #' \donttest{
 #' # Construct data frame
 #' sectors <- c("crops", "food", "livestock", "mnfcs", "svces")

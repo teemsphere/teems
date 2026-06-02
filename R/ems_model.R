@@ -34,13 +34,15 @@
 #'   scripts. [`ems_deploy()`] for loading the output of this
 #'   function as well as conducting closure swaps.
 #' @examples
-#' # Simple static model retrieval and load
-#' GTAPv7 <- ems_example("GTAPv7", tempdir())
-#' ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
-#'
-#' # Intertemporal model
+#' # Retrieve and load model
 #' GTAP_RE <- ems_example("GTAP-RE", tempdir())
-#'
+#' ems_model(GTAP_RE[["model_file"]], GTAP_RE[["closure_file"]])
+#' 
+#' # Model load with:
+#' # 1) variable omission
+#' # 2) uniform numeric value applied to KAPPA coefficient
+#' # 3) heterogeneous values allocated to SUBPAR via data frame
+#' 
 #' # Construct data frame
 #' sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 #' regions <- c("usa", "chn", "row")
@@ -50,11 +52,6 @@
 #'                       REGr = regions,
 #'                       ALLTIMEt = time_steps)
 #' SUBPAR$Value <- runif(nrow(SUBPAR))
-#'
-#' # Model load with:
-#' # 1) variable omission
-#' # 2) uniform numeric value applied to KAPPA coefficient
-#' # 3) heterogeneous values allocated to SUBPAR via data frame
 #'
 #' ems_model(model_file = GTAP_RE[["model_file"]],
 #'           closure_file = GTAP_RE[["closure_file"]],

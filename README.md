@@ -83,7 +83,7 @@ cmf_path <- ems_deploy(.data = dat,
 
 # 6. Solve
 results <- ems_solve(cmf_path = cmf_path,
-                     solution_method = "mod_midpoint"
+                     solution_method = "mod_midpoint",
                      matrix_method = "SBBD",
                      n_subintervals = 2,
                      n_tasks = 2)

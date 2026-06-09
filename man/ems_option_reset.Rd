@@ -14,9 +14,16 @@ ems_option_reset()
 to default values.
 }
 \examples{
+# Set multiple options
 ems_option_set(verbose = FALSE, ndigits = 8)
+
+# Retrieve modified option value for `verbose`
 ems_option_get("verbose")
+
+# Reset options to default values
 ems_option_reset()
+
+# Retrieve default option value for `verbose`
 ems_option_get("verbose")
 }
 \seealso{

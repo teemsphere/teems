@@ -45,7 +45,10 @@ options. If \code{name} is \code{NULL} (the default), all option
 values are returned as a list.
 }
 \examples{
+# Retrieve all options values
 ems_option_get()
+
+# Retrieve option value for `ndigits`
 ems_option_get("ndigits")
 }
 \seealso{

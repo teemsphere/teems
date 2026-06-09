@@ -63,8 +63,13 @@ Docker tag specifying which Docker image to use.}
 advanced options.
 }
 \examples{
+# Set multiple options
 ems_option_set(verbose = FALSE, ndigits = 8)
+
+# Retrieve value of `verbose`
 ems_option_get("verbose")
+
+# Reset options to default values
 ems_option_reset()
 }
 \seealso{

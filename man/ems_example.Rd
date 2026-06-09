@@ -83,7 +83,7 @@ ems_example(model = "GTAP-RE",
 # Generate GTAPv7 example scripts from a v6.2 format database
 converted <- GTAP_convert(dat_input = "v6_data/gsddat.har",
                           par_input = "v6_data/gsdpar.har",
-                          set_input = "v6_data/gsdset.har")
+                          set_input = "v6_data/gsdset.har",
                           target = "GTAPv7")
 
 ems_example(model = "GTAPv7",

@@ -36,8 +36,13 @@
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
+#' # Set multiple options
 #' ems_option_set(verbose = FALSE, ndigits = 8)
+#' 
+#' # Retrieve value of `verbose`
 #' ems_option_get("verbose")
+#' 
+#' # Reset options to default values
 #' ems_option_reset()
 ems_option_set <- function(verbose = NULL,
                            tempdir = NULL,
@@ -96,7 +101,10 @@ ems_option_set <- function(verbose = NULL,
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
+#' # Retrieve all options values
 #' ems_option_get()
+#' 
+#' # Retrieve option value for `ndigits`
 #' ems_option_get("ndigits")
 #' @importFrom cli cli_abort
 ems_option_get <- function(name = NULL) {
@@ -130,9 +138,16 @@ ems_option_get <- function(name = NULL) {
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_get()`] for retrieving package options.
 #' @examples
+#' # Set multiple options
 #' ems_option_set(verbose = FALSE, ndigits = 8)
+#' 
+#' # Retrieve modified option value for `verbose`
 #' ems_option_get("verbose")
+#' 
+#' # Reset options to default values
 #' ems_option_reset()
+#' 
+#' # Retrieve default option value for `verbose`
 #' ems_option_get("verbose")
 ems_option_reset <- function() {
   ems_options$reset()

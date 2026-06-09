@@ -12,4 +12,4 @@ All tests here (except revdep) have been conducted (https://github.com/ThinkR-op
 * The closing parenthesis was an error, now fixed
 
 ### General
-* All example (including the dontrun and donttest snippets) now have dedicated tests
+* All exported function examples (including the dontrun and donttest snippets) now have dedicated tests

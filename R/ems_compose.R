@@ -24,7 +24,7 @@
 #' outputs <- ems_compose(cmf_path)
 #'
 #' # Return specific variables and/or coefficients by name
-#' outputs <- ems_compose(cmf_path, c("qfd", "EVFA"))
+#' outputs <- ems_compose(cmf_path, c("qfd", "EVFP"))
 #' }
 ems_compose <- function(cmf_path,
                         which = "all"

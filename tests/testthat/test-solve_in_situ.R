@@ -240,4 +240,32 @@ test_that("solve_in_situ errors when input file is without name", {
   ))
 })
 
+test_that("solve_in_situ example works", {
+  pop <- ems_uniform_shock("pop", 1)
+  subdir <- "example"
+  nest_temp(subdir, write_dir)
+  cmf_path <- ems_deploy(dat, model)
+  
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
+  GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
+  GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
+  GTAPPARM <- file.path(insitu_dir, "GTAPPARM.txt")
+  GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
+  shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
+  
+  output <- solve_in_situ(
+   GTAPDATA = GTAPDATA,
+   GTAPPARM = GTAPPARM,
+   GTAPSETS = GTAPSETS,
+   model_dir = insitu_dir,
+   model_file = model_files[["model_file"]],
+   closure_file = model_files[["closure_file"]],
+   shock_file = shock_file
+   )
+  
+  expect_s3_class(output, "tibble")
+})
+
+test_that()
+
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

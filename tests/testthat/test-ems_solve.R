@@ -192,4 +192,21 @@ test_that("ems_solve returns the same output across dynamic matrix methods", {
   expect_all_true(check)
 })
 
+test_that("ems_solve examples work", {
+  nest_temp("solve_examples", write_dir)
+  cmf_path <- ems_deploy(dynamic_data,
+                         dynamic_model)
+  # The following examples require the teems solver to be built.
+  # See https://teemsphere.github.io/ to get started.
+
+  # Solving a static model with Johansen:
+  expect_s3_class(ems_solve(cmf_path), "tibble")
+
+  # Solving a dynamic model with the SBBD method:
+  expect_s3_class(ems_solve(cmf_path,
+            solution_method = "mod_midpoint",
+            matrix_method = "SBBD",
+            n_tasks = 6), "tibble")
+})
+
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

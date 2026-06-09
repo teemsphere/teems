@@ -247,3 +247,40 @@ test_that("GTAP_convert from v6 to v7", {
 
   expect_all_true(checks)
 })
+
+test_that("GTAP_convert examples work", {
+  # The following examples require input data. See
+  # https://teemsphere.github.io/ to get started.
+
+  # Convert HAR files to lists of arrays
+  ls_arrays <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP12_dat"),
+    par_har = Sys.getenv("GTAP12_par"),
+    set_har = Sys.getenv("GTAP12_set"),
+  )
+  
+  expect_s3_class(ls_arrays, "list")
+  expect_equal(attr(ls_arrays$dat, "metadata")$data_format, "GTAPv7")
+
+  # Convert v7.0 files to v6.2 format
+  converted2v6 <- GTAP_convert(
+    dat_har = Sys.getenv("GTAP12_dat"),
+    par_har = Sys.getenv("GTAP12_par"),
+    set_har = Sys.getenv("GTAP12_set"),
+    target    = "GTAPv6"
+  )
+  
+  expect_s3_class(converted2v6, "list")
+  expect_equal(attr(converted2v6$dat, "metadata")$data_format, "GTAPv6")
+
+  # Convert v6.2 files to v7.0 format
+  converted2v7 <- GTAP_convert(
+    Sys.getenv("GTAP10A_dat"),
+    Sys.getenv("GTAP10A_par"),
+    Sys.getenv("GTAP10A_set"),
+    target    = "GTAPv7"
+  )
+  
+  expect_s3_class(converted2v7, "list")
+  expect_equal(attr(converted2v7$dat, "metadata")$data_format, "GTAPv7")
+})

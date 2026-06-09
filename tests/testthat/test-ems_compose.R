@@ -97,7 +97,10 @@ test_that("ems_compose errors when cmf_path does not exist", {
 })
 
 test_that("ems_compose examples run", {
-  # All variables and coefficients
+  # The following examples require that a model run has taken
+  # place. See https://teemsphere.github.io/ to get started.
+
+  # Return specific variables and/or coefficients by name
   outputs <- ems_compose(cmf_path)
   
   # Specific variables and/or coefficients by name

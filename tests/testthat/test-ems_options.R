@@ -126,3 +126,39 @@ test_that("ems_option_reset restores default docker_tag", {
 test_that("ems_option_reset returns NULL invisibly", {
   expect_null(ems_option_reset())
 })
+
+test_that("ems_option_set examples work", {
+  # Set multiple options
+  ems_option_set(verbose = FALSE, ndigits = 8)
+
+  # Retrieve value of `verbose`
+  ems_option_get("verbose")
+
+  expect_false(ems_option_get("verbose"))
+  expect_equal(ems_option_get("ndigits"), 8)
+  # Reset options to default values
+  ems_option_reset()
+})
+
+test_that("ems_option_get examples work", {
+  # Retrieve all options values
+  expect_s3_class(ems_option_get(), "list")
+
+  # Retrieve option value for `ndigits`
+  expect_type(ems_option_get("ndigits"), "integer")
+  ems_option_reset()
+})
+
+test_that("ems_option_reset examples work", {
+  # Set multiple options
+  ems_option_set(verbose = FALSE, ndigits = 8)
+
+  # Retrieve modified option value for `verbose`
+  ems_option_get("verbose")
+  expect_false(ems_option_get("verbose"))
+  # Reset options to default values
+  ems_option_reset()
+  expect_true(ems_option_get("verbose"))
+  # Retrieve default option value for `verbose`
+  ems_option_get("verbose")
+})

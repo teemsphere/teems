@@ -389,20 +389,17 @@ test_that("ems_model errors dots passed without names", {
 })
 
 test_that("ems_model examples run", {
-  # simple model load
+  # Simple static model retrieval and load
   GTAPv7 <- ems_example("GTAPv7", write_dir)
-  model <- ems_model(
-    GTAPv7[["model_file"]],
-    GTAPv7[["closure_file"]]
-  )
-  expect_s3_class(model, "tbl_df")
-  # model load with variable omission
-  # uniform numeric value applied to KAPPA coefficient
-  # heterogeneous values allocated to SUBPAR via data frame
+  model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
+  
+  # Retrieve intertemporal model
   GTAP_RE <- ems_example("GTAP-RE", write_dir)
+  expect_s3_class(model, "tbl_df")
+  # Construct data frame
   sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
   regions <- c("usa", "chn", "row")
-  time_steps <- seq_len(5)
+  time_steps <- 0:5
 
   SUBPAR <- expand.grid(
     COMMc = sectors,
@@ -410,6 +407,10 @@ test_that("ems_model examples run", {
     ALLTIMEt = time_steps
   )
   SUBPAR$Value <- runif(nrow(SUBPAR))
+  # Model load with:
+  # 1) variable omission
+  # 2) uniform numeric value applied to KAPPA coefficient
+  # 3) heterogeneous values allocated to SUBPAR via data frame
   model <- ems_model(
     model_file = GTAP_RE[["model_file"]],
     closure_file = GTAP_RE[["closure_file"]],

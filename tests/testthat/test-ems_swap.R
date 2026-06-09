@@ -187,4 +187,25 @@ test_that("ems_swap out subset not valid", {
   expect_snapshot_error(ems_deploy(dat, model, swap_out = swap_out))
 })
 
+test_that("ems_swap examples work", {
+  # Full variable swaps
+  expect_s3_class(ems_swap("tfd"), "list") # out
+  expect_s3_class(ems_swap("qfd"), "list") # in
+
+  # Partial variable swaps with uniform "PROD_COMM" set
+  # application (note distinction between "REGr" and "REGs") in
+  # the classic GTAP model (version 6.2)
+  expect_s3_class(ems_swap("tfd", TRAD_COMMi = "food", REGr = "chn"), "list") # out
+  expect_s3_class(ems_swap("qfd", TRAD_COMMi = "food", REGs = "chn"), "list") # in
+
+  # Partial variable, multiple element swaps with uniform "ACTS"
+  # set application in the standard GTAP model (version 7.0).
+  expect_s3_class(ems_swap("tfd", COMMc = c("food", "crops"), REGr = "usa"), "list") # out
+  expect_s3_class(ems_swap("qfd", COMMc = c("food", "crops"), REGr = "usa"), "list") # in
+
+  # Valid subsets may also be selected.
+  expect_s3_class(ems_swap("txs", COMMc = "NMRG", ALLTIMEt = "FWDTIME"), "list") # out
+  expect_s3_class(ems_swap("qxs", COMMc = "NMRG", ALLTIMEt = "FWDTIME"), "list") # in
+})
+
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

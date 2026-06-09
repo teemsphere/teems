@@ -292,4 +292,30 @@ test_that("ems_example converted GTAP-RE scripts run without errors", {
   expect_all_true(checks)
 })
 
+test_that("ems_example examples run without error", {
+  # The following example requires input data. See
+  # https://teemsphere.github.io/ to get started.
+
+  # Generate GTAP-RE example scripts
+  ems_example(model = "GTAP-RE",
+              path = write_dir,
+              type = "scripts",
+              dat_input = Sys.getenv("GTAP12_dat"),
+              par_input = Sys.getenv("GTAP12_par"),
+              set_input = Sys.getenv("GTAP12_set"))
+
+  # Generate GTAPv7 example scripts from a v6.2 format database
+  converted <- GTAP_convert(dat_input = Sys.getenv("GTAP10A_dat"),
+                            par_input = Sys.getenv("GTAP10A_par"),
+                            set_input = Sys.getenv("GTAP10A_set"),
+                            target = "GTAPv7")
+
+  ems_example(model = "GTAPv7",
+              path = "path/to/example/scripts",
+              type = "scripts",
+              dat_input = converted$dat,
+              par_input = converted$par,
+              set_input = converted$set)
+})
+
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

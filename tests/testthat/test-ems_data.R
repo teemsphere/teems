@@ -202,38 +202,39 @@ test_that("ems_data errors when dots passed without names", {
 })
 
 test_that("ems_data examples work", {
-  # Static model
-  v7_data <- ems_data(dat_input,
-    par_input,
-    set_input,
-    REG = "AR5",
-    ACTS = "food",
-    ENDW = "labor_diff"
-  )
+  # The following examples require input data. See
+  # https://teemsphere.github.io/ to get started.
+
+  # Data for a static model using internal mappings
+  v7_data <- ems_data(Sys.getenv("GTAP12_dat"),
+                      Sys.getenv("GTAP12_par"),
+                      Sys.getenv("GTAP12_set"),
+                      REG = "AR5",
+                      ACTS = "food",
+                      ENDW = "labor_diff")
 
   check <- attr(v7_data, "metadata")$data_format == "GTAPv7"
   expect_true(check)
-  # Intertemporal model (explicit time steps)
+  # Data for an intertemporal model with explicit time steps
   int_data <- ems_data(Sys.getenv("GTAP10A_dat"),
-    Sys.getenv("GTAP10A_par"),
-    Sys.getenv("GTAP10A_set"),
-    REG = "WB23",
-    PROD_COMM = "services",
-    ENDW_COMM = "labor_agg",
-    time_steps = c(0, 1, 2, 4, 6, 8, 10, 15)
-  )
+                       Sys.getenv("GTAP10A_par"),
+                       Sys.getenv("GTAP10A_set"),
+                       REG = "WB23",
+                       PROD_COMM = "services",
+                       ENDW_COMM = "labor_agg",
+                       time_steps = c(0, 1, 2, 4, 6, 8, 10, 15))
 
   check <- attr(int_data, "metadata")$data_format == "GTAPv6"
   expect_true(check)
-  # Intertemporal model (chronological time steps)
-  int_data <- ems_data(dat_input,
-    par_input,
-    set_input,
-    REG = "R32",
-    ACTS = "medium",
-    ENDW = "labor_diff",
-    time_steps = c(2023, 2025, 2027, 2030, 2035)
-  )
+  # Data for an intertemporal model with chronological time
+  # steps and a user-provided mapping for the ENDW set
+  int_data <- ems_data(Sys.getenv("GTAP12_dat"),
+                       Sys.getenv("GTAP12_par"),
+                       Sys.getenv("GTAP12_set"),
+                       REG = "R32",
+                       ACTS = "medium",
+                       ENDW = "user/endowment/mapping.csv",
+                       time_steps = c(2023, 2025, 2027, 2030, 2035))
   check <- attr(int_data, "metadata")$data_format == "GTAPv7"
   expect_true(check)
 })

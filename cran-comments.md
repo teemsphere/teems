@@ -8,14 +8,8 @@ All tests here (except revdep) have been conducted (https://github.com/ThinkR-op
 
 ## Resubmission
 
-### Regarding use of \dontrun{}
-* A comment is present prior to any example that cannot be run detailing why and how to get started
-* More examples now run and more descriptions are available
-* Function examples that write, write to tempdir()
+### ems_example() example error
+* The closing parenthesis was an error, now fixed
 
-### Regarding default paths and writing to the user's home space
-* All default paths from writing functions have been removed
-* `ems_deploy()` now writes to tempdir()
-* Using `terra::terraOptions()` as a guide, the default write path for `ems_deploy()` can be changed by the user
-* `ems_example()` now has no default value for the `path` arg
-* `solve_in_situ()` continues to use no default value for the `model_dir` arg
+### General
+* All example (including the dontrun and donttest snippets) now have dedicated tests

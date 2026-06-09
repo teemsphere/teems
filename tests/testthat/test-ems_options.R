@@ -142,7 +142,7 @@ test_that("ems_option_set examples work", {
 
 test_that("ems_option_get examples work", {
   # Retrieve all options values
-  expect_s3_class(ems_option_get(), "list")
+  expect_type(ems_option_get(), "list")
 
   # Retrieve option value for `ndigits`
   expect_type(ems_option_get("ndigits"), "integer")

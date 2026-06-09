@@ -257,15 +257,14 @@ test_that("solve_in_situ example works", {
    GTAPDATA = GTAPDATA,
    GTAPPARM = GTAPPARM,
    GTAPSETS = GTAPSETS,
+   GTAPINT = GTAPINT,
    model_dir = insitu_dir,
    model_file = model_files[["model_file"]],
    closure_file = model_files[["closure_file"]],
    shock_file = shock_file
    )
   
-  expect_s3_class(output, "tibble")
+  expect_s3_class(output, "tbl_df")
 })
-
-test_that()
 
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

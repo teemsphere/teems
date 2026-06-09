@@ -200,13 +200,13 @@ test_that("ems_solve examples work", {
   # See https://teemsphere.github.io/ to get started.
 
   # Solving a static model with Johansen:
-  expect_s3_class(ems_solve(cmf_path), "tibble")
+  expect_s3_class(ems_solve(cmf_path), "tbl_df")
 
   # Solving a dynamic model with the SBBD method:
   expect_s3_class(ems_solve(cmf_path,
             solution_method = "mod_midpoint",
             matrix_method = "SBBD",
-            n_tasks = 6), "tibble")
+            n_tasks = 6), "tbl_df")
 })
 
 unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)

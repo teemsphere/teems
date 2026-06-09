@@ -233,7 +233,7 @@ test_that("ems_data examples work", {
                        Sys.getenv("GTAP12_set"),
                        REG = "R32",
                        ACTS = "medium",
-                       ENDW = "user/endowment/mapping.csv",
+                       ENDW = "labor_agg",
                        time_steps = c(2023, 2025, 2027, 2030, 2035))
   check <- attr(int_data, "metadata")$data_format == "GTAPv7"
   expect_true(check)

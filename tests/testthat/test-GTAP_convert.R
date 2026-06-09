@@ -259,7 +259,7 @@ test_that("GTAP_convert examples work", {
     set_har = Sys.getenv("GTAP12_set"),
   )
   
-  expect_s3_class(ls_arrays, "list")
+  expect_type(ls_arrays, "list")
   expect_equal(attr(ls_arrays$dat, "metadata")$data_format, "GTAPv7")
 
   # Convert v7.0 files to v6.2 format
@@ -270,7 +270,7 @@ test_that("GTAP_convert examples work", {
     target    = "GTAPv6"
   )
   
-  expect_s3_class(converted2v6, "list")
+  expect_type(converted2v6, "list")
   expect_equal(attr(converted2v6$dat, "metadata")$data_format, "GTAPv6")
 
   # Convert v6.2 files to v7.0 format
@@ -281,6 +281,6 @@ test_that("GTAP_convert examples work", {
     target    = "GTAPv7"
   )
   
-  expect_s3_class(converted2v7, "list")
+  expect_type(converted2v7, "list")
   expect_equal(attr(converted2v7$dat, "metadata")$data_format, "GTAPv7")
 })

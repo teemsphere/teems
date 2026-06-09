@@ -169,7 +169,7 @@ test_that("ems_custom_shock example runs", {
   
   # Assign values to a model variable (pop)
   pop_shk <- ems_custom_shock("pop", pop_data)
-  expect_s3_class(pop_shk, "list")
+  expect_type(pop_shk, "list")
   cmf_path <- ems_deploy(dat, model, shock = list(aoall_shk, pop_shk))
   outputs <- ems_solve(cmf_path)
   

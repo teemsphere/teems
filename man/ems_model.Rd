@@ -78,7 +78,6 @@ ems_model(model_file = GTAP_RE[["model_file"]],
 }
 }
 \seealso{
-\code{\link[=ems_example]{ems_example()}} for retrieving example models and
-scripts. \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
+\code{\link[=ems_example]{ems_example()}} for writing teems example models and scripts to file. \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
 function as well as conducting closure swaps.
 }

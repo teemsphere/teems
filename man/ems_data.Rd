@@ -98,7 +98,7 @@ int_data <- ems_data("v7_data/gsdfdat.har",
 }           
 }
 \seealso{
-\code{\link[=ems_deploy]{ems_deploy()}} for using the output of this
-function. \code{\link[=GTAP_convert]{GTAP_convert()}} for converting between GTAP
-v6.2 and v7.0 data formats.
+\code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this
+function. \code{\link[=GTAP_convert]{GTAP_convert()}} for converting GTAP HAR files
+and data formats.
 }

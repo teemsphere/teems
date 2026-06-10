@@ -47,10 +47,10 @@ closure file with .cls extension. See
 \href{https://github.com/teemsphere/teems-models}{teems-models}
 for closure file formatting.}
 
-\item{shock_file}{A character vector length 1 (default
-\code{NULL}). Path to a file with .shf extension representing a
-fully prepared shock file. No checks or modifications are
-carried out on this file.}
+\item{shock_file}{A character vector length 1, path to a file
+with .shf extension representing a fully prepared shock
+file. No checks or modifications are carried out on this
+file.}
 
 \item{solution_method}{The solution method to be used, default
 is the one-step \code{"Johansen"}. Choices:

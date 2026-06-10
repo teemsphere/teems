@@ -24,13 +24,17 @@
 #' @param model_dir Character of length 1, base directory where
 #'   input files will be copied (if not all already present) and
 #'   model outputs will be written.
+#' @param shock_file A character vector length 1, path to a file
+#'   with .shf extension representing a fully prepared shock
+#'   file. No checks or modifications are carried out on this
+#'   file.
 #' @seealso [`ems_solve()`] for the standard package-supported
 #'   solver.
 #' @examples
 #' \dontrun{
 #' # The following examples require the teems solver to be built.
 #' # See https://teemsphere.github.io/ to get started.
-#'
+#' 
 #' solve_in_situ(
 #'  GTAPDATA = "path/to/dat_file.txt",
 #'  GTAPPARM = "path/to/par_file.txt",

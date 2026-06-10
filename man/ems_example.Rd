@@ -94,3 +94,7 @@ ems_example(model = "GTAPv7",
             set_input = converted$set)           
 }
 }
+\seealso{
+\code{\link[=GTAP_convert]{GTAP_convert()}} for converting GTAP HAR files and
+data formats.
+}

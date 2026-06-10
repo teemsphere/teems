@@ -44,9 +44,9 @@
 #'   fully covered by a provided mapping are derived
 #'   automatically. Any elements not covered by a provided
 #'   mapping are passed through without aggregation.
-#' @seealso [`ems_deploy()`] for using the output of this
-#'   function. [`GTAP_convert()`] for converting between GTAP
-#'   v6.2 and v7.0 data formats.
+#' @seealso [`ems_deploy()`] for loading the output of this
+#'   function. [`GTAP_convert()`] for converting GTAP HAR files
+#'   and data formats.
 #' @examples
 #' \dontrun{
 #' # The following examples require input data. See

@@ -30,8 +30,7 @@
 #'   Inputs are subject to structure checks against the set
 #'   aggregations specified in [`ems_data()`] and all tuples must
 #'   be present.
-#' @seealso [`ems_example()`] for retrieving example models and
-#'   scripts. [`ems_deploy()`] for loading the output of this
+#' @seealso [`ems_example()`] for writing teems example models and scripts to file. [`ems_deploy()`] for loading the output of this
 #'   function as well as conducting closure swaps.
 #' @examples
 #' # Simple static model retrieval and load

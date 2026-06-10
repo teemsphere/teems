@@ -79,7 +79,10 @@ cmf_path <- ems_deploy(
 }
 }
 \seealso{
-\code{\link[=ems_data]{ems_data()}}. \code{\link[=ems_model]{ems_model()}}.
-\code{\link[=ems_uniform_shock]{ems_uniform_shock()}}. \code{\link[=ems_custom_shock]{ems_custom_shock()}}.
-\code{\link[=ems_scenario_shock]{ems_scenario_shock()}}. \code{\link[=ems_swap]{ems_swap()}}. \code{\link[=ems_solve]{ems_solve()}}.
+\code{\link[=ems_data]{ems_data()}} for loading and preparing data inputs.
+\code{\link[=ems_model]{ems_model()}} for parsing and modifying model and closure
+files. \code{\link[=ems_uniform_shock]{ems_uniform_shock()}}, \code{\link[=ems_custom_shock]{ems_custom_shock()}}, and
+\code{\link[=ems_scenario_shock]{ems_scenario_shock()}} for preparing shocks.
+\code{\link[=ems_swap]{ems_swap()}} for preparing closure swaps. \code{\link[=ems_solve]{ems_solve()}}
+for utilizing the output of this function.
 }

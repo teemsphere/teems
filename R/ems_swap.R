@@ -13,8 +13,8 @@
 #'   * Single element: `SETi = "element"`
 #'   * Multiple elements: `SETi = c("element1", "element2")`
 #'   * Subset: `SETi = "SUBSET"`
-#' @return A list of class `"full"` or`"partial"` and `"single"`
-#'   or`"multi"` containing the swap specification. Intended for
+#' @return A list of class `"full"` or `"partial"` and `"single"`
+#'   or `"multi"` containing the swap specification. Intended for
 #'   use as `swap_in` or `swap_out` in [`ems_deploy()`].
 #' @details `ems_swap()` return values have no purpose used in
 #'   isolation. The closure provided to the `closure_file`
@@ -27,8 +27,9 @@
 #'   processed prior to swaps out (leaving the list of exogenous
 #'   variables), and in the same order as they are loaded into
 #'   [`ems_deploy()`].
-#' @seealso [`ems_model()`] for loading a model closure.
-#'   [`ems_deploy()`] for loading the output of this function.
+#' @seealso [`ems_model()`] for parsing and modifying model and
+#'   closure files. [`ems_deploy()`] for loading the output of
+#'   this function.
 #' @examples
 #' # Full variable swaps
 #' ems_swap("tfd") # out

@@ -23,9 +23,12 @@
 #'   `NULL`). Path to a file with .shf extension representing a
 #'   fully prepared shock file. No checks or modifications are
 #'   carried out on this file.
-#' @seealso [`ems_data()`]. [`ems_model()`].
-#'   [`ems_uniform_shock()`]. [`ems_custom_shock()`].
-#'   [`ems_scenario_shock()`]. [`ems_swap()`]. [`ems_solve()`].
+#' @seealso [`ems_data()`] for loading and preparing data inputs.
+#'   [`ems_model()`] for parsing and modifying model and closure
+#'   files. [`ems_uniform_shock()`], [`ems_custom_shock()`], and
+#'   [`ems_scenario_shock()`] for preparing shocks.
+#'   [`ems_swap()`] for preparing closure swaps. [`ems_solve()`]
+#'   for utilizing the output of this function.
 #' @examples
 #' \dontrun{
 #' # The following examples require input data. See

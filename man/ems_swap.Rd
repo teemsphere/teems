@@ -13,9 +13,9 @@ ems_swap(var, ...)
 subset of variable elements. Each name must use the
 model-specific set-index format (set name concatenated with
 its index letter, e.g., \code{REGr}, \code{COMMc}). Unspecified sets
-default to all elements. \code{SET} corresponds to the generic
-set name while \code{i} is specific to the variable index. Three
-forms are accepted:
+default to all elements. \code{SET} corresponds to the generic set
+name while \code{i} is specific to the variable index. Three forms
+are accepted:
 \itemize{
 \item Single element: \code{SETi = "element"}
 \item Multiple elements: \code{SETi = c("element1", "element2")}
@@ -23,8 +23,8 @@ forms are accepted:
 }}
 }
 \value{
-A list of class \code{"full"} or\code{"partial"} and \code{"single"}
-or\code{"multi"} containing the swap specification. Intended for
+A list of class \code{"full"} or \code{"partial"} and \code{"single"}
+or \code{"multi"} containing the swap specification. Intended for
 use as \code{swap_in} or \code{swap_out} in \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
@@ -65,6 +65,7 @@ ems_swap("txs", COMMc = "NMRG", ALLTIMEt = "FWDTIME") # out
 ems_swap("qxs", COMMc = "NMRG", ALLTIMEt = "FWDTIME") # in
 }
 \seealso{
-\code{\link[=ems_model]{ems_model()}} for loading a model closure.
-\code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this function.
+\code{\link[=ems_model]{ems_model()}} for parsing and modifying model and
+closure files. \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of
+this function.
 }

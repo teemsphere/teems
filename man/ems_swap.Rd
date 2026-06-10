@@ -13,9 +13,9 @@ ems_swap(var, ...)
 subset of variable elements. Each name must use the
 model-specific set-index format (set name concatenated with
 its index letter, e.g., \code{REGr}, \code{COMMc}). Unspecified sets
-default to all elements. \code{SET} corresponds to the generic set
-name while \code{i} is specific to the variable index. Three forms
-are accepted:
+default to all elements. \code{SET} corresponds to the generic
+set name while \code{i} is specific to the variable index. Three
+forms are accepted:
 \itemize{
 \item Single element: \code{SETi = "element"}
 \item Multiple elements: \code{SETi = c("element1", "element2")}

@@ -40,7 +40,7 @@ Docker-based solving --- all from R.
 
 ```r
 # install package
-install.package("teems")
+install.packages("teems")
 ```
 
 If the installation fails citing a missing package, install that package first

@@ -58,7 +58,7 @@
   if (length(err_lines) > 0L) {
     err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
     mapped <- .map_solver_errors(err_lines)
-    sel <- intersect(c("tab", "closure", "data", "numeric"), mapped$class)
+    sel <- intersect(c("tab", "closure", "data", "numeric", "resource"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -75,7 +75,8 @@
         tab = "solver_tab",
         closure = "solver_closure",
         data = "solver_data",
-        numeric = "solver_numeric"
+        numeric = "solver_numeric",
+        resource = "solver_resource"
       )
       msg <- solve_err[[msg_name]]
       action <- c("abort", rep("inform", length(msg) - 1L))

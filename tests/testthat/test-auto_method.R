@@ -73,6 +73,61 @@ test_that("static auto chooses DBBD from probe evidence and LU otherwise", {
   expect_identical(.auto_decide(FALSE, 2L, NULL, structure = static_stats)$method, "LU")
 })
 
+test_that("the 32-bit LU workspace ceiling is a hard exclusion", {
+  # measured anchors (HPC matrix 2026-08): every rig that actually
+  # factorized must stay allowed -- S-full ran at LA 1.669e9 and
+  # S-full-cond at 1.764e9, both under the 2147483647 ceiling
+  expect_false(.auto_lu_ceiling(138885939, FALSE, th)$exceeded)
+  expect_false(.auto_lu_ceiling(44095569, TRUE, th)$exceeded)
+  expect_false(.auto_lu_ceiling(85498365, FALSE, th)$exceeded)
+  # ... but the two that ran near the wall are flagged
+  expect_true(.auto_lu_ceiling(138885939, FALSE, th)$near)
+  expect_true(.auto_lu_ceiling(44095569, TRUE, th)$near)
+  expect_false(.auto_lu_ceiling(85498365, FALSE, th)$near)
+  # double either rig and LU is off the table
+  expect_true(.auto_lu_ceiling(277771878, FALSE, th)$exceeded)
+  expect_true(.auto_lu_ceiling(88191138, TRUE, th)$exceeded)
+  # condensation trades nnz for fill: the same nnz is nearer the
+  # ceiling when the deployment is condensed
+  expect_gt(
+    .auto_lu_ceiling(44095569, TRUE, th)$share,
+    .auto_lu_ceiling(44095569, FALSE, th)$share
+  )
+  # no nonzero count -> the exclusion cannot be applied
+  expect_null(.auto_lu_ceiling(NULL, FALSE, th))
+  expect_null(.auto_lu_ceiling(NA_real_, FALSE, th))
+})
+
+test_that("an excluded LU falls through to the bordered method", {
+  big <- static_stats
+  big$nnz <- 500e6
+  # small system that every performance gate would have left on LU:
+  # the ceiling overrides the crossover and the border-share guard
+  expect_identical(.auto_decide(FALSE, 2L, 3485, structure = static_stats)$method, "LU")
+  d <- .auto_decide(FALSE, 2L, 3485, structure = big)
+  expect_identical(d$method, "DBBD")
+  expect_true(d$lu_excluded)
+  expect_false(d$lu_unavoidable)
+  # and it applies at a single task, where the crossover never would
+  d1 <- .auto_decide(FALSE, 1L, 3485, structure = big)
+  expect_identical(d1$method, "DBBD")
+  expect_true(d1$lu_excluded)
+  # no viable partition: LU stands, flagged as expected to abort
+  nopart <- big
+  nopart$partition_auto <- NULL
+  d2 <- .auto_decide(FALSE, 2L, 3485, structure = nopart)
+  expect_identical(d2$method, "LU")
+  expect_true(d2$lu_excluded)
+  expect_true(d2$lu_unavoidable)
+  # under the ceiling nothing changes
+  small <- static_stats
+  small$nnz <- 1e6
+  expect_identical(.auto_decide(FALSE, 2L, 3485, structure = small)$method, "LU")
+  expect_false(.auto_decide(FALSE, 2L, 3485, structure = small)$lu_excluded)
+  # a probe with no nnz leaves the old behaviour untouched
+  expect_false(.auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)$lu_excluded)
+})
+
 test_that("static auto without a probe is metadata-only", {
   d <- .auto_decide(FALSE, 2L, 2.5e6)
   expect_identical(d$method, "LU")
@@ -118,10 +173,20 @@ test_that("auto evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 4L, 3485)
   expect_match(.auto_evidence(d), "^3,485 equations, n_tasks 4; structural probe skipped")
   lines <- .auto_record_lines(d)
-  expect_length(lines, 2L)
+  expect_length(lines, 3L)
   expect_match(lines[1], "^Matrix method auto: LU \\(deploy metadata: 3,485 equations")
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
   expect_match(.auto_record_lines(d)[1], "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations")
   expect_match(lines[2], "probe_min_size 1500000, dbbd_size 2000000, dbbd_size_many_blocks 1500000, dbbd_n_blocks 100, border_share_max 0.1, ndbbd_n_tasks Inf")
+  # no probe -> no nonzero count -> the exclusion is recorded as
+  # not applied, so the record still says what was and was not checked
+  expect_match(lines[3], "LU workspace ceiling: 2147483647 elements")
+  expect_match(lines[3], "nnz unknown: exclusion not applied")
+  # with a nonzero count the projection and its share are recorded
+  big <- static_stats
+  big$nnz <- 500e6
+  rec <- .auto_record_lines(.auto_decide(FALSE, 2L, 3485, structure = big))
+  expect_match(rec[3], "nnz 500,000,000 -> projected 6,000,000,000")
+  expect_match(rec[3], "LU EXCLUDED")
   expect_null(.auto_record_lines(NULL))
 })

@@ -87,6 +87,38 @@ test_that("runtime errors map to the numeric abort", {
   expect_error(check_log(paths), "10.11.1")
 })
 
+test_that("workspace exhaustion maps to the resource abort", {
+  # the three solver-side workspace fatals (solve_drivers.c ma48_grow_la
+  # ceiling, the growth loops, and a declined fast refactorize)
+  paths <- local_solver_log(
+    paste(
+      "Error: factorizing condensed system needs a larger MA48 workspace",
+      "than the 2147483647-element limit of the 32-bit HSL build (-laA is",
+      "already at its 1545% ceiling); this system is too large for one",
+      "sequential factorization -- solve it with a bordered matrix_method",
+      '("SBBD" or "DBBD"), condense the model, or reduce its dimensions'
+    )
+  )
+  expect_error(check_log(paths), "ran out of factorization workspace")
+  expect_error(check_log(paths), "matrix_method")
+  paths <- local_solver_log(
+    paste(
+      "Error: the MA48 workspace for DBBD diagonal block did not converge",
+      "after 6 growth attempts; raise the initial workspace (laA/laD/laDi)",
+      'or use a bordered matrix_method ("SBBD" or "DBBD")'
+    )
+  )
+  expect_error(check_log(paths), "ran out of factorization workspace")
+  paths <- local_solver_log(
+    paste(
+      "Error: MA48 could not factorize NDBBD diagonal block after repeated",
+      "retries (the fast refactorization was declined each time); re-run",
+      "with fastrefac = FALSE, or use a different matrix_method"
+    )
+  )
+  expect_error(check_log(paths), "ran out of factorization workspace")
+})
+
 test_that("TAB class takes priority over data class", {
   paths <- local_solver_log(c(
     "Error: cannot open file baddata.har",

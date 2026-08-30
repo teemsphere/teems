@@ -44,7 +44,26 @@
     border_share_max = 0.10,
     # intertemporal SBBD -> NDBBD escalation: minimum n_tasks (Inf =
     # dormant: no measured NDBBD-over-SBBD region yet)
-    ndbbd_n_tasks = Inf
+    ndbbd_n_tasks = Inf,
+    # HARD LU EXCLUSION -- not a performance crossover. The HSL kernels
+    # are built with 32-bit integers, so one sequential factorization's
+    # MA48 workspace cannot exceed lu_la_ceiling elements: above it LU
+    # does not run slowly, it aborts (teems-solver MA48_LA_MAX). The
+    # bordered methods size their workspace per diagonal block, so the
+    # ceiling does not apply to them. Projected need = nnz * fill.
+    lu_la_ceiling = 2147483647,
+    # measured LA / nnz on the HPC matrix (2026-08): I-long 6.0
+    # (85.5M nnz -> 5.13e8), S-full 12.0 (138.9M -> 1.669e9);
+    # condensation trades nnz for fill: S-full-cond 40.0 (44.1M ->
+    # 1.764e9). Applied by whether the deployed system is condensed.
+    lu_fill = 12,
+    lu_fill_condensed = 40,
+    # the exclusion fires on the raw projection only: no measured
+    # configuration should be excluded, and both S-full rigs are known
+    # to factorize at ~78-82% of the ceiling. The uncertainty in fill
+    # is carried by an advisory band instead of a margin that would
+    # reject rigs we have run.
+    lu_ceiling_warn_share = 0.75
   )
 }
 
@@ -133,6 +152,30 @@
       call = call
     )
   }
+  if (isTRUE(d$lu_excluded)) {
+    la_ceiling <- format(d$lu_ceiling$ceiling, big.mark = ",", scientific = FALSE, trim = TRUE)
+    if (isTRUE(d$lu_unavoidable)) {
+      projected <- format(round(d$lu_ceiling$projected),
+        big.mark = ",", scientific = FALSE, trim = TRUE
+      )
+      .cli_action(solve_wrn$auto_lu_ceiling,
+        action = c("warn", "inform"),
+        call = call
+      )
+    } else {
+      .cli_action(solve_info$auto_lu_excluded,
+        action = c("inform", "inform"),
+        call = call
+      )
+    }
+  } else if (identical(chosen, "LU") && isTRUE(d$lu_ceiling$near)) {
+    la_ceiling <- format(d$lu_ceiling$ceiling, big.mark = ",", scientific = FALSE, trim = TRUE)
+    share <- paste0(round(100 * d$lu_ceiling$share), "%")
+    .cli_action(solve_info$auto_lu_near_ceiling,
+      action = c("inform", "inform"),
+      call = call
+    )
+  }
   list(method = chosen, decision = d, probe = probe)
 }
 
@@ -171,7 +214,10 @@
     thresholds = th,
     probed = probed,
     dbbd_hint = FALSE,
-    no_chain = FALSE
+    no_chain = FALSE,
+    lu_ceiling = NULL,
+    lu_excluded = FALSE,
+    lu_unavoidable = FALSE
   )
 
   if (enable_time && !isFALSE(chain)) {
@@ -191,12 +237,34 @@
 
   d$method <- "LU"
   if (probed) {
+    # the 32-bit workspace ceiling is a hard exclusion, evaluated
+    # before the performance gates: past it LU cannot factorize this
+    # system at any -laA, so a bordered method is the only option that
+    # runs at all, whatever the crossover would have said
+    d$lu_ceiling <- .auto_lu_ceiling(
+      nnz = structure$nnz,
+      condensed = (structure$nbacksolve %|||% 0) > 0,
+      th = th
+    )
+    d$lu_excluded <- isTRUE(d$lu_ceiling$exceeded)
     if (is.null(part) || is.na(size)) {
+      # nothing to fall back to: LU stands, but flag that it is
+      # expected to hit the ceiling so the caller can warn
+      d$lu_unavoidable <- d$lu_excluded
       return(d)
     }
     n_blocks <- part$n_blocks
     dbbd_favorable <- size >= th$dbbd_size ||
       (size >= th$dbbd_size_many_blocks && n_blocks >= th$dbbd_n_blocks)
+    if (d$lu_excluded) {
+      # correctness outranks the crossover and the border-share guard
+      if (n_blocks >= max(n_tasks, 1L)) {
+        d$method <- "DBBD"
+      } else {
+        d$lu_unavoidable <- TRUE
+      }
+      return(d)
+    }
     if (dbbd_favorable && part$border_share <= th$border_share_max) {
       if (n_tasks >= 2L && n_blocks >= n_tasks) {
         d$method <- "DBBD"
@@ -216,6 +284,33 @@
     }
   }
   d
+}
+
+#' @description Projected MA48 workspace for a single sequential LU
+#'   factorization, and whether it clears the 32-bit ceiling. Returns
+#'   `NULL` when the probe supplied no nonzero count (the exclusion
+#'   cannot be applied without one). `condensed` selects the fill
+#'   anchor: condensation cuts nnz but raises fill by about as much.
+#' @keywords internal
+#' @noRd
+.auto_lu_ceiling <- function(nnz,
+                             condensed = FALSE,
+                             th = .auto_thresholds()) {
+  if (is.null(nnz) || is.na(nnz) || nnz <= 0) {
+    return(NULL)
+  }
+  fill <- if (isTRUE(condensed)) th$lu_fill_condensed else th$lu_fill
+  projected <- nnz * fill
+  share <- projected / th$lu_la_ceiling
+  list(
+    nnz = nnz,
+    fill = fill,
+    projected = projected,
+    ceiling = th$lu_la_ceiling,
+    share = share,
+    exceeded = projected >= th$lu_la_ceiling,
+    near = share >= th$lu_ceiling_warn_share
+  )
 }
 
 #' @description The partition the solver would apply at `n_tasks`,
@@ -294,7 +389,17 @@
       if (is.na(p$border_share)) "n/a" else pct(p$border_share), ")"
     )
   }
-  paste0(size, ", ", chain, ", ", part, ", n_tasks ", d$n_tasks)
+  ceil <- if (is.null(d$lu_ceiling)) {
+    ""
+  } else if (isTRUE(d$lu_excluded)) {
+    paste0(
+      ", LU excluded (projected MA48 workspace ", fmt(round(d$lu_ceiling$projected)),
+      " > 32-bit ceiling ", fmt(d$lu_ceiling$ceiling), ")"
+    )
+  } else {
+    paste0(", LU workspace ", pct(d$lu_ceiling$share), " of the 32-bit ceiling")
+  }
+  paste0(size, ", ", chain, ", ", part, ", n_tasks ", d$n_tasks, ceil)
 }
 
 #' @description Lines for the model_diagnostics.txt solve record.
@@ -317,6 +422,24 @@
       format(th$dbbd_size, scientific = FALSE),
       format(th$dbbd_size_many_blocks, scientific = FALSE),
       th$dbbd_n_blocks, th$border_share_max, th$ndbbd_n_tasks
+    ),
+    sprintf(
+      "  LU workspace ceiling: %s elements, fill %s%s, advisory share %s%s",
+      format(th$lu_la_ceiling, scientific = FALSE),
+      if (is.null(d$lu_ceiling)) th$lu_fill else d$lu_ceiling$fill,
+      if (is.null(d$lu_ceiling)) " (nnz unknown: exclusion not applied)" else "",
+      th$lu_ceiling_warn_share,
+      if (is.null(d$lu_ceiling)) {
+        ""
+      } else {
+        sprintf(
+          "; nnz %s -> projected %s (%s of ceiling)%s",
+          format(d$lu_ceiling$nnz, big.mark = ",", scientific = FALSE, trim = TRUE),
+          format(round(d$lu_ceiling$projected), big.mark = ",", scientific = FALSE, trim = TRUE),
+          paste0(round(100 * d$lu_ceiling$share, 1), "%"),
+          if (isTRUE(d$lu_excluded)) " -- LU EXCLUDED" else ""
+        )
+      }
     )
   )
 }

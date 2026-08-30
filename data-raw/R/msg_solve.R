@@ -128,6 +128,15 @@ build_solve_err <- function() {
       "See GEMPACK manual section{?s} {.val {manual_secs}}.",
       "Full log: {.path {diag_out}}."
     ),
+    # test-chk_solver_log.R: "workspace exhaustion maps to the resource abort"
+    # a solver-side resource limit, not a fault in the model, closure or
+    # data: the remedies are all about how the system is factorized
+    solver_resource = c(
+      "The solver ran out of factorization workspace with {n_err} error{?s}:",
+      "{err_preview}",
+      "Raise {.arg laA}, {.arg laD} or {.arg laDi} in {.fun teems::ems_solve}, or split the factorization with {.code matrix_method = \"SBBD\"} or {.code \"DBBD\"}.",
+      "Full log: {.path {diag_out}}."
+    ),
     # not simulated
     docker_installed = "Docker is required but not installed.",
     docker_sudo = "Docker is installed but cannot be called without sudo.",
@@ -147,6 +156,11 @@ build_solve_err <- function() {
 
 build_solve_wrn <- function() {
   list(
+    # test-auto_method.R: "no bordered fallback leaves LU with a warning"
+    auto_lu_ceiling = c(
+      "This system needs about {.val {projected}} elements of MA48 workspace, above the {.val {la_ceiling}}-element limit of the 32-bit HSL build, and no bordered partition is available as an alternative.",
+      "{.val LU} is expected to abort once it exhausts the workspace. Deploy with a partitionable set, raise {.arg n_tasks}, or condense the model."
+    ),
     accuracy = c(
       "Only {.emph {accuracy}} of variables accurate to at least 4 digits, below the {a_threshold} threshold.",
       "Adjust with {.arg accuracy_threshold} in {.fun teems::ems_option_set}."
@@ -165,6 +179,16 @@ build_solve_info <- function() {
     # test-ems_solve.R: "matrix_method auto probes the deployed structure"
     auto_probe = "{.arg matrix_method} {.val auto}: probing the deployed system's structure (chain dimension, block partition) to choose the method.",
     auto_no_chain = "The model declares intertemporal sets but no equation couples elements through lead/lag offsets; the chain methods ({.val SBBD}, {.val NDBBD}) do not apply and the static family is used.",
+    # test-auto_method.R: "a near-ceiling LU choice is reported"
+    auto_lu_near_ceiling = c(
+      "{.val LU} needs an estimated {.val {share}} of the largest MA48 workspace a single factorization can address ({.val {la_ceiling}} elements, a 32-bit HSL limit).",
+      "It should still factorize, but there is little headroom: a larger aggregation or a longer horizon will cross the limit, and a bordered method ({.val SBBD}, {.val DBBD}) has no such ceiling."
+    ),
+    # test-auto_method.R: "the LU workspace ceiling excludes LU"
+    auto_lu_excluded = c(
+      "This system needs more MA48 workspace than one sequential factorization can address, so {.val LU} was excluded and {.val {chosen}} chosen instead.",
+      "The HSL kernels are 32-bit: a single factorization's workspace cannot exceed {.val {la_ceiling}} elements, whatever {.arg laA} is set to. The bordered methods size their workspace per diagonal block, so the limit does not apply to them."
+    ),
     # test-ems_solve.R: "condensed deployments advise against bordered methods"
     condense_bordered = c(
       "This deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system) and {.val {matrix_method}} is a bordered method.",

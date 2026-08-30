@@ -20,6 +20,12 @@ build_solver_error_map <- function() {
     c("header .* not found", "data", NA),
     c("not found in the data file", "data", NA),
     c("cannot open", "data", NA),
+    # factorization workspace / memory limits (solve_drivers.c
+    # ma48_grow_la + ma48_alloc_fail, block_solve.c/block_order.c
+    # growth loops); sits above the numeric block, whose "did not
+    # converge" wording would otherwise claim these
+    c("MA48 workspace", "resource", NA),
+    c("MA48 could not factorize", "resource", NA),
     # runtime numeric evaluation
     c("zero divided by zero", "numeric", "10.11.1"),
     c("division by zero in a formula", "numeric", "10.11.1"),

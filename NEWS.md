@@ -1,4 +1,5 @@
 # teems (development version)
+* Solver aborts at the Jacobian index ceiling (a system whose one-rank Jacobian passes 2^31 nonzeros under `matrix_method = "LU"` or `"SBBD"`) surface as a size error naming the distributed `"DBBD"` layout, condensation, or smaller dimensions as the remedies, instead of a segfault exit status
 * Conditional set builders `Set X = (all,i,SRC: COEF(i,...) <op> <constant>);` (GEMPACK manual 10.1.2) are supported: the elements are evaluated from the deployed data at `ems_deploy()` and re-evaluated by the solver
 * `Read (IfHeaderExists)` is supported; absent headers are not required in the loaded data
 * IF conditions may compare two coefficient expressions (`IF[THETA(j,r)*ONOFF(j,r) <= 0, ...]`), and several set-membership/element IF terms may partition one Equation on a shared index

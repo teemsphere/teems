@@ -119,6 +119,27 @@ test_that("workspace exhaustion maps to the resource abort", {
   expect_error(check_log(paths), "ran out of factorization workspace")
 })
 
+test_that("index ceiling maps to the size abort", {
+  # solve_drivers.c jac_mat_prealloc: the one-rank Jacobian copy passes
+  # the PetscInt total, and a PETSc preallocation failure after the check
+  paths <- local_solver_log(
+    paste(
+      "Error: assembling the Jacobian for the linear system needs",
+      "2493188469 nonzeros, above the 2147483647-nonzero ceiling of the",
+      "32-bit PetscInt build; every HSL matrix_method (\"LU\", \"SBBD\")",
+      "keeps the whole system on one rank, so more ranks do not help --",
+      "condense the model, reduce its dimensions, or use the distributed",
+      "matrix_method \"DBBD\""
+    )
+  )
+  expect_error(check_log(paths), "too large for the solver")
+  expect_error(check_log(paths), "DBBD")
+  paths <- local_solver_log(
+    "Error: PETSc could not preallocate the exogenous block for the linear system (PETSc error 63)"
+  )
+  expect_error(check_log(paths), "too large for the solver")
+})
+
 test_that("TAB class takes priority over data class", {
   paths <- local_solver_log(c(
     "Error: cannot open file baddata.har",

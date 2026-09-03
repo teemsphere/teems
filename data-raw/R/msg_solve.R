@@ -137,6 +137,16 @@ build_solve_err <- function() {
       "Raise {.arg laA}, {.arg laD} or {.arg laDi} in {.fun teems::ems_solve}, or split the factorization with {.code matrix_method = \"SBBD\"} or {.code \"DBBD\"}.",
       "Full log: {.path {diag_out}}."
     ),
+    # test-chk_solver_log.R: "index ceiling maps to the size abort"
+    # the system passed the solver's integer index width for one rank's
+    # copy of the Jacobian: no workspace argument helps, only the layout
+    # or the system size
+    solver_size = c(
+      "The system is too large for the solver's integer index width, with {n_err} error{?s}:",
+      "{err_preview}",
+      "Use the distributed {.code matrix_method = \"DBBD\"}, condense the model, or reduce its dimensions.",
+      "Full log: {.path {diag_out}}."
+    ),
     # not simulated
     docker_installed = "Docker is required but not installed.",
     docker_sudo = "Docker is installed but cannot be called without sudo.",

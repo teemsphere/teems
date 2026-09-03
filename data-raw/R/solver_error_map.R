@@ -26,6 +26,11 @@ build_solver_error_map <- function() {
     # converge" wording would otherwise claim these
     c("MA48 workspace", "resource", NA),
     c("MA48 could not factorize", "resource", NA),
+    # Jacobian preallocation ceiling (solve_drivers.c jac_mat_prealloc):
+    # the system exceeds the solver's PetscInt index width, a size
+    # limit rather than a workspace one -- remedies differ
+    c("ceiling of the [0-9]+-bit PetscInt build", "size", NA),
+    c("could not preallocate the", "size", NA),
     # runtime numeric evaluation
     c("zero divided by zero", "numeric", "10.11.1"),
     c("division by zero in a formula", "numeric", "10.11.1"),

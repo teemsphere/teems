@@ -1,4 +1,7 @@
 # teems (development version)
+* Runge-Kutta rework: stages combine in log-levels by default (`chart = "log"` in `ems_RK()`), so a percentage-change variable cannot reach -100% at any stage; the accept test is steered by percentage-change variables (`scope = "pct"`), first-same-as-last stage reuse, stage-level range-test/assertion retries, `error_norm`, `controller`, `h_init` and `guard` controls, and `"Heun"` as a second-order method; `ems_RK()` defaults to `eps_tolerance = 0.01` (measured: the accuracy of the previous driver for about a third of the factorizations)
+* The embedded Runge-Kutta error estimate is returned as `error_estimate` (was `error_metric`) and read from `sol.est` (was `sol.acc`): it is an indicator of the least-settled elements, not a bound
+* `model_diagnostics.txt` records the Runge-Kutta chart, norm, scope and controller, and the run's step and stage-solve counts with the rejection census
 * Solver aborts at the Jacobian index ceiling (a system whose one-rank Jacobian passes 2^31 nonzeros under `matrix_method = "LU"` or `"SBBD"`) surface as a size error naming the distributed `"DBBD"` layout, condensation, or smaller dimensions as the remedies, instead of a segfault exit status
 * Conditional set builders `Set X = (all,i,SRC: COEF(i,...) <op> <constant>);` (GEMPACK manual 10.1.2) are supported: the elements are evaluated from the deployed data at `ems_deploy()` and re-evaluated by the solver
 * `Read (IfHeaderExists)` is supported; absent headers are not required in the loaded data

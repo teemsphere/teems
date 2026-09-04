@@ -10,10 +10,10 @@
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
     arg = solution_method,
-    values = c("Johansen", "Gragg", "Euler", "RK2", "RK4", "BoSha32", "DoPri54"),
+    values = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
     error_call = call
   )
-  is_rk <- a$solution_method %in% c("RK2", "RK4", "BoSha32", "DoPri54")
+  is_rk <- a$solution_method %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")
   is_rk_embedded <- a$solution_method %in% c("BoSha32", "DoPri54")
 
   adaptive <- a$adaptive

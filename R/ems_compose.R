@@ -7,7 +7,7 @@
 #'   "dat" (a list-column of data.tables) containing model
 #'   results. For runs solved with an embedded Runge-Kutta method
 #'   (`"BoSha32"`, `"DoPri54"`; see [`ems_solve()`]) each
-#'   variable's data.table carries an additional `error_metric`
+#'   variable's data.table carries an additional `error_estimate`
 #'   column: the solver's component-by-component estimate of the
 #'   cumulative solution error, `|delta| / max(1, |Value|)`.
 #' @inheritParams ems_solve

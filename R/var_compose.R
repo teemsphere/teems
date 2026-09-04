@@ -56,9 +56,9 @@
     )
   }
 
-  has_acc <- "error_metric" %in% colnames(data_dt)
+  has_acc <- "error_estimate" %in% colnames(data_dt)
   if (has_acc) {
-    data.table::setnames(data_dt, new = c("r_idx", "Value", "error_metric"))
+    data.table::setnames(data_dt, new = c("r_idx", "Value", "error_estimate"))
   } else {
     data.table::setnames(data_dt, new = c("r_idx", "Value"))
   }
@@ -125,7 +125,7 @@
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
     function(check, parsed) {
-      all(is.element(tolower(check), tolower(parsed[!parsed %in% c("Value", "error_metric")])))
+      all(is.element(tolower(check), tolower(parsed[!parsed %in% c("Value", "error_estimate")])))
     }
   )))
   if (!lax_check) {
@@ -140,7 +140,7 @@
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
     function(check, parsed) {
-      all(tolower(check) == tolower(parsed[!parsed %in% c("Value", "error_metric")]))
+      all(tolower(check) == tolower(parsed[!parsed %in% c("Value", "error_estimate")]))
     }
   )))
   if (!strict_check) {
@@ -164,7 +164,7 @@
     function(dt, mixed_col) {
       if (mixed_col %!=% NA_character_) {
         new_names <- c(mixed_col, "Value")
-        if (has_acc) new_names <- c(new_names, "error_metric")
+        if (has_acc) new_names <- c(new_names, "error_estimate")
         data.table::setnames(dt, new = new_names)
         data.table::setkeyv(dt, cols = mixed_col)
       } else {

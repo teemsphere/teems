@@ -6,7 +6,8 @@
 \usage{
 ems_solve(
   cmf_path,
-  solution_method = c("Johansen", "Gragg", "Euler", "RK2", "RK4", "BoSha32", "DoPri54"),
+  solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32",
+    "DoPri54"),
   matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
   steps = c(2L, 4L, 8L),
@@ -69,7 +70,7 @@ extrapolating methods.
 (Bogacki-Shampine 3(2), 4 stages; Dormand-Prince 5(4), 7
 stages). Alongside the solution they compute a
 component-by-component estimate of the cumulative error —
-returned as the \code{error_metric} column by \code{\link[=ems_compose]{ems_compose()}}
+returned as the \code{error_estimate} column by \code{\link[=ems_compose]{ems_compose()}}
 and summarized as a face value in the solver log — and they
 support adaptive step-size control via \code{adaptive} and
 \code{eps_tolerance}. \code{"DoPri54"} with \code{adaptive = "yes"} is the

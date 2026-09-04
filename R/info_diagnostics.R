@@ -111,6 +111,37 @@
     if (!is.null(opt$adaptive)) {
       sprintf("Adaptive stepping: %s (eps tolerance %s)", opt$adaptive, opt$eps_tolerance)
     },
+    # Runge-Kutta run controls and record (solver >= the 2026-09 RK
+    # slice): chart / norm / controller, then the stage-solve economy
+    # and the retry census
+    if (!is.null(opt$rk_chart)) {
+      sprintf(
+        "Runge-Kutta chart: %s (error norm %s over %s, controller %s%s)",
+        opt$rk_chart, opt$rk_norm,
+        if (identical(opt$rk_scope, "all")) "all elements" else "percent-change elements",
+        opt$rk_controller,
+        if (!is.null(opt$rk_h0) && opt$rk_h0 > 0) sprintf(", initial step %s", opt$rk_h0) else ""
+      )
+    },
+    if (!is.null(stats$runge_kutta)) {
+      rk <- stats$runge_kutta
+      c(
+        sprintf(
+          "Runge-Kutta run: %s step(s), %s stage solve(s) (%s reused); rejected %s accuracy, %s crossing, %s range test, %s assertion, %s guard, %s singular; step length %s to %s",
+          rk$steps, rk$stage_solves, rk$stage_solves_reused,
+          rk$rejects_accuracy, rk$rejects_crossed, rk$rejects_range,
+          rk$rejects_assertion, rk$rejects_guard,
+          if (is.null(rk$rejects_singular)) 0L else rk$rejects_singular,
+          format(rk$h_min, digits = 3), format(rk$h_max, digits = 3)
+        ),
+        if (!is.null(rk$worst_estimated_metric)) {
+          sprintf(
+            "Runge-Kutta estimated error: worst element metric %s (the embedded pair's accumulated estimate: an indicator of the least-settled elements, not a bound)",
+            format(rk$worst_estimated_metric, digits = 3)
+          )
+        }
+      )
+    },
     sprintf(
       "Matrix method: %s (laA %s, laDi %s, laD %s; fastrefac %s; ma48u %s)",
       stats$matrix_method, opt$laA, opt$laDi, opt$laD, onoff(opt$fastrefac),

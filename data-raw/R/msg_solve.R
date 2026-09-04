@@ -53,12 +53,15 @@ build_solve_err <- function() {
       "Unknown argument{?s} {.arg {unknown_args}} passed to {.arg ...}.",
       "{.arg ...} accepts the Runge-Kutta step controls
       ({.arg adaptive}, {.arg eps_tolerance}, {.arg max_retries},
-      {.arg retry_adjust}; see {.fun ems_RK}), the MA48 workspace
-      initial guesses ({.arg laA}, {.arg laD}, {.arg laDi}) and the
-      expert solver flags ({.arg fastrefac}, {.arg gpzerodivide},
-      {.arg cntl_3}, {.arg cntl_6}, {.arg nsbbdblocks},
-      {.arg withmc66}, {.arg smllthreads}, {.arg tempdir},
-      {.arg nowrites}, {.arg condest})."
+      {.arg retry_adjust}, {.arg rk_chart}, {.arg rk_norm},
+      {.arg rk_controller}, {.arg rk_scope}, {.arg rk_h0},
+      {.arg rk_guard}; see
+      {.fun ems_RK}), the MA48 workspace initial guesses
+      ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
+      flags ({.arg fastrefac}, {.arg gpzerodivide}, {.arg cntl_3},
+      {.arg cntl_6}, {.arg nsbbdblocks}, {.arg withmc66},
+      {.arg smllthreads}, {.arg tempdir}, {.arg nowrites},
+      {.arg condest})."
     ),
     # test-solve_in_situ.R: solver_args must be a fully named list
     solver_args_list = c(
@@ -71,11 +74,13 @@ build_solve_err <- function() {
     solver_args_unknown = c(
       "Unknown argument{?s} {.arg {unknown_args}} in {.arg solver_args}.",
       "Accepted: the MA48 workspace initial guesses ({.arg laA},
-      {.arg laD}, {.arg laDi}) and the expert solver flags
+      {.arg laD}, {.arg laDi}), the expert solver flags
       ({.arg fastrefac}, {.arg gpzerodivide}, {.arg cntl_3},
       {.arg cntl_6}, {.arg nsbbdblocks}, {.arg withmc66},
       {.arg smllthreads}, {.arg tempdir}, {.arg nowrites},
-      {.arg condest}). The
+      {.arg condest}) and the Runge-Kutta run controls
+      ({.arg rk_chart}, {.arg rk_norm}, {.arg rk_controller},
+      {.arg rk_scope}, {.arg rk_h0}, {.arg rk_guard}). The
       Runge-Kutta step controls are formal arguments of
       {.fun solve_in_situ}."
     ),

@@ -368,11 +368,16 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
      "glval"_nm = (SEXP)var_glval}
   );
 
-  // --- Read .acc if present (embedded-RK cumulative error metrics,
-  //     one double per element in .bin order) ---
+  // --- Read .est if present (embedded-RK estimated error metrics,
+  //     one double per element in .bin order; .acc is the pre-2026-09
+  //     solver's name for the same file) ---
   cpp11::sexp acc_sexp = R_NilValue;
-  std::string acc_path = path_prefix + "acc";
+  std::string acc_path = path_prefix + "est";
   std::ifstream acc_file(acc_path, std::ios::binary);
+  if (!acc_file.is_open()) {
+    acc_path = path_prefix + "acc";
+    acc_file.open(acc_path, std::ios::binary);
+  }
   if (acc_file.is_open()) {
     cpp11::writable::doubles acc_vec(static_cast<R_xlen_t>(total_ele));
     if (filter) {

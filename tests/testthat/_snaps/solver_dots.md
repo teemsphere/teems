@@ -6,7 +6,7 @@
 ---
 
     x Unknown argument `bogus` in `solver_args`.
-    i Accepted: the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and the expert solver flags (`fastrefac`, `gpzerodivide`, `cntl_3`, `cntl_6`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`, `nowrites`, `condest`). The Runge-Kutta step controls are formal arguments of `solve_in_situ()`.
+    i Accepted: the MA48 workspace initial guesses (`laA`, `laD`, `laDi`), the expert solver flags (`fastrefac`, `gpzerodivide`, `cntl_3`, `cntl_6`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`, `nowrites`, `condest`) and the Runge-Kutta run controls (`rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`, `rk_h0`, `rk_guard`). The Runge-Kutta step controls are formal arguments of `solve_in_situ()`.
 
 # ems_probe rejects unknown dot arguments
 

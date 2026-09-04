@@ -23,7 +23,13 @@
     tempdir = NULL,
     nowrites = NULL,
     condest = NULL,
-    ma48u = NULL
+    ma48u = NULL,
+    rk_chart = NULL,
+    rk_norm = NULL,
+    rk_controller = NULL,
+    rk_scope = NULL,
+    rk_h0 = NULL,
+    rk_guard = NULL
   )
 }
 
@@ -48,7 +54,13 @@
     tempdir = c("NULL", "character"),
     nowrites = c("NULL", "logical"),
     condest = c("NULL", "logical"),
-    ma48u = c("NULL", "numeric")
+    ma48u = c("NULL", "numeric"),
+    rk_chart = c("NULL", "character"),
+    rk_norm = c("NULL", "character"),
+    rk_controller = c("NULL", "character"),
+    rk_scope = c("NULL", "character"),
+    rk_h0 = c("NULL", "numeric", "integer"),
+    rk_guard = c("NULL", "numeric", "integer")
   )
 }
 
@@ -115,6 +127,50 @@
       call = call
     )
   }
+  # Runge-Kutta run controls (ems_RK() is the documented front end):
+  # the state chart, the accept-test norm, the step controller, the
+  # initial step and the log-chart level-ratio guard
+  rk_choices <- list(
+    rk_chart = c("log", "percent"),
+    rk_norm = c("max", "rms"),
+    rk_controller = c("std", "pi"),
+    rk_scope = c("pct", "all")
+  )
+  for (nme in names(rk_choices)) {
+    x <- a[[nme]]
+    if (!is.null(x) &&
+      (!is.character(x) || length(x) != 1L || is.na(x) || !x %in% rk_choices[[nme]])) {
+      bad_arg <- nme
+      requirement <- sprintf(
+        "one of %s",
+        paste(sprintf('"%s"', rk_choices[[nme]]), collapse = ", ")
+      )
+      .cli_action(solve_err$comp_arg_type,
+        action = "abort",
+        call = call
+      )
+    }
+  }
+  if (!is.null(a$rk_h0) &&
+    (!is.numeric(a$rk_h0) || length(a$rk_h0) != 1L || is.na(a$rk_h0) ||
+      a$rk_h0 <= 0 || a$rk_h0 > 1)) {
+    bad_arg <- "rk_h0"
+    requirement <- "a numeric of length 1 in (0, 1]"
+    .cli_action(solve_err$comp_arg_type,
+      action = "abort",
+      call = call
+    )
+  }
+  if (!is.null(a$rk_guard) &&
+    (!is.numeric(a$rk_guard) || length(a$rk_guard) != 1L || is.na(a$rk_guard) ||
+      a$rk_guard <= 1)) {
+    bad_arg <- "rk_guard"
+    requirement <- "a numeric of length 1 greater than 1 (a level ratio)"
+    .cli_action(solve_err$comp_arg_type,
+      action = "abort",
+      call = call
+    )
+  }
   return(invisible(NULL))
 }
 
@@ -137,7 +193,13 @@
     if (!is.null(a$tempdir)) paste("-tempdir", a$tempdir),
     if (!is.null(a$nowrites)) paste("-nowrites", as01(a$nowrites)),
     if (!is.null(a$condest)) paste("-condest", as01(a$condest)),
-    if (!is.null(a$ma48u)) paste("-ma48u", format(a$ma48u, digits = 15))
+    if (!is.null(a$ma48u)) paste("-ma48u", format(a$ma48u, digits = 15)),
+    if (!is.null(a$rk_chart)) paste("-rkchart", a$rk_chart),
+    if (!is.null(a$rk_norm)) paste("-rknorm", a$rk_norm),
+    if (!is.null(a$rk_controller)) paste("-rkctrl", a$rk_controller),
+    if (!is.null(a$rk_scope)) paste("-rkscope", a$rk_scope),
+    if (!is.null(a$rk_h0)) paste("-rk_h0", format(a$rk_h0, digits = 15)),
+    if (!is.null(a$rk_guard)) paste("-rkguard", format(a$rk_guard, digits = 15))
   )
   if (is.null(flags)) {
     return(NULL)

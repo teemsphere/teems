@@ -45,7 +45,12 @@
   condest_warn <- grep("condest: WARNING", model_log,
     value = TRUE, fixed = TRUE
   )
-  scan_log <- model_log[!startsWith(model_log, "condest:")]
+  # `memory:` lines are the solver's per-phase resident-memory record
+  # (6.16(a)); structured diagnostics, excluded from scanning like
+  # `condest:` so their vocabulary can never trip the generic scans
+  scan_log <- model_log[
+    !startsWith(model_log, "condest:") & !startsWith(model_log, "memory:")
+  ]
   if (length(condest_warn) > 0L) {
     kappa_w2 <- sub(".*\\(kappa_w2 ([^)]*)\\).*", "\\1", condest_warn[1])
     .cli_action(solve_err$condest_nearsing,

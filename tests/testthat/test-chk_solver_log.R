@@ -212,6 +212,51 @@ test_that("condest diagnostic lines do not trip the generic scans", {
   expect_no_error(suppressMessages(check_log(paths)))
 })
 
+test_that("memory record lines do not trip the generic scans", {
+  paths <- local_solver_log(c(
+    "solver banner",
+    "memory: after matrix assembly, resident 1.23 GB max per rank, 4.56 GB over 4 rank(s); high-water 1.30 GB max, 4.80 GB sum",
+    "Step time 0.01 s",
+    "memory: after step, resident 1.40 GB max per rank, 5.10 GB over 4 rank(s); high-water 1.45 GB max, 5.30 GB sum",
+    "all steps complete"
+  ))
+  expect_no_error(suppressMessages(check_log(paths)))
+})
+
+test_that("the solve record renders the per-phase memory table", {
+  run_dir <- withr::local_tempdir()
+  stats_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(stats_dir, recursive = TRUE)
+  writeLines("diag", file.path(run_dir, "model_diagnostics.txt"))
+  writeLines(
+    paste0(
+      '{"version": 2, "solution_method": "Johansen", "matrix_method": "LU", ',
+      '"mpi_size": 2, "vecsize": 10, "nexo": 3, ',
+      '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
+      '"fastrefac": false, "max_threads": 1, "assertions": "warn", ',
+      '"range_test_initial": "warn", "range_test_updated": "warn", ',
+      '"postsim": false, "gpzerodivide": false},\n',
+      '  "rss_gb": {\n',
+      '    "variable_calculation": {"max": 0.512, "sum": 0.900, "probes": 1},\n',
+      '    "step": {"max": 1.250, "sum": 2.100, "probes": 3},\n',
+      '    "peak": {"max": 1.300, "sum": 2.200}\n  }\n}'
+    ),
+    file.path(stats_dir, "sol.stats.json")
+  )
+  .solve_record_append(run_dir)
+  rec <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl(
+    "Memory (resident GB, max per rank / sum over ranks): variable calculation 0.51/0.90; step 1.25/2.10",
+    rec,
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
+    "Memory high-water mark: 1.30 GB max per rank, 2.20 GB sum over ranks",
+    rec,
+    fixed = TRUE
+  )))
+})
+
 test_that("condest near-singularity warns without aborting the run", {
   paths <- local_solver_log(c(
     "solver banner",

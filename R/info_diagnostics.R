@@ -172,6 +172,11 @@
       "Parallelism: %s MPI task(s), %s OpenMP thread(s)",
       stats$mpi_size, opt$max_threads
     ),
+    # per-phase resident memory (solver >= the 6.16(a) phase-RSS slice):
+    # max over ranks / sum over ranks in GB, then the run's high-water
+    # mark; the max column is what a single host must hold per rank,
+    # the sum what the job holds in total
+    .memory_record_lines(stats$rss_gb),
     if (!is.null(opt$store_precision)) {
       sprintf("Coefficient storage: %s precision", opt$store_precision)
     },
@@ -204,4 +209,41 @@
     append = TRUE, file = diagnostic_file
   )
   return(invisible(NULL))
+}
+
+#' Render the solver's per-phase resident-memory record (the `rss_gb`
+#' object of sol.stats.json) as diagnostics lines: one line naming the
+#' phases with max-over-ranks / sum-over-ranks GB, one line with the
+#' run's high-water mark. NULL against images without the record.
+#'
+#' @keywords internal
+#' @noRd
+.memory_record_lines <- function(rss) {
+  if (is.null(rss) || !is.list(rss)) {
+    return(NULL)
+  }
+  peak <- rss$peak
+  phases <- rss[setdiff(names(rss), "peak")]
+  gb <- function(x) format(round(as.numeric(x), 2), nsmall = 2)
+  phase_txt <- vapply(
+    names(phases),
+    function(nm) {
+      sprintf("%s %s/%s", gsub("_", " ", nm, fixed = TRUE), gb(phases[[nm]]$max), gb(phases[[nm]]$sum))
+    },
+    character(1)
+  )
+  c(
+    if (length(phase_txt) > 0L) {
+      sprintf(
+        "Memory (resident GB, max per rank / sum over ranks): %s",
+        paste(phase_txt, collapse = "; ")
+      )
+    },
+    if (!is.null(peak)) {
+      sprintf(
+        "Memory high-water mark: %s GB max per rank, %s GB sum over ranks",
+        gb(peak$max), gb(peak$sum)
+      )
+    }
+  )
 }

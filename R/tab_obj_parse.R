@@ -133,7 +133,7 @@
           paste0(up2, low2)
         }), collapse = ",")
       } else {
-        NA
+        NA_character_
       }
     }
   ))

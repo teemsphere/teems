@@ -82,6 +82,11 @@ build_solver_error_map <- function() {
     c("malformed formula", "tab", NA),
     c("malformed if\\(\\)", "tab", NA),
     c("formula too long to compile", "tab", NA),
+    # reference shape (formula_bind_operand index-count guard,
+    # jacobian.c eq_linearity_check; 2026-09-06 ECO_TOY report)
+    c("is declared with [0-9]+ ind(ex|ices) but is referenced with", "tab", "11.4.10"),
+    c("is not linear in its variables", "tab", "11.4.8"),
+    c("contains no linear variable", "tab", "11.4.8"),
     # reads
     c("Read without a header", "tab", "11.11.8"),
     c("from terminal is not supported", "tab", "10.6"),

@@ -73,6 +73,16 @@ test_that("ems_model rejects invalid coefficient arguments", {
   expect_snapshot_error(ems_model(model_file, closure_file, NOT_A_COEFF = 2))
 })
 
+test_that("a value for a coefficient that is neither read nor assigned aborts", {
+  # declared coefficients pass the pre-flight without a Read or Formula;
+  # a user value for one has nowhere to go
+  err_model <- write_modified_model(
+    model_file,
+    "Coefficient (all,r,REG) TESTC(r) # declared but never assigned #;"
+  )
+  expect_snapshot_error(ems_model(err_model, closure_file, TESTC = 1))
+})
+
 test_that("ems_model returns valid tibble", {
   model <- ems_model(model_file, closure_file)
   expect_s3_class(model, "tbl_df")

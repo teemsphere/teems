@@ -278,8 +278,8 @@ build_model_err <- function() {
     invalid_coeff = "{.arg {nme}} is not declared in the model.",
     # test-ems_model.R: "partial read statement"
     invalid_read = "Partial {.field Read} statements are not supported.",
-    # leaving this in but there is not possible?
-    invalid_mod = "{.arg nme} is neither read in nor appearing on the LHS of a formula.",
+    # test-ems_model.R: "a value for a coefficient that is neither read nor assigned aborts"
+    invalid_mod = "{.arg {nme}} is neither read in nor assigned on the LHS of a formula in the model.",
     # test-ems_model.R: "invalid numeric to a formula"
     invalid_numeric = c("Directly assigned numeric values must be length 1.",
                         "To assign heterogeneous values, use a {.code data.frame} with the appropriate set columns."),

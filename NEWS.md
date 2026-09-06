@@ -1,4 +1,5 @@
 # teems (development version)
+* `ems_model()` names the coefficient when a value is passed for one that is neither read nor assigned by a formula (the message printed the literal `nme`); an unreachable duplicate of that check was removed
 * Runge-Kutta rework: stages combine in log-levels by default (`chart = "log"` in `ems_RK()`), so a percentage-change variable cannot reach -100% at any stage; the accept test is steered by percentage-change variables (`scope = "pct"`), first-same-as-last stage reuse, stage-level range-test/assertion retries, `error_norm`, `controller`, `h_init` and `guard` controls, and `"Heun"` as a second-order method; `ems_RK()` defaults to `eps_tolerance = 0.01` (measured: the accuracy of the previous driver for about a third of the factorizations)
 * The embedded Runge-Kutta error estimate is returned as `error_estimate` (was `error_metric`) and read from `sol.est` (was `sol.acc`): it is an indicator of the least-settled elements, not a bound
 * `model_diagnostics.txt` records the Runge-Kutta chart, norm, scope and controller, and the run's step and stage-solve counts with the rejection census

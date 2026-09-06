@@ -42,6 +42,10 @@
 
     x `NOT_A_COEFF` is not declared in the model.
 
+# a value for a coefficient that is neither read nor assigned aborts
+
+    x `TESTC` is neither read in nor assigned on the LHS of a formula in the model.
+
 # invalid numeric to a formula
 
     x Directly assigned numeric values must be length 1.

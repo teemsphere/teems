@@ -195,4 +195,4 @@ test_that("ems_custom_shock example runs", {
   expect_all_true(c(check1, check2))
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

@@ -1,23 +1,39 @@
-run_script <- function(name, write_dir) {
-  path <- test_path("inst", "scripts", name)
-  
-  if (!file.exists(path)) {
-    path <- test_path("..", "..", "inst", "scripts", name)
+# Source one example script from inst/scripts/<model> in its own
+# environment, with the inputs the scripts expect as free variables, and
+# return the logical checks it defines (`check`, `checks`, `var_check`,
+# `coeff_check`); a non-logical check (an all.equal message) is FALSE.
+run_script <- function(model,
+                       name,
+                       inputs,
+                       model_files,
+                       write_dir,
+                       services = NULL) {
+  path <- system.file("scripts", model, name, package = "teems")
+  if (!nzchar(path)) {
+    stop("Script not found: ", file.path(model, name))
   }
-  
-  if (!file.exists(path)) {
-    path <- system.file("scripts", name, package = "teems")
-  }
-  
-  if (!file.exists(path)) {
-    stop("Script not found: ", name)
-  }
-  
-  title <- tools::file_path_sans_ext(basename(name))
-  tempdir = file.path(write_dir, title)
+
+  tempdir <- file.path(write_dir, tools::file_path_sans_ext(name))
   dir.create(tempdir)
   ems_option_set(tempdir = tempdir)
-  source(path, local = parent.frame())
+
+  env <- new.env(parent = globalenv())
+  env$dat_input <- inputs$dat
+  env$par_input <- inputs$par
+  env$set_input <- inputs$set
+  env$year <- inputs$year
+  env$model_file <- model_files[["model_file"]]
+  env$closure_file <- model_files[["closure_file"]]
+  env$services <- services
+  source(path, local = env)
+
+  checks <- mget(
+    c("check", "checks", "var_check", "coeff_check"),
+    envir = env,
+    ifnotfound = list(NULL)
+  )
+  checks <- Filter(Negate(is.null), checks)
+  unlist(lapply(checks, function(x) if (is.logical(x)) x else FALSE))
 }
 
 nest_temp <- function(name,

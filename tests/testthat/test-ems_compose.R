@@ -165,4 +165,4 @@ test_that("ems_compose errors when model run has not taken place", {
                         variant = variant)
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

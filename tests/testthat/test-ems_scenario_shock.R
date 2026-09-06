@@ -175,4 +175,4 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
   ))
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

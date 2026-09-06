@@ -201,6 +201,82 @@ test_that("ems_data errors when dots passed without names", {
   ))
 })
 
+full_data <- ems_data(
+  dat_input = dat_input,
+  par_input = par_input,
+  set_input = set_input,
+  REG = "full",
+  ACTS = "full",
+  ENDW = "full"
+)
+
+agg_data <- ems_data(
+  dat_input = dat_input,
+  par_input = par_input,
+  set_input = set_input,
+  REG = "big3",
+  ACTS = "macro_sector",
+  ENDW = "labor_agg"
+)
+
+test_that("aggregation conserves every data header total", {
+  # value headers (class "dat") are sums over the aggregated elements,
+  # so their totals are invariant to the mapping; parameters are
+  # weighted and sets relabelled, neither is a sum
+  dat_headers <- names(agg_data)[vapply(agg_data, inherits, TRUE, "dat")]
+  expect_true(length(dat_headers) > 20L)
+  expect_setequal(dat_headers, names(full_data)[vapply(full_data, inherits, TRUE, "dat")])
+  # 1e-6: HAR values are single precision, so the two summation orders
+  # differ by float32 accumulation (XTRV measures 2.4e-8)
+  totals <- vapply(dat_headers, function(h) {
+    isTRUE(all.equal(
+      sum(full_data[[h]]$Value),
+      sum(agg_data[[h]]$Value),
+      tolerance = 1e-6
+    ))
+  }, TRUE)
+  expect_all_true(totals)
+})
+
+test_that("aggregated headers carry the mapped elements and the raw ones dropped out", {
+  vdfb <- agg_data[["VDFB"]]
+  expect_setequal(unique(vdfb$REG), c("chn", "usa", "row"))
+  expect_setequal(
+    unique(vdfb$ACTS),
+    c("crops", "livestock", "food", "mnfcs", "svces")
+  )
+  expect_false(any(unique(full_data[["VDFB"]]$REG) %in% c("row")))
+  # the aggregated table is dense over its set columns
+  expect_identical(nrow(vdfb), 5L * 5L * 3L)
+  expect_false(anyNA(vdfb$Value))
+})
+
+test_that("a CSV mapping reproduces the internal mapping it was written from", {
+  big3 <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG[, c("REG", "big3")]
+  write.csv(big3, REG_csv, row.names = FALSE)
+  csv_data <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = REG_csv,
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  expect_identical(names(csv_data), names(agg_data))
+  same <- purrr::map2_lgl(csv_data, agg_data, function(a, b) {
+    isTRUE(all.equal(a, b, check.attributes = FALSE))
+  })
+  expect_all_true(same)
+})
+
+test_that("subsetting an ems_data object keeps its class and metadata", {
+  sub <- agg_data[c("VDFB", "EVFB")]
+  expect_s3_class(sub, "ems_data")
+  expect_identical(names(sub), c("VDFB", "EVFB"))
+  expect_identical(attr(sub, "metadata"), attr(agg_data, "metadata"))
+  expect_identical(sub[["VDFB"]], agg_data[["VDFB"]])
+})
+
 test_that("ems_data examples work", {
   # The following examples require input data. See
   # https://teemsphere.github.io/ to get started.
@@ -239,4 +315,4 @@ test_that("ems_data examples work", {
   expect_true(check)
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

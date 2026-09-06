@@ -48,6 +48,16 @@ static_model <- ems_model(static_model_file, static_closure_file)
 
 variant <- Sys.info()["sysname"]
 
+# the shock behind every equivalence test below: a real productivity
+# shock, so that alternative TAB forms, condensation and the solution /
+# matrix methods are compared on a non-trivial solution (a numeraire
+# shock scales every price uniformly and cannot discriminate a defect)
+real_shock <- ems_uniform_shock("aoall", 5)
+# the intertemporal model at three time steps is under-resolved by
+# Gragg 2-4-8 on two subintervals under +5 (43% of variables to four
+# digits, an accuracy warning); +2 resolves it without one
+dynamic_shock <- ems_uniform_shock("aoall", 2)
+
 # snapshot normaliser: the log stamp and the resolved image tag are
 # environment-specific
 norm_cmd <- function(lines) {
@@ -409,9 +419,8 @@ test_that("set equality solves identically through an equation quantifier", {
 })
 
 test_that("conditional set builders resolve identically in R and the solver (manual 10.1.2)", {
-  numeraire <- ems_uniform_shock("pfactwld", 5)
   nest_temp("solve_setbuild_base", write_dir)
-  cmf_base <- ems_deploy(static_data, static_model, numeraire)
+  cmf_base <- ems_deploy(static_data, static_model, real_shock)
   base <- ems_solve(cmf_base)
   base_size <- readRDS(file.path(dirname(cmf_base), "metadata.rds"))$system_size
 
@@ -434,7 +443,7 @@ test_that("conditional set builders resolve identically in R and the solver (man
   sb_model <- ems_model(sb_file, static_closure_file)
   # the builder statement reaches the solver verbatim; R mirrors it
   expect_true(any(grepl("= (all,e,ENDW: EVFB", sb_model$tab, fixed = TRUE)))
-  cmf_sb <- ems_deploy(static_data, sb_model, numeraire)
+  cmf_sb <- ems_deploy(static_data, sb_model, real_shock)
   # R-side elements size the system
   sb_size <- readRDS(file.path(dirname(cmf_sb), "metadata.rds"))$system_size
   expect_equal(sb_size, base_size + length(expected))
@@ -463,7 +472,6 @@ test_that("conditional set builders resolve identically in R and the solver (man
 })
 
 test_that("expression IF conditions solve identically to a hand-staged helper (LULC shape)", {
-  numeraire <- ems_uniform_shock("pfactwld", 5)
   probe <- function(cond_a, cond_b, extra = character(0)) {
     write_modified_model(
       static_model_file,
@@ -492,7 +500,7 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
     )
   )
   hand_model <- ems_model(hand_file, static_closure_file)
-  hand_out_cmf <- ems_deploy(static_data, hand_model, numeraire)
+  hand_out_cmf <- ems_deploy(static_data, hand_model, real_shock)
   hand_out <- ems_solve(hand_out_cmf)
 
   nest_temp("solve_ifexpr", write_dir)
@@ -505,7 +513,7 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
   expect_true(any(grepl("Formula (all,c,COMM)(all,r,REG) IFX1(c,r) = VDB(c,r)*VST(c,r)", expr_model$tab, fixed = TRUE)))
   expect_true(any(grepl("Formula (initial) (all,c,COMM)(all,r,REG) IFX2(c,r) = VDB(c,r)*VST(c,r)", expr_model$tab, fixed = TRUE)))
   expect_false(any(grepl("IFX3", expr_model$tab, fixed = TRUE)))
-  cmf_expr <- ems_deploy(static_data, expr_model, numeraire)
+  cmf_expr <- ems_deploy(static_data, expr_model, real_shock)
   expr_out <- ems_solve(cmf_expr)
 
   ifxv <- expr_out$dat[[which(expr_out$name == "ifxv")]]
@@ -707,7 +715,6 @@ test_that("netcut proxy rewrite solves identically to a hand proxy (roadmap 6.5 
 
 test_that("condensed models solve equivalently and recover backsolved values (roadmap 6.2)", {
   nest_temp("solve_condense", write_dir)
-  numeraire <- ems_uniform_shock("pfactwld", 5)
   bs <- c(
     "qint", "qva", "pva", "pint", "qfa", "pca", "ps", "qfe", "afe",
     "pfd", "pfm"
@@ -719,9 +726,9 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
     ems_model(static_model_file, static_closure_file, omit = om, backsolve = bs)
   )
 
-  plain_cmf <- ems_deploy(static_data, static_model, numeraire)
+  plain_cmf <- ems_deploy(static_data, static_model, real_shock)
   plain <- ems_solve(plain_cmf, solution_method = "Gragg", matrix_method = "LU")
-  cond_cmf <- ems_deploy(static_data, cond_model, numeraire)
+  cond_cmf <- ems_deploy(static_data, cond_model, real_shock)
   cond <- ems_solve(cond_cmf, solution_method = "Gragg", matrix_method = "LU")
 
   # backsolved variables are recovered by the solver and reported;
@@ -738,8 +745,8 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
   }
 
   # exogenous-shock identity survives condensation
-  pfactwld <- cond$dat[[match("pfactwld", cond$name)]]
-  expect_true(max(abs(pfactwld$Value - 5)) < 1e-6)
+  aoall <- cond$dat[[match("aoall", cond$name)]]
+  expect_true(max(abs(aoall$Value - 5)) < 1e-6)
 })
 
 test_that("deploy metadata records the condensation state", {
@@ -816,8 +823,7 @@ test_that("condensed intertemporal deployments are advised against (roadmap 6.2)
 
 test_that("ems_solve returns the same output across static matrix methods", {
   nest_temp("solve_static_method", write_dir)
-  numeraire <- ems_uniform_shock("pfactwld", 5)
-  cmf_path <- ems_deploy(static_data, static_model, numeraire)
+  cmf_path <- ems_deploy(static_data, static_model, real_shock)
   LU <- ems_solve(
     cmf_path,
     solution_method = "Gragg",
@@ -839,8 +845,7 @@ test_that("ems_solve returns the same output across static matrix methods", {
 
 test_that("ems_solve returns the same output across dynamic matrix methods", {
   nest_temp("solve_dynamic_method", write_dir)
-  numeraire <- ems_uniform_shock("pfactwld", 5)
-  cmf_path <- ems_deploy(dynamic_data, dynamic_model, numeraire)
+  cmf_path <- ems_deploy(dynamic_data, dynamic_model, dynamic_shock)
   LU <- ems_solve(
     cmf_path,
     solution_method = "Gragg",
@@ -872,8 +877,7 @@ test_that("ems_solve returns the same output across dynamic matrix methods", {
 
 test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (roadmap 6.3c)", {
   nest_temp("solve_rk_e2e", write_dir)
-  numeraire <- ems_uniform_shock("pfactwld", 5)
-  cmf_path <- ems_deploy(static_data, static_model, numeraire)
+  cmf_path <- ems_deploy(static_data, static_model, real_shock)
   gragg <- ems_solve(cmf_path, solution_method = "Gragg")
   rk4 <- ems_solve(cmf_path, solution_method = "RK4", steps = 8L)
   # compare with the solver's accuracy metric (absolute below 1,
@@ -881,16 +885,20 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   # differences of $-million components carry float32 cancellation
   # noise on which any cross-method comparison is loose (the
   # documented Johansen-vs-Gragg floor is the same order)
+  # `u` is excluded as well: its asymptote is unconverged by every
+  # method under a real shock (values of 1e7 and up on one region), so
+  # it measures nothing about method agreement
   rk_metric <- function(a, b) {
-    keep <- !grepl("^(ev|wev|cnt|del_)", a$name, ignore.case = TRUE)
+    keep <- !grepl("^(ev|wev|cnt|del_)", a$name, ignore.case = TRUE) &
+      a$name != "u"
     g <- unlist(lapply(a$dat[keep], function(d) d$Value))
     r <- unlist(lapply(b$dat[keep], function(d) d$Value))
     max(abs(g - r) / pmax(1, abs(g)))
   }
-  # 2e-4: on this rig the residual is Gragg's own noise on u (its exact
-  # value under a pure numeraire shock is 0; Gragg 2-4-8 leaves ~1e-4,
-  # log-chart RK4 ~1e-7), so the bound is on Gragg, not on RK
-  expect_lt(rk_metric(gragg, rk4), 2e-4)
+  # 2e-3: measured 4.9e-4 (XTAXD) for both RK4 and DoPri54 against
+  # Gragg 2-4-8 under aoall +5 on big3; Johansen sits at 2.45, so the
+  # bound separates a method defect from extrapolation noise
+  expect_lt(rk_metric(gragg, rk4), 2e-3)
 
   # fixed-step explicit runs carry no accuracy metrics
   expect_false("error_estimate" %in% colnames(rk4$dat[["qgdp"]]))
@@ -903,8 +911,8 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   expect_true("error_estimate" %in% colnames(dopri$dat[["qgdp"]]))
   expect_true(all(dopri$dat[["qgdp"]]$error_estimate >= 0))
   # the exogenous shock identity survives the RK integration
-  expect_equal(unique(round(dopri$dat[["pfactwld"]]$Value, 6)), 5)
-  expect_lt(rk_metric(gragg, dopri), 2e-4)
+  expect_equal(unique(round(dopri$dat[["aoall"]]$Value, 6)), 5)
+  expect_lt(rk_metric(gragg, dopri), 2e-3)
 })
 
 test_that("ems_solve examples work", {
@@ -924,4 +932,4 @@ test_that("ems_solve examples work", {
             n_tasks = 6), "tbl_df")
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

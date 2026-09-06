@@ -267,4 +267,4 @@ test_that("solve_in_situ example works", {
   expect_s3_class(output, "tbl_df")
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

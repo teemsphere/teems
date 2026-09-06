@@ -160,4 +160,4 @@ test_that("ems_uniform examples work", {
                     value = -1), "list")
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

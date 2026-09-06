@@ -54,13 +54,6 @@
     i Valid subsets include *none*.
     i Call: `ems_swap(var = "tfd", REGr = "not_an_ele")`
 
-# ems_swap errors when endogenous components are selected to swap out
-
-    x Elements or subsets designated for a swap are not part of the set REGr: not_an_ele.
-    i Valid elements include "chn", "row", and "usa".
-    i Valid subsets include *none*.
-    i Call: `ems_swap(var = "tfd", REGr = "not_an_ele")`
-
 # full ems_swap out var not fully exogenous
 
     x "qe" cannot be fully swapped out; it is not fully exogenous.

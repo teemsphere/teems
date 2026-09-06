@@ -981,7 +981,7 @@ test_that("GTAP standard condensation condenses cleanly", {
   )
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)
 test_that("ems_model rejects a non-logical auto_omit", {
   expect_snapshot_error(ems_model(model_file, closure_file, auto_omit = NA))
 })

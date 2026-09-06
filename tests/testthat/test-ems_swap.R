@@ -121,12 +121,6 @@ test_that("ems_swap errors when invalid element provided to swap-out", {
   expect_snapshot_error(ems_deploy(dat, model, swap_out = swap_out))
 })
 
-test_that("ems_swap errors when endogenous components are selected to swap out", {
-  nest_temp("invalid_swap7", write_dir)
-  swap_out <- ems_swap("tfd", REGr = "not_an_ele")
-  expect_snapshot_error(ems_deploy(dat, model, swap_out = swap_out))
-})
-
 test_that("full ems_swap out var not fully exogenous", {
   nest_temp("deploy_swap", write_dir)
   swap_out <- ems_swap("qe")
@@ -208,4 +202,4 @@ test_that("ems_swap examples work", {
   expect_type(ems_swap("qxs", COMMc = "NMRG", ALLTIMEt = "FWDTIME"), "list") # in
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

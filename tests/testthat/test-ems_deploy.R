@@ -324,4 +324,4 @@ test_that("auto_omit is skipped when a shock file is supplied", {
   expect_identical(condense$n_auto_omit, 0L)
 })
 
-unlink(tools::R_user_dir("teems", "cache"), recursive = TRUE)
+unlink(write_dir, recursive = TRUE)

@@ -55,6 +55,14 @@
       last_term <- after
     }
   }
+  # complement of any shape (manual 11.7): a named first term followed
+  # only by top-level '-' operators makes the result a subset of it
+  top_ops <- toks[is_op & depth == 0]
+  complement_of <- NA_character_
+  if (length(top_ops) > 0L && all(top_ops %=% "-") && length(toks) > 0L &&
+    !toks[1] %in% c("(", ")") && !grepl('^"', toks[1])) {
+    complement_of <- toks[1]
+  }
   list(
     named = named,
     ops = ops,
@@ -62,6 +70,7 @@
     all_intersect = length(ops) > 0 && all(ops %=% "&"),
     simple_complement = length(ops) %=% 1L && ops[1] %=% "-" &&
       length(named) %=% 2L && !any(is_paren) && !any(is_quote),
+    complement_of = complement_of,
     last_top_op = last_top_op,
     last_term = last_term
   )

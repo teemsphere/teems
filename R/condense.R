@@ -94,6 +94,7 @@
     backsolve = backsolve,
     var_extract = var_extract,
     eq_names = eq_names,
+    quiet = quiet,
     call = call
   )
   pairs <- pairs[!duplicated(purrr::map_chr(pairs, function(p) {
@@ -266,6 +267,7 @@
                                 backsolve,
                                 var_extract,
                                 eq_names,
+                                quiet = FALSE,
                                 call) {
   pairs <- list()
 
@@ -307,6 +309,24 @@
     } else {
       e_idx <- match(tolower(action$eq), tolower(eq_names))
       if (is.na(e_idx)) {
+        # an equation the IF rewrite split into element partitions
+        # (E_xA, E_xB, ...) cannot define a single backsolve: the
+        # variable stays in the system (upstream GTAPv7 CNTqfr shape)
+        parts <- eq_names[grepl(
+          paste0("^", action$eq, "[A-Z]+$"), eq_names, ignore.case = TRUE
+        )]
+        if (length(parts) > 0L) {
+          if (!quiet) {
+            skip_var <- bs_var
+            skip_eq <- action$eq
+            skip_parts <- parts
+            .cli_action(model_info$backsolve_partitioned,
+              action = c("inform", "inform"),
+              call = call
+            )
+          }
+          next
+        }
         invalid_eq <- action$eq
         .cli_action(model_err$invalid_backsolve_eq,
           action = "abort",

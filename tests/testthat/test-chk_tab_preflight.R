@@ -142,10 +142,11 @@ test_that("over-length set headers abort", {
 test_that("math statements without = abort", {
   # a plainly malformed Formula
   expect_preflight_error("Formula NOEQ 1;")
-  # an unrecognized keyword is folded into the preceding statement as
-  # an implicit continuation; it surfaces as a math statement missing =
-  # (used to crash the extract parsers with a raw purrr error)
-  expect_preflight_error("Frobnicate all the things;")
+  # an unrecognized keyword surfaces as a math statement missing = (it
+  # used to crash the extract parsers with a raw purrr error); grafted
+  # onto a Formula explicitly, since an implicit continuation folds
+  # into whatever statement precedes it in the fixture
+  expect_preflight_error("Formula Frobnicate all the things;")
 })
 
 # Formula & Equation is supported since C0 (split into its 10.9.1

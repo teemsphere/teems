@@ -442,7 +442,12 @@ build_model_info <- function() {
       "Backsolved values remain available in solve outputs; plain substitution is not implemented."
     ),
     # test-ems_model.R: "ignore_condense disables in-TAB condensation"
-    condense_ignored = "{n_ignored} in-TAB condensation statement{?s} ignored ({.code ignore_condense = TRUE})."
+    condense_ignored = "{n_ignored} in-TAB condensation statement{?s} ignored ({.code ignore_condense = TRUE}).",
+    # test-ems_model.R: "GTAPv7 condenses automatically from its in-TAB statements"
+    backsolve_partitioned = c(
+      "Backsolve of {.val {skip_var}} skipped: its defining equation {.val {skip_eq}} was split by the IF rewrite into {.val {skip_parts}}.",
+      "A variable defined piecewise over set elements stays in the solved system."
+    )
   )
 }
 

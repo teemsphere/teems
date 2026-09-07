@@ -17,11 +17,14 @@
   bin_sets <- bin_sets[bin_sets$setname %in% tab_set_names,]
   r_idx <- match(bin_sets$setname, tab_set_names)
 
-  if (!all(purrr::map2_lgl(
+  same <- purrr::map2_lgl(
     tab_sets[r_idx],
     bin_sets$ele,
     identical
-  ))) {
+  )
+  if (!all(same)) {
+    bad_sets <- toupper(bin_sets$setname[!same])
+    cli::cli_inform("Sets whose parsed elements differ from the solver's: {.val {bad_sets}}.")
     .cli_action(compose_err$set_mismatch,
       action = "abort",
       call = call,

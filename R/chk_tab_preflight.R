@@ -527,7 +527,7 @@
   }
   ps <- model$postsim
   typ <- tolower(model$type)
-  ps_names <- tolower(model$name[ps & typ %in% c("coefficient", "set", "subset", "file")])
+  ps_names <- tolower(model$name[ps & typ %in% c("coefficient", "set", "subset", "file", "mapping")])
   ps_names <- unique(ps_names[!is.na(ps_names) & nzchar(ps_names)])
   coef_ord <- tolower(model$name[!ps & typ == "coefficient"])
   coef_ps <- tolower(model$name[ps & typ == "coefficient"])
@@ -537,7 +537,9 @@
   # PostSim-declared names
   if (length(ps_names) > 0L) {
     exec_ord <- which(!ps & typ %in% c("formula", "equation", "update", "assertion", "read"))
-    scan <- tolower(gsub("#[^#]*#", "", model$tab[exec_ord]))
+    # labels and quoted element literals are not names (a PostSim
+    # coefficient INVESTMENT vs the element "Investment" of GDPEX)
+    scan <- tolower(gsub('"[^"]*"', "", gsub("#[^#]*#", "", model$tab[exec_ord])))
     hits <- vapply(
       ps_names,
       function(n) any(grepl(paste0("\\b", n, "\\b"), scan)),

@@ -17,8 +17,8 @@
       ems_deploy(static_data, static_model, swap_out = "pop")
     Condition
       Error in `ems_deploy()`:
-      x The closure does not square the system: 3488 endogenous variable elements against 3485 equation elements.
-      i Arithmetic: 4469 variable elements - 981 exogenous elements (closure after swaps) = 3488 endogenous; the equation system determines exactly 3485, so 3 elements must still be exogenized.
+      x The closure does not square the system: 3497 endogenous variable elements against 3494 equation elements.
+      i Arithmetic: 4478 variable elements - 981 exogenous elements (closure after swaps) = 3497 endogenous; the equation system determines exactly 3494, so 3 elements must still be exogenized.
       i Candidates: exogenizing 3 elements of one of psave, qsave, pinv, kb, qst closes the gap exactly.
       i If the counts look right but the partition is structurally deficient, run `teems::ems_probe()` on the deployed model for a named diagnosis.
 
@@ -90,7 +90,7 @@
     Message
       i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
       i `matrix_method` "auto": using "DBBD" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.4%), n_tasks 2.
+      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=/home/mpc/.cache/R/teems/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -133,7 +133,7 @@
     Message
       i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
       i `matrix_method` "auto": using "LU" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition demd (9 blocks, border 15.4%), n_tasks 4.
+      i Structural evidence: 2,500,000 equations, no chain, partition demd (9 blocks, border 15.6%), n_tasks 4.
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=/home/mpc/.cache/R/teems/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 4 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -155,8 +155,8 @@
     Message
       i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
       i `matrix_method` "auto": using "DBBD" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.4%), n_tasks 2.
-      i Structural probe: full structural rank 3485 of 3485; the closure is structurally valid.
+      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
+      i Structural probe: full structural rank 3494 of 3494; the closure is structurally valid.
 
 # condensed deployments are advised against bordered methods (roadmap 6.2)
 

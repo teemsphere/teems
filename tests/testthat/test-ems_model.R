@@ -1032,6 +1032,28 @@ test_that("GTAPv6 condenses automatically from its in-TAB statements (gtap.sti)"
   )
 })
 
+test_that("GTAPv7 condenses automatically from its in-TAB statements (gtapv7.sti)", {
+  v7 <- ems_example("GTAPv7", write_dir)
+  expect_message(
+    model <- suppressWarnings(ems_model(v7[["model_file"]], v7[["closure_file"]])),
+    "split by the IF rewrite"
+  )
+  vars <- model[model$type == "Variable", ]
+  std_omit <- c(
+    "atall", "avaall", "tfe", "tfd", "tfm", "tgd", "tgm", "tpdall", "tpmall",
+    "tid", "tim"
+  )
+  expect_setequal(vars$name[vars$condense %in% "omit"], std_omit)
+  # 72 nominations less the four whose defining equations the IF rewrite
+  # partitioned (CNTqfr, CNTqgr, CNTalleffr, CNTtechr)
+  expect_identical(sum(vars$condense %in% "backsolve"), 68L)
+  expect_true(all(is.na(vars$condense[vars$name %in% c("CNTqfr", "CNTqgr", "CNTalleffr", "CNTtechr")])))
+  # the upstream PostSim report blocks ride along: products, $POS mappings
+  expect_true(all(c("UACT", "UCOM", "ALLOCEFF") %in% model$name[model$type == "Set"]))
+  expect_true(all(c("UCOM2COMM", "UACT2ACTS") %in% model$name[model$type == "Mapping"]))
+  expect_true(sum(model$postsim) > 100L)
+})
+
 unlink(write_dir, recursive = TRUE)
 test_that("ems_model rejects a non-logical auto_omit", {
   expect_snapshot_error(ems_model(model_file, closure_file, auto_omit = NA))

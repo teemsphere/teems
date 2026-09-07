@@ -44,7 +44,11 @@ static_model <- "GTAPv7"
 static_model_files <- ems_example(static_model, write_dir)
 static_model_file <- static_model_files[["model_file"]]
 static_closure_file <- static_model_files[["closure_file"]]
-static_model <- ems_model(static_model_file, static_closure_file)
+# the vetted GTAPv7 file condenses on load (gtapv7.sti); the fixture for
+# the tests below is the full system
+static_model <- suppressMessages(suppressWarnings(
+  ems_model(static_model_file, static_closure_file, ignore_condense = TRUE)
+))
 
 variant <- Sys.info()["sysname"]
 
@@ -335,7 +339,7 @@ test_that("matrix_method auto probes the deployed structure and records the deci
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
   expect_true(any(grepl("^Matrix method: DBBD", record)))
   expect_true(any(grepl(
-    "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.4%\\), n_tasks 2\\)$",
+    "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.5%\\), n_tasks 2\\)$",
     record
   )))
   expect_true(any(grepl("^  thresholds: probe_min_size 1500000", record)))
@@ -351,7 +355,7 @@ test_that("matrix_method auto skips the probe below the size threshold and recor
   )))
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
   expect_true(any(grepl(
-    "^Matrix method auto: LU \\(deploy metadata: 3,485 equations, n_tasks 1; structural probe skipped",
+    "^Matrix method auto: LU \\(deploy metadata: 3,494 equations, n_tasks 1; structural probe skipped",
     record
   )))
 })
@@ -360,7 +364,7 @@ test_that("deploy metadata records system size", {
   nest_temp("solve_size_meta", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
   metadata <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))
-  expect_identical(metadata$system_size, 3485)
+  expect_identical(metadata$system_size, 3494)
   expect_identical(metadata$n_reg, 3L)
 })
 
@@ -374,14 +378,14 @@ test_that("set expressions solve identically to pairwise forms", {
     static_model_file,
     NULL,
     .fn = function(m, t) {
-      old1 <- "COSTS # industry cost summary # = ENDW + NENDWCOSTS;"
+      old1 <- 'COSTS # industry cost summary # = "IntDom" + "IntImp" + ENDW + "PTAX"  ;'
       old2 <- "ENDWM # mobile endowments # = ENDW - ENDWFS;"
       stopifnot(grepl(old1, m, fixed = TRUE), grepl(old2, m, fixed = TRUE))
-      m <- sub(old1, "COSTS # industry cost summary # = (ENDW UNION NENDWCOSTS);", m, fixed = TRUE)
+      m <- sub(old1, 'COSTS # industry cost summary # = (("IntDom" + "IntImp") UNION ENDW) + "PTAX";', m, fixed = TRUE)
       sub(old2, "ENDWM # mobile endowments # = ENDW - ENDWF - ENDWS;", m, fixed = TRUE)
     }
   )
-  expr_model <- ems_model(expr_file, static_closure_file)
+  expr_model <- ems_model(expr_file, static_closure_file, ignore_condense = TRUE)
   cmf_expr <- ems_deploy(static_data, expr_model)
   expr_out <- ems_solve(cmf_expr)
   expect_equal(expr_out, base)
@@ -412,7 +416,7 @@ test_that("set equality solves identically through an equation quantifier", {
       sub(old2, sub("ENDWMS)", "ENDWMS2)", old2, fixed = TRUE), m, fixed = TRUE)
     }
   )
-  eq_model <- ems_model(eq_file, static_closure_file)
+  eq_model <- ems_model(eq_file, static_closure_file, ignore_condense = TRUE)
   cmf_eq <- ems_deploy(static_data, eq_model)
   eq_out <- ems_solve(cmf_eq)
   expect_equal(eq_out, base)
@@ -440,7 +444,7 @@ test_that("conditional set builders resolve identically in R and the solver (man
       sep = "\n"
     )
   )
-  sb_model <- ems_model(sb_file, static_closure_file)
+  sb_model <- ems_model(sb_file, static_closure_file, ignore_condense = TRUE)
   # the builder statement reaches the solver verbatim; R mirrors it
   expect_true(any(grepl("= (all,e,ENDW: EVFB", sb_model$tab, fixed = TRUE)))
   cmf_sb <- ems_deploy(static_data, sb_model, real_shock)
@@ -499,7 +503,7 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
       "Formula (all,c,COMM)(all,r,REG) PRDX(c,r) = VDB(c,r)*VST(c,r);"
     )
   )
-  hand_model <- ems_model(hand_file, static_closure_file)
+  hand_model <- ems_model(hand_file, static_closure_file, ignore_condense = TRUE)
   hand_out_cmf <- ems_deploy(static_data, hand_model, real_shock)
   hand_out <- ems_solve(hand_out_cmf)
 
@@ -507,7 +511,7 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
   expr_file <- probe(
     "VDB(c,r)*VST(c,r) > 5e11", "VDB(c,r)*VST(c,r) <= 5e11"
   )
-  expr_model <- ems_model(expr_file, static_closure_file)
+  expr_model <- ems_model(expr_file, static_closure_file, ignore_condense = TRUE)
   # one (always) helper shared by the equation's two conditions, one
   # (initial) helper for the formula host
   expect_true(any(grepl("Formula (all,c,COMM)(all,r,REG) IFX1(c,r) = VDB(c,r)*VST(c,r)", expr_model$tab, fixed = TRUE)))
@@ -570,15 +574,17 @@ test_that("IF formulas solve identically to their hand adaptations", {
         "Formula (all,c,COMM)(all,r,REG)\r\n",
         "    VXW(c,r) = VXDFOB(c,r) + IF[c in MARG, VST(c,r)];"
       )
+      # the 7.1 fixture carries the IF forms: graft the hand splits over
+      # them and compare
       stopifnot(
-        grepl(old_vcb, m, fixed = TRUE),
-        grepl(old_vxw, m, fixed = TRUE)
+        grepl(new_vcb, m, fixed = TRUE),
+        grepl(new_vxw, m, fixed = TRUE)
       )
-      m <- sub(old_vcb, new_vcb, m, fixed = TRUE)
-      sub(old_vxw, new_vxw, m, fixed = TRUE)
+      m <- sub(new_vcb, old_vcb, m, fixed = TRUE)
+      sub(new_vxw, old_vxw, m, fixed = TRUE)
     }
   )
-  if_model <- ems_model(if_file, static_closure_file)
+  if_model <- ems_model(if_file, static_closure_file, ignore_condense = TRUE)
   cmf_if <- ems_deploy(static_data, if_model)
   if_out <- ems_solve(cmf_if)
   expect_equal(if_out, base)
@@ -594,41 +600,55 @@ test_that("IF equations solve identically to their hand adaptations", {
     static_model_file,
     NULL,
     .fn = function(m, t) {
-      # E_qca / E_pca: indicator-coefficient adaptations -> original IF
-      old_qca <- paste0(
+      # the 7.1 fixture carries the IF forms (E_qca, E_pca, E_pds): graft
+      # the hand adaptations over them -- indicator coefficients for the
+      # data conditions, a MARG/NMRG domain split for the in-set IF
+      qca_span <- "qca\\(c,a,r\\) = IF\\[MAKES\\(c,a,r\\) gt 0,\\s*qo\\(a,r\\) - ETRAQ\\(a,r\\) \\* \\[ps\\(c,a,r\\) - po\\(a,r\\)\\]\\];"
+      pca_span <- "pca\\(c,a,r\\) = IF\\[MAKEB\\(c,a,r\\) gt 0,\\s*pds\\(c,r\\) - ESUBQ\\(c,r\\) \\* \\[qca\\(c,a,r\\) - qc\\(c,r\\)\\]\\];"
+      pds_span <- "(?s)Equation E_pds\\r?\\n.*?\\+ tradslack\\(c,r\\);"
+      stopifnot(
+        grepl(qca_span, m, perl = TRUE),
+        grepl(pca_span, m, perl = TRUE),
+        grepl(pds_span, m, perl = TRUE)
+      )
+      hand_qca <- paste0(
         "qca(c,a,r) = MAKESUNIT(c,a,r) * qo(a,r) - ",
         "MAKESUNIT(c,a,r) * ETRAQ(a,r) * [ps(c,a,r) - po(a,r)];"
       )
-      new_qca <- paste0(
-        "qca(c,a,r) = IF[MAKES(c,a,r) gt 0, ",
-        "qo(a,r) - ETRAQ(a,r) * [ps(c,a,r) - po(a,r)]];"
-      )
-      old_pca <- paste0(
+      hand_pca <- paste0(
         "pca(c,a,r) = MAKEBUNIT(c,a,r) * pds(c,r) - ",
         "MAKEBUNIT(c,a,r) * ESUBQ(c,r) * [qca(c,a,r) - qc(c,r)];"
       )
-      new_pca <- paste0(
-        "pca(c,a,r) = IF[MAKEB(c,a,r) gt 0, ",
-        "pds(c,r) - ESUBQ(c,r) * [qca(c,a,r) - qc(c,r)]];"
+      unit_s <- paste(
+        "Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG) MAKESUNIT(c,a,r) # make unit #;",
+        "Formula (all,c,COMM)(all,a,ACTS)(all,r,REG) MAKESUNIT(c,a,r) = 0;",
+        "Formula (all,c,COMM)(all,a,ACTS)(all,r,REG: MAKES(c,a,r) > 0) MAKESUNIT(c,a,r) = 1;",
+        "Equation E_qca", sep = "\r\n"
       )
-      # E_pdsm / E_pdsnm: hand domain split -> original in-set IF
-      new_pds <- paste0(
-        "Equation E_pds\r\n",
-        "# assures market clearing for commodities #\r\n",
-        "(all,c,COMM)(all,r,REG)\r\n",
-        "    qc(c,r) = DSSHR(c,r) * qds(c,r) + sum(d,REG, XSSHR(c,r,d) * qxs(c,r,d))\r\n",
-        "            + IF[c in MARG, STSHR(c,r) * qst(c,r)]\r\n",
-        "            + tradslack(c,r);"
+      unit_b <- paste(
+        "Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG) MAKEBUNIT(c,a,r) # make unit #;",
+        "Formula (all,c,COMM)(all,a,ACTS)(all,r,REG) MAKEBUNIT(c,a,r) = 0;",
+        "Formula (all,c,COMM)(all,a,ACTS)(all,r,REG: MAKEB(c,a,r) > 0) MAKEBUNIT(c,a,r) = 1;",
+        "Equation E_pca", sep = "\r\n"
       )
-      pds_span <- "(?s)Equation E_pdsm.*?Equation E_pdsnm.*?tradslack\\(c,r\\);"
-      stopifnot(
-        grepl(old_qca, m, fixed = TRUE),
-        grepl(old_pca, m, fixed = TRUE),
-        grepl(pds_span, m, perl = TRUE)
+      hand_pds <- paste(
+        "Equation E_pdsm",
+        "# assures market clearing for margin commodities #",
+        "(all,c,MARG)(all,r,REG)",
+        "    qc(c,r) = DSSHR(c,r) * qds(c,r) + sum(d,REG, XSSHR(c,r,d) * qxs(c,r,d))",
+        "            + STSHR(c,r) * qst(c,r)",
+        "            + tradslack(c,r);",
+        "Equation E_pdsnm",
+        "# assures market clearing for commodities #",
+        "(all,c,NMRG)(all,r,REG)",
+        "    qc(c,r) = DSSHR(c,r) * qds(c,r) + sum(d,REG, XSSHR(c,r,d) * qxs(c,r,d))",
+        "            + tradslack(c,r);", sep = "\r\n"
       )
-      m <- sub(old_qca, new_qca, m, fixed = TRUE)
-      m <- sub(old_pca, new_pca, m, fixed = TRUE)
-      m <- sub(pds_span, new_pds, m, perl = TRUE)
+      m <- sub(qca_span, hand_qca, m, perl = TRUE)
+      m <- sub(pca_span, hand_pca, m, perl = TRUE)
+      m <- sub("Equation E_qca", unit_s, m, fixed = TRUE)
+      m <- sub("Equation E_pca", unit_b, m, fixed = TRUE)
+      m <- sub(pds_span, hand_pds, m, perl = TRUE)
       # element-condition probe, value-checked below
       paste(
         m,
@@ -638,16 +658,13 @@ test_that("IF equations solve identically to their hand adaptations", {
       )
     }
   )
-  if_model <- ems_model(if_file, static_closure_file)
+  if_model <- ems_model(if_file, static_closure_file, ignore_condense = TRUE)
   cmf_if <- ems_deploy(static_data, if_model)
   if_out <- ems_solve(cmf_if)
 
-  # the synthesized indicators are ordinary coefficients and appear in
-  # the composed output (as MAKESUNIT does in the base model)
-  expect_setequal(
-    setdiff(if_out$name, base$name),
-    c("IFC1", "IFC2", "IFELEM")
-  )
+  # the hand indicators are ordinary coefficients and appear in the
+  # composed output, as the rewrite's synthesized ones do in the base
+  expect_true(all(c("MAKESUNIT", "MAKEBUNIT", "IFELEM") %in% setdiff(if_out$name, base$name)))
   common <- intersect(base$name, if_out$name)
   b2 <- base[match(common, base$name), ]
   i2 <- if_out[match(common, if_out$name), ]
@@ -723,7 +740,9 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
   # ps exercises the combined coefficient pivot (its defining equation
   # retains the variable on both sides after rearrangement)
   cond_model <- suppressWarnings(
-    ems_model(static_model_file, static_closure_file, omit = om, backsolve = bs)
+    ems_model(static_model_file, static_closure_file,
+      omit = om, backsolve = bs, ignore_condense = TRUE
+    )
   )
 
   plain_cmf <- ems_deploy(static_data, static_model, real_shock)
@@ -754,7 +773,8 @@ test_that("deploy metadata records the condensation state", {
   cond_model <- suppressWarnings(
     ems_model(static_model_file, static_closure_file,
       omit = c("tfd", "tfm"),
-      backsolve = c("qint", "qva")
+      backsolve = c("qint", "qva"),
+      ignore_condense = TRUE
     )
   )
   cmf_path <- ems_deploy(static_data, cond_model)
@@ -774,7 +794,9 @@ test_that("deploy metadata records the condensation state", {
 test_that("condensed deployments are advised against bordered methods (roadmap 6.2)", {
   nest_temp("solve_condense_advice", write_dir)
   cond_model <- suppressWarnings(
-    ems_model(static_model_file, static_closure_file, backsolve = c("qint", "qva"))
+    ems_model(static_model_file, static_closure_file,
+      backsolve = c("qint", "qva"), ignore_condense = TRUE
+    )
   )
   cmf_path <- ems_deploy(static_data, cond_model)
   expect_snapshot(
@@ -795,7 +817,9 @@ test_that("condensed deployments are advised against bordered methods (roadmap 6
 
   # omission alone does not densify anything
   om_model <- suppressWarnings(
-    ems_model(static_model_file, static_closure_file, omit = c("tfd", "tfm"))
+    ems_model(static_model_file, static_closure_file,
+      omit = c("tfd", "tfm"), ignore_condense = TRUE
+    )
   )
   om_cmf <- ems_deploy(static_data, om_model)
   om_msg <- testthat::capture_messages(
@@ -888,9 +912,11 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   # `u` is excluded as well: its asymptote is unconverged by every
   # method under a real shock (values of 1e7 and up on one region), so
   # it measures nothing about method agreement
+  # the PostSim report tables (sums of the same $-million welfare
+  # contributions) are excluded for the same reason
   rk_metric <- function(a, b) {
     keep <- !grepl("^(ev|wev|cnt|del_)", a$name, ignore.case = TRUE) &
-      a$name != "u"
+      a$name != "u" & a$type != "postsim"
     g <- unlist(lapply(a$dat[keep], function(d) d$Value))
     r <- unlist(lapply(b$dat[keep], function(d) d$Value))
     max(abs(g - r) / pmax(1, abs(g)))
@@ -963,6 +989,44 @@ test_that("GTAPv6 in-TAB condensation solves equivalently to the full system", {
   }
   aoall <- cond$dat[[match("aoall", cond$name)]]
   expect_true(max(abs(aoall$Value - 5)) < 1e-6)
+})
+
+test_that("GTAPv7 in-TAB condensation solves equivalently and the PostSim reports return", {
+  nest_temp("solve_condense_gtapv7", write_dir)
+  v7 <- ems_example("GTAPv7", write_dir)
+  cond_model <- suppressWarnings(suppressMessages(
+    ems_model(v7[["model_file"]], v7[["closure_file"]])
+  ))
+  plain_model <- suppressWarnings(suppressMessages(
+    ems_model(v7[["model_file"]], v7[["closure_file"]], ignore_condense = TRUE)
+  ))
+  solve_v7 <- function(model) {
+    cmf <- ems_deploy(static_data, model, real_shock)
+    ems_solve(cmf,
+      solution_method = "Gragg", matrix_method = "LU",
+      precision = "double"
+    )
+  }
+  plain <- solve_v7(plain_model)
+  cond <- solve_v7(cond_model)
+
+  cond_flags <- cond_model[cond_model$type == "Variable", ]
+  omitted <- cond_flags$name[cond_flags$condense %in% "omit"]
+  expect_false(any(omitted %in% cond$name))
+  common <- setdiff(intersect(plain$name, cond$name), omitted)
+  common <- common[common %in% plain_model$name[plain_model$type == "Variable"]]
+  expect_gt(length(common), 200L)
+  # 68 substitutions through synthesized pivots: agreement to 1e-7 of
+  # each variable's scale (measured 1e-8 on the welfare contributions)
+  for (v in common) {
+    a <- plain$dat[[match(v, plain$name)]]$Value
+    b <- cond$dat[[match(v, cond$name)]]$Value
+    expect_lt(max(abs(a - b)) / max(1, max(abs(a))), 1e-7, label = v)
+  }
+  # upstream welfare-report coefficients computed in PostSim
+  expect_true(all(c("WELFARE", "CNTalleff", "ATAX", "TRADE", "WTOT") %in% cond$name))
+  welfare <- cond$dat[[match("WELFARE", cond$name)]]
+  expect_true(all(c("alloc_a1", "tot_e1") %in% tolower(welfare[[2]])))
 })
 
 test_that("ems_solve examples work", {

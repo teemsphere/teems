@@ -27,12 +27,13 @@ model <- ems_model(model_file, closure_file)
 
 test_that("PostSim section rows are tagged in the model tibble", {
   expect_true("postsim" %in% names(model))
-  flagged <- model[which(model$postsim), ]
+  # the GTAPv7 fixture carries the upstream report blocks; look at the
+  # grafted section only
+  flagged <- model[which(model$postsim & grepl("PSKBSUM", model$tab)), ]
   expect_identical(nrow(flagged), 3L)
   expect_setequal(flagged$type, c("Coefficient", "Formula", "Assertion"))
-  expect_identical(
-    model$name[which(model$postsim & model$type == "Coefficient")],
-    "PSKBSUM"
+  expect_true(
+    "PSKBSUM" %in% model$name[which(model$postsim & model$type == "Coefficient")]
   )
 })
 
@@ -90,9 +91,11 @@ test_that("PostSim runs end-to-end through deploy, solve and compose", {
   cmf_path <- ems_deploy(dat, model)
   expect_false(any(grepl("PSKBSUM", readLines(cmf_path))))
   out <- ems_solve(cmf_path)
+  # the GTAPv7 fixture's own report blocks return alongside the graft
   ps <- out[out$type == "postsim", ]
+  expect_true(all(c("PSKBSUM", "WELFARE") %in% ps$name))
+  ps <- ps[ps$name == "PSKBSUM", ]
   expect_identical(nrow(ps), 1L)
-  expect_identical(ps$name, "PSKBSUM")
   ps_val <- as.numeric(ps$dat[[1]][["Value"]])
   vkb <- out[out$name == "VKB", ]
   expect_equal(ps_val, sum(vkb$dat[[1]][["Value"]]), tolerance = 1e-6)

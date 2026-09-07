@@ -61,7 +61,8 @@ test_that("mapping declarations and by_elements reads parse", {
     quiet = TRUE,
     call = NULL
   )
-  map_row <- model[model$type == "Mapping", ]
+  # the GTAPv7 fixture carries its own report-block mappings
+  map_row <- model[model$type == "Mapping" & model$name == "REGTOBLOC", ]
   expect_identical(nrow(map_row), 1L)
   expect_identical(map_row$name, "REGTOBLOC")
   expect_identical(map_row$qualifier_list, "(onto)")
@@ -90,7 +91,7 @@ test_that("mapping set references are canonicalized to declared case", {
     quiet = TRUE,
     call = NULL
   )
-  map_row <- model[model$type == "Mapping", ]
+  map_row <- model[model$type == "Mapping" & model$name == "RB", ]
   expect_identical(map_row$comp1, "REG")
   expect_identical(map_row$comp2, "BLOC")
   expect_true(is.na(map_row$qualifier_list))

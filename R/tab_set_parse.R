@@ -471,6 +471,9 @@
     }
     if (fo$simple_complement) {
       sets <- add_subs(sets, fo$named[1], c(nm, fo$named[2]))
+    } else if (!is.na(fo$complement_of)) {
+      # A - (...): the result is a subset of A (manual 11.7)
+      sets <- add_subs(sets, fo$complement_of, nm)
     } else if (fo$all_plus_union) {
       sets <- add_subs(sets, nm, fo$named)
     } else if (fo$all_intersect) {

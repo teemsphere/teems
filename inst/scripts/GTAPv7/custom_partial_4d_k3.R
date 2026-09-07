@@ -16,9 +16,12 @@ dat <- ems_data(
   ENDW = "labor_agg"
 )
 
+# atall is omitted by the model file's condensation statements; ignore
+# them so that it can be shocked
 model <- ems_model(
   model_file = model_file,
-  closure_file = closure_file
+  closure_file = closure_file,
+  ignore_condense = TRUE
 )
 
 REG <- c("chn", "usa", "row")

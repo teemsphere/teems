@@ -28,6 +28,7 @@
     --------------------
 
     May 2025: Syntactic modifications made for use within TEEMS
+    September 2026: Condensation statements appended (see end of file)
 
     Version 6.2 fixes bugs and provides minor enhancements:
         - EV_ALT, CNTdpar fix
@@ -2133,7 +2134,7 @@ Equation TINCRATIO
             VOA(i,r) * [-to(i,r)] + PTAX(i,r) * [pm(i,r) + qo(i,r)]);
 
 Coefficient (all,i,ENDW_COMM)(all,j,PROD_COMM)(all,r,REG)
-    REVSHR(i,j,r) # NA #;
+    REVSHR(i,j,r) # share of sector j in the revenue of endowment i in region r #;
 Formula (all,i,ENDW_COMM)(all,j,PROD_COMM)(all,r,REG)
     REVSHR(i,j,r) = VFM(i,j,r) / sum(k,PROD_COMM, VFM(i,k,r));
 Equation ENDW_PRICE
@@ -4044,6 +4045,87 @@ Equation TOT2eq
 (all,r,REG)
     tot2(r) = c1_r(r) + c2_r(r) - c3_r(r);
 
+
+!<
+    ------------
+    Condensation
+    ------------
+
+    The standard GTAP condensation (gtap.sti) is reproduced here as Omit
+    and Backsolve statements so that the model condenses automatically
+    when loaded by TEEMS (GEMPACK manual, section 10.16).  Omitted
+    variables are exogenous and unshocked; they are set to zero and
+    removed from the system.  Every backsolved variable is substituted
+    out of the solved system and recovered from its defining equation
+    after the solve, so values remain available in outputs.  The
+    Backsolve order below is that of gtap.sti and is order-dependent.
+
+    To shock an omitted variable, or to solve the full system, set
+    ems_model(ignore_condense = TRUE).
+>!
+
+Omit atall avaall tf tfd tfm tgd tgm tpd tpm;
+
+Backsolve pgov using GPRICEINDEX;
+Backsolve qg using GOVDMNDS;
+Backsolve pgd using GHHDPRICE;
+Backsolve pgm using GHHIPRICES;
+Backsolve pg using GCOMPRICE;
+Backsolve qgm using GHHLDAGRIMP;
+Backsolve qp using PRIVDMNDS;
+Backsolve ppd using PHHDPRICE;
+Backsolve ppm using PHHIPRICES;
+Backsolve qpm using PHHLDAGRIMP;
+Backsolve ao using AOWORLD;
+Backsolve ava using AVAWORLD;
+Backsolve qva using VADEMAND;
+Backsolve af using AFWORLD;
+Backsolve qf using INTDEMAND;
+Backsolve pfd using DMNDDPRICE;
+Backsolve pfm using DMNDIPRICES;
+Backsolve pf using ICOMPRICE;
+Backsolve qfm using INDIMP;
+Backsolve afe using AFEWORLD;
+Backsolve pva using VAPRICE;
+Backsolve qfe using ENDWDEMAND;
+Backsolve pfob using EXPRICES;
+Backsolve pms using MKTPRICES;
+Backsolve qtmfsd using QTRANS_MFSD;
+Backsolve ptrans using TRANSCOSTINDEX;
+Backsolve atmfsd using TRANSTECHANGE;
+Backsolve pcif using FOBCIF;
+Backsolve compvalad using COMPVALADEQ;
+Backsolve CNTqor using CONT_EV_qor;
+Backsolve CNTqoir using CONT_EV_qoir;
+Backsolve CNTqfer using CONT_EV_qfer;
+Backsolve CNTqfeir using CONT_EV_qfeir;
+Backsolve CNTqfeijr using CONT_EV_qfeijr;
+Backsolve CNTqfmr using CONT_EV_qfmr;
+Backsolve CNTqfmir using CONT_EV_qfmir;
+Backsolve CNTqfmijr using CONT_EV_qfmijr;
+Backsolve CNTqfdr using CONT_EV_qfdr;
+Backsolve CNTqfdir using CONT_EV_qfdir;
+Backsolve CNTqfdijr using CONT_EV_qfdijr;
+Backsolve CNTqpmr using CONT_EV_qpmr;
+Backsolve CNTqpmir using CONT_EV_qpmir;
+Backsolve CNTqpdr using CONT_EV_qpdr;
+Backsolve CNTqpdir using CONT_EV_qpdir;
+Backsolve CNTqgmr using CONT_EV_qgmr;
+Backsolve CNTqgmir using CONT_EV_qgmir;
+Backsolve CNTqgdr using CONT_EV_qgdr;
+Backsolve CNTqgdir using CONT_EV_qgdir;
+Backsolve CNTqxsr using CONT_EV_qxsr;
+Backsolve CNTqxsirs using CONT_EV_qxsirs;
+Backsolve CNTqimr using CONT_EV_qimr;
+Backsolve CNTqimisr using CONT_EV_qimisr;
+Backsolve CNTalleffr using CONT_EV_alleffr;
+Backsolve CNTtotr using CONT_EV_totr;
+Backsolve CNTtech_aoir using CONT_EV_tech_aoir;
+Backsolve CNTtech_afeijr using CONT_EV_tech_afeijr;
+Backsolve CNTtech_avajr using CONT_EV_tech_avajr;
+Backsolve CNTtech_afijr using CONT_EV_tech_afijr;
+Backsolve CNTtech_afmfdsd using CONT_EV_tech_afmfdsd;
+Backsolve CNTtech_amsirs using CONT_EV_tech_amsirs;
 
 !<
     =====================

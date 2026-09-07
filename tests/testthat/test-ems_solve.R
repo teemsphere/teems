@@ -915,6 +915,56 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   expect_lt(rk_metric(gragg, dopri), 2e-3)
 })
 
+test_that("GTAPv6 in-TAB condensation solves equivalently to the full system", {
+  nest_temp("solve_condense_gtapv6", write_dir)
+  v6_inputs <- GTAP_convert(dat_input, par_input, set_input, target = "GTAPv6")
+  v6_data <- ems_data(
+    dat_input = v6_inputs$dat,
+    par_input = v6_inputs$par,
+    set_input = v6_inputs$set,
+    REG = "big3",
+    PROD_COMM = "macro_sector",
+    ENDW_COMM = "labor_agg"
+  )
+  v6 <- ems_example("GTAPv6", write_dir)
+  cond_model <- ems_model(v6[["model_file"]], v6[["closure_file"]])
+  plain_model <- suppressMessages(
+    ems_model(v6[["model_file"]], v6[["closure_file"]], ignore_condense = TRUE)
+  )
+
+  # double precision so that the comparison is not bounded by float32
+  # roundoff in the coefficients (single precision agrees to ~1e-6)
+  solve_v6 <- function(model) {
+    cmf <- ems_deploy(v6_data, model, real_shock)
+    ems_solve(cmf,
+      solution_method = "Gragg", matrix_method = "LU",
+      precision = "double"
+    )
+  }
+  plain <- solve_v6(plain_model)
+  cond <- solve_v6(cond_model)
+
+  cond_flags <- cond_model[cond_model$type == "Variable", ]
+  omitted <- cond_flags$name[cond_flags$condense %in% "omit"]
+  backsolved <- cond_flags$name[cond_flags$condense %in% "backsolve"]
+  expect_false(any(omitted %in% cond$name))
+  expect_all_true(backsolved %in% cond$name)
+
+  # every surviving variable agrees to roundoff, backsolved ones included
+  # (relative to the variable's scale, absolute for the identically-zero
+  # slacks such as walraslack)
+  common <- setdiff(intersect(plain$name, cond$name), omitted)
+  common <- common[common %in% plain_model$name[plain_model$type == "Variable"]]
+  expect_gt(length(common), 150L)
+  for (v in common) {
+    a <- plain$dat[[match(v, plain$name)]]$Value
+    b <- cond$dat[[match(v, cond$name)]]$Value
+    expect_lt(max(abs(a - b)) / max(1, max(abs(a))), 1e-9, label = v)
+  }
+  aoall <- cond$dat[[match("aoall", cond$name)]]
+  expect_true(max(abs(aoall$Value - 5)) < 1e-6)
+})
+
 test_that("ems_solve examples work", {
   nest_temp("solve_examples", write_dir)
   cmf_path <- ems_deploy(dynamic_data,

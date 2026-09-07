@@ -42,7 +42,13 @@
     dom <- map_rows$comp1[i]
     cod <- map_rows$comp2[i]
     onto <- isTRUE(grepl("onto", map_rows$qualifier_list[i], ignore.case = TRUE))
-    rd <- reads[tolower(reads$name) == tolower(map_name), ][1, ]
+    rd <- reads[tolower(reads$name) == tolower(map_name), ]
+    if (nrow(rd) == 0L) {
+      # no by_elements Read: the solver values the mapping itself, from a
+      # Formula (manual 10.13.1) or a (project) qualifier (10.13.2)
+      next
+    }
+    rd <- rd[1, ]
     header <- rd$header
 
     raw_idx <- match(toupper(header), toupper(names(set_raw)))
@@ -164,5 +170,5 @@
     out[[i]] <- entry
     names(out)[i] <- header
   }
-  return(out)
+  return(out[nzchar(names(out))])
 }

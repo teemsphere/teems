@@ -198,7 +198,7 @@
     ps_end <- is_marker & grepl("end", tab$tab, ignore.case = TRUE)
     tab$postsim <- (cumsum(ps_begin) - cumsum(ps_end)) > 0 & !ps_begin
     ps_allowed <- c(
-      "set", "subset", "coefficient", "file",
+      "set", "subset", "coefficient", "file", "mapping",
       "read", "formula", "assertion", "zerodivide"
     )
     ps_bad <- tab$postsim & !is_marker &

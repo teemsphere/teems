@@ -80,7 +80,7 @@
   }
   # check for correct sets
   names(set_extract$mapping) <- set_extract$name
-  set_op_pattern <- 'union|intersect|[=+^&()"\\\\-]'
+  set_op_pattern <- 'union|intersect|[=+^&*()"\\\\-]|\\s[xX]\\s'
   set_extract$mapping <- purrr::map2(
     set_extract$definition,
     set_extract$mapping,

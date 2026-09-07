@@ -116,16 +116,6 @@
     x Set "ENDWMX" depends on coefficient "ENDOWFLAG" (header "EFLG"), which is excluded from the data by `full_exclude`.
     i The flag-header approach (GTAP `ENDOWFLAG`/`SLUG`) is not supported through the R package (the solver alone accepts it): declare the set explicitly, e.g. `Set ENDWM (capital, labor);`.
 
-# set products and $POS are rejected by name
-
-    x Set product `x` is not supported: Set UCOM = UNITC x COMM.
-    i The upstream GTAPv7 report block builds UACT/UCOM/ALLOCEFF this way (with `$POS` mapping formulas); teems' R-side aggregation supplies the identity, so drop that PostSim block or list the elements explicitly.
-
----
-
-    x The `$POS` intrinsic is not supported: "Formula (all,c,COMM) UCOM2COMM(c) = $POS(c)"
-    i teems' R-side aggregation supplies set-position identities (the upstream GTAPv7 UCOM2COMM/UACT2ACTS report mappings); drop the statement or the PostSim report block.
-
 # expression IF conditions (LULC shape, manual 11.4.5/11.4.6)
 
     x IF condition references variable "PDS": Equation E_ifbad (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifbad(c,r,t) = IF[VDB(c,r,t)*pds(c,r,t) > 0, pds(c,r,t)].

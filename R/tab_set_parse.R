@@ -299,22 +299,11 @@
     }
   }
 
-  # set product (manual 10.1.1.2): intentional reject
-  is_product <- !is.na(sets$definition) &
-    grepl("^\\s*=.*\\s[Xx]\\s", sets$definition)
-  if (any(is_product)) {
-    bad_set <- sets$name[is_product][1]
-    bad_def <- trimws(sets$definition[is_product][1])
-    .cli_action(model_err$set_product,
-      action = c("abort", "inform"),
-      call = call
-    )
-  }
-
   lapply(sets$definition[!is_set_eq & !is_builder], function(entry) {
     if (!is.na(entry)) {
+      # operators incl. the set product x (manual 10.1.6)
       if (!any(grepl(
-        '\\+|\\-|\\^|&|\\(|\\)|"|union|intersect',
+        '\\+|\\-|\\^|&|\\*|\\(|\\)|"|union|intersect|\\s[xX]\\s',
         entry,
         ignore.case = TRUE
       ))) {
@@ -351,7 +340,7 @@
   # downstream exact matches (implied subsets, .eval_set_expr) hold
   for (i in which(is_expr & !is_set_eq)) {
     toks <- .set_expr_tokens(sets$definition[[i]])
-    named <- toks[!toks %in% c("+", "-", "^", "&", "(", ")") &
+    named <- toks[!toks %in% c("+", "-", "^", "&", "*", "(", ")") &
       !grepl('^"', toks)]
     bad_refs <- character(0)
     for (tk in unique(named)) {

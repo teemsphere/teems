@@ -1,6 +1,6 @@
 #' Parse Mapping declarations (GEMPACK manual 11.9.1)
 #'
-#' `Mapping [(onto)] NAME from S1 to S2;` rows are carried through the
+#' `Mapping [(onto)] [(project)] NAME from S1 to S2;` rows are carried through the
 #' model tibble so the statement reaches the solver verbatim while the
 #' name joins the 11.2.1 namespace checks and the domain/codomain sets
 #' are validated against the declared sets. Set references differing
@@ -19,9 +19,10 @@
   parsed <- regmatches(
     maps$remainder,
     regexec(
-      "^\\s*(\\(\\s*onto\\s*\\)\\s*)?([A-Za-z][A-Za-z0-9_]*)\\s+from\\s+([A-Za-z][A-Za-z0-9_]*)\\s+to\\s+([A-Za-z][A-Za-z0-9_]*)\\s*$",
+      "^\\s*((?:\\(\\s*(?:onto|project)\\s*\\)\\s*)*)([A-Za-z][A-Za-z0-9_]*)\\s+from\\s+([A-Za-z][A-Za-z0-9_]*)\\s+to\\s+([A-Za-z][A-Za-z0-9_]*)\\s*$",
       maps$remainder,
-      ignore.case = TRUE
+      ignore.case = TRUE,
+      perl = TRUE
     )
   )
 
@@ -35,7 +36,8 @@
   }
 
   maps$qualifier_list <- purrr::map_chr(parsed, function(p) {
-    if (nzchar(trimws(p[2]))) "(onto)" else NA_character_
+    q <- tolower(gsub("\\s", "", p[2]))
+    if (nzchar(q)) q else NA_character_
   })
   maps$name <- purrr::map_chr(parsed, 3)
   maps$comp1 <- purrr::map_chr(parsed, 4)

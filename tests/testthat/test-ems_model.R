@@ -361,22 +361,31 @@ test_that("a Set built from an excluded coefficient aborts", {
   expect_snapshot_error(ems_model(err_model, closure_file))
 })
 
-test_that("set products and $POS are rejected by name", {
-  expect_snapshot_error(ems_model(
-    write_modified_model(model_file, "Set UNITC (c);\nSet UCOM = UNITC x COMM;"),
-    closure_file
-  ))
-  expect_snapshot_error(ems_model(
+test_that("set products, $POS and formula-assigned mappings load (manual 10.1.6, 11.5.6, 10.13.1)", {
+  # the upstream GTAPv7 welfare-report shape: unit-set products, a
+  # mapping assigned by a $POS formula, a (project) mapping
+  model <- ems_model(
     write_modified_model(
       model_file,
       paste(
-        "Mapping UCOM2COMM from COMM to COMM;",
-        "Formula (all,c,COMM) UCOM2COMM(c) = $POS(c);",
+        "Set UNITC (c);",
+        "Set UCOM = UNITC x COMM;",
+        "Mapping UCOM2COMM from UCOM to COMM;",
+        "Formula (all,c,UCOM) UCOM2COMM(c) = $POS(c);",
+        "Mapping (project) UCOM2COMMP from UCOM to COMM;",
+        "Coefficient (all,c,UCOM)(all,t,ALLTIME) UPOS(c,t) # position #;",
+        "Formula (all,c,UCOM)(all,t,ALLTIME) UPOS(c,t) = $POS(c) + $POS(UCOM2COMMP(c),COMM);",
         sep = "\n"
       )
     ),
     closure_file
-  ))
+  )
+  expect_true("UCOM" %in% model$name[model$type == "Set"])
+  expect_identical(
+    model$qualifier_list[model$type == "Mapping" & model$name == "UCOM2COMMP"],
+    "(project)"
+  )
+  expect_true(any(grepl("$POS(c)", model$tab, fixed = TRUE)))
 })
 
 test_that("set expressions parse (GEMPACK manual 10.1.1.1)", {
@@ -978,6 +987,48 @@ test_that("GTAP standard condensation condenses cleanly", {
   expect_identical(
     sum(grepl("^Backsolve ", strsplit(tab, "\n")[[1]])),
     length(std_backsolve)
+  )
+})
+
+test_that("GTAPv6 condenses automatically from its in-TAB statements (gtap.sti)", {
+  v6 <- ems_example("GTAPv6", write_dir)
+  model <- ems_model(v6[["model_file"]], v6[["closure_file"]])
+  vars <- model[model$type == "Variable", ]
+
+  # the nine gtap.sti omissions and 60 backsolves
+  std_omit <- c("atall", "avaall", "tf", "tfd", "tfm", "tgd", "tgm", "tpd", "tpm")
+  expect_setequal(vars$name[vars$condense %in% "omit"], std_omit)
+  expect_identical(sum(vars$condense %in% "backsolve"), 60L)
+  expect_identical(
+    vars$condense_eq[vars$name %in% "pgov"], "GPRICEINDEX"
+  )
+
+  # no retained equation references a backsolved variable
+  eqs <- model[model$type == "Equation", ]
+  bs <- vars[vars$condense %in% "backsolve", ]
+  for (r in seq_len(nrow(bs))) {
+    hits <- grepl(
+      paste0("(?<![[:alnum:]_])", bs$name[r], "(?![[:alnum:]_])"),
+      eqs$tab, perl = TRUE, ignore.case = TRUE
+    )
+    expect_identical(eqs$name[hits], bs$condense_eq[r], label = bs$name[r])
+  }
+
+  # the deployed TAB carries the backsolves and no omit statement
+  tab <- strsplit(teems:::.finalize_tab(model), "\n")[[1]]
+  expect_identical(sum(grepl("^Backsolve ", tab)), 60L)
+  expect_false(any(grepl("^Omit", tab, ignore.case = TRUE)))
+
+  # ignore_condense restores the full system
+  expect_message(
+    plain <- ems_model(v6[["model_file"]], v6[["closure_file"]],
+      ignore_condense = TRUE
+    ),
+    "ignored"
+  )
+  expect_true(all(is.na(plain$condense)))
+  expect_identical(
+    sum(plain$type == "Variable"), sum(model$type == "Variable")
   )
 })
 

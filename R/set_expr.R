@@ -1,9 +1,11 @@
 #' GEMPACK set expressions (manual 10.1.1.1): named sets, quoted single
 #' elements, '(' ')' grouping, and the operators UNION, INTERSECT, '+',
-#' '-' and '\' (a synonym of '-'), applied left to right. UNION is
-#' normalized to '^' and INTERSECT to '&'. NB keyword normalization is
+#' '-' and '\' (a synonym of '-'), applied left to right, plus the set
+#' product 'x' (manual 10.1.6), normalized to '*'. UNION is normalized
+#' to '^' and INTERSECT to '&'. NB keyword normalization is
 #' substring-based (matching the solver's parser), so set names must
-#' not contain "union" or "intersect".
+#' not contain "union" or "intersect", and the standalone token x is
+#' always the product operator.
 #'
 #' @keywords internal
 #' @noRd
@@ -13,7 +15,8 @@
   d <- gsub("\\\\", "-", d)
   d <- gsub("union", " ^ ", d, ignore.case = TRUE)
   d <- gsub("intersect", " & ", d, ignore.case = TRUE)
-  m <- gregexpr('"[^"]*"|[()+^&-]|[^()+^&"[:space:]-]+', d)[[1]]
+  d <- gsub("(?<=[[:space:])])[xX](?=[[:space:](])", " * ", d, perl = TRUE)
+  m <- gregexpr('"[^"]*"|[()+^&*-]|[^()+^&*"[:space:]-]+', d)[[1]]
   if (m[1] %=% -1L) {
     return(character(0))
   }
@@ -37,7 +40,7 @@
 #' @noRd
 .set_expr_info <- function(d) {
   toks <- .set_expr_tokens(d)
-  is_op <- toks %in% c("+", "-", "^", "&")
+  is_op <- toks %in% c("+", "-", "^", "&", "*")
   is_paren <- toks %in% c("(", ")")
   is_quote <- grepl('^"', toks)
   named <- toks[!is_op & !is_paren & !is_quote]
@@ -91,6 +94,10 @@
   pos <- 1L
   ready <- TRUE
   conflicts <- character(0)
+  # name of the set a term denotes ("" for a quoted element or a
+  # parenthesized subexpression): the product naming rule prefixes
+  # truncated element names with the factor set's first letter
+  term_name <- ""
 
   peek <- function() {
     if (pos <= length(toks)) toks[pos] else NA_character_
@@ -98,6 +105,7 @@
 
   term <- function() {
     tk <- peek()
+    term_name <<- ""
     if (is.na(tk)) {
       return(NULL)
     }
@@ -105,6 +113,7 @@
       pos <<- pos + 1L
       v <- expr()
       if (isTRUE(peek() %=% ")")) pos <<- pos + 1L
+      term_name <<- ""
       return(v)
     }
     pos <<- pos + 1L
@@ -116,6 +125,7 @@
         key = c("origin", "mapping")
       ))
     }
+    term_name <<- tk
     v <- mappings[[tk]]
     if (is.null(v)) {
       ready <<- FALSE
@@ -129,14 +139,34 @@
 
   expr <- function() {
     acc <- term()
-    while (isTRUE(peek() %in% c("+", "-", "^", "&"))) {
+    acc_name <- term_name
+    while (isTRUE(peek() %in% c("+", "-", "^", "&", "*"))) {
       op <- peek()
       pos <<- pos + 1L
       rhs <- term()
+      rhs_name <- term_name
       if (!ready || is.null(acc) || is.null(rhs)) {
         ready <<- FALSE
         return(NULL)
       }
+      if (op %=% "*") {
+        # set product (manual 10.1.6/11.7.11): first factor fastest;
+        # product elements have no data origin of their own
+        nms <- .set_product_names(
+          a = unique(acc$mapping), nm1 = acc_name,
+          b = unique(rhs$mapping), nm2 = rhs_name,
+          owner = owner, call = call
+        )
+        # unkeyed: a key would sort the rows and lose the product order,
+        # which is the element order the solver builds
+        acc <- data.table::data.table(
+          origin = nms,
+          mapping = nms
+        )
+        acc_name <- ""
+        next
+      }
+      acc_name <- ""
       if (op %=% "+") {
         # disjointness is an element-level requirement (manual
         # 10.1.1.1): a shared element with disjoint origin rows used
@@ -202,6 +232,57 @@
       out,
       "origin_conflict",
       if (length(conflicts) > 0L) conflicts else NULL
+    )
+  }
+  out
+}
+
+#' Element names of SET3 = SET1 x SET2 (GEMPACK manual 11.7.11): xx_yyy
+#' with the first factor varying fastest. When the longest names would
+#' exceed the 12-character element limit, the elements of a factor are
+#' truncated to "<first letter of the factor set><element number><leading
+#' characters that fit>": both factors to 6 and 5 characters when both
+#' are long, otherwise the long one to 11 minus the short one's length.
+#' Mirrors set_product_names() in the solver (tab_parse.c) exactly.
+#'
+#' @keywords internal
+#' @noRd
+.set_product_names <- function(a, nm1, b, nm2, owner, call) {
+  mx1 <- max(nchar(a), 0L)
+  mx2 <- max(nchar(b), 0L)
+  lim1 <- 0L
+  lim2 <- 0L
+  if (mx1 + mx2 > 11L) {
+    if (mx1 <= 5L) {
+      lim2 <- 11L - mx1
+    } else if (mx2 <= 5L) {
+      lim1 <- 11L - mx2
+    } else {
+      lim1 <- 6L
+      lim2 <- 5L
+    }
+  }
+  letter <- function(nm) {
+    if (nzchar(nm)) tolower(substr(nm, 1L, 1L)) else tolower(substr(owner, 1L, 1L))
+  }
+  trunc_names <- function(x, nm, lim) {
+    if (lim == 0L) {
+      return(x)
+    }
+    pre <- paste0(letter(nm), seq_along(x))
+    room <- pmax(lim - nchar(pre), 0L)
+    paste0(pre, substr(x, 1L, room))
+  }
+  e1 <- trunc_names(a, nm1, lim1)
+  e2 <- trunc_names(b, nm2, lim2)
+  # element of the first factor varies fastest
+  out <- as.vector(outer(e1, e2, function(x, y) paste0(x, "_", y)))
+  if (anyDuplicated(out)) {
+    bad_set <- owner
+    dup_ele <- out[duplicated(out)][1]
+    .cli_action(model_err$set_product_dup,
+      action = "abort",
+      call = call
     )
   }
   out

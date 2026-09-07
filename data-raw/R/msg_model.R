@@ -5,8 +5,8 @@ build_model_err <- function() {
       "Statement type{?s} {.val {ps_bad_types}} {?is/are} not allowed in
       a PostSim section.",
       "PostSim sections may contain Set, Subset, Coefficient, File,
-      Read, Formula, Assertion, and Zerodivide statements (GEMPACK
-      manual 12.2.1)."
+      Mapping, Read, Formula, Assertion, and Zerodivide statements
+      (GEMPACK manual 12.2.1)."
     ),
     # pre-flight TAB validators (chk_tab_preflight.R); solver
     # counterparts inventoried in dev/validation_table.md
@@ -324,21 +324,13 @@ build_model_err <- function() {
     ),
     # test-ems_model.R: "unparseable set definition"
     invalid_set_def = "Unparseable {.field Set} definition detected: {.field {bad_def}}.",
-    # intentional rejects (GTAPv7 upstream PostSim welfare report):
-    # test-ems_model.R: "set products and $POS are rejected by name"
     # test-ems_model.R: "a Set built from an excluded coefficient aborts"
     exclude_set_dep = c(
       "{.field Set} {.val {bad_set}} depends on coefficient {.val {excl_coeff}} (header {.val {excl_header}}), which is excluded from the data by {.arg full_exclude}.",
       "The flag-header approach (GTAP {.code ENDOWFLAG}/{.code SLUG}) is not supported through the R package (the solver alone accepts it): declare the set explicitly, e.g. {.code Set ENDWM (capital, labor);}."
     ),
-    set_product = c(
-      "{.field Set} product {.code x} is not supported: {.field Set {bad_set} {bad_def}}.",
-      "The upstream GTAPv7 report block builds UACT/UCOM/ALLOCEFF this way (with {.code $POS} mapping formulas); teems' R-side aggregation supplies the identity, so drop that PostSim block or list the elements explicitly."
-    ),
-    dollar_pos = c(
-      "The {.code $POS} intrinsic is not supported: {.val {bad_stmt}}",
-      "teems' R-side aggregation supplies set-position identities (the upstream GTAPv7 UCOM2COMM/UACT2ACTS report mappings); drop the statement or the PostSim report block."
-    ),
+    # test-set_expr.R: "set products reject duplicate element names"
+    set_product_dup = "{.field Set} product {.val {bad_set}} produces the duplicate element name {.val {dup_ele}} (GEMPACK manual 11.7.11); rename the factor elements.",
     # test-chk_tab_preflight.R: "self-referential set expressions abort"
     set_self_ref = c(
       "Set {.field {bad_set}} references itself in its defining

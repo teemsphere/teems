@@ -94,15 +94,6 @@
       call = call
     )
   }
-  # $POS (set-position intrinsic): intentional reject
-  pos <- grepl("\\$pos\\s*\\(", gsub("#[^#]*#", "", statements), ignore.case = TRUE)
-  if (any(pos)) {
-    bad_stmt <- trimws(statements[pos][1])
-    .cli_action(model_err$dollar_pos,
-      action = c("abort", "inform"),
-      call = call
-    )
-  }
   .chk_tab_defaults(statements, call = call)
   .chk_tab_qualifiers(statements, call = call)
   .chk_raw_reads(statements, call = call)
@@ -458,6 +449,12 @@
   typ <- tolower(model$type)
   reads <- which(typ == "read")
   map_names <- tolower(model$name[typ == "mapping"])
+  # mappings valued without a Read: assigned by a Formula (manual
+  # 10.13.1) or projected from a set product (10.13.2)
+  fml_lhs <- .formula_lhs_name(model$comp1[typ == "formula" & !is.na(model$comp1)])
+  projected <- tolower(model$name[typ == "mapping" &
+    grepl("project", model$qualifier_list, ignore.case = TRUE)])
+  map_names <- setdiff(map_names, c(fml_lhs, projected))
   if (length(reads) == 0L) {
     if (length(map_names) > 0L) {
       # mirror of the solver end-of-preliminary-pass fatal: a declared

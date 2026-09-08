@@ -12,6 +12,8 @@
 #'   Options include:
 #'   * `"GTAP-RE"`: GTAP Rational Expectations
 #'   * `"GTAPv7"`: Standard GTAP model
+#'   * `"GTAP-AEZ"`: GTAP-AEZ land-use model on the GTAPv7.1 core
+#'     (requires a GTAP-AEZ database)
 #'   * `"GTAPv6"`: Classic GTAP model
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.

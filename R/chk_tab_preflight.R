@@ -20,7 +20,8 @@
 }
 
 #' Conditional set builders: the condition operands must be file-Read
-#' (solver tab_setbuilder_transform fatal; GEMPACK manual 10.1.2)
+#' or indicators assigned only constants (solver
+#' tab_setbuilder_transform fatal; GEMPACK manual 10.1.2)
 #'
 #' @keywords internal
 #' @noRd
@@ -38,7 +39,7 @@
     b <- .parse_set_builder(d)
     bad_set <- model$name[i]
     cond_coef <- b$coef
-    if (!tolower(b$coef) %in% read_names) {
+    if (!tolower(b$coef) %in% read_names && is.null(.indicator_formulas(model, b$coef))) {
       .cli_action(model_err$set_builder_noread,
         action = c("abort", "inform"),
         call = call

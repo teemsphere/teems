@@ -16,8 +16,18 @@
 #'   <expr> <op> <expr>   a helper coefficient IFX<n> = <expr> [- <expr>]
 #'                        is synthesized ahead of the statement and the
 #'                        condition takes the <coefref> route above
-#' Compound conditions (AND/OR/NOT), non-additive IF placement, and IF
-#' nested below the top level abort.
+#' An IF whose value itself carries top-level IF terms is rewritten
+#' recursively on the narrowed statement (the GTAP-AEZ shapes: a
+#' membership IF wrapping comparison IFs in a Formula, membership IFs
+#' on a second index inside a membership branch of an Equation). A
+#' membership set that is the quantifier's set or a declared subset
+#' of it narrows to that set directly; otherwise an intersection set
+#' is synthesized. A Formula whose right-hand side references its own
+#' target (the AEZ calibration `ESUBVA = IF[.., ESUBVA] + ..`) reads
+#' the pre-assignment values through a synthesized copy coefficient,
+#' so the sequential rewrite never destroys what it still needs.
+#' Compound conditions (AND/OR/NOT) and non-additive IF placement
+#' abort.
 #'
 #' @keywords internal
 #' @noRd
@@ -413,12 +423,20 @@
   }
 }
 
-#' A synthesized intersection set (cached by operand and range).
-#' Returns list(pre, name).
+#' The set a membership condition narrows a quantifier to: the operand
+#' itself when it is the range set or a declared subset of it (no
+#' synthesized set, and the narrowed statement keeps the declared
+#' set relations the solver needs), otherwise a synthesized
+#' intersection set (cached by operand and range). Returns
+#' list(pre, name).
 #'
 #' @keywords internal
 #' @noRd
 .synth_intersect_set <- function(operand, range_set, synth) {
+  if (grepl("^[A-Za-z_][A-Za-z0-9_]*$", operand) &&
+    .tab_is_subset(operand, range_set, synth)) {
+    return(list(pre = character(0), name = operand))
+  }
   key <- toupper(paste0(operand, "&", range_set))
   nm <- synth[[key]]
   pre <- character(0)
@@ -729,7 +747,13 @@
     for (j in seq_len(n_m)) {
       m <- membership[[j]]
       if (identical(j, keep)) {
-        chunks[[m$side]][m$term] <- paste(m$sign, paste0("[", m$value, "]"))
+        # a value carrying IF terms of its own is spread over the side
+        # so the recursive pass sees them at the top level
+        chunks[[m$side]][m$term] <- if (grepl(if_pattern, m$value)) {
+          .distribute_terms(m$sign, m$value)
+        } else {
+          paste(m$sign, paste0("[", m$value, "]"))
+        }
       } else {
         drop[[m$side]] <- c(drop[[m$side]], m$term)
       }
@@ -746,7 +770,13 @@
   for (k in seq_len(n_m)) {
     q_k <- quant
     q_k[[at]]$text <- sprintf("(all,%s,%s)", idx_name, inter_names[k])
-    out <- c(out, assemble(split_eq(k), q_k, eq_names[k]))
+    eq_k <- assemble(split_eq(k), q_k, eq_names[k])
+    if (grepl(if_pattern, membership[[k]]$value)) {
+      # nested IF terms (membership on another index, or comparisons)
+      # partition or gate the split equation in turn
+      eq_k <- .rewrite_equation_if(eq_k, synth, call)
+    }
+    out <- c(out, eq_k)
   }
   q_out <- quant
   q_out[[at]]$text <- sprintf("(all,%s,%s)", idx_name, comp)
@@ -754,9 +784,16 @@
 
   c(pre, out)
 }
+#' Rewrite one Formula statement (see .rewrite_tab_if). `depth` > 0
+#' marks a recursive pass over an accumulate statement, whose leading
+#' right-hand-side term is the target itself.
+#'
+#' @keywords internal
+#' @noRd
 .rewrite_formula_if <- function(stmt,
                                 synth,
-                                call) {
+                                call,
+                                depth = 0L) {
   body <- sub("^\\s*[Ff][Oo][Rr][Mm][Uu][Ll][Aa]\\s*", "", stmt)
 
   label <- ""
@@ -786,7 +823,7 @@
     }
     list(
       is_quant = TRUE, text = g, idx = m[2], set = m[3],
-      cond = nchar(m[4]) > 0L
+      cond = nchar(m[4]) > 0L, cond_text = m[4]
     )
   })
 
@@ -794,6 +831,23 @@
   eq_pos <- which(scan$chs == "=" & scan$depth_before == 0L & !scan$in_quote)
   lhs <- trimws(substr(body, 1L, eq_pos[1] - 1L))
   rhs <- trimws(substring(body, eq_pos[1] + 1L))
+
+  q_idx <- purrr::map_chr(quant, function(q) {
+    if (isTRUE(q$is_quant)) q$idx else NA_character_
+  })
+  qual_groups <- purrr::map_chr(quant[!purrr::map_lgl(quant, "is_quant")], "text")
+  pre <- character(0)
+
+  # a self-referencing right-hand side reads the values as they stand
+  # before this formula; the sequential rewrite would overwrite them
+  # with the base assignment, so it reads a copy instead (rewritten
+  # once, at the top: below, the leading term is the accumulator)
+  lhs_sym <- sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", lhs)
+  if (depth %=% 0L && .tab_mentions(rhs, lhs_sym)) {
+    cp <- .if_self_copy(lhs, lhs_sym, quant, qual_groups, synth)
+    pre <- c(pre, cp$pre)
+    rhs <- .tab_subst_symbol(rhs, lhs_sym, cp$name)
+  }
 
   if_pattern <- "(^|[^A-Za-z0-9_])[Ii][Ff]\\s*[][({]"
   terms <- .split_tab_terms(rhs)
@@ -819,12 +873,13 @@
     base_rhs <- "0"
   }
   header <- paste0(label, paste0(purrr::map_chr(quant, "text"), collapse = ""))
-  statements <- paste("Formula", header, lhs, "=", base_rhs)
-  pre <- character(0)
-
-  q_idx <- purrr::map_chr(quant, function(q) {
-    if (isTRUE(q$is_quant)) q$idx else NA_character_
-  })
+  # a recursive pass whose only non-IF term is the accumulator has
+  # nothing to assign
+  statements <- if (depth > 0L && base_rhs %=% lhs) {
+    character(0)
+  } else {
+    paste("Formula", header, lhs, "=", base_rhs)
+  }
 
   narrow <- function(cond_info, if_cond) {
     at <- match(tolower(cond_info$idx), tolower(q_idx))
@@ -843,11 +898,11 @@
     inter <- .synth_intersect_set(operand, range_set, synth)
     pre <<- c(pre, inter$pre)
     q2 <- quant
-    q2[[at]]$text <- sprintf("(all,%s,%s)", cond_info$idx, inter$name)
+    # a condition already on the quantifier stays with it
+    q2[[at]]$text <- sprintf("(all,%s,%s%s)", cond_info$idx, inter$name, quant[[at]]$cond_text)
     q2
   }
 
-  qual_groups <- purrr::map_chr(quant[!purrr::map_lgl(quant, "is_quant")], "text")
   for (k in which(is_if)) {
     if_cond <- parsed[[k]]$cond
     cond_info <- .classify_if_cond(if_cond)
@@ -874,8 +929,12 @@
       q2 <- narrow(cond_info, if_cond)
       header2 <- paste0(label, paste0(purrr::map_chr(q2, "text"), collapse = ""))
     } else {
-      last_q <- max(which(!is.na(q_idx)), -Inf)
-      if (is.infinite(last_q) || isTRUE(quant[[last_q]]$cond)) {
+      # the comparison rides the last quantifier still free of a
+      # condition (conditions are evaluated per tuple, so any position
+      # serves)
+      free <- !is.na(q_idx) & !purrr::map_lgl(quant, function(q) isTRUE(q$cond))
+      last_q <- max(which(free), -Inf)
+      if (is.infinite(last_q)) {
         .cli_action(model_err$invalid_if_cond,
           action = c("abort", "inform"),
           call = call
@@ -889,11 +948,215 @@
       )
       header2 <- paste0(label, paste0(purrr::map_chr(q2, "text"), collapse = ""))
     }
-    statements <- c(statements, paste(
-      "Formula", header2, lhs, "=",
-      lhs, terms$sign[k], paste0("[", parsed[[k]]$value, "]")
-    ))
+    value <- parsed[[k]]$value
+    if (grepl(if_pattern, value)) {
+      # IF terms inside the value: narrow, then rewrite the accumulate
+      # statement in turn
+      statements <- c(statements, .rewrite_formula_if(
+        paste("Formula", header2, lhs, "=", lhs, .distribute_terms(terms$sign[k], value)),
+        synth, call,
+        depth = depth + 1L
+      ))
+    } else {
+      statements <- c(statements, paste(
+        "Formula", header2, lhs, "=",
+        lhs, terms$sign[k], paste0("[", value, "]")
+      ))
+    }
   }
 
   c(pre, statements)
+}
+
+#' Spread a signed IF value over its top-level terms: "+ a - b" for
+#' sign "+" and value "a - b", the signs flipped for "-".
+#'
+#' @keywords internal
+#' @noRd
+.distribute_terms <- function(sign, value) {
+  vt <- .split_tab_terms(value)
+  paste(ifelse(vt$sign == sign, "+", "-"), vt$body, collapse = " ")
+}
+
+#' Does `text` reference symbol `sym` (identifier-bounded, any case)?
+#'
+#' @keywords internal
+#' @noRd
+.tab_mentions <- function(text, sym) {
+  grepl(paste0("(?<![A-Za-z0-9_])", sym, "(?![A-Za-z0-9_])"), text, ignore.case = TRUE, perl = TRUE)
+}
+
+#' Replace every identifier-bounded occurrence of `sym` in `text`.
+#'
+#' @keywords internal
+#' @noRd
+.tab_subst_symbol <- function(text, sym, new) {
+  gsub(paste0("(?<![A-Za-z0-9_])", sym, "(?![A-Za-z0-9_])"), new, text, ignore.case = TRUE, perl = TRUE)
+}
+
+#' The copy coefficient a self-referencing Formula reads from:
+#' declared like its target (the target's Coefficient statement, else
+#' the host's quantifiers), assigned the target's values right before
+#' the host under the host's (initial)/(always) qualifier. Returns
+#' list(pre, name).
+#'
+#' @keywords internal
+#' @noRd
+.if_self_copy <- function(lhs, sym, quant, qual_groups, synth) {
+  decl <- .tab_coeff_decl(synth$tab, sym)
+  if (is.null(decl)) {
+    qs <- quant[purrr::map_lgl(quant, "is_quant")]
+    decl <- list(
+      quants = paste0(purrr::map_chr(qs, function(q) sprintf("(all,%s,%s)", q$idx, q$set)), collapse = ""),
+      args = gsub("\\s", "", sub("^\\s*[A-Za-z_][A-Za-z0-9_]*\\s*", "", lhs))
+    )
+  }
+  nm <- .synth_copy_name(synth)
+  qual <- if (length(qual_groups) > 0L) paste0(paste(qual_groups, collapse = ""), " ") else ""
+  sep <- if (nzchar(decl$quants)) " " else ""
+  list(
+    pre = c(
+      sprintf("Coefficient %s%s%s # if-rewrite copy of %s #", decl$quants, sep, paste0(nm, decl$args), sym),
+      sprintf("Formula %s%s%s%s = %s", qual, decl$quants, sep, paste0(nm, decl$args), paste0(sym, decl$args))
+    ),
+    name = nm
+  )
+}
+
+#' Quantifiers and argument list of a Coefficient declaration, from
+#' the raw statements: list(quants, args) or NULL when `sym` is not a
+#' declared coefficient.
+#'
+#' @keywords internal
+#' @noRd
+.tab_coeff_decl <- function(tab, sym) {
+  stmts <- tab[grepl("^\\s*[Cc][Oo][Ee][Ff][Ff][Ii][Cc][Ii][Ee][Nn][Tt]\\b", tab)]
+  for (st in stmts) {
+    body <- sub("^\\s*[Cc][Oo][Ee][Ff][Ff][Ii][Cc][Ii][Ee][Nn][Tt]\\s*", "", st)
+    body <- gsub("#[^#]*#", " ", body)
+    groups <- character(0)
+    repeat {
+      body <- sub("^\\s+", "", body)
+      if (!startsWith(body, "(")) break
+      close <- .match_bracket(body, 1L)
+      if (is.na(close)) break
+      groups <- c(groups, substr(body, 1L, close))
+      body <- substring(body, close + 1L)
+    }
+    nm <- sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", body)
+    if (!toupper(nm) %=% toupper(sym)) next
+    rest <- sub("^\\s*[A-Za-z_][A-Za-z0-9_]*\\s*", "", body)
+    args <- ""
+    if (startsWith(rest, "(")) {
+      close <- .match_bracket(rest, 1L)
+      if (!is.na(close)) args <- gsub("\\s", "", substr(rest, 1L, close))
+    }
+    quants <- groups[grepl("^\\(\\s*[Aa][Ll][Ll]\\s*,", groups)]
+    return(list(quants = paste0(gsub("\\s", "", quants), collapse = ""), args = args))
+  }
+  NULL
+}
+
+#' A fresh copy-coefficient name unused anywhere in the model.
+#'
+#' @keywords internal
+#' @noRd
+.synth_copy_name <- function(synth) {
+  if (is.null(synth$nt)) {
+    synth$nt <- 0L
+  }
+  repeat {
+    synth$nt <- synth$nt + 1L
+    nm <- paste0("IFT", synth$nt)
+    hit <- paste0("(^|[^A-Za-z0-9_])", nm, "([^A-Za-z0-9_]|$)")
+    if (!any(grepl(hit, synth$tab, ignore.case = TRUE))) {
+      return(nm)
+    }
+  }
+}
+
+#' Is `sub` the set `sup` or a declared subset of it? The relations
+#' come from the raw statements (cached on `synth`): `Subset A is
+#' subset of B`, and the definitions TABLO itself treats as declaring
+#' them (manual 10.1): `Set X = A + B` (A, B in X), `Set X = A - B`
+#' (X in A), `Set X = A & B` (X in A and B), `Set X = A` (both ways),
+#' `Set X = (all,i,S: ...)` (X in S); transitively closed. Anything
+#' else infers nothing, so a miss only costs a synthesized set.
+#'
+#' @keywords internal
+#' @noRd
+.tab_is_subset <- function(sub, sup, synth) {
+  if (toupper(sub) %=% toupper(sup)) {
+    return(TRUE)
+  }
+  if (is.null(synth$subsets)) {
+    synth$subsets <- .tab_subset_closure(synth$tab)
+  }
+  toupper(sup) %in% synth$subsets[[toupper(sub)]]
+}
+
+#' @keywords internal
+#' @noRd
+.tab_subset_closure <- function(tab) {
+  id <- "[A-Za-z_][A-Za-z0-9_]*"
+  rel <- list()
+  add <- function(a, b) {
+    rel[[length(rel) + 1L]] <<- c(toupper(a), toupper(b))
+  }
+  op_re <- "\\+|-|&|(^|[^A-Za-z0-9_])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_]|$)"
+  for (st in tab) {
+    m <- regmatches(st, regexec(
+      paste0("^\\s*[Ss][Uu][Bb][Ss][Ee][Tt]\\s+(", id, ")\\s+[Ii][Ss]\\s+[Ss][Uu][Bb][Ss][Ee][Tt]\\s+[Oo][Ff]\\s+(", id, ")"),
+      st
+    ))[[1]]
+    if (length(m) > 0L) {
+      add(m[2], m[3])
+      next
+    }
+    if (!grepl("^\\s*[Ss][Ee][Tt]\\b", st)) next
+    body <- sub("^\\s*[Ss][Ee][Tt]\\s*", "", st)
+    body <- gsub("#[^#]*#", " ", body)
+    body <- sub("^\\s*(\\([^)]*\\)\\s*)*", "", body)
+    m <- regmatches(body, regexec(paste0("^\\s*(", id, ")\\s*=\\s*(.*)$"), body))[[1]]
+    if (length(m) %=% 0L) next
+    nm <- m[2]
+    rhs <- trimws(m[3])
+    sb <- regmatches(rhs, regexec(
+      paste0("^\\(\\s*[Aa][Ll][Ll]\\s*,\\s*", id, "\\s*,\\s*(", id, ")"), rhs
+    ))[[1]]
+    if (length(sb) > 0L) {
+      add(nm, sb[2])
+      next
+    }
+    if (grepl('[]["(){}]', rhs)) next
+    ops <- toupper(trimws(regmatches(rhs, gregexpr(op_re, rhs))[[1]]))
+    parts <- trimws(strsplit(rhs, op_re)[[1]])
+    parts <- parts[nzchar(parts)]
+    if (length(parts) %=% 0L || !all(grepl(paste0("^", id, "$"), parts))) next
+    if (length(ops) %=% 0L) {
+      add(nm, parts[1])
+      add(parts[1], nm)
+    } else if (all(ops %in% c("+", "UNION"))) {
+      for (pt in parts) add(pt, nm)
+    } else if (all(ops %in% c("&", "INTERSECT"))) {
+      for (pt in parts) add(nm, pt)
+    } else if (all(ops %=% "-")) {
+      add(nm, parts[1])
+    }
+  }
+  sup <- list()
+  for (r in rel) sup[[r[1]]] <- union(sup[[r[1]]], r[2])
+  repeat {
+    changed <- FALSE
+    for (a in names(sup)) {
+      more <- unique(unlist(sup[sup[[a]]], use.names = FALSE))
+      new <- setdiff(more, c(sup[[a]], a))
+      if (length(new) > 0L) {
+        sup[[a]] <- c(sup[[a]], new)
+        changed <- TRUE
+      }
+    }
+    if (!changed) break
+  }
+  sup
 }

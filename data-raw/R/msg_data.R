@@ -17,6 +17,16 @@ build_data_err <- function() {
     ),
     # test-ems_data.R: "ems_data requires REG argument"
     missing_set_mappings = "Set mappings are required as named arguments in {.arg ...}.",
+    # test-GTAP_convert.R: "GTAP_convert GTAP-AEZ target (v10a AEZ, v6 format)"
+    aez_v6_format = c(
+      "The {.val GTAP-AEZ} target prepares the GTAPv7-format AEZ layer (GTAP 11/12 AEZ databases); the input is in the v6.2 format.",
+      "The v6-format AEZ layer (GTAP 10a) carries different headers (ESBL, ETL1-3, ETA, YD01, YDEL over LAND_COMM/ENDWL_COMM/PROD_COMM) and is not supported."
+    ),
+    # test-GTAP_convert.R: "GTAP-AEZ preparation"
+    aez_incomplete = c(
+      "The GTAP-AEZ layer is incomplete: {cli::qty(missing_aez)}header{?s} {.val {missing_aez}} {?is/are} missing.",
+      "GTAP-AEZ preparation needs the sets AEZS, COVS, CROP, LUSA, ACTS and REG and the data AREA, TONS and LCOV."
+    ),
     no_name_mapping = "Set mappings must be passed as named pairs: {.code REG = \"mapping\"}"
   )
 }
@@ -38,6 +48,7 @@ build_data_wrn <- function() {
 
 build_data_info <- function() {
   list(
+    aez = "GTAP-AEZ layer detected: disaggregated activity sets and mapping (DACT, DCRP, DFRS, DGRZ, DLUA, MACT), CROPACTS/LCOV dimensions and AEZ parameters prepared.",
     dat = c(
       "GTAP Data Base version: {.field {full_database_version}}",
       "Reference year: {.field {reference_year}}",

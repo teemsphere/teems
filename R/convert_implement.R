@@ -17,7 +17,29 @@
     convert = TRUE
   )
 
-  if (attr(i_data, "metadata")$data_format %=% v$target) {
+  if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
+    # the GTAP-AEZ layer on the GTAPv7 format: a v6-format database
+    # (GTAPv10a AEZ) converts to v7 first
+    if (isTRUE(attr(i_data, "metadata")$aez)) {
+      target <- v$target
+      .cli_action(convert_wrn$format,
+        action = "warn",
+        call = call
+      )
+    } else {
+      if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
+        # the v6-era AEZ layer (GTAP 10a: ESBL/ETL*/ETA/YD01/YDEL over
+        # LAND_COMM/ENDWL_COMM/PROD_COMM, no LUSA) carries different
+        # headers from the v7-format layer this target prepares
+        .cli_action(data_err$aez_v6_format,
+          action = "abort",
+          call = call
+        )
+      }
+      i_data <- .prepare_aez(i_data = i_data, call = call)
+    }
+    v$target <- NULL
+  } else if (attr(i_data, "metadata")$data_format %=% v$target) {
     target <- v$target
     .cli_action(convert_wrn$format,
       action = "warn",

@@ -310,8 +310,8 @@ build_model_err <- function() {
     ),
     set_builder_int = "{.field Set} builder {.val {bad_set}} is intertemporal; builders are supported for static sets only.",
     set_builder_noread = c(
-      "{.field Set} builder {.val {bad_set}} conditions on {.val {cond_coef}}, which is not Read from an input file.",
-      "Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2)."
+      "{.field Set} builder {.val {bad_set}} conditions on {.val {cond_coef}}, which is neither Read from an input file nor an indicator assigned only constants.",
+      "Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as {.code UNITD(a) = 0 + IF[a in DSUB, 1]}."
     ),
     set_builder_nomap = c(
       "{.field Set} builder {.val {bad_set}} sums over {.val {cond_map}}, which is not a {.field Mapping} with a {.code (by_elements)} Read.",

@@ -15,6 +15,17 @@
     set_input = v$set_input,
     data_call = call
   )
+  # a GTAP-AEZ database (v7 format with the AEZ layer) gets the
+  # converter's model-facing preparation applied in place
+  if (.is_aez_input(i_data) && !isTRUE(attr(i_data, "metadata")$aez)) {
+    i_data <- .prepare_aez(i_data = i_data, call = call)
+    if (.o_verbose()) {
+      .cli_action(data_info$aez,
+        action = "inform",
+        call = call
+      )
+    }
+  }
 
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,

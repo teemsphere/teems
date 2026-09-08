@@ -14,8 +14,12 @@
 #'   sum{j,S2: MAP(j) = i, COEF2(j)} <op> <const> GTAP-E UNITD* flags
 #' with <op> one of = <> < > <= >= or eq ne lt gt le ge and <const> a
 #' numeric literal. The condition operand must be a file-Read
-#' coefficient (formula-computed operands cannot drive set resolution:
-#' solver fatal, mirrored in .chk_tab_setbuilders).
+#' coefficient or an indicator assigned only constants (the GTAP-AEZ
+#' `UNITD*(a) = 0 + IF[a in DSUB, 1]` flags, reaching the solver as a
+#' constant base formula plus constant accumulates over declared
+#' subsets: .indicator_formulas); any other formula-computed operand
+#' cannot drive set resolution (solver fatal, mirrored in
+#' .chk_tab_setbuilders).
 #'
 #' @keywords internal
 #' @noRd
@@ -167,6 +171,145 @@ NULL
     grepl("^\\s*=\\s*\\(\\s*all\\s*,", d, ignore.case = TRUE)
 }
 
+#' Indicator-formula operand: the Formula statements assigning `coef`,
+#' when every one of them is `coef(i) = <num>` or `coef(i) = coef(i)
+#' +/- [<num>]` over a single unconditioned quantifier. Returns a list
+#' of steps (set, idx, mode "set"/"add", value) in file order, or NULL
+#' when `coef` has no formulas or any formula has another shape.
+#'
+#' @keywords internal
+#' @noRd
+.indicator_formulas <- function(model, coef) {
+  id <- "[A-Za-z_][A-Za-z0-9_]*"
+  rows <- which(model$type == "Formula" & purrr::map_lgl(model$definition, function(d) {
+    length(d) == 1L && !is.na(d) &&
+      grepl(paste0("^\\s*", coef, "\\s*[[({]"), d, ignore.case = TRUE)
+  }))
+  if (length(rows) == 0L) {
+    return(NULL)
+  }
+  num <- "[-+]?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE][-+]?[0-9]+)?"
+  steps <- vector("list", length(rows))
+  for (k in seq_along(rows)) {
+    st <- model$tab[rows[k]]
+    if (is.na(st)) {
+      return(NULL)
+    }
+    body <- sub("^\\s*[Ff][Oo][Rr][Mm][Uu][Ll][Aa]\\s*", "", st)
+    body <- gsub("#[^#]*#", " ", body)
+    quants <- character(0)
+    repeat {
+      body <- sub("^\\s+", "", body)
+      if (!startsWith(body, "(")) break
+      close <- .match_bracket(body, 1L)
+      if (is.na(close)) {
+        return(NULL)
+      }
+      g <- substr(body, 1L, close)
+      if (grepl("^\\(\\s*[Aa][Ll][Ll]\\s*,", g)) quants <- c(quants, g)
+      body <- substring(body, close + 1L)
+    }
+    if (length(quants) != 1L) {
+      return(NULL)
+    }
+    q <- regmatches(quants, regexec(
+      paste0("^\\(\\s*[Aa][Ll][Ll]\\s*,\\s*(", id, ")\\s*,\\s*(", id, ")\\s*\\)$"), quants
+    ))[[1]]
+    if (length(q) == 0L) {
+      return(NULL)
+    }
+    idx <- q[2]
+    set <- q[3]
+    body <- gsub("\\s", "", sub(";\\s*$", "", body))
+    body <- gsub("[][]", "", body)
+    self <- paste0(coef, "(", idx, ")")
+    m <- regmatches(body, regexec(
+      paste0("^", coef, "\\(", idx, "\\)=(", num, ")$"), body, ignore.case = TRUE
+    ))[[1]]
+    if (length(m) > 0L) {
+      steps[[k]] <- list(set = set, idx = idx, mode = "set", value = as.numeric(m[2]))
+      next
+    }
+    m <- regmatches(body, regexec(
+      paste0("^", coef, "\\(", idx, "\\)=", coef, "\\(", idx, "\\)([-+])(", num, ")$"), body, ignore.case = TRUE
+    ))[[1]]
+    if (length(m) > 0L) {
+      v <- as.numeric(m[3])
+      steps[[k]] <- list(set = set, idx = idx, mode = "add", value = if (m[2] == "-") -v else v)
+      next
+    }
+    return(NULL)
+  }
+  steps
+}
+
+#' Values of an indicator operand over the elements of `over` (named
+#' by lowercase element): the steps applied in order, elements outside
+#' `over` ignored. NULL while a step's set is unresolved.
+#'
+#' @keywords internal
+#' @noRd
+.eval_indicator <- function(steps, over, mappings) {
+  vals <- stats::setNames(rep(0, length(over)), tolower(over))
+  for (s in steps) {
+    m <- mappings[[s$set]]
+    if (is.null(m)) {
+      return(NULL)
+    }
+    ele <- tolower(unique(m$mapping))
+    ele <- ele[ele %in% names(vals)]
+    if (s$mode == "set") {
+      vals[ele] <- s$value
+    } else {
+      vals[ele] <- vals[ele] + s$value
+    }
+  }
+  vals
+}
+
+#' Coefficient values keyed by lowercase element of a 1-D operand:
+#' the deployed table when `coef` is file-Read, else its indicator
+#' formulas. NULL while the elements are unresolved.
+#'
+#' @keywords internal
+#' @noRd
+.sb_operand_values <- function(coef, over, mappings, coeff_data, coeff_extract, model, bad_set, call) {
+  ci <- match(tolower(coef), tolower(coeff_extract$name))
+  hdr <- if (is.na(ci)) NA_character_ else coeff_extract$header[ci]
+  dt <- if (is.na(hdr)) NULL else coeff_data[[hdr]]
+  if (!is.null(dt)) {
+    cols <- setdiff(names(dt), "Value")
+    if (length(cols) != 1L) {
+      cond_coef <- coef
+      n_args <- 1L
+      n_dims <- length(cols)
+      .cli_action(deploy_err$set_builder_args,
+        action = "abort",
+        call = call
+      )
+    }
+    val <- dt$Value
+    is_int <- !is.na(coeff_extract$qualifier_list[ci]) &&
+      grepl("integer", coeff_extract$qualifier_list[ci], ignore.case = TRUE)
+    val <- if (is_int || rlang::is_integerish(val)) as.integer(val) else round(val, .o_ndigits())
+    e <- tolower(dt[[cols]])
+    out <- vapply(tolower(over), function(x) {
+      hit <- which(e == x)
+      if (length(hit) == 0L) 0 else val[hit[1]]
+    }, numeric(1))
+    return(out)
+  }
+  steps <- if (is.null(model)) NULL else .indicator_formulas(model, coef)
+  if (is.null(steps)) {
+    cond_coef <- coef
+    .cli_action(deploy_err$set_builder_data,
+      action = "abort",
+      call = call
+    )
+  }
+  .eval_indicator(steps, over, mappings)
+}
+
 #' @keywords internal
 #' @noRd
 .sb_op_test <- function(v, op, c) {
@@ -190,6 +333,9 @@ NULL
 #' @param coeff_data named list of aggregated coefficient tables (by
 #'   header)
 #' @param coeff_extract Coefficient rows of the model
+#' @param model the model (Formula rows for indicator operands, Mapping
+#'   and Read rows for the mapping-sum form)
+#' @param set_raw raw character headers (the by_elements mapping data)
 #'
 #' @keywords internal
 #' @noRd
@@ -198,7 +344,9 @@ NULL
                               mappings,
                               coeff_data,
                               coeff_extract,
-                              call) {
+                              call,
+                              model = NULL,
+                              set_raw = NULL) {
   src_map <- mappings[[b$src]]
   if (is.null(src_map)) {
     return(NULL)
@@ -207,16 +355,39 @@ NULL
   bad_set <- owner
 
   if (b$form == "mapsum") {
-    .cli_action(deploy_err$set_builder_mapsum,
-      action = c("abort", "inform"),
-      call = call
-    )
+    return(.eval_set_builder_mapsum(
+      b = b, owner = owner, src_map = src_map, mappings = mappings,
+      coeff_data = coeff_data, coeff_extract = coeff_extract,
+      model = model, set_raw = set_raw, call = call
+    ))
   }
 
   ci <- match(tolower(b$coef), tolower(coeff_extract$name))
   hdr <- if (is.na(ci)) NA_character_ else coeff_extract$header[ci]
   dt <- if (is.na(hdr)) NULL else coeff_data[[hdr]]
   cond_coef <- b$coef
+  if (is.null(dt) && length(b$args) == 1L) {
+    # a 1-D indicator operand assigned only constants
+    steps <- if (is.null(model)) NULL else .indicator_formulas(model, b$coef)
+    if (!is.null(steps)) {
+      vals <- .eval_indicator(steps, src_ele, mappings)
+      if (is.null(vals)) {
+        return(NULL)
+      }
+      sel <- vapply(vals, function(vv) isTRUE(.sb_op_test(vv, b$op, b$const)), logical(1))
+      if (!any(sel)) {
+        src_set <- b$src
+        builder_cond <- b$cond
+        .cli_action(deploy_err$set_builder_empty,
+          action = "abort",
+          call = call
+        )
+      }
+      out <- src_map[tolower(src_map$mapping) %in% names(vals)[sel], ]
+      data.table::setattr(out, "origin_conflict", NULL)
+      return(out)
+    }
+  }
   if (is.null(dt)) {
     .cli_action(deploy_err$set_builder_data,
       action = "abort",
@@ -290,6 +461,99 @@ NULL
   }
   kept <- src_ele[sel]
   out <- src_map[src_map$mapping %in% kept, ]
+  data.table::setattr(out, "origin_conflict", NULL)
+  out
+}
+
+#' The mapping-sum builder `(all,i,SRC: sum{j,DOM: MAP(j) = i,
+#' COEF(j)} <op> c)`: SRC must be the mapping's codomain and DOM its
+#' domain (the solver's contract); the mapping values are composed
+#' under the active aggregation exactly as the deployed by_elements
+#' header is (.compose_map_values), the operand is file-Read or an
+#' indicator. NULL while the domain, codomain or an operand set is
+#' unresolved.
+#'
+#' @keywords internal
+#' @noRd
+.eval_set_builder_mapsum <- function(b,
+                                     owner,
+                                     src_map,
+                                     mappings,
+                                     coeff_data,
+                                     coeff_extract,
+                                     model,
+                                     set_raw,
+                                     call) {
+  bad_set <- owner
+  cond_map <- b$map
+  map_row <- if (is.null(model)) NULL else model[model$type == "Mapping" & tolower(model$name) == tolower(b$map), ]
+  if (is.null(map_row) || nrow(map_row) == 0L) {
+    .cli_action(deploy_err$set_builder_mapsum,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  dom <- map_row$comp1[1]
+  cod <- map_row$comp2[1]
+  if (tolower(dom) != tolower(b$sum_set) || tolower(cod) != tolower(b$src)) {
+    .cli_action(deploy_err$set_builder_mapsum,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  set_names <- names(mappings)
+  dom_map <- mappings[[set_names[match(tolower(dom), tolower(set_names))]]]
+  if (is.null(dom_map)) {
+    return(NULL)
+  }
+  byele <- model$type == "Read" & !is.na(model$qualifier_list) &
+    grepl("by_elements", model$qualifier_list, ignore.case = TRUE) &
+    tolower(model$name) == tolower(b$map)
+  header <- model$header[byele][1]
+  raw_idx <- if (is.na(header)) NA_integer_ else match(toupper(header), toupper(names(set_raw)))
+  if (is.na(raw_idx)) {
+    .cli_action(deploy_err$set_builder_mapsum,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  vals <- set_raw[[raw_idx]]
+  dom_header <- NA_character_
+  if (!is.null(model)) {
+    di <- which(model$type == "Set" & tolower(model$name) == tolower(dom))
+    if (length(di) > 0L) dom_header <- model$header[di[1]]
+  }
+  dom_raw_idx <- if (is.na(dom_header)) NA_integer_ else match(toupper(dom_header), toupper(names(set_raw)))
+  dom_orig <- if (!is.na(dom_raw_idx)) set_raw[[dom_raw_idx]] else unique(dom_map$origin)
+  agg_ele <- unique(dom_map$mapping)
+  map_name <- b$map
+  composed <- .compose_map_values(
+    vals = vals, dom_orig = dom_orig, dom_map = dom_map, cod_map = src_map,
+    agg_ele = agg_ele, map_name = map_name, call = call
+  )
+
+  vals_coef <- .sb_operand_values(
+    coef = b$coef, over = agg_ele, mappings = mappings,
+    coeff_data = coeff_data, coeff_extract = coeff_extract,
+    model = model, bad_set = owner, call = call
+  )
+  if (is.null(vals_coef)) {
+    return(NULL)
+  }
+  src_ele <- unique(src_map$mapping)
+  sel <- vapply(src_ele, function(x) {
+    acc <- sum(vals_coef[tolower(composed) == tolower(x)])
+    isTRUE(.sb_op_test(acc, b$op, b$const))
+  }, logical(1))
+  if (!any(sel)) {
+    src_set <- b$src
+    builder_cond <- b$cond
+    .cli_action(deploy_err$set_builder_empty,
+      action = "abort",
+      call = call
+    )
+  }
+  out <- src_map[src_map$mapping %in% src_ele[sel], ]
   data.table::setattr(out, "origin_conflict", NULL)
   out
 }

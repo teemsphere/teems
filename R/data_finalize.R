@@ -12,7 +12,8 @@
   # NSE
   Value <- NULL
 
-  model_coeff <- model[model$type == "Coefficient" & !is.na(model$file), "header"][[1]]
+  # file-Read coefficients and (levels) variables alike
+  model_coeff <- model[model$type %in% c("Coefficient", "Variable") & !is.na(model$file), "header"][[1]]
   .data <- .data[names(.data) %in% model_coeff]
 
   if (attr(sets, "intertemporal")) {
@@ -102,7 +103,7 @@
     r_idx,
     function(dt, id) {
       data.table::setattr(dt, "file", model$file[id])
-      if (!grepl("integer", model$qualifier_list[id])) {
+      if (!isTRUE(grepl("integer", model$qualifier_list[id]))) {
         type <- "Real"
       } else {
         type <- "Integer"

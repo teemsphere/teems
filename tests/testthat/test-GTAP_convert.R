@@ -284,3 +284,91 @@ test_that("GTAP_convert examples work", {
   expect_type(converted2v7, "list")
   expect_equal(attr(converted2v7$dat, "metadata")$data_format, "GTAPv7")
 })
+test_that("GTAP-AEZ preparation on a synthetic layer", {
+  fmt <- "GTAPv7"
+  mk_set <- function(h, ele) structure(ele, class = c(h, h, "set", fmt, "character"))
+  mk_arr <- function(h, kind, dims, value = 1) {
+    a <- array(value, dim = lengths(dims), dimnames = dims)
+    class(a) <- c(h, kind, fmt, class(a))
+    a
+  }
+  reg <- c("chn", "row")
+  acts <- c("pdr", "wht", "ctl", "frs", "mnfcs")
+  i_data <- list(
+    REG = mk_set("REG", reg),
+    ACTS = mk_set("ACTS", acts),
+    AEZS = mk_set("AEZS", c("aez1", "aez2")),
+    COVS = mk_set("COVS", c("forestland", "cropland", "otherland")),
+    CROP = mk_set("CROP", c("pdr", "wht")),
+    LUSA = mk_set("LUSA", c("pdr", "wht", "ctl", "frs")),
+    ESBV = mk_arr("ESBV", "par", list(ACTS = acts, REG = reg)),
+    AREA = mk_arr("AREA", "dat", list(AEZS = c("aez1", "aez2"), CROP = c("pdr", "wht"), REG = reg)),
+    TONS = mk_arr("TONS", "dat", list(AEZS = c("aez1", "aez2"), CROP = c("pdr", "wht"), REG = reg)),
+    LCOV = mk_arr("LCOV", "dat", list(AEZS = c("aez1", "aez2"), COVS = c("forestland", "cropland", "otherland"), REG = reg))
+  )
+  attr(i_data, "metadata") <- list(data_format = fmt, database_version = "GTAPv12")
+  class(i_data) <- c(fmt, "list")
+  expect_true(.is_aez_input(i_data))
+  out <- .prepare_aez(i_data, call = NULL)
+  expect_true(isTRUE(attr(out, "metadata")$aez))
+  expect_false(.is_aez_input(out) && !isTRUE(attr(out, "metadata")$aez))
+  # disaggregated sets at source resolution, never aggregated
+  expect_equal(as.character(out$DACT), acts)
+  expect_equal(as.character(out$MACT), acts)
+  expect_equal(as.character(out$DCRP), c("pdr", "wht"))
+  expect_equal(as.character(out$DFRS), "frs")
+  expect_equal(as.character(out$DGRZ), "ctl")
+  expect_equal(as.character(out$DLUA), c("pdr", "wht", "ctl", "frs"))
+  for (h in c("DACT", "DCRP", "DFRS", "DGRZ", "DLUA", "MACT")) {
+    expect_true(isTRUE(attr(out[[h]], "user_set")))
+    expect_true(inherits(out[[h]], "set"))
+  }
+  # model-facing dimension and set names
+  expect_equal(names(dimnames(out$AREA)), c("AEZS", "CROPACTS", "REG"))
+  expect_equal(names(dimnames(out$TONS)), c("AEZS", "CROPACTS", "REG"))
+  expect_equal(names(dimnames(out$LCOV)), c("AEZS", "LCOV", "REG"))
+  expect_equal(class(out$CROP)[1:2], c("CROP", "CROPACTS"))
+  expect_equal(class(out$COVS)[1:2], c("COVS", "LCOV"))
+  # the flexagg parameter constants
+  expect_equal(unname(out$EAEZ[, "chn"]), c(20, 20, 20, 20, 0))
+  expect_equal(unname(out$YDON[, "row"]), c(1, 1, 0, 0, 0))
+  expect_equal(unique(as.vector(out$ETAE)), 0.66)
+  expect_equal(as.vector(out$YDRS), c(1, 1))
+  expect_equal(as.vector(out$YDET), 0.25)
+  expect_true(inherits(out$EAEZ, "par"))
+  # grouping kept: sets, then parameters, then data
+  kinds <- vapply(unclass(out), function(x) class(x)[3], character(1))
+  kinds[vapply(unclass(out), inherits, logical(1), "par")] <- "par"
+  kinds[vapply(unclass(out), inherits, logical(1), "dat")] <- "dat"
+  expect_equal(rle(unname(kinds))$values, c("set", "par", "dat"))
+  # an incomplete layer is named
+  expect_snapshot_error(.prepare_aez(i_data[names(i_data) != "LUSA"], call = NULL))
+})
+
+test_that("GTAP_convert GTAP-AEZ target (v12a AEZ, v7 format)", {
+  skip_if(!nzchar(Sys.getenv("GTAP12AEZ_dat")), "GTAP12AEZ_* inputs not set")
+  aez <- GTAP_convert(
+    Sys.getenv("GTAP12AEZ_dat"),
+    Sys.getenv("GTAP12AEZ_par"),
+    Sys.getenv("GTAP12AEZ_set"),
+    "GTAP-AEZ"
+  )
+  md <- attr(aez$dat, "metadata")
+  expect_equal(md$data_format, "GTAPv7")
+  expect_true(isTRUE(md$aez))
+  expect_true(all(c("DACT", "DCRP", "DFRS", "DGRZ", "DLUA", "MACT") %in% names(aez$set)))
+  expect_equal(as.character(aez$set$DACT), tolower(as.character(aez$set$ACTS)))
+  expect_equal(names(dimnames(aez$dat$AREA)), c("AEZS", "CROPACTS", "REG"))
+  # the database ships the AEZ parameters: kept as they arrive
+  expect_equal(range(aez$par$EAEZ), c(0, 20))
+})
+
+test_that("GTAP_convert GTAP-AEZ target rejects the v6-format layer (v10a AEZ)", {
+  skip_if(!nzchar(Sys.getenv("GTAP10AEZ_dat")), "GTAP10AEZ_* inputs not set")
+  expect_snapshot_error(suppressWarnings(GTAP_convert(
+    Sys.getenv("GTAP10AEZ_dat"),
+    Sys.getenv("GTAP10AEZ_par"),
+    Sys.getenv("GTAP10AEZ_set"),
+    "GTAP-AEZ"
+  )))
+})

@@ -20,7 +20,12 @@
 #'   elements and attributes.
 #' @param target Character vector of length 1 (default is
 #'   `NULL`). The target format to convert to. Currently supports
-#'   `"GTAPv6"` or `"GTAPv7"`. If `NULL`, no data format
+#'   `"GTAPv6"`, `"GTAPv7"` or `"GTAP-AEZ"` (a GTAPv7-format
+#'   GTAP-AEZ database prepared for the GTAP-AEZ model: the
+#'   disaggregated activity sets and mapping the model reads, the
+#'   model's `CROPACTS`/`LCOV` dimension names and the AEZ
+#'   parameters; [`ems_data()`] applies the same preparation on its
+#'   own when it detects the AEZ layer). If `NULL`, no data format
 #'   conversion will take place.
 #' @seealso [`ems_data()`] for loading and preparing converted
 #'   data for a model run.

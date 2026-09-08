@@ -175,8 +175,31 @@
     obj$header <- r$header[r_idx]
     obj$file <- r$file[r_idx]
   } else if (obj_type %=% "variable") {
-    obj$header <- NA
-    obj$file <- NA
+    # a Read may target a (levels) variable (GTAP-AEZ AREA/TONS/LCOV):
+    # bind file and header as for coefficients so deploy writes the
+    # data; variables without a Read keep NA
+    obj$header <- NA_character_
+    obj$file <- NA_character_
+    r <- extract[tolower(extract$type) == "read", ]
+    r$remainder <- .strip_read_qualifier(r$remainder)
+    r <- r[grepl("from file", tolower(r$remainder)), ]
+    if (nrow(r) > 0L) {
+      r$name <- purrr::map_chr(strsplit(r$remainder, " "), 1)
+      r$remainder <- gsub("from file", "from file", r$remainder, ignore.case = TRUE)
+      r$remainder <- .advance_remainder(
+        remainder = r$remainder,
+        pattern = paste(r$name, "from file")
+      )
+      r$file <- .get_element(input = r$remainder, split = " ", index = 1)
+      r$header <- gsub(
+        pattern = "\"",
+        replacement = "",
+        x = .get_element(input = r$remainder, split = " ", index = 3)
+      )
+      r_idx <- match(obj$name, r$name)
+      obj$header <- r$header[r_idx]
+      obj$file <- r$file[r_idx]
+    }
   }
   
   names(obj$ls_upper_idx) <- obj$name

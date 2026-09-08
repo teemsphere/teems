@@ -75,8 +75,8 @@
 
 # a set builder on an undeclared/unread coefficient aborts
 
-    x Set builder "ENDWM" conditions on "ENDOWFLAG", which is not Read from an input file.
-    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2).
+    x Set builder "ENDWM" conditions on "ENDOWFLAG", which is neither Read from an input file nor an indicator assigned only constants.
+    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
 
 # intertemporal set equality
 
@@ -103,8 +103,13 @@
 
 ---
 
-    x Set builder "BADX" conditions on "VDB", which is not Read from an input file.
-    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2).
+    x Set builder "BADX" conditions on "VDB", which is neither Read from an input file nor an indicator assigned only constants.
+    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
+
+# set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)
+
+    x Set builder "RX" conditions on "UNITX", which is neither Read from an input file nor an indicator assigned only constants.
+    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
 
 ---
 

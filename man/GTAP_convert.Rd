@@ -21,7 +21,12 @@ elements and attributes.}
 
 \item{target}{Character vector of length 1 (default is
 \code{NULL}). The target format to convert to. Currently supports
-\code{"GTAPv6"} or \code{"GTAPv7"}. If \code{NULL}, no data format
+\code{"GTAPv6"}, \code{"GTAPv7"} or \code{"GTAP-AEZ"} (a GTAPv7-format
+GTAP-AEZ database prepared for the GTAP-AEZ model: the
+disaggregated activity sets and mapping the model reads, the
+model's \code{CROPACTS}/\code{LCOV} dimension names and the AEZ
+parameters; \code{\link[=ems_data]{ems_data()}} applies the same preparation on its
+own when it detects the AEZ layer). If \code{NULL}, no data format
 conversion will take place.}
 }
 \value{

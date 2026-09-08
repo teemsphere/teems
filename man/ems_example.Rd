@@ -19,6 +19,8 @@ Options include:
 \itemize{
 \item \code{"GTAP-RE"}: GTAP Rational Expectations
 \item \code{"GTAPv7"}: Standard GTAP model
+\item \code{"GTAP-AEZ"}: GTAP-AEZ land-use model on the GTAPv7.1 core
+(requires a GTAP-AEZ database)
 \item \code{"GTAPv6"}: Classic GTAP model
 }}
 

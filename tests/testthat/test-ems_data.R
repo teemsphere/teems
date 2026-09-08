@@ -315,4 +315,25 @@ test_that("ems_data examples work", {
   expect_true(check)
 })
 
+test_that("ems_data prepares a GTAP-AEZ database in place", {
+  skip_if(!nzchar(Sys.getenv("GTAP12AEZ_dat")), "GTAP12AEZ_* inputs not set")
+  aez <- ems_data(
+    dat_input = Sys.getenv("GTAP12AEZ_dat"),
+    par_input = Sys.getenv("GTAP12AEZ_par"),
+    set_input = Sys.getenv("GTAP12AEZ_set"),
+    REG = "big3",
+    ACTS = "macro_sector"
+  )
+  expect_true(isTRUE(attr(aez, "metadata")$aez))
+  # the disaggregated activity set and its mapping header stay at
+  # source resolution; the mapping composes onto ACTS at deploy
+  expect_equal(nrow(aez$DACT), 65L)
+  expect_true(all(aez$DACT$origin == aez$DACT$mapping))
+  expect_equal(length(attr(aez, "set_raw")$MACT), 65L)
+  # the renamed dimensions aggregate through the ACTS mapping
+  expect_true("CROPACTS" %in% names(aez$AREA))
+  expect_equal(unique(aez$AREA$CROPACTS), "crops")
+  expect_true("LCOV" %in% names(aez$LCOV))
+})
+
 unlink(write_dir, recursive = TRUE)

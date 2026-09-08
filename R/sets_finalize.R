@@ -13,7 +13,9 @@
                            call,
                            data_call,
                            model_call,
-                           coeff_data = list()) {
+                           coeff_data = list(),
+                           model = NULL,
+                           set_raw = NULL) {
   
   if (!all(stats::na.omit(set_extract$header) %in% names(sets))) {
     m_map <- setdiff(stats::na.omit(set_extract$header), names(sets))
@@ -124,7 +126,9 @@
             mappings = set_extract$mapping,
             coeff_data = coeff_data,
             coeff_extract = coeff_extract,
-            call = data_call
+            call = data_call,
+            model = model,
+            set_raw = set_raw
           )
         } else if (is.null(m)) {
           m <- .eval_set_expr(

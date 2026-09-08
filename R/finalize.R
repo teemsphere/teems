@@ -22,7 +22,9 @@
     call = call,
     data_call = data_call,
     model_call = model_call,
-    coeff_data = args_list$.data[!purrr::map_lgl(args_list$.data, inherits, "set")]
+    coeff_data = args_list$.data[!purrr::map_lgl(args_list$.data, inherits, "set")],
+    model = args_list$model,
+    set_raw = attr(args_list$.data, "set_raw")
   )
   .check_subset_containment(
     sets = sets,

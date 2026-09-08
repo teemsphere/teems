@@ -338,6 +338,47 @@ test_that("conditional set builders (GEMPACK manual 10.1.2)", {
     write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDB(c,"chn","t0") > 0);'),
     closure_file
   ))
+})
+
+test_that("set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)", {
+  # an indicator is assigned constants only: the IF rewrite leaves a
+  # constant base formula plus a constant accumulate over the subset
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Set RSUB # one region # (chn);",
+      "Subset RSUB is subset of REG;",
+      "Coefficient (all,r,REG) UNITR(r) # indicator #;",
+      "Formula (all,r,REG) UNITR(r) = 0.0 + IF[r in RSUB, 1.0];",
+      "Set BLOC # blocs # (b1);",
+      "Mapping MAPRB from REG to BLOC;",
+      'Read (by_elements) MAPRB from file GTAPSETS header "MRB";',
+      "Set RB # blocs holding chn # = (all,b,BLOC: sum{r,REG: MAPRB(r) = b, UNITR(r)} > 0);",
+      "Set RR # indicator-selected regions # = (all,r,REG: UNITR(r) > 0.5);",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  steps <- .indicator_formulas(model, "UNITR")
+  expect_length(steps, 2L)
+  expect_equal(purrr::map_chr(steps, "mode"), c("set", "add"))
+  expect_equal(purrr::map_chr(steps, "set"), c("REG", "RSUB"))
+  expect_equal(purrr::map_dbl(steps, "value"), c(0, 1))
+  maps <- list(REG = data.table::data.table(origin = c("chn", "row", "usa"), mapping = c("chn", "row", "usa")), RSUB = data.table::data.table(origin = "chn", mapping = "chn"))
+  expect_equal(.eval_indicator(steps, c("chn", "row", "usa"), maps), c(chn = 1, row = 0, usa = 0))
+  # unresolved step set: pending
+  expect_null(.eval_indicator(steps, c("chn", "row"), maps["REG"]))
+  # a non-constant formula is not an indicator
+  bad_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,r,REG) UNITX(r) # not an indicator #;",
+      'Formula (all,r,REG) UNITX(r) = VDB("crops",r,"t0");',
+      "Set RX = (all,r,REG: UNITX(r) > 0);",
+      sep = "\n"
+    )
+  )
+  expect_snapshot_error(ems_model(bad_model, closure_file))
   # the source set must be declared
   expect_snapshot_error(ems_model(
     write_modified_model(model_file, 'Set BADX = (all,c,NOSET: VDFB(c,"crops","chn","t0") > 0);'),
@@ -416,8 +457,58 @@ test_that("IF in formula RHS (GEMPACK manual 11.4.6)", {
   )
   model <- ems_model(ok_model, closure_file)
   expect_s3_class(model, "data.frame")
-  # in-set and element conditions synthesize intersection sets
-  expect_true(all(c("IFS1", "IFS2") %in% model$name))
+  # a declared subset narrows to itself; an element condition
+  # synthesizes a singleton intersection set
+  expect_true(any(grepl("(all,c,MARG)(all,r,REG)(all,t,ALLTIME) IFTESTA(c,r,t) = IFTESTA(c,r,t) + [VST(c,r,t)]", model$tab, fixed = TRUE)))
+  expect_false(any(grepl("MARG & COMM", model$tab, fixed = TRUE)))
+  chn <- sub("^Set (IFS[0-9]+) .*$", "\\1", grep('= "chn" & REG', model$tab, fixed = TRUE, value = TRUE))
+  expect_match(chn, "^IFS[0-9]+$")
+  expect_true(any(grepl(paste0("(all,r,", chn, ")(all,t,ALLTIME) IFTESTC(r,t) = IFTESTC(r,t) + [VTRPROV(r,t)]"), model$tab, fixed = TRUE)))
+})
+
+test_that("nested IF terms rewrite recursively (GTAP-AEZ shapes)", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      # the AEZ calibration shape: self-referencing target, comparison
+      # IFs nested in a membership branch
+      "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFSELF(c,r,t) # self-referencing #;",
+      "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFSELF(c,r,t) = VDB(c,r,t);",
+      "Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFSELF(c,r,t) = IF[c in NMRG, IFSELF(c,r,t)] + IF[c in MARG, IF[VDB(c,r,t)*VMPB(c,r,t) LE 0, IFSELF(c,r,t)] + IF[VDB(c,r,t)*VMPB(c,r,t) GT 0, 7]];",
+      # the AEZ E_qfe shape: membership on a second index inside a
+      # membership branch, a comparison innermost
+      "Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifnest(c,r,t) # nested #;",
+      'Equation E_ifnest (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifnest(c,r,t) = pds(c,r,t) + IF[c in MARG, IF[r="chn", IF[VDB(c,r,t) gt 0, qst(c,r,t)]]];',
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  tab <- model$tab
+  # the pre-assignment values are read through a copy declared like
+  # the target and assigned under the host qualifier
+  expect_true(any(grepl("Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFT1(c,r,t) # if-rewrite copy of IFSELF #", tab, fixed = TRUE)))
+  expect_true(any(grepl("Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFT1(c,r,t) = IFSELF(c,r,t)", tab, fixed = TRUE)))
+  expect_true(any(grepl("Formula (initial)(all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFSELF(c,r,t) = 0;", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,c,NMRG)(all,r,REG)(all,t,ALLTIME) IFSELF(c,r,t) = IFSELF(c,r,t) + [IFT1(c,r,t)]", tab, fixed = TRUE)))
+  # the nested comparisons ride conditional quantifiers on the
+  # narrowed statement; the helper inherits (initial)
+  hx <- sub("^Formula \\(initial\\) \\(all,c,MARG\\)\\(all,r,REG\\)\\(all,t,ALLTIME\\) (IFX[0-9]+)\\(c,r,t\\) = VDB\\(c,r,t\\)\\*VMPB\\(c,r,t\\);$", "\\1", grep("IFX[0-9]+\\(c,r,t\\) = VDB\\(c,r,t\\)\\*VMPB", tab, value = TRUE))
+  hx <- hx[grepl("^IFX[0-9]+$", hx)]
+  expect_length(hx, 1L)
+  expect_true(any(grepl(paste0("(all,c,MARG)(all,r,REG)(all,t,ALLTIME: ", hx, "(c,r,t) <= 0) IFSELF(c,r,t) = IFSELF(c,r,t) + [IFT1(c,r,t)]"), tab, fixed = TRUE)))
+  expect_true(any(grepl(paste0("(all,c,MARG)(all,r,REG)(all,t,ALLTIME: ", hx, "(c,r,t) > 0) IFSELF(c,r,t) = IFSELF(c,r,t) + [7]"), tab, fixed = TRUE)))
+  # no accumulate statement without an assignment
+  expect_false(any(grepl("IFSELF(c,r,t) = IFSELF(c,r,t);", tab, fixed = TRUE)))
+  # the equation partitions on c, then on r, then gates on the data
+  eqs <- grep("^Equation E_ifnest", tab, value = TRUE)
+  expect_true(all(c("E_ifnestAA", "E_ifnestAB", "E_ifnestB") %in% model$name))
+  aa <- eqs[grepl("^Equation E_ifnestAA ", eqs)]
+  expect_match(aa, "(all,c,MARG)(all,r,IFS", fixed = TRUE)
+  expect_match(aa, "= pds(c,r,t) + IFC", fixed = TRUE)
+  expect_match(aa, "* qst(c,r,t);", fixed = TRUE)
+  expect_true(any(grepl("^Equation E_ifnestAB .*\\(all,c,MARG\\)\\(all,r,IFS[0-9]+\\)\\(all,t,ALLTIME\\) ifnest\\(c,r,t\\) = pds\\(c,r,t\\);$", eqs)))
+  expect_true(any(grepl("^Equation E_ifnestB .*\\(all,c,IFS[0-9]+\\)\\(all,r,REG\\)\\(all,t,ALLTIME\\) ifnest\\(c,r,t\\) = pds\\(c,r,t\\);$", eqs)))
+  expect_false(any(grepl("IF\\[", eqs)))
 })
 
 test_that("expression IF conditions (LULC shape, manual 11.4.5/11.4.6)", {

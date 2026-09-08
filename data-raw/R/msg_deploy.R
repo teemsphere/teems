@@ -16,8 +16,8 @@ build_deploy_err <- function() {
       "An empty set cannot enter the model (GEMPACK manual 10.1.2); check the condition against the aggregated data."
     ),
     set_builder_mapsum = c(
-      "{.field Set} builder {.val {bad_set}} uses the mapping-conditional sum form, which teems cannot evaluate at deploy yet.",
-      "The solver evaluates it; teems needs the elements ahead of the run for closure/shock validation. Declare the set explicitly for now."
+      "{.field Set} builder {.val {bad_set}}: the mapping-conditional sum over {.val {cond_map}} cannot be evaluated at deploy.",
+      "The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a {.code (by_elements)} Read whose header is in the set data (GEMPACK manual 10.1.2)."
     ),
     # test-ems_deploy.R: "ems_deploy errors when read-in headers are missing mapping"
     missing_mapping = "Some read-in model sets have no mappings: {.field {m_map}}.",

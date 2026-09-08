@@ -30,7 +30,7 @@ dat <- ems_data(
   time_steps = c(0, 1, 2)
 )
 
-model <- ems_model(model_file, closure_file)
+model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
 
 test_that("ems_swap errors when var is missing", {
   expect_snapshot_error(ems_swap())

@@ -29,9 +29,11 @@ dat <- ems_data(
   ENDW = "labor_agg",
   time_steps = c(0, 1, 2)
 )
-model <- ems_model(model_file, closure_file)
-n_var <- nrow(model[which(model$type == "Variable"), ])
-n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
+model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
+n_var <- sum(model$type == "Variable")
+# PostSim coefficients compose as type "postsim" and have no CSV pair
+n_coeff <- sum(model$type == "Coefficient" & !model$postsim)
+n_postsim <- sum(model$type == "Coefficient" & model$postsim)
 cmf_path <- ems_deploy(dat, model)
 ems_solve(cmf_path, suppress_outputs = TRUE)
 
@@ -56,7 +58,7 @@ test_that("ems_compose returns tibble for which = 'all'", {
 
 test_that("ems_compose variable output contains expected elements", {
   result <- ems_compose(cmf_path)
-  expect_equal(nrow(result), n_var + n_coeff)
+  expect_equal(nrow(result), n_var + n_coeff + n_postsim)
 })
 
 test_that("ems_compose selects a variable", {

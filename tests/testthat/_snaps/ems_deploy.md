@@ -51,7 +51,7 @@
     Code
       cmf_path <- ems_deploy(dat, auto_model)
     Message
-      i `auto_omit`: 51 unshocked exogenous variables omitted ("pop", "tinc", "endwslack", ..., "psaveslack", and "pfactwld").
+      i `auto_omit`: 53 unshocked exogenous variables omitted ("pop", "tinc", "endwslack", ..., "psaveslack", and "pfactwld").
       i Omitted variables are absent from solve outputs.
 
 # auto_omit is skipped when a shock file is supplied

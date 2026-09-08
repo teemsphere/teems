@@ -125,8 +125,10 @@
 
     valid_ele <- with(sets$ele, get(.dock_tail(nm)))
     valid_subsets <- with(sets$subsets, get(.dock_tail(nm)))
+    # the IF rewrite's synthetic partition sets are not user-facing
+    valid_subsets <- valid_subsets[!grepl("^IFS[0-9]+$", valid_subsets)]
 
-    if (all(is.na(valid_subsets))) {
+    if (length(valid_subsets) == 0L || all(is.na(valid_subsets))) {
       vs_check <- character(0)
       valid_subsets <- "*none*"
     } else {

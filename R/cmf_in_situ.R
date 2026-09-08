@@ -8,6 +8,7 @@
                          model_dir,
                          shock_file,
                          closure_file,
+                         ignore_condense = FALSE,
                          call) {
   input_files <- .check_named_dots(input_files)
 
@@ -54,6 +55,7 @@
 
   model <- .process_tablo(
     tab_file = model_file,
+    ignore_condense = ignore_condense,
     quiet = TRUE,
     call = call
   )

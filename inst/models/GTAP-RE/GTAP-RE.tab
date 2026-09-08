@@ -1,17 +1,22 @@
 !<
     =============================
     Global Trade Analysis Project
-    GTAP-RE: An Intertemporal Rational Expectations Version of the GTAPv7.0 Model 
-    GTAP-RE Version 1
-    May 2025
+    The GTAP Modeling Framework
+    GTAP-RE: An Intertemporal Rational Expectations Version of the GTAPv7.1 Model
+    GTAP-RE Version 2
+    September 2026
+    Trade and Environment Equilibrium Modeling System (TEEMS)
     =============================
 
-    For documentation see:
-    Pham Van Ha, Tom Kompas, and Matthew Cantele. Rethinking the Solution 
-    Strategy for Large Recursive CGE Models: Solving Recursive and Rational 
+    For the rational expectations extension see:
+    Pham Van Ha, Tom Kompas, and Matthew Cantele. Rethinking the Solution
+    Strategy for Large Recursive CGE Models: Solving Recursive and Rational
     Expectations CGE Models the Non-Recursive Way. Unpublished University of
     Melbourne manuscript. Contact the lead author for documentation.
 
+    For the GTAPv7 core see:
+
+    For documentation see:
     Erwin L. Corong, Thomas W. Hertel, Robert A. McDougall, Marinos E. Tsigas, 
     and Dominique van der Mensbrugghe. The Standard GTAP Model, Version 7. 
     Journal of Global Economic Analysis, [S.l.], v.2, n.1, p. 1-119, june 2017. 
@@ -97,6 +102,17 @@
               - [NEW] World GDP indices (qgdpwld,pgdpwld,vgdpwld) in Section B-3.
     Aug 2023: Added [NEW] aggregate quantity index for private household demand, 
               qpriv(r), and government demand, qgov(r), in Sections 5-1 and 5-2.
+    Sep 2026: GTAP-RE Version 2: the version 7.1 core above, time-indexed over
+              ALLTIME, with the intertemporal rational expectations components
+              of GTAP-RE Version 1 (May 2025) spliced in: time sets read from
+              GTAPINT, a convex-adjustment-cost investment function (capi, VCAPI),
+              capital accumulation over FWDTIME (kdelta, VKDELTA, VPINV) and the
+              present-value rational expectations mechanism (pval, ror_act,
+              REDELTA/RESEDELTA/REEXODELTA switches, ROREXPECTED in place of
+              E_rore). TEEMS conventions: sluggish and fixed endowments declared
+              explicitly (ENDWS, ENDWF); no VERNUM; the gtapv7.sti omissions
+              appended as an Omit statement (no backsolves: substitution densifies
+              the block structure the intertemporal methods rely on).
                  	
     ----------------------------------
     Overview of the GTAP.TAB Structure
@@ -148,11 +164,13 @@
 File
     GTAPSETS # file with set specification #;
 File
-    GTAPDATA # file containing all base data #;
+    GTAPDATA # file containing all Base Data #;
 File
     GTAPPARM # file containing behavioral parameters #;
 File
     GTAPINT # file containing GTAP-INT intertemporal-specific coefficients #;
+File (new)
+    GTAPSUM # file containing data summary and accounting checks #;
 
 !<
     --------------------
@@ -208,57 +226,6 @@ File
 
 >!
 
-
-Set
-    REG # regions #
-    read elements from file GTAPSETS header "REG";                 
-Set
-    COMM # commodities #
-    read elements from file GTAPSETS header "COMM";                
-Set
-    MARG # margin commodities #
-    read elements from file GTAPSETS header "MARG";                
-Subset
-    MARG is subset of COMM;                              
-Set
-    NMRG # non-margin commodities # = COMM - MARG;  
-Set
-    ACTS # Activities # 
-    read elements from file GTAPSETS header "ACTS";                
-Set 
-    ENDW # endowments #
-    read elements from file GTAPSETS header "ENDW";
-Set !< The single element ENDWC set is defined for the sake of convenience >!
-    ENDWC # capital endowment # (capital);
-Subset
-    ENDWC is subset of ENDW;
-Set
-    ENDWF # Sector-specific endowment # (natlres);
-Set
-    ENDWS # sluggish endowment # (land);
-Set
-    ENDWFS # fixed and sluggish endowments # = ENDWF + ENDWS;
-Subset
-    ENDWFS is subset of ENDW;
-Set
-    ENDWM # mobile endowments # = ENDW - ENDWFS;
-Subset
-    ENDWM is subset of ENDW;
-Subset
-    ENDWC is subset of ENDWM;
-Subset
-    ENDWS is subset of ENDW;
-Set 
-    ENDWMS # mobile and sluggish endowments # = ENDWM + ENDWS;
-Subset
-    ENDWMS is subset of ENDW;
-Subset
-    ENDWC is subset of ENDWMS;
-Set
-    ENDWMSNC # mobile and sluggish not capital # = ENDWMS - ENDWC;
-Set
-    DEMD # demanded commodities and endowments # = ENDW + COMM;
-
 Coefficient (integer)
     NTSP # Number of timesteps #;
 Read
@@ -284,6 +251,60 @@ Set (intertemporal)
 Subset INITIME is subset of ALLTIME;
 Subset ENDTIME is subset of ALLTIME;
 Subset FWDTIME is subset of ALLTIME;
+
+Set
+    REG # regions #
+    read elements from file GTAPSETS header "REG";                 
+Set
+    COMM # commodities #
+    read elements from file GTAPSETS header "COMM";                
+Set
+    MARG # margin commodities #
+    read elements from file GTAPSETS header "MARG";                
+Subset
+    MARG is subset of COMM;                              
+Set
+    NMRG # non-margin commodities # = COMM - MARG;  
+Set
+    ACTS # activities # 
+    read elements from file GTAPSETS header "ACTS";                
+Set 
+    ENDW # endowments #
+    read elements from file GTAPSETS header "ENDW";
+Set !< The single element ENDWC set is defined for the sake of convenience >!
+    ENDWC # capital endowment # (capital);
+Subset
+    ENDWC is subset of ENDW;
+!<
+    TEEMS: the sluggish and sector-specific (fixed) endowments are declared
+    explicitly rather than read from the ENDOWFLAG parameter (header EFLG).
+>!
+Set
+    ENDWF # sector-specific endowment # (natlres);
+Set
+    ENDWS # sluggish endowment # (land);
+Set
+    ENDWFS # fixed and sluggish endowments # = ENDWF + ENDWS;
+Subset
+    ENDWFS is subset of ENDW;
+Set
+    ENDWM # mobile endowments # = ENDW - ENDWFS;
+Subset
+    ENDWM is subset of ENDW;
+Subset
+    ENDWS is subset of ENDW;
+Set 
+    ENDWMS # mobile and sluggish endowments # = ENDWM + ENDWS;
+Subset
+    ENDWMS is subset of ENDW;
+Subset
+    ENDWC is subset of ENDWMS;
+Subset
+    ENDWC is subset of ENDWM;
+Set
+    ENDWMSNC # mobile and sluggish not capital # = ENDWMS - ENDWC;
+Set
+    DEMD # demanded commodities and endowments # = ENDW + COMM;
 
 !<
     -------------------
@@ -727,13 +748,8 @@ Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
 !<  Commodity supply = Commodity demand >!
 Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VCB(c,r,t) # supply of commodity c in region r valued at basic prices #;
-!Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    VCB(c,r,t) = VDB(c,r,t) + sum{d,REG, VXSB(c,r,d)} + IF[c in MARG, VST(c,r,t)];!
-Formula (all,c,NMRG)(all,r,REG)(all,t,ALLTIME)
-    VCB(c,r,t) = VDB(c,r,t) + sum{d,REG, VXSB(c,r,d,t)};
-Formula (all,c,MARG)(all,r,REG)(all,t,ALLTIME)
-    VCB(c,r,t) = VDB(c,r,t) + sum{d,REG, VXSB(c,r,d,t)} + VST(c,r,t);
-
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    VCB(c,r,t) = VDB(c,r,t) + sum{d,REG, VXSB(c,r,d,t)} + IF[c in MARG, VST(c,r,t)];
 
 !<
     Regional expenditure and income
@@ -909,7 +925,7 @@ Formula (all,d,REG)(all,t,ALLTIME)
     A-4. Commom COEFFICIENTS/PARAMETERS
     -----------------------------------
     Common coefficients are defined as coefficients which are used in more
-    than one module. For example, ESUBD(c,r,t) is used in the goverment household,
+    than one module. For example, ESUBD(c,r) is used in the goverment household,
     private household, and firms modules.
 >!
 
@@ -959,7 +975,7 @@ E_inv #Investment function# (all,r,REG)(all,t,ALLTIME)
 Coefficient (all,r,REG)(all,t,ALLTIME)
     NETINV(r,t) # regional NET investment in region r #;
 Formula (all,r,REG)(all,t,ALLTIME)
-    NETINV(r,t) = VCAPI(r,t)!REGINV(r,t)! - VDEP(r,t);
+    NETINV(r,t) = VCAPI(r,t) - VDEP(r,t);
 
 !< Net global investment expenditure >!
 Coefficient (all,t,ALLTIME)
@@ -998,7 +1014,7 @@ Assertion (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ESUBD(c,r,t) ge 0;
     ---------------------
 
     Common variables are defined as variables which are used in more than one
-    module. For example, the variable y(r,t) is used in the Goverment 
+    module. For example, the variable y(r) is used in the Goverment 
     Consumption, Private Consumption, Firms, Regional Household and
     Investment, Global Bank and Saving modules. 
     Appendices, e.g., Summary Indices, are not included in this definition.
@@ -1069,26 +1085,26 @@ Variable (all,t,ALLTIME)
     We now turn to the behavioral equations for firms. The following picture
     describes the firms production structure.
 
-                                 qo(a,r,t)  [ao(a,r,t)]
+                                 qo(a,r)  [ao(a,r)]
                                  /\
                                 /  \  <----- CES[ESUBT]
                                /    \
                               /      \
                              /        \
-            [ava(a,r,t)]  qva(a,r,t)     qint(a,r,t)  [aint(a,r,t)]
+            [ava(a,r)]  qva(a,r)     qint(a,r)  [aint(a,r)]
                         /|\            |   
     CES[ESUBVA]----->  / | \           |  <------ CES[ESUBC] 
                       /  |  \          |   
                      /   |   \         |  
                     /    |    \        | 
-                Land  Labor  Capital  qfa(c,a,r,t)  [afa(c,a,r,t)] 
-                   qfe(e,a,r,t)          /\
-                  [afe(e,a,r,t)]        /  \  <----- CES[ESUBD] 
+                Land  Labor  Capital  qfa(c,a,r)  [afa(c,a,r)] 
+                   qfe(e,a,r)          /\
+                  [afe(e,a,r)]        /  \  <----- CES[ESUBD] 
                                      /    \
                                     /      \
                                    /        \
                                Domestic    Foreign
-                               qfd(c,a,r,t)  qfm(c,a,r,t)
+                               qfd(c,a,r)  qfm(c,a,r)
 
     1-1. Top production nest
     1-2. Second level nests
@@ -1283,8 +1299,8 @@ Equation E_pfa
 >!
 
 !< Hicks-neutral technical change shifters >!
-Variable (all,a,ACTS)
-    aosec(a) # output tech change for act. a, worldwide #;
+Variable (all,a,ACTS)(all,t,ALLTIME)
+    aosec(a,t) # output tech change for act. a, worldwide #;
 Variable (all,r,REG)(all,t,ALLTIME)
     aoreg(r,t) # specific output tech change in region r #;
 Variable (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
@@ -1292,7 +1308,7 @@ Variable (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
 Equation E_ao
 # sector/region specific average rate of output augmenting tech change #
 (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    ao(a,r,t) = aosec(a) + aoreg(r,t) + aoall(a,r,t);
+    ao(a,r,t) = aosec(a,t) + aoreg(r,t) + aoall(a,r,t);
 
 !< Intermediate input technical change and shifters >!
 Variable (all,c,COMM)(all,t,ALLTIME)
@@ -1358,15 +1374,15 @@ Equation E_aint
     commodity produced by multiple activities wish to minimize the total cost 
     of supply subject to a CES preference function.
 
-                                 qo(a,r,t)  [ao(a,r,t)]
+                                 qo(a,r)  [ao(a,r)]
                                   |
                CET[ETRAQ] ----->  | 'make'
                                   |
-                               qca(c,a,r,t)
+                               qca(c,a,r)
                                   |
                CES[ESUBQ] ----->  |  'sourcing' 
                                   |
-                                qc(c,r,t)  
+                                qc(c,r)  
 >!
 
 Coefficient (parameter)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
@@ -1387,21 +1403,11 @@ Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     MAKESACTSHR(c,a,r,t) = MAKES(c,a,r,t) / MAKESCOM(a,r,t);
 Zerodivide off;
 
-!change to avoid complicated if() operator in equation!
-Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    MAKESUNIT(c,a,r,t) # make unit #;
-Zerodivide (zero_by_zero) default 0;
-Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    MAKESUNIT(c,a,r,t)=MAKES(c,a,r,t)/MAKES(c,a,r,t);
-Zerodivide off;
-Formula (all,c,COMM)(all,a,ACTS)(all,t,ALLTIME)(all,r,REG:MAKES(c,a,r,t)<0)
-    MAKESUNIT(c,a,r,t)=0;
 Equation E_qca
 # supply of commodities by act. a #
 (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME) 
-    qca(c,a,r,t) = !IF[MAKES(c,a,r,t) gt 0,! 
-       MAKESUNIT(c,a,r,t)*qo(a,r,t) 
-           - MAKESUNIT(c,a,r,t)*ETRAQ(a,r,t) * [ps(c,a,r,t) - po(a,r,t)]!]!;
+    qca(c,a,r,t) = IF[MAKES(c,a,r,t) gt 0, 
+                    qo(a,r,t) - ETRAQ(a,r,t) * [ps(c,a,r,t) - po(a,r,t)]];
 
 Equation E_po 
 # average unit (tax-exclusive) cost of output of act. a #
@@ -1416,8 +1422,8 @@ Equation E_ps
     E_ps links supplier/producer (pre-) and basic (post-tax) prices for firms.
     This captures the effect of output taxes or subsidies.  
     Note: The power of activity tax, to, is commodity- and activity-specific. 
-          to(c,a,r,t) > 1 in the case of a tax 
-          to(c,a,r,t) < 1 in the case of a subsidy. 
+          to(c,a,r) > 1 in the case of a tax 
+          to(c,a,r) < 1 in the case of a subsidy. 
 >!
 
 Variable (all,a,ACTS)(all,r,REG)(all,t,ALLTIME) 
@@ -1439,13 +1445,13 @@ Coefficient (parameter)(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     # 1/CES elast. for sourcing of commodity c produced by various activities #;
 Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) 
     ESUBQ(c,r,t) = 0.0; ! ie, Default 0.0 means perfect substitutes ! 
-!change for compatibility!
+Read (ifheaderexists) ESUBQ from file GTAPPARM header "ESBQ";
 Assertion (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ESUBQ(c,r,t) ge 0; 
 !< 
     ESUBQ is 1/CES elasticity. ESUBQ=0.0 means that commodity c produced by 2 
     or more activities are perfect substitutes--i.e., each activity receives the 
     same price (i.e., the law of one price holds) for a given commodity. 
-    In the equation E_pca below,  pca(c,a,r,t) = pds(c,r,t) if ESUBQ = 0.0  
+    In the equation E_pca below,  pca(c,a,r) = pds(c,r) if ESUBQ = 0.0  
     But this will not work well if two or more activities each only produce the 
     same good (e.g., CoalElec and NuclearElec each only produce electricity), 
     resulting in structurally singular matrix problems, especially under the 
@@ -1469,21 +1475,11 @@ Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     MAKEBCOMSHR(c,a,r,t) = MAKEB(c,a,r,t) / MAKEBCOM(c,r,t);
 Zerodivide off;
 
-!change to avoid complicated if()!
-Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    MAKEBUNIT(c,a,r,t) # make unit #;
-Zerodivide (zero_by_zero) default 0;
-Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    MAKEBUNIT(c,a,r,t)=0;
-Formula (all,c,COMM)(all,a,ACTS)(all,t,ALLTIME)(all,r,REG:MAKEB(c,a,r,t)>0)
-    MAKEBUNIT(c,a,r,t)=1;
-Zerodivide off;
 Equation E_pca  
-# CES allocation of commodity output by activity (ESUBQ(c,r,t) is 1/CES elast.) #
+# CES allocation of commodity output by activity (ESUBQ(c,r) is 1/CES elast.) #
 (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME) 
-    pca(c,a,r,t) = !IF[MAKEB(c,a,r,t) gt 0,! 
-                    MAKEBUNIT(c,a,r,t)*pds(c,r,t) 
-                      - MAKEBUNIT(c,a,r,t)*ESUBQ(c,r,t) * [qca(c,a,r,t) - qc(c,r,t)]!]!;
+    pca(c,a,r,t) = IF[MAKEB(c,a,r,t) gt 0, 
+                    pds(c,r,t) - ESUBQ(c,r,t) * [qca(c,a,r,t) - qc(c,r,t)]];            
 
 Equation E_qc
 # market clearing condition for total commodity supply #
@@ -1732,7 +1728,7 @@ Equation E_qpa
         = sum{k,COMM, EP(c,k,r,t) * ppa(k,r,t)} + EY(c,r,t) * [yp(r,t) - pop(r,t)];
 !<
     E_qpa defines private consumption demands for composite commodities.  
-    Demand system is on a per capita basis. Here, yp(r,t) - pop(r,t) is % change in 
+    Demand system is on a per capita basis. Here, yp(r) - pop(r) is % change in 
     per capita income.  
 >!
 
@@ -2050,11 +2046,11 @@ Formula (all,m,MARG)(all,t,ALLTIME)
 
 Coefficient (all,m,MARG)(all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     VTFSD_MSH(m,c,s,d,t) # share of margin m in cost of getting c from s to d #;
-Formula (all,m,MARG)(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-        (all,d,REG: VTFSD(c,r,d,t) > 0.0)
+Formula (all,m,MARG)(all,c,COMM)(all,r,REG)
+        (all,t,ALLTIME)(all,d,REG: VTFSD(c,r,d,t) > 0.0)
     VTFSD_MSH(m,c,r,d,t) = VTMFSD(m,c,r,d,t) / VTFSD(c,r,d,t);
-Formula (all,m,MARG)(all,c,COMM)(all,s,REG)(all,t,ALLTIME)
-        (all,d,REG: VTFSD(c,s,d,t) = 0.0)
+Formula (all,m,MARG)(all,c,COMM)(all,s,REG)
+        (all,t,ALLTIME)(all,d,REG: VTFSD(c,s,d,t) = 0.0)
     VTFSD_MSH(m,c,s,d,t) = VTMUSE(m,t) / VTUSE(t);
 
 Equation E_ptrans
@@ -2086,8 +2082,8 @@ Coefficient (all,m,MARG)(all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     VTMUSESHR(m,c,s,d,t) # share of c,s,d usage in global demand for m #;
 Formula (all,m,MARG)(all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     VTMUSESHR(m,c,s,d,t) = VTFSD(c,s,d,t) / VT(t);
-Formula (all,t,ALLTIME)
-    (all,m,MARG: VTMUSE(m,t) <> 0.0)(all,c,COMM)(all,s,REG)(all,d,REG)
+Formula
+    (all,t,ALLTIME)(all,m,MARG: VTMUSE(m,t) <> 0.0)(all,c,COMM)(all,s,REG)(all,d,REG)
     VTMUSESHR(m,c,s,d,t) = VTMFSD(m,c,s,d,t) / VTMUSE(m,t);
 
 Equation E_qtm
@@ -2172,11 +2168,11 @@ Variable (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     target variable.  It is most naturally swapped with the variable qo to
     insulate domestic producers from the world market.
 
-    The sign of tx(c,r,t) and txs(c,s,d) has been CHANGED in GTAP model version 7
-    tx(c,r,t)  > 1 in the case of a tax 
-    txs(c,r,t) > 1 in the case of a tax 
-    tx(c,r,t)  < 1 in the case of a subsidy. 
-    txs(c,r,t) < 1 in the case of a subsidy. 
+    The sign of tx(c,r) and txs(c,s,d) has been CHANGED in GTAP model version 7
+    tx(c,r)  > 1 in the case of a tax 
+    txs(c,r) > 1 in the case of a tax 
+    tx(c,r)  < 1 in the case of a subsidy. 
+    txs(c,r) < 1 in the case of a subsidy. 
 >!
 
 Equation E_pfob
@@ -2298,18 +2294,11 @@ Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
 Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     XSSHR(c,s,d,t) = VXSB(c,s,d,t) / VCB(c,s,t);
 
-!change to avoid complicated if()!
-Equation E_pdsnmrg
+Equation E_pds
 # assures market clearing for commodities #
-(all,c,NMRG)(all,r,REG)(all,t,ALLTIME)
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     qc(c,r,t) = DSSHR(c,r,t) * qds(c,r,t) + sum(d,REG, XSSHR(c,r,d,t) * qxs(c,r,d,t)) 
-            !+ IF[c in MARG, STSHR(c,r,t) * qst(c,r,t)]! 
-            + tradslack(c,r,t);
-Equation E_pdsmarg
-# assures market clearing for commodities #
-(all,c,MARG)(all,r,REG)(all,t,ALLTIME)
-    qc(c,r,t) = DSSHR(c,r,t) * qds(c,r,t) + sum(d,REG, XSSHR(c,r,d,t) * qxs(c,r,d,t)) 
-            + !IF[c in MARG, !STSHR(c,r,t) * qst(c,r,t)!]! 
+            + IF[c in MARG, STSHR(c,r,t) * qst(c,r,t)] 
             + tradslack(c,r,t);
 
 !<
@@ -2405,7 +2394,7 @@ Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
 Variable (all,r,REG)(all,t,ALLTIME)
     tpreg(r,t) # source-generic tax shifter on private cons. #;
 !<
-    The variable tpreg(r,t) can be swapped with del_ttaxr(r,t) in order to generate 
+    The variable tpreg(r) can be swapped with del_ttaxr(r) in order to generate 
     a tax replacement scenario, whereby taxes remain a constant share of
     national income.
 >!
@@ -2468,12 +2457,12 @@ Equation E_qes2
     qes(e,a,r,t) = qe(e,r,t) - ETRAE(e,r,t) * [pes(e,a,r,t) - pe(e,r,t)]
                - endwslack(e,r,t);
 
-Zerodivide default RNREG;
+zerodivide default RNREG;
 Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     REVSHR(e,a,r,t) # Share of endowment e in total endowment revenue/supply #;
 Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     REVSHR(e,a,r,t) = EVOS(e,a,r,t) / VES(e,r,t);
-Zerodivide off;
+zerodivide off;
 
 Equation E_pe2
 # composite price for sluggish endowments #
@@ -2530,6 +2519,12 @@ Equation E_peb !< This equation assures market clearing for all endowments >!
 >!
 Variable (all,r,REG)(all,t,ALLTIME)
     ke(r,t) # end-of-period capital stock in r #;
+!<
+    VKB(r) is used only in this sub-module, so its data are read here.  The
+    associated variables, pinv(r) and kb(r), are used across modules, so they
+    have been defined as common variables.
+>!
+
 Coefficient (ge 0)(all,r,REG)(all,t,FWDTIME)
     VKDELTA(r,t) # value of beginning-of-period capital stock in region r #;
 Variable (all,r,REG)(all,t,FWDTIME)
@@ -2576,7 +2571,7 @@ Coefficient (all,r,REG)(all,t,ALLTIME)
 Formula (all,r,REG)(all,t,ALLTIME)
     GRNETRATIO(r,t) = GROSSCAP(r,t) / [GROSSCAP(r,t) - VDEP(r,t)];
 !<
-    NOTE: [GROSSCAP(r,t) - VDEP(r,t)] is net returns to capital.
+    NOTE: [GROSSCAP(r) - VDEP(r)] is net returns to capital.
 >!
 
 Variable (all,r,REG)(all,t,ALLTIME)
@@ -2584,7 +2579,7 @@ Variable (all,r,REG)(all,t,ALLTIME)
 Variable (all,r,REG)(all,t,ALLTIME)
     rorc(r,t) # current net rate of return on capital stock in r #;
 Variable (all,r,REG)(all,t,ALLTIME)
-    rental(r,t) # rental rate on capital = ps("capital",r,t) #;
+    rental(r,t) # rental rate on capital = ps("capital",r) #;
 
 Equation E_rental
 # defines a variable for capital rental rate #
@@ -2667,11 +2662,12 @@ Variable (all,r,REG)(all,t,ALLTIME)
     ror_act(r,t) # actual rate of return #;
 Variable (all,r,REG)(all,t,ALLTIME)
     ror_exo(r,t) # actual rate of return #;
+
 Variable (all,t,ALLTIME)
     rorg(t) # global net rate of return on capital stock #;
 
 Update (all,t,ALLTIME)
-    VRORG(t) = rorg(t); 
+    VRORG(t) = rorg(t);
 
 Equation PVALFWDTIME
 # present value of a unit of capital #
@@ -2716,13 +2712,13 @@ Formula (initial)
     RORDELTA is a binary coefficient which determines the mechanism of
     allocating investment funds across regions.  When RORDELTA = 1, investment
     funds are allocated across regions to equate the change in the expected
-    rates of return (i.e., rore(r,t)).  When RORDELTA = 0, investment funds are
+    rates of return (i.e., rore(r)).  When RORDELTA = 0, investment funds are
     allocated across regions to maintain the existing composition of capital
     stocks.
 >!
 
 Variable (all,r,REG)(all,t,ALLTIME)
-    cgdslack(r,t) # slack variable for qinv(r,t) #;
+    cgdslack(r,t) # slack variable for qinv(r) #;
 !<
     cgdslack is exogenous, unless the user wishes to exogenously fix the level 
     of gross investment in a region, in which case it can be swapped with
@@ -2734,7 +2730,7 @@ Equation E_qinv
 (all,r,REG)(all,t,ALLTIME)
     RORDELTA * rore(r,t)
     + [1 - RORDELTA]
-    * [[!REGINV(r,t)!VCAPI(r,t) / NETINV(r,t)] * capi(r,t)!qinv(r,t)! - [VDEP(r,t) / NETINV(r,t)] * kb(r,t)]
+    * [[VCAPI(r,t) / NETINV(r,t)] * capi(r,t) - [VDEP(r,t) / NETINV(r,t)] * kb(r,t)]
         = RORDELTA * rorg(t) + [1 - RORDELTA] * globalcgds(t) + cgdslack(r,t);
 !<
     This equation determines either gross investment or the expected rate of
@@ -2763,7 +2759,7 @@ Equation E_globalcgds
     RORDELTA * globalcgds(t) + [1 - RORDELTA] * rorg(t)
         = RORDELTA
         * sum{r,REG,
-            [VCAPI(r,t)!REGINV(r,t)! / GLOBINV(t)] * capi(r,t)!qinv(r,t)! - [VDEP(r,t) / GLOBINV(t)] * kb(r,t)}
+            [VCAPI(r,t) / GLOBINV(t)] * capi(r,t) - [VDEP(r,t) / GLOBINV(t)] * kb(r,t)}
         + [1 - RORDELTA] * sum{r,REG, [NETINV(r,t) / GLOBINV(t)] * rore(r,t)};
 !<
     E_globalcgds equation computes either the change in global net investment 
@@ -2961,7 +2957,7 @@ Equation E_del_ttaxr
         = del_indtaxr(r,t) + del_taxrinc(r,t);
 !<
    The del_ttaxr variable can be swapped with the commodity- and source-generic
-   consumption tax shift, tp(r,t), in order to generate a tax replacement
+   consumption tax shift, tp(r), in order to generate a tax replacement
    scenario, whereby taxes remain a constant share of national income.
 >!
 
@@ -3021,7 +3017,7 @@ Equation E_walras_sup
 !<
     This is an extra equation which simply computes change in supply in the
     omitted market.  (modified from HT 12 to reflect the value as opposed to
-    quantity change, in light of the new treatment of psave(r,t))
+    quantity change, in light of the new treatment of psave(r))
 >!
 
 Equation E_walras_dem
@@ -3088,11 +3084,8 @@ Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
 
 Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VXW(c,r,t) # value of exports by commodity c and region r at FOB prices #;
-!change to avoid complicated if()!
-Formula (all,c,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VXW(c,r,t) = VXDFOB(c,r,t) !+ IF[c in MARG, VST(c,r,t)]!;
-Formula (all,c,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VXW(c,r,t) = VXDFOB(c,r,t) + !IF[c in MARG, !VST(c,r,t)!]!;
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    VXW(c,r,t) = VXDFOB(c,r,t) + IF[c in MARG, VST(c,r,t)];
 
 Coefficient (all,r,REG)(all,t,ALLTIME)
     VXWREGION(r,t) # value of exports by region r at FOB prices #;
@@ -3187,7 +3180,7 @@ Equation E_pdw
 >!
 
 Variable (orig_level=1.0)(all,r,REG)(all,t,ALLTIME)
-    tot(r,t) # terms of trade for region r: tot(r,t) = psw(r,t) - pdw(r,t) #;
+    tot(r,t) # terms of trade for region r: tot(r) = psw(r) - pdw(r) #;
 Equation E_tot
 # terms of trade equation computed as difference in psw and pdw #
 (all,r,REG)(all,t,ALLTIME)
@@ -3210,6 +3203,8 @@ Formula
 (all,s,REG)(all,t,ALLTIME) GDPEXP(s,"Exports",t)      = sum{c,COMM, sum{d,REG, VFOB(c,s,d,t)}};  
 (all,r,REG)(all,t,ALLTIME) GDPEXP(r,"IntnlMargins",t) = sum{m,MARG, VST(m,r,t)};  
 (all,d,REG)(all,t,ALLTIME) GDPEXP(d,"Imports",t)      = - sum{c,COMM, sum{s,REG, VCIF(c,s,d,t)}}; 
+Write 
+    GDPEXP to file GTAPSUM header "GDPE"; 
 
 Variable (all,r,REG)(all,t,ALLTIME)
     vgdp(r,t) # change in value of GDP #;
@@ -3273,7 +3268,7 @@ Formula (all,t,ALLTIME)
     GDPWLD(t) = sum{r,REG, GDP(r,t)};
 
 Equation E_qgdpwld
-# percent change in world real GDP #(all,t,ALLTIME)
+# percent change in world real GDP # (all,t,ALLTIME)
     GDPWLD(t) * qgdpwld(t) = sum{r,REG, GDP(r,t) * qgdp(r,t)};
 
 Equation E_pgdpwld
@@ -3342,11 +3337,8 @@ Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
 
 Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VOW(c,r,t) # value of commodity output in r at FOB incl transp. services #;
-!change to avoid complicated if()!
-Formula (all,c,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VOW(c,r,t) = VDB(c,r,t) * PW_PM(c,r,t) + VXDFOB(c,r,t) !+ IF[c in MARG, + VST(c,r,t)]!;
-Formula (all,c,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VOW(c,r,t) = VDB(c,r,t) * PW_PM(c,r,t) + VXDFOB(c,r,t) + !IF[c in MARG, + !VST(c,r,t)!]!;
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    VOW(c,r,t) = VDB(c,r,t) * PW_PM(c,r,t) + VXDFOB(c,r,t) + IF[c in MARG, + VST(c,r,t)];
 
 Coefficient (all,c,COMM)(all,t,ALLTIME)
     VWOW(c,t) # value of world supply at world prices for c #;
@@ -3364,19 +3356,12 @@ Formula (all,c,COMM)(all,t,ALLTIME)
     .................................
 >!
 
-!change to avoid complicated if()!
-Equation E_vxwfobnmrg
+Equation E_vxwfob
 # the change in FOB value of exports of m from r #
-(all,c,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VXW(c,r,t) * vxwfob(c,r,t)
         = sum{d,REG, VFOB(c,r,d,t) * [qxs(c,r,d,t) + pfob(c,r,d,t)]}
-        !+ IF[c in MARG, VST(c,r,t) * [qst(c,r,t) + pds(c,r,t)]]!;
-Equation E_vxwfobmarg
-# the change in FOB value of exports of m from r #
-(all,c,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VXW(c,r,t) * vxwfob(c,r,t)
-        = sum{d,REG, VFOB(c,r,d,t) * [qxs(c,r,d,t) + pfob(c,r,d,t)]}
-        + !IF[c in MARG, !VST(c,r,t) * [qst(c,r,t) + pds(c,r,t)]!]!;
+        + IF[c in MARG, VST(c,r,t) * [qst(c,r,t) + pds(c,r,t)]];
 
 Equation E_vxwreg
 # computes % change in value of merchandise exports, by region #
@@ -3437,19 +3422,12 @@ Equation E_valuewu
     .................................
 >!
 
-!change to avoid complicated if()!
-Equation E_pxwnmrg
+Equation E_pxw
 # change in FOB price index of exports of m from r #
-(all,C,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
+(all,C,COMM)(all,r,REG)(all,t,ALLTIME)
     VXW(c,r,t) * pxw(c,r,t)
         = sum{d,REG, VFOB(c,r,d,t) * pfob(c,r,d,t)} 
-        !+ IF[c in MARG, VST(c,r,t) * pds(c,r,t)]!;
-Equation E_pxwmarg
-# change in FOB price index of exports of m from r #
-(all,C,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VXW(c,r,t) * pxw(c,r,t)
-        = sum{d,REG, VFOB(c,r,d,t) * pfob(c,r,d,t)} 
-        + !IF[c in MARG, !VST(c,r,t) * pds(c,r,t)!]!;
+        + IF[c in MARG, VST(c,r,t) * pds(c,r,t)];
 
 Variable (orig_level=1.0)(all,r,REG)(all,t,ALLTIME)
     pxwreg(r,t) # price index of merchandise exports, by region #;
@@ -3517,19 +3495,12 @@ Equation E_pwu
 
 Variable (orig_level=VXW)(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     qxw(c,r,t) # aggregate exports of c from region r, FOB weights #;
-!change to avoid complicated if()!
-Equation E_qxwnmrg
+Equation E_qxw
 # change in volume of exports of (margin and non-margin) commodity c from r #
-(all,c,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VXW(c,r,t) * qxw(c,r,t)
         = sum{d,REG, VFOB(c,r,d,t) * qxs(c,r,d,t)} 
-        !+ IF[c in MARG, VST(c,r,t) * qst(c,r,t)]!;
-Equation E_qxwmarg
-# change in volume of exports of (margin and non-margin) commodity c from r #
-(all,c,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    VXW(c,r,t) * qxw(c,r,t)
-        = sum{d,REG, VFOB(c,r,d,t) * qxs(c,r,d,t)} 
-        + !IF[c in MARG, !VST(c,r,t) * qst(c,r,t)!]!;
+        + IF[c in MARG, VST(c,r,t) * qst(c,r,t)];
 !<
     modified from HT 89 for use with AnalyseGE
 >!
@@ -3651,7 +3622,7 @@ Variable (all,t,ALLTIME)
     ywld(t) # world income #;     
 Coefficient (all,t,ALLTIME) 
     INCOMEWLD(t) # World income #;
-Formula (all,t,ALLTIME)
+Formula (all,t,ALLTIME) 
     INCOMEWLD(t) = sum{r,REG, INCOME(r,t)};
 
 Equation E_ywld 
@@ -3699,11 +3670,8 @@ Formula (all,m,MARG)(all,d,REG)(all,t,ALLTIME)
 
 Coefficient (all,c,COMM)(all,d,REG)(all,t,ALLTIME)
     VMWDCRALL(c,d,t) # imports of c into d, with direct allocation of margins #;
-!change to avoid complicated if()!
-Formula (all,c,NMRG!COMM!)(all,s,REG)(all,t,ALLTIME)
-    VMWDCRALL(c,s,t) = sum{r,REG, VFOB(c,r,s,t)}! + IF[c in MARG, VTMCOMM(c,s)]!;
-Formula (all,c,MARG!COMM!)(all,s,REG)(all,t,ALLTIME)
-    VMWDCRALL(c,s,t) = sum{r,REG, VFOB(c,r,s,t)} + !IF[c in MARG, !VTMCOMM(c,s,t)!]!;
+Formula (all,c,COMM)(all,d,REG)(all,t,ALLTIME)
+    VMWDCRALL(c,d,t) = sum{s,REG, VFOB(c,s,d,t)} + IF[c in MARG, VTMCOMM(c,d,t)];
 
 Coefficient (all,r,REG)(all,t,ALLTIME)
     VMWDATOT(r,t) # total imports into r, calculated on direct allocation basis #;
@@ -3727,19 +3695,12 @@ Formula (all,m,MARG)(all,d,REG)(all,t,ALLTIME)
 
 Variable (all,c,COMM)(all,d,REG)(all,t,ALLTIME)
     pm_cr(c,d,t) # imports price index for good c and importing region d #;
-!change to avoid complicated if()!
-Equation E_pm_crnmrg
-# price index for total imports of m in s -- margins commodities #
-(all,c,NMRG!COMM!)(all,s,REG)(all,t,ALLTIME)
-    pm_cr(c,s,t)
-        = sum{r,REG, SM_CRS(c,r,s,t) * pfob(c,r,s,t)} 
-        !+ IF[c in MARG, SMT_CR(c,s) * pt(c)]!;
-Equation E_pm_crmarg
-# price index for total imports of m in s -- margins commodities #
-(all,c,MARG!COMM!)(all,s,REG)(all,t,ALLTIME)
-    pm_cr(c,s,t)
-        = sum{r,REG, SM_CRS(c,r,s,t) * pfob(c,r,s,t)} 
-        + !IF[c in MARG, !SMT_CR(c,s,t) * pt(c,t)!]!;
+Equation E_pm_cr
+# price index for total imports of m in d -- margins commodities #
+(all,c,COMM)(all,d,REG)(all,t,ALLTIME)
+    pm_cr(c,d,t)
+        = sum{s,REG, SM_CRS(c,s,d,t) * pfob(c,s,d,t)}
+        + IF[c in MARG, SMT_CR(c,d,t) * pt(c,t)];
 
 Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     c1_cr(c,r,t) # contribution of world price, px_c, to ToT #;
@@ -4284,19 +4245,12 @@ Equation E_CNTqfd
 Variable (linear,change) (all,r,REG)(all,d,DIR)(all,t,ALLTIME)
     CNTqfr(r,d,t)
     # cont. to EV of changes in use of dom. and imp. intermediates in r #;
-!change to avoid complicated if()!
-Equation E_CNTqfrdom
+Equation E_CNTqfr
 # cont. to EV of changes in use of dom. and imp. intermediates in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqfr(r,"domestic"!d!,t)
-        = !IF[d="domestic",! sum{c,COMM, sum{a,ACTS, CNTqfd(c,a,r,t)}}!]!
-        !+ IF[d="imported", sum{c,COMM, sum{a,ACTS, MFTAX(c,a,r,t) *  [qfm(c,a,r,t) - pop(r,t)]}}]!;
-Equation E_CNTqfrimp
-# cont. to EV of changes in use of dom. and imp. intermediates in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqfr(r,"imported"!d!,t)
-        = !IF[d="domestic", sum{c,COMM, sum{a,ACTS, CNTqfd(c,a,r,t)}}]
-        + IF[d="imported", ! sum{c,COMM, sum{a,ACTS, CNTqfm(c,a,r,t)}}!]!;
+(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    CNTqfr(r,d,t)
+        = IF[d="domestic", sum{c,COMM, sum{a,ACTS, CNTqfd(c,a,r,t)}}]
+        + IF[d="imported", sum{c,COMM, sum{a,ACTS, CNTqfm(c,a,r,t)}}];
     
 !< Contribution to EV of changes in commodity use by private households >!
 Variable (linear,change) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
@@ -4318,19 +4272,12 @@ Equation E_CNTqpd
 Variable (linear,change) (all,r,REG)(all,d,DIR)(all,t,ALLTIME)
     CNTqpr(r,d,t)
     # cont. to EV of changes in consumption of dom. and imp. goods in r #;
-!change to avoid complicated if()!
-Equation E_CNTqprdom
+Equation E_CNTqpr
 # cont. to EV of changes in consumption of dom. and imp. goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqpr(r,"domestic"!d!,t)
-        = !IF[d="domestic",! sum{c,COMM, CNTqpd(c,r,t)}!]!
-        !+ IF[d="imported", sum{c,COMM, CNTqpm(c,r,t)}]!;
-Equation E_CNTqprimp
-# cont. to EV of changes in consumption of dom. and imp. goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqpr(r,"imported"!d!,t)
-        = !IF[d="domestic", sum{c,COMM, CNTqpd(c,r,t)}]
-        + IF[d="imported",! sum{c,COMM, CNTqpm(c,r,t)}!]!;
+(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    CNTqpr(r,d,t)
+        = IF[d="domestic", sum{c,COMM, CNTqpd(c,r,t)}]
+        + IF[d="imported", sum{c,COMM, CNTqpm(c,r,t)}];
 
 !< Contribution to EV of changes in commodity use by government >!
 Variable (linear,change) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
@@ -4352,16 +4299,12 @@ Equation E_CNTqgd
 Variable (linear,change) (all,r,REG)(all,d,DIR)(all,t,ALLTIME)
     CNTqgr(r,d,t)
     # cont. to EV of changes in gov't consumption of dom. and imp goods in r #;
-Equation E_CNTqgrdom
+Equation E_CNTqgr
 # cont. to EV of changes in gov't consumption of dom. and imp goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqgr(r,"domestic"!d!,t)
-        = sum{c,COMM, CNTqgd(c,r,t)};
-Equation E_CNTqgrimp
-# cont. to EV of changes in gov't consumption of dom. and imp goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqgr(r,"imported"!d!,t)
-        =  sum{c,COMM, CNTqgm(c,r,t)};
+(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    CNTqgr(r,d,t)
+        = IF[d="domestic", sum{c,COMM, CNTqgd(c,r,t)}]
+        + IF[d="imported", sum{c,COMM, CNTqgm(c,r,t)}];
 
 !< Contribution to EV of changes in commodity use for investment >!
 Variable (linear,change) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
@@ -4383,16 +4326,12 @@ Equation E_CNTqid
 Variable (linear,change) (all,r,REG)(all,d,DIR)(all,t,ALLTIME)
     CNTqia(r,d,t)
     # contribution to EV of changes in dom. and imp. investment goods in r #;
-Equation E_CNTqiadom 
+Equation E_CNTqia 
 # contribution to EV of changes in dom. and imp. investment goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqia(r,"domestic"!d!,t)
-        = sum{c,COMM, CNTqid(c,r,t)};
-Equation E_CNTqiaimp 
-# contribution to EV of changes in dom. and imp. investment goods in r #
-(all,r,REG)(all,t,ALLTIME)!(all,d,DIR)!
-    CNTqia(r,"imported"!d!,t)
-        = sum{c,COMM, CNTqim(c,r,t)};
+(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    CNTqia(r,d,t)
+        = IF[d="domestic", sum{c,COMM, CNTqid(c,r,t)}]
+        + IF[d="imported", sum{c,COMM, CNTqim(c,r,t)}];
 
 !< Contribution to EV of changes in commodity exports >!
 Variable (linear,change) (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
@@ -4560,68 +4499,22 @@ Equation E_CNTpop
 >!
 
 !< Allocative efficiency contributions >!
-Variable (linear,change) (all,r,REG)(all,x,ALLTAX)(all,t,ALLTIME)
-    CNTalleffr(r,x,t) # total contribution to regional EV of allocative effects #;
-!Equation E_CNTalleffr
+Variable (linear,change) (all,r,REG)(all,tt,ALLTAX)(all,t,ALLTIME)
+    CNTalleffr(r,tt,t) # total contribution to regional EV of allocative effects #;
+Equation E_CNTalleffr
 # total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)(all,t,ALLTAX)
-    CNTalleffr(r,t)
-        = IF[t="prodtax",  sum{c,COMM, sum{a,ACTS, CNTqca(c,a,r,t)}} ] 
-        + IF[t="inctax",   sum{e,ENDW, sum{a,ACTS, CNTqea(e,a,r,t)}} ] 
-        + IF[t="pfacttax", sum{e,ENDW, sum{a,ACTS, CNTqfe(e,a,r,t)}} ]
-        + IF[t="inputtax", sum{c,COMM, sum{a,ACTS, CNTqfd(c,a,r,t)
+(all,r,REG)(all,tt,ALLTAX)(all,t,ALLTIME)
+    CNTalleffr(r,tt,t)
+        = IF[tt="prodtax",  sum{c,COMM, sum{a,ACTS, CNTqca(c,a,r,t)}} ] 
+        + IF[tt="inctax",   sum{e,ENDW, sum{a,ACTS, CNTqea(e,a,r,t)}} ] 
+        + IF[tt="pfacttax", sum{e,ENDW, sum{a,ACTS, CNTqfe(e,a,r,t)}} ]
+        + IF[tt="inputtax", sum{c,COMM, sum{a,ACTS, CNTqfd(c,a,r,t)
                                                  + CNTqfm(c,a,r,t)}} ]
-        + IF[t="contax",   sum{c,COMM, CNTqpd(c,r,t) + CNTqpm(c,r,t)}  ]
-        + IF[t="govtax",   sum{c,COMM, CNTqgd(c,r,t) + CNTqgm(c,r,t)}  ]
-        + IF[t="invtax",   sum{c,COMM, CNTqid(c,r,t) + CNTqim(c,r,t)}  ]
-        + IF[t="xtax",     sum{c,COMM, sum{d,REG,  CNTqxs(c,r,d)}} ]
-        + IF[t="mtax",     sum{c,COMM, sum{s,REG,  CNTqms(c,s,r,t)}} ];!
-!change to avoid complicated if()!
-Equation E_CNTalleffrpr
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"prodtax",t)
-        = sum{c,COMM, sum{a,ACTS, CNTqca(c,a,r,t)}};
-Equation E_CNTalleffrinc
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"inctax",t)
-        = sum{e,ENDW, sum{a,ACTS, CNTqea(e,a,r,t)}};
-Equation E_CNTalleffrpf
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"pfacttax",t)
-        = sum{e,ENDW, sum{a,ACTS, CNTqfe(e,a,r,t)}};
-Equation E_CNTalleffrin
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"inputtax",t)
-        = sum{c,COMM, sum{a,ACTS,CNTqfd(c,a,r,t) + CNTqfm(c,a,r,t)}};
-Equation E_CNTalleffrco
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"contax",t)
-        = sum{c,COMM, CNTqpd(c,r,t) + CNTqpm(c,r,t)};
-Equation E_CNTalleffrgo
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"govtax",t)
-        = sum{c,COMM, CNTqgd(c,r,t) + CNTqgm(c,r,t)};
-Equation E_CNTalleffrinv
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"invtax",t)
-        = sum{c,COMM, CNTqid(c,r,t) + CNTqim(c,r,t)};
-Equation E_CNTalleffrxt
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"xtax",t)
-        = sum{c,COMM, sum{d,REG, CNTqxs(c,r,d,t)}};
-Equation E_CNTalleffrmt
-# total contribution to regional EV of allocative effects #
-(all,r,REG)(all,t,ALLTIME)
-    CNTalleffr(r,"mtax",t)
-        = sum{c,COMM, sum{s,REG, CNTqms(c,s,r,t)}};
+        + IF[tt="contax",   sum{c,COMM, CNTqpd(c,r,t) + CNTqpm(c,r,t)}  ]
+        + IF[tt="govtax",   sum{c,COMM, CNTqgd(c,r,t) + CNTqgm(c,r,t)}  ]
+        + IF[tt="invtax",   sum{c,COMM, CNTqid(c,r,t) + CNTqim(c,r,t)}  ]
+        + IF[tt="xtax",     sum{c,COMM, sum{d,REG,  CNTqxs(c,r,d,t)}} ]
+        + IF[tt="mtax",     sum{c,COMM, sum{s,REG,  CNTqms(c,s,r,t)}} ];
 
 Variable (linear,change) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     CNTalleffcr(c,r,t)
@@ -4637,57 +4530,20 @@ Equation E_CNTalleffcr
         + sum{d,REG, CNTqxs(c,r,d,t)}
         + sum{s,REG, CNTqms(c,s,r,t)};
 
-Variable (linear,change) (all,e,TECHTYPE)(all,r,REG)(all,t,ALLTIME)
-    CNTtechr(e,r,t) # contribution to regional EV of all technical change #;
-!Equation E_CNTtechr
+Variable (linear,change) (all,r,REG)(all,tt,TECHTYPE)(all,t,ALLTIME)
+    CNTtechr(tt,r,t) # contribution to regional EV of all technical change #;
+Equation E_CNTtechr
 # contribution to regional EV of all technical change #
-(all,t,TECHTYPE)(all,r,REG)(all,t,ALLTIME)
-    CNTtechr(t,r,t)
-        = IF[t="output",   sum{a,ACTS, CNTtech_ao(a,r,t)}]
-        + IF[t="ininput",  sum{a,ACTS, CNTtech_aint(a,r,t) 
+(all,tt,TECHTYPE)(all,r,REG)(all,t,ALLTIME)
+    CNTtechr(tt,r,t)
+        = IF[tt="output",   sum{a,ACTS, CNTtech_ao(a,r,t)}]
+        + IF[tt="ininput",  sum{a,ACTS, CNTtech_aint(a,r,t) 
                                + sum{c,COMM, CNTtech_af(c,a,r,t)}}]
-        + IF[t="primfac", sum{e,ENDW, sum{a,ACTS, CNTtech_afe(e,a,r,t)}}] 
-        + IF[t="v_added", sum{a,ACTS,CNTtech_ava(a,r,t)}]
-        + IF[t="transp",  sum{m,MARG, sum{c,COMM, sum{s,REG,
+        + IF[tt="primfac", sum{e,ENDW, sum{a,ACTS, CNTtech_afe(e,a,r,t)}}] 
+        + IF[tt="v_added", sum{a,ACTS,CNTtech_ava(a,r,t)}]
+        + IF[tt="transp",  sum{m,MARG, sum{c,COMM, sum{s,REG,
                                 CNTtech_atmfsd(m,c,s,r,t)}}}]
-        + IF[t="import",  sum{c,COMM, sum{s,REG, CNTtech_ams(c,s,r,t)}}];!
-!change to avoid complicated if()!
-Equation E_CNTtechrout
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("output",r,t)
-        = sum{a,ACTS, CNTtech_ao(a,r,t)};
-Equation E_CNTtechrini
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("ininput",r,t)
-        = sum{a,ACTS, CNTtech_aint(a,r,t)    
-            + sum{c,COMM, CNTtech_af(c,a,r,t)}};
-Equation E_CNTtechrpri
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("primfac",r,t)
-        = sum{a,ACTS,sum{e,ENDW, CNTtech_afe(e,a,r,t)}};
-Equation E_CNTtechrv_a
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("v_added",r,t)
-        = sum{a,ACTS, CNTtech_ava(a,r,t)};
-Equation E_CNTtechrtra
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("transp",r,t)
-        = sum{m,MARG, sum{c,COMM, sum{s,REG, CNTtech_atmfsd(m,c,s,r,t)}}};
-Equation E_CNTtechrimp
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("import",r,t)
-        = sum{c,COMM,sum{s,REG, CNTtech_ams(c,s,r,t)}};
-
-Equation E_CNTtechrinv
-# contribution to regional EV of all technical change #
-(all,r,REG)(all,t,ALLTIME)
-    CNTtechr("invest",r,t) = 0;
+        + IF[tt="import",  sum{c,COMM, sum{s,REG, CNTtech_ams(c,s,r,t)}}];
 
 !< Contributions to EV of changes in capital stock and depreciation >!
 Variable (linear,change) (all,r,REG)(all,t,ALLTIME)
@@ -4796,13 +4652,9 @@ Coefficient (parameter) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     BVCB(c,r,t) # value of commodity c output in region r at basic prices #;
 Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     BVCB(c,r,t) = VCB(c,r,t);
-!change to avoid complicated if()!
-Formula (initial) (all,c,NMRG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    BVCB(c,r,t) = BVDB(c,r,t) + sum{s,REG, BVXSB(c,r,s,t)} 
-              !+ IF[c in MARG, BVST(c,r,t)]!;
-Formula (initial) (all,c,MARG!COMM!)(all,r,REG)(all,t,ALLTIME)
-    BVCB(c,r,t) = BVDB(c,r,t) + sum{s,REG, BVXSB(c,r,s,t)} 
-              + !IF[c in MARG, !BVST(c,r,t)!]!;
+Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    BVCB(c,r,t) = BVDB(c,r,t) + sum{d,REG, BVXSB(c,r,d,t)} 
+              + IF[c in MARG, BVST(c,r,t)];
 
 Coefficient (parameter) (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     BVEB(e,a,r,t) # value of endowment e in region r at basic prices #;
@@ -4920,93 +4772,780 @@ Formula (initial) (all,r,REG)(all,t,ALLTIME)
     BSAVE(r,t) = SAVE(r,t);
 
 Coefficient (parameter) (all,r,REG)(all,t,ALLTIME)
-    ISBAL(r,t) # I-S balance, NETINV(r,t) - SAVE(r,t) #;
+    ISBAL(r,t) # I-S balance, NETINV(r) - SAVE(r) #;
 Formula (initial) (all,r,REG)(all,t,ALLTIME)
     ISBAL(r,t) = NETINV(r,t) - BSAVE(r,t);
 Zerodivide off;
+
+!<
+    Begin post-sim calculations
+    ...........................
+>!
+
+postsim (begin);
+
+File (new) WELVIEW # output file containing welfare decomposition summary #;
+
+!<
+    SET definitions for Welfare summary file. Supplementary sets for "toggles" 
+    in VIEWHAR.
+>!
+Set
+    UNITA # dummy (unit) set for activities # (a);
+Set
+    UNITC # dummy (unit) set for commodities # (c);
+Set 
+    UACT = UNITA x ACTS;  
+Set 
+    UCOM = UNITC x COMM;  
+Set
+    ALLOCEFF = ENDW + UACT + UCOM;
+Set 
+    ENDWACTS = ENDW + ACTS;
+Set
+    TAXSUM(pfacttax,prodtax,comtax); 
+Set
+    TYPE(xtax,mtax);
+Subset
+    TYPE is subset of ALLTAX;
+Set
+    PRICES(pworld,pexport,pimport);
+Set
+    ACTIVITY(firm, private, investment, govt);
+Set
+    COL(welcnt, dvol, taxrateb, taxrateu);
+Set
+    DIREC(import,export);
+Set
+    FORM(percent,value);
+Set
+    COLM(ISbal,p_cgds,p_save);
+
+Zerodivide default RNREG;
+Zerodivide (nonzero_by_zero) default RNREG;
+!<
+    C-A: EV decomposition summary
+    -----------------------------
+>!
+
+Coefficient (all,r,REG)(all,c,COLUMN)(all,t,ALLTIME)
+    WELFARE(r,c,t) # aggregate report of welfare change #;
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"alloc_A1",t)= sum{tt, ALLTAX, CNTalleffr(r,tt,t)};
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"ENDWB1",t)  = CNTendwr(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"tech_C1",t) = sum{tt,TECHTYPE, CNTtechr(tt,r,t)};
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"pop_D1",t)  = CNTpop(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"tot_E1",t)  = CNTtotr(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"IS_F1",t)   = CNTpinv(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    WELFARE(r,"PREF_G1",t) = CNTdpar(r,t);
+Write
+    WELFARE to file WELVIEW header "A"
+    longname "EV Decomposition: Summary";
+
+!<
+    C-A1: Allocative efficiency effect: Activity, comodity and endowment Summary
+    ----------------------------------------------------------------------------
+>!
+
+Mapping UCOM2COMM from UCOM to COMM;
+Formula (all,c,UCOM)
+    UCOM2COMM(c) = $POS(c); 
+Mapping UACT2ACTS from UACT to ACTS;
+Formula (all,a,UACT)
+    UACT2ACTS(a) = $POS(a); 
+
+Coefficient (all,a,ALLOCEFF)(all,r,REG)(all,t,ALLTIME)
+    CNTalleff(a,r,t) # allocative efficiency #;
+Formula (all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
+    CNTalleff(e,r,t) = CNTqfeer(e,r,t) + CNTqe(e,r,t);
+Formula (all,r,REG)(all,c,UCOM)(all,t,ALLTIME)
+    CNTalleff(c,r,t) = CNTalleffcr(UCOM2COMM(c),r,t);
+Formula (all,r,REG)(all,a,UACT)(all,t,ALLTIME)
+    CNTalleff(a,r,t) = sum{c,COMM, CNTqca(c,UACT2ACTS(a),r,t)};
+Write
+    CNTalleff to file WELVIEW header "A1"
+    longname "Allocative Efficiency Effect: Summary";
+
+!<
+    C-A2: Allocative efficiency effect: Tax type summary
+    ----------------------------------------------------
+>!
+Coefficient (all,r,REG)(all,tt,ALLTAX)(all,t,ALLTIME)
+    CNTalleffkr(r,tt,t) # allocative efficiency effect #;
+Formula (all,r,REG)(all,tt,ALLTAX)(all,t,ALLTIME)
+    CNTalleffkr(r,tt,t) = CNTalleffr(r,tt,t);
+Write
+    CNTalleffkr to file WELVIEW header "A2"
+    longname "Allocative Efficiency Effect: Tax Type Summary";
+
+!<
+    C-AX: Decomposition of allocative effect: Tax type and commodity
+    ----------------------------------------------------------------
+
+    C-A21:  Output tax effect
+    C-A22:  Domestic tax effect
+    C-A23:  Trade tax effect
+    C-A24:  Endowment tax effect
+    C-A25:  Factor income tax effect
+>!
+
+!<
+    C-A21:  Output tax effect
+    .........................
+>!
+
+Coefficient (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    OTAX(a,r,t) # output tax effect #;
+Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    OTAX(a,r,t) = CNTqo(a,r,t);
+Write
+    OTAX to file WELVIEW header "A21"
+    longname "Output Tax Effect";
+
+!<
+    C-A211: Output tax effect: Explanatory factors
+    ..............................................
+>!
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UOUTAX(c,a,r,t) # power of activity output tax, updated #;
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UOUTAX(c,a,r,t) = [MAKEB(c,a,r,t) - MAKES(c,a,r,t)] / MAKES(c,a,r,t) * 100;
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    OUTPUT(c,a,r,co,t) # output tax, explanatory factors #;
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    OUTPUT(c,a,r,co,t) 
+        = IF[co="welcnt",   CNTqca(c,a,r,t)]
+        + IF[co="dvol",     BMAKEB(c,a,r,t) * qo(a,r,t) / 100]
+        + IF[co="taxrateb", BOUTAX(c,a,r,t)]
+        + IF[co="taxrateu", UOUTAX(c,a,r,t)];
+Write
+    OUTPUT to file WELVIEW header "A211"
+    longname "Output Tax Effect: Explanatory Factors";
+
+!<
+    C-A22:  Domestic tax effect
+    ---------------------------
+
+    C-A22:  Domestic tax effect: Summary
+    C-A221: Intermed. input tax effect
+    C-A222: Investment interm. input tax effect
+    C-A22F: Intermed. input tax effect: Explanatory factors
+    C-A22P: Private cons. tax effect: Explanatory factors
+    C-A22G: Government cons. tax effect: Explanatory factors
+    C-A22I: Investment demand Tax Effect: Explanatory factors
+>!
+
+!<
+    C-A22: Domestic tax effect: Summary
+    ...................................
+>!
+
+Coefficient (all,c,COMM)(all,ac,ACTIVITY)(all,r,REG)(all,tt,DIR)(all,t,ALLTIME)
+    ATAX(c,ac,r,tt,t) # tax effect: summary #;
+Formula (all,c,COMM)(all,ac,ACTIVITY)(all,r,REG)(all,t,ALLTIME)
+    ATAX(c,ac,r,"domestic",t) 
+        = IF[ac="firm",       sum{a,ACTS, CNTqfd(c,a,r,t)}]
+        + IF[ac="private",    CNTqpd(c,r,t)]
+        + IF[ac="govt",       CNTqgd(c,r,t)]
+        + IF[ac="investment", CNTqid(c,r,t)];
+Formula (all,c,COMM)(all,ac,ACTIVITY)(all,r,REG)(all,t,ALLTIME)
+    ATAX(c,ac,r,"imported",t) 
+        = IF[ac="firm",       sum{a,ACTS, CNTqfm(c,a,r,t)}]
+        + IF[ac="private",    CNTqpm(c,r,t)]
+        + IF[ac="govt",       CNTqgm(c,r,t)]
+        + IF[ac="investment", CNTqim(c,r,t)];
+Write
+    ATAX to file WELVIEW header "A22"
+    longname "Domestic Tax Effect: Summary";
+
+!<
+    C-A221: Intermediate input tax effect
+    .....................................
+>!
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    STAX(c,a,r,d,t) # intermediate input tax effect #;
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    STAX(c,a,r,d,t) 
+        = IF[d="domestic", CNTqfd(c,a,r,t)]
+        + IF[d="imported", CNTqfm(c,a,r,t)];
+Write
+    STAX to file WELVIEW header "A221"
+    longname "Intermed. Input Tax Effect";
+
+!<
+    C-A222: Investment intermediate input tax effect
+    ................................................
+>!
+
+Coefficient (all,c,COMM)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    ITAX(c,r,d,t) # investment intermediate input tax effect #;
+Formula (all,c,COMM)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    ITAX(c,r,d,t) 
+        = IF[d="domestic", CNTqid(c,r,t)]
+        + IF[d="imported", CNTqim(c,r,t)];
+Write
+    ITAX to file WELVIEW header "A222"
+    longname "Investment Intermed. Input Tax Effect";
+
+!<
+    C-A22F: Intermediate input tax effect: Explanatory factors
+    ..........................................................
+>!
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,d,DIR)(all,co,COL)(all,t,ALLTIME) 
+    FIRM(c,a,r,d,co,t) # explanatory factors: firm interm. input tax effect #;
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    FIRM(c,a,r,"domestic",co,t) 
+        = IF[co="dvol",     [BVDFB(c,a,r,t) * qfd(c,a,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVDFP(c,a,r,t) - BVDFB(c,a,r,t)] / BVDFB(c,a,r,t)] 
+        + IF[co="taxrateu", 100 * [VDFP(c,a,r,t) - VDFB(c,a,r,t)] / VDFB(c,a,r,t)];
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    FIRM(c,a,r,"imported",co,t) 
+        = IF[co="dvol",     [BVMFB(c,a,r,t) * qfm(c,a,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVMFP(c,a,r,t) - BVMFB(c,a,r,t)] / BVMFB(c,a,r,t)] 
+        + IF[co="taxrateu", 100 * [VMFP(c,a,r,t) - VMFB(c,a,r,t)] / VMFB(c,a,r,t)];
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    FIRM(c,a,r,d,"welcnt",t) = STAX(c,a,r,d,t);
+Write
+    FIRM to file WELVIEW header "A22F"
+    longname "Intermed. Input Tax Effect: Explanatory Factors";
+
+!<
+    C-A22P: Private consumption tax Effect: Explanatory Factors
+    ...........................................................
+>!
+
+Coefficient (all,c,COMM)(all,r,REG)(all,d,DIR)(all,co,COL)(all,t,ALLTIME)
+    PRIVATE(c,r,d,co,t) # explanatory factors: priv hh consumption tax effect #;
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    PRIVATE(c,r,"domestic",co,t) 
+        = IF[co="dvol",     [BVDPB(c,r,t) * qpd(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVDPP(c,r,t) - BVDPB(c,r,t)] / BVDPB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VDPP(c,r,t) - VDPB(c,r,t)] / VDPB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    PRIVATE(c,r,"imported",co,t) 
+        = IF[co="dvol",     [BVMPB(c,r,t) * qpm(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVMPP(c,r,t) - BVMPB(c,r,t)] / BVMPB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VMPP(c,r,t) - VMPB(c,r,t)] / VMPB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    PRIVATE(c,r,d,"welcnt",t) = ATAX(c,"private",r,d,t);
+Write
+    PRIVATE to file WELVIEW header "A22P"
+    longname "Private Cons. Tax Effect: Explanatory Factors";
+
+!<
+    C-A22G: Government consumption tax effect: Explanatory factors
+    ..............................................................
+>!
+
+Coefficient (all,c,COMM)(all,r,REG)(all,d,DIR)(all,co,COL)(all,t,ALLTIME)
+    GOVT(c,r,d,co,t) # explanatory factors: gov't hh consumption tax effect #;
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    GOVT(c,r,"domestic",co,t) 
+        = IF[co="dvol",     [BVDGB(c,r,t) * qgd(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVDGP(c,r,t) - BVDGB(c,r,t)] / BVDGB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VDGP(c,r,t) - VDGB(c,r,t)] / VDGB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    GOVT(c,r,"imported",co,t) 
+        = IF[co="dvol",     [BVMGB(c,r,t) * qgm(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVMGP(c,r,t) - BVMGB(c,r,t)] / BVMGB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VMGP(c,r,t) - VMGB(c,r,t)] / VMGB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    GOVT(c,r,d,"welcnt",t) = ATAX(c,"govt",r,d,t);
+Write
+    GOVT to file WELVIEW header "A22G"
+    longname "Government Cons. Tax Effect: Explanatory Factors";
+
+!<
+    C-A22I: Investment tax effect: Explanatory factors
+    ..................................................
+>!
+
+Coefficient (all,c,COMM)(all,r,REG)(all,d,DIR)(all,co,COL)(all,t,ALLTIME)
+    INVESTMENT(c,r,d,co,t) # explanatory factors: investment tax effect #;
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    INVESTMENT(c,r,"domestic",co,t) 
+        = IF[co="dvol",     [BVDIB(c,r,t) * qid(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVDIP(c,r,t) - BVDIB(c,r,t)] / BVDIB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VDIP(c,r,t) - VDIB(c,r,t)] / VDIB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    INVESTMENT(c,r,"imported",co,t) 
+        = IF[co="dvol",     [BVMIB(c,r,t) * qim(c,r,t)] / 100]
+        + IF[co="taxrateb", 100 * [BVMIP(c,r,t) - BVMIB(c,r,t)] / BVMIB(c,r,t)] 
+        + IF[co="taxrateu", 100 * [VMIP(c,r,t) - VMIB(c,r,t)] / VMIB(c,r,t)];
+Formula (all,c,COMM)(all,r,REG)(all,d,DIR)(all,t,ALLTIME)
+    INVESTMENT(c,r,d,"welcnt",t) = ATAX(c,"investment",r,d,t);
+Write
+    INVESTMENT to file WELVIEW header "A22I"
+    longname "Investment Tax Effect: Explanatory Factors";
+
+!<
+    C-A23: Trade tax effect
+    ------------------------
+
+    C-A23:  Trade tax effect
+    C-A231: Trade tax effect: Explanatory factors
+>!
+
+!<
+    C-A23: Trade tax effect
+    ........................
+>!
+
+Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,k,TYPE)(all,t,ALLTIME)
+    TTAX(c,s,d,k,t) # trade tax effect #;
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    TTAX(c,s,d,"xtax",t) = CNTqxs(c,s,d,t);
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    TTAX(c,s,d,"mtax",t) = CNTqms(c,s,d,t);
+Write
+    TTAX to file WELVIEW header "A23"
+    longname "Trade Tax Effect";
+
+!<
+    C-A231: Trade tax effect: Explanatory factors
+    .............................................
+>!
+
+Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    UMTAX(c,s,d,t) # power of import tax, updated # ;
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    UMTAX(c,s,d,t) = [VMSB(c,s,d,t) - VCIF(c,s,d,t)] / VCIF(c,s,d,t) * 100;
+
+Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    UXTAX(c,s,d,t) # power of export tax, updated #;
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    UXTAX(c,s,d,t) = [VFOB(c,s,d,t) - VXSB(c,s,d,t)] / VXSB(c,s,d,t) * 100;
+
+Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,co,COL)(all,dc,DIREC)(all,t,ALLTIME)
+    TRADE(c,s,d,co,dc,t) # trade tax effect: explanatory factors # ;
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,co,COL)(all,t,ALLTIME)
+    TRADE(c,s,d,co,"export",t) 
+        = IF[co="welcnt",   TTAX(c,s,d,"xtax",t)]
+        + IF[co="dvol",     BVXSB(c,s,d,t) * qxs(c,s,d,t) / 100]
+        + IF[co="taxrateb", BXTAX(c,s,d,t)] 
+        + IF[co="taxrateu", UXTAX(c,s,d,t)];
+Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,co,COL)(all,t,ALLTIME)
+    TRADE(c,s,d,co,"import",t) 
+        = IF[co="welcnt",   TTAX(c,s,d,"mtax",t)]
+        + IF[co="dvol",     BVXSB(c,s,d,t) * qxs(c,s,d,t) / 100]
+        + IF[co="taxrateb", BMTAX(c,s,d,t)] 
+        + IF[co="taxrateu", UMTAX(c,s,d,t)];
+Write
+    TRADE to file WELVIEW header "A231"
+    longname "Trade Tax Effect: Explanatory Factors";
+
+!<
+    C-A24: Endowment tax effect
+    ---------------------------
+
+    C-A24:  Endowment tax effect
+    C-A241: Endowment tax effect: Explanatory factors
+>!
+
+!<
+    C-A24:   Endowment tax effect
+    .............................
+>!
+
+Coefficient (all,e,ENDW)(all,r,REG)(all,t,ALLTIME)
+    FACTAX(e,r,t) # Endowment tax effect #;
+Formula (all,e,ENDW)(all,r,REG)(all,t,ALLTIME)
+    FACTAX(e,r,t) = sum{a,ACTS, CNTqfe(e,a,r,t)};
+Write 
+    FACTAX to file WELVIEW header "A24"
+    longname "Endowment Tax Effect";
+
+!<
+    C-A241: Endowment tax effect: Explanatory factors
+    .................................................
+>!
+Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UETAX(e,a,r,t) # power of factor tax, updated #;
+Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UETAX(e,a,r,t) = [EVFP(e,a,r,t) - EVFB(e,a,r,t)] / EVFB(e,a,r,t) * 100;
+
+! Note: PFACTOR in "classic" welfare decomp was changed to FACTORTAX because 
+        the variable pfactor(r) has already been defined !
+Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    FACTORTAX(e,a,r,co,t) # Endowment tax effect #;
+Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    FACTORTAX(e,a,r,co,t) 
+        = IF[co="welcnt",   CNTqfe(e,a,r,t)]
+        + IF[co="dvol",     BEVFB(e,a,r,t) * qfe(e,a,r,t) / 100]
+        + IF[co="taxrateb", BETAX(e,a,r,t)]
+        + IF[co="taxrateu", UETAX(e,a,r,t)];
+Write 
+    FACTORTAX to file WELVIEW header "A241" 
+    longname "Endowment Tax Effect: Explanatory Factors";
+
+!<
+    C-A25: Income tax effect
+    ------------------------
+
+    C-A25:  Income tax effect
+    C-A251: Income tax effect: Explanatory factors
+>!
+
+!<
+    C-A25: Income tax effect
+    ........................
+>!
+
+Coefficient (all,e,ENDW)(all,r,REG)(all,t,ALLTIME)
+    YTAX(e,r,t) # factor income tax effect #;
+Formula (all,e,ENDW)(all,r,REG)(all,t,ALLTIME)
+    YTAX(e,r,t) = sum{a,ACTS, CNTqea(e,a,r,t)};
+Write
+    YTAX to file WELVIEW header "A25" 
+    longname "Income Tax Effect";
+
+!<
+    C-A251: Income tax effect: Explanatory factors
+    ..............................................
+>!
+Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UINCTAX(e,a,r,t) # power of income tax, updated #;
+Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    UINCTAX(e,a,r,t) = [[EVFB(e,a,r,t) - EVOS(e,a,r,t)] / EVOS(e,a,r,t)] * 100;
+Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    INCOMETAX(e,a,r,co,t) # income tax effect: Explanatory Factors #;
+Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,co,COL)(all,t,ALLTIME)
+    INCOMETAX(e,a,r,co,t) 
+        = IF[co="welcnt",   CNTqea(e,a,r,t)]
+        + IF[co="dvol",     BVEB(e,a,r,t) * qes(e,a,r,t) / 100]
+        + IF[co="taxrateb", BINCTAX(e,a,r,t)]
+        + IF[co="taxrateu", UINCTAX(e,a,r,t)];
+Write
+    INCOMETAX to file WELVIEW header "A251"
+    longname "Income Tax Effect: Explanatory Factors";
+
+!<
+    C-B1: Endowment effect: Gross of depreciation
+    ---------------------------------------------
+>!
+
+Coefficient (all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
+    CNTendowment(r,e,t) # contribution to welfare by ENDW e in region r #;
+Formula (all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
+    CNTendowment(r,e,t) = CNTendw(e,r,t);
+Write
+    CNTendowment to file WELVIEW header "B1"
+    longname "Endowment Effect, Gross of Depreciation";
+
+!<
+    C-B2: Endowment effect: depreciation
+    ------------------------------------
+>!
+
+Write
+    CNTkb to file WELVIEW header "B2"
+    longname "Endowment Effect: Depreciation";
+
+!<
+    C-C1: Technical change effect
+    -----------------------------
+
+    C-C1:  Technical change effect: Summary
+    C-C1X: Technical change effect: Further decomposition
+>!
+
+Coefficient (all,r,REG)(all,tt,TECHTYPE)(all,t,ALLTIME)
+    CNTtech(r,tt,t) # contribution to welfare change by tech #;
+Formula (all,r,REG)(all,tt,TECHTYPE)(all,t,ALLTIME)
+    CNTtech(r,tt,t) = CNTtechr(tt,r,t);
+Write
+    CNTtech to file WELVIEW header "C1"
+    longname "Technical Change Effect: Summary";
+Write
+    CNTtech_ao to file WELVIEW header "C11"
+    longname "(ao) Output Augm. Tech. Change Effect";
+Write
+    CNTtech_afe to file WELVIEW header "C12"
+    longname "(afe) Primary Factor Augm. Tech. Change Effect";
+Write
+    CNTtech_ava to file WELVIEW header "C13"
+    longname "(ava) Value Added Augm. Tech. Change Effect";
+Write
+    CNTtech_aint to file WELVIEW header "C14"
+    longname "(aint) Composite Intermed. Input Augm. Tech. Change Effect";
+Write
+     CNTtech_af to file WELVIEW header "C15"
+    longname "(afa) Intermed. Input Augm. Tech. Change Effect";
+Write
+    CNTtech_atmfsd to file WELVIEW header "C16"
+    longname "(atmfsd) Internat. Margin Augm. Tech. Change Effect";
+Write
+    CNTtech_ams to file WELVIEW header "C17"
+    longname "(ams) Bilateral Import Augm. Tech. Change Effect";
+
+!<
+    C-D1: Population effect
+    -----------------------
+
+    No decomposition required here.
+>!
+
+!<
+    C-E1: Terms of Trade (ToT) effect
+    ---------------------------------
+>!
+
+! Note: TOT(c,r,t,f) in Welfare Decomp was renamed to WTOT(c,r,t,f) because a 
+        prior tot(r) variable has been declared in the model!
+Coefficient (all,c,COMM)(all,r,REG)(all,tt,PRICES)(all,f,FORM)(all,t,ALLTIME)
+    WTOT(c,r,tt,f,t)
+    # terms trade effects decomposed by effects of different prices #;
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pworld","percent",t) = c1_cr(c,r,t);
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pexport","percent",t) = c2_cr(c,r,t);
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pimport","percent",t) = -c3_cr(c,r,t);
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pworld","value",t)
+        = CNTtotr(r,t) * c1_cr(c,r,t)
+        / sum{k,COMM, sum{tt,PRICES, WTOT(k,r,tt,"percent",t)}};
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pexport","value",t)
+        = CNTtotr(r,t) * c2_cr(c,r,t)
+        / sum{tt,PRICES, sum{k,COMM, WTOT(k,r,tt,"percent",t)}};
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    WTOT(c,r,"pimport","value",t)
+        = -c3_cr(c,r,t) * CNTtotr(r,t)
+        / sum{tt,PRICES, sum{k,COMM, WTOT(k,r,tt,"percent",t)}};
+
+Write
+    WTOT to file WELVIEW header "E1"
+    longname "Terms of Trade Effect";
+
+!<
+    C-F1: I-S Effect: Explanatory factors
+    -------------------------------------
+>!
+
+Coefficient (all,r,REG)(all,c,COLM)(all,t,ALLTIME)
+    CGDSCOMP(r,c,t) # components of cgds effect #;
+Formula (all,r,REG)(all,t,ALLTIME)
+    CGDSCOMP(r,"ISbal",t) = ISBAL(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    CGDSCOMP(r,"p_cgds",t) = pinv(r,t);
+Formula (all,r,REG)(all,t,ALLTIME)
+    CGDSCOMP(r,"p_save",t) = psave(r,t);
+Write
+    CGDSCOMP to file WELVIEW header "F1"
+    longname "I-S Effect: Explanatory Factors";
+
+!<
+    -----------------------------
+    END OF Welfare summary module
+    -----------------------------
+>!
+
+!<
+    -------------------------------------------------
+    D. GTAPVol (post-simulation) summary calculations 
+    -------------------------------------------------
+>!
+
+!<
+    Compute the relevant volume changes                                 
+    -----------------------------------
+>!
+
+Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME) 
+    DQXS(c,s,d,t) 
+    # ch. in vol. of exports of c from region s to d at initial basic prices #; 
+Formula  (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    DQXS(c,s,d,t) = [qxs(c,s,d,t) / 100] * BVXSB(c,s,d,t);
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQDS(c,r,t)
+    # ch. in vol. of domestic sales of com. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQDS(c,r,t) = [qds(c,r,t) / 100] * BVDB(c,r,t) ;
+
+Coefficient (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)       
+    DQFE(e,a,r,t)
+    # ch. in vol. of endowment e by activity a in r at initial basic prices #; 
+Formula (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    DQFE(e,a,r,t) = [qfe(e,a,r,t) / 100] * BEVFB(e,a,r,t) ;
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)       
+    DQFM(c,a,r,t)
+    # ch. in vol. of imp. intermed. c by act. a in r at initial basic prices #; 
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+    DQFM(c,a,r,t) = [qfm(c,a,r,t) / 100] * BVMFB(c,a,r,t) ;
+
+Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)       
+    DQFD(c,a,r,t)
+    # ch. in vol. of dom. intermed. c by act. a in r at initial basic prices #; 
+Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
+         DQFD(c,a,r,t) = [qfd(c,a,r,t) / 100] * BVDFB(c,a,r,t) ;
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)       
+    DQPM(c,r,t)
+    # ch. in vol. of priv. hhld cons. for imp. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQPM(c,r,t) = [qpm(c,r,t) / 100] * BVMPB(c,r,t) ;
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)       
+    DQPD(c,r,t)
+    # ch. in vol. of priv. hhld cons. for dom. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQPD(c,r,t) = [qpd(c,r,t) / 100] * BVDPB(c,r,t) ;
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)       
+    DQGM(c,r,t)
+    # ch. in vol. of government cons. for imp. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQGM(c,r,t) = [qgm(c,r,t) / 100] * BVMGB(c,r,t) ;
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)       
+    DQGD(c,r,t)
+    # ch. in vol. of government cons. for dom. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQGD(c,r,t) = [qgd(c,r,t) / 100] * BVDGB(c,r,t) ;
+
+Coefficient (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)       
+    DQO(a,r,t)
+    # ch. in vol. of output by activity a in r at initial basic prices #; 
+Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)       
+    DQO(a,r,t) = [qo(a,r,t) / 100] * BVOS(a,r,t) ;
+
+Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)       
+    DQC(c,r,t)
+    # ch. in vol. of supply of com. c in r at initial basic prices #; 
+Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
+    DQC(c,r,t) = [qc(c,r,t) / 100] * BVCB(c,r,t) ;
+
+Coefficient (all,s,REG)(all,d,REG)(all,t,ALLTIME)            
+    DTOT(s,d,t)
+    # ch. in vol. of total exports from region s to d at initial basic prices #; 
+Formula (all,s,REG)(all,d,REG)(all,t,ALLTIME)
+    DTOT(s,d,t) = sum{c,COMM, DQXS(c,s,d,t)};
+
+Zerodivide off;
+
+FILE 
+ (New) GTAPVOL # HAR file of volume changes # ;
+!< Write the output of this module to ViewHAR for easy viewing and summation >!
+
+Write
+    DQXS to file GTAPVOL header "DQXS";
+    DQDS to file GTAPVOL header "DQDS";
+    DQFE to file GTAPVOL header "DQFE";
+    DQFM to file GTAPVOL header "DQFM";
+    DQFD to file GTAPVOL header "DQFD";
+    DQPM to file GTAPVOL header "DQPM";
+    DQPD to file GTAPVOL header "DQPD";
+    DTOT to file GTAPVOL header "DTOT";
+    DQO  to file GTAPVOL header "DQO ";
+    DQC  to file GTAPVOL header "DQC ";
+    DQGD to file GTAPVOL header "DQGD";
+    DQGM to file GTAPVOL header "DQGM";
+
+!<
+    --------------
+    END OF GTAPVol
+    --------------
+>!
+postsim (end);
+!<
+    -----------------------------------
+    END OF post-simulation calculations
+    -----------------------------------
+>!
 
 !<
     ----------------------------------------------
     E. Data balance check and summary calculations 
     ----------------------------------------------
 >!
-!Set 
+Set 
     COSTS # industry cost summary # = "IntDom" + "IntImp" + ENDW + "PTAX"  ;
 Set 
-    GDPIN # income-side GDP # = ENDW + "IndTaxes";!
-Set 
-    COST_TEMP # industry cost summary # (IntDom,IntImp,PTAX);
-Set 
-    COSTS # industry cost summary # = COST_TEMP + ENDW;
-Set 
-    IND_TAX # industry cost summary # (IndTaxes);
-Set 
-    GDPIN # income-side GDP # = ENDW + IND_TAX;
+    GDPIN # income-side GDP # = ENDW + "IndTaxes";
 Set 
     SALES # Commodity Sales Summary # 
     (Intermediate,Household,Investment,Government,Exports,IntnlMargins);
 
 Coefficient (all,a,ACTS)(all,r,REG)(all,c,COSTS)(all,t,ALLTIME)
     COSTSUM(a,r,c,t) # industry cost summary #;
-Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    COSTSUM(a,r,"IntDom",t) = sum{c,COMM, VDFP(c,a,r,t)}; 
-Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    COSTSUM(a,r,"IntImp",t) = sum{c,COMM, VMFP(c,a,r,t)}; 
-Formula (all,a,ACTS)(all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
-    COSTSUM(a,r,e,t) = EVFP(e,a,r,t); 
-Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    COSTSUM(a,r,"PTAX",t) = sum{c,COMM, PTAX(c,a,r,t)};
-Formula (all,a,ACTS)(all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
-    COSTSUM(a,r,e,t) = EVFP(e,a,r,t); 
-Formula (all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
-    COSTSUM(a,r,"PTAX",t) = sum{c,COMM, PTAX(c,a,r,t)};
+Formula   
+ (all,a,ACTS)(all,r,REG)(all,t,ALLTIME) COSTSUM(a,r,"IntDom",t)      = sum{c,COMM, VDFP(c,a,r,t)}; 
+ (all,a,ACTS)(all,r,REG)(all,t,ALLTIME) COSTSUM(a,r,"IntImp",t)      = sum{c,COMM, VMFP(c,a,r,t)}; 
+ (all,a,ACTS)(all,r,REG)(all,e,ENDW)(all,t,ALLTIME) COSTSUM(a,r,e,t) = EVFP(e,a,r,t); 
+ (all,a,ACTS)(all,r,REG)(all,t,ALLTIME) COSTSUM(a,r,"PTAX",t)        = sum{c,COMM, PTAX(c,a,r,t)};
+ (all,a,ACTS)(all,r,REG)(all,e,ENDW)(all,t,ALLTIME) COSTSUM(a,r,e,t) = EVFP(e,a,r,t); 
+ (all,a,ACTS)(all,r,REG)(all,t,ALLTIME) COSTSUM(a,r,"PTAX",t)        = sum{c,COMM, PTAX(c,a,r,t)};
+Write 
+    COSTSUM to file GTAPSUM header "COST"; 
  
-Coefficient (all,r,REG)(all,g,GDPIN)(all,t,ALLTIME)
+Coefficient (all,r,REG)(all,g,GDPIN)(all,t,ALLTIME) 
    GDPINC(r,g,t) # income-side GDP #;
-Formula (all,r,REG)(all,e,ENDW)(all,t,ALLTIME)
-    GDPINC(r,e,t) = sum{a,ACTS, EVFP(e,a,r,t)};
-Formula (all,r,REG)(all,t,ALLTIME)
-    GDPINC(r,"IndTaxes",t) = INDTAX(r,t) - TAXRFU(r,t);
+Formula
+   (all,r,REG)(all,e,ENDW)(all,t,ALLTIME) GDPINC(r,e,t) = sum{a,ACTS, EVFP(e,a,r,t)};
+   (all,r,REG)(all,t,ALLTIME) GDPINC(r,"IndTaxes",t) =   INDTAX(r,t) - TAXRFU(r,t);
+Write 
+    GDPINC to file GTAPSUM header "GDPI"; 
 
 Coefficient (all,c,COMM)(all,r,REG)(all,sa,SALES)(all,t,ALLTIME)
     SALESUM(c,r,sa,t) # commodity sales summary #;
-Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"Intermediate",t) = sum{a,ACTS, VDFB(c,a,r,t)};
-Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"Household",t) = VDPB(c,r,t);
-Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"Investment",t) = VDIB(c,r,t);
-Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"Government",t) = VDGB(c,r,t);
-Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"Exports",t) = VXDXSB(c,r,t);
-Formula (all,c,MARG)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"IntnlMargins",t) = VST(c,r,t);
-Formula (all,c,NMRG)(all,r,REG)(all,t,ALLTIME)
-    SALESUM(c,r,"IntnlMargins",t) = 0;
+Formula    
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"Intermediate",t) = sum{a,ACTS, VDFB(c,a,r,t)};
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"Household",t)    = VDPB(c,r,t);
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"Investment",t)   = VDIB(c,r,t);
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"Government",t)   = VDGB(c,r,t);
+(all,c,COMM)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"Exports",t)      = VXDXSB(c,r,t);
+(all,c,MARG)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"IntnlMargins",t) = VST(c,r,t);
+(all,c,NMRG)(all,r,REG)(all,t,ALLTIME) SALESUM(c,r,"IntnlMargins",t) = 0;
+Write 
+    SALESUM to file GTAPSUM header "SALE"; 
 
 Zerodivide default RNREG;
 Zerodivide (nonzero_by_zero) default RNREG;
  Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
-    VDBCHK(c,r,t) # VCB(c,r,t) - MAKEBCOM(c,r,t) should be tiny #;
+    VDBCHK(c,r,t) # VCB(c,r) - MAKEBCOM(c,r) should be tiny #;
 Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VDBCHK(c,r,t) = VCB(c,r,t) - MAKEBCOM(c,r,t);
+Write 
+    VDBCHK to file GTAPSUM header "VMCK";
 Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     VDBCHK(c,r,t) = 100 * VDBCHK(c,r,t) / VCB(c,r,t);
+Write 
+    VDBCHK to file GTAPSUM header "VMCP" longname "VDBCHK as %"; 
 
 Coefficient (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     TRDCHK(c,s,d,t) # VCIF(c,s,d) - [VFOB(c,s,d) + VTFSD(c,s,d)] should be tiny #;
 Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     TRDCHK(c,s,d,t) = VCIF(c,s,d,t) - [VFOB(c,s,d,t) + VTFSD(c,s,d,t)];
+Write 
+    TRDCHK to file GTAPSUM header "TRCK";
 Formula (all,c,COMM)(all,s,REG)(all,d,REG)(all,t,ALLTIME)
     TRDCHK(c,s,d,t) = 100 * TRDCHK(c,s,d,t) / VCIF(c,s,d,t);
+Write 
+    TRDCHK to file GTAPSUM header "TRCP" longname "TRDCHK as %"; 
 
-Coefficient (all,m,MARG)(all,t,ALLTIME)
+Coefficient (all,m,MARG)(all,t,ALLTIME) 
     VTMCHK(m,t) # VTMUSE(m) - VTMPROV(m) should be tiny #;
 Formula (all,m,MARG)(all,t,ALLTIME)
     VTMCHK(m,t) = VTMUSE(m,t) - VTMPROV(m,t);
+Write 
+    VTMCHK to file GTAPSUM header "VTCK";
 Formula (all,m,MARG)(all,t,ALLTIME)
     VTMCHK(m,t) = 100 * VTMCHK(m,t) / VTMUSE(m,t);
+Write 
+    VTMCHK to file GTAPSUM header "VTCP" longname "VTMCHK as %"; 
 
 Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     CHKMKClIMP(c,r,t) # Checking the accounting on imports supply and demand #;
@@ -5015,14 +5554,42 @@ Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
         = sum{s,REG, VMSB(c,s,r,t)}
         - sum{a,ACTS, VMFB(c,a,r,t)}
         - VMPB(c,r,t) - VMGB(c,r,t) - VMIB(c,r,t);
+Write 
+    CHKMKClIMP to file GTAPSUM header "MPCK";
 Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME)
     CHKMKClIMP(c,r,t) = 100 * CHKMKClIMP(c,r,t) / [sum{s,REG, VMSB(c,s,r,t)}];
+
+Write 
+    CHKMKClIMP to file GTAPSUM header "MPCP" longname "CHKMKClIMP as %"; 
+
 Coefficient (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     VOSCHK(c,a,r,t) # MAKEB - [MAKES + PTAX] should be tiny #;
 Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     VOSCHK(c,a,r,t) = MAKEB(c,a,r,t) - [MAKES(c,a,r,t) + PTAX(c,a,r,t)];
+Write 
+    VOSCHK to file GTAPSUM header "VOCK";
 Formula (all,c,COMM)(all,a,ACTS)(all,r,REG)(all,t,ALLTIME)
     VOSCHK(c,a,r,t) = 100 * VOSCHK(c,a,r,t) / MAKEB(c,a,r,t);
+Write 
+    VOSCHK to file GTAPSUM header "VOCS" longname "VOSCHK as %"; 
+
+zerodivide off;
+
+postsim (begin);
+Write
+    VDBCHK     to file GTAPSUM header "VMCQ" longname "PostSim VDBCHK as %";
+    TRDCHK     to file GTAPSUM header "TRCQ" longname "PostSim TRDCHK as %";
+    VTMCHK     to file GTAPSUM header "VTCQ" longname "PostSim VTMCHK as %";
+    CHKMKClIMP to file GTAPSUM header "MPCQ" longname "PostSim CHKMKClIMP as %";
+    VOSCHK     to file GTAPSUM header "VOCQ" longname "PostSim VOPCHK as %";
+    GDPINC     to file GTAPSUM header "GDIP" longname "PostSim GDPINC";
+    GDP        to file GTAPSUM header "GDEP" longname "PostSim GDPEXP";
+postsim (end);
+
+
+!<
+    Rate-of-return trackers (GTAP-RE)
+>!
 Coefficient (all,r,REG)(all,t,ALLTIME)
     vroract(r,t) # vact #;
 Formula (initial) (all,r,REG)(all,t,ALLTIME)
@@ -5036,10 +5603,15 @@ Formula (initial) (all,r,REG)(all,t,ALLTIME)
 Update (change)(all,r,REG)(all,t,ALLTIME)
     vrore(r,t) = rore(r,t);
 
-Zerodivide off;
+!<
+    Omissions (gtapv7.sti): exogenous, unshocked technical-change and tax
+    shifters removed from the solved system. To shock one of them, load the
+    model with ems_model(ignore_condense = TRUE).
+>!
+Omit atall avaall tfe tfd tfm tgd tgm tpdall tpmall tid tim;
 
 !<
     =====================
-    END OF GTAP.TAB FILE
+    END OF GTAP-RE.TAB FILE
     =====================
 >!

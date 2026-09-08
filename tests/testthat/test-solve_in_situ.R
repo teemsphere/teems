@@ -34,7 +34,7 @@ dat <- ems_data(
   time_steps = time_steps
 )
 
-model <- ems_model(model_file, closure_file)
+model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
 
 variant <- Sys.info()["sysname"]
 
@@ -121,6 +121,7 @@ test_that("solve_in_situ solves", {
     model_dir = insitu_dir,
     closure_file = model_files[["closure_file"]],
     shock_file = shock_file,
+    ignore_condense = TRUE,
     solution_method = "Gragg",
     matrix_method = "SBBD",
     n_subintervals = 1,
@@ -261,7 +262,8 @@ test_that("solve_in_situ example works", {
    model_dir = insitu_dir,
    model_file = model_files[["model_file"]],
    closure_file = model_files[["closure_file"]],
-   shock_file = shock_file
+   shock_file = shock_file,
+   ignore_condense = TRUE
    )
   
   expect_s3_class(output, "tbl_df")

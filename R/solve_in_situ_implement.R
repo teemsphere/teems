@@ -5,6 +5,7 @@
                                      closure_file,
                                      input_files,
                                      shock_file,
+                                     ignore_condense,
                                      solution_method,
                                      matrix_method,
                                      n_subintervals,
@@ -33,6 +34,7 @@
     closure_file = closure_file,
     shock_file = shock_file,
     model_dir = model_dir,
+    ignore_condense = ignore_condense,
     call = call
   )
   

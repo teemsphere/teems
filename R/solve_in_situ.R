@@ -28,6 +28,11 @@
 #'   with .shf extension representing a fully prepared shock
 #'   file. No checks or modifications are carried out on this
 #'   file.
+#' @param ignore_condense Logical length 1 (default is `FALSE`).
+#'   If `TRUE`, `Omit`, `Substitute`, and `Backsolve` statements
+#'   found in the model file are ignored, as for
+#'   [ems_model()]. Set this to match the `ems_model()` call
+#'   that produced the closure and shock files.
 #' @param adaptive Character length 1, adaptive step-size control
 #'   for the embedded Runge-Kutta methods (`"BoSha32"`,
 #'   `"DoPri54"`); default is `"no"`. See [`ems_RK()`] for the
@@ -72,6 +77,7 @@ solve_in_situ <- function(...,
                           model_file,
                           closure_file,
                           shock_file,
+                          ignore_condense = FALSE,
                           solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
                           matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
                           n_subintervals = 1L,
@@ -131,6 +137,19 @@ if (missing(...)) {
     call = call
   )
 }
+.check_class(
+  arg = ignore_condense,
+  arg_name = "ignore_condense",
+  check = "logical",
+  call = call
+)
+if (length(ignore_condense) != 1L || is.na(ignore_condense)) {
+  bad_arg <- "ignore_condense"
+  .cli_action("{.arg {bad_arg}} must be {.val TRUE} or {.val FALSE}.",
+    action = "abort",
+    call = call
+  )
+}
 input_files <- list(...)
 return(.implement_solve_in_situ(
   model_dir = model_dir,
@@ -138,6 +157,7 @@ return(.implement_solve_in_situ(
   closure_file = closure_file,
   input_files = input_files,
   shock_file = shock_file,
+  ignore_condense = ignore_condense,
   solution_method = solution_method,
   matrix_method = matrix_method,
   n_subintervals = n_subintervals,

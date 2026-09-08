@@ -49,8 +49,8 @@ tinc
 tm
 tms
 to
-tpd
-tpm
+tpdall
+tpmall
 tpreg
 tradslack
 tx

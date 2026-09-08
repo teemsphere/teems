@@ -18,7 +18,6 @@ ems_example(
 Options include:
 \itemize{
 \item \code{"GTAP-RE"}: GTAP Rational Expectations
-\item \code{"GTAP-INT"}: GTAP Intertemporal
 \item \code{"GTAPv7"}: Standard GTAP model
 \item \code{"GTAPv6"}: Classic GTAP model
 }}

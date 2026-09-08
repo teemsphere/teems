@@ -368,21 +368,21 @@ test_that("set products, $POS and formula-assigned mappings load (manual 10.1.6,
     write_modified_model(
       model_file,
       paste(
-        "Set UNITC (c);",
-        "Set UCOM = UNITC x COMM;",
-        "Mapping UCOM2COMM from UCOM to COMM;",
-        "Formula (all,c,UCOM) UCOM2COMM(c) = $POS(c);",
-        "Mapping (project) UCOM2COMMP from UCOM to COMM;",
-        "Coefficient (all,c,UCOM)(all,t,ALLTIME) UPOS(c,t) # position #;",
-        "Formula (all,c,UCOM)(all,t,ALLTIME) UPOS(c,t) = $POS(c) + $POS(UCOM2COMMP(c),COMM);",
+        "Set UNITX (c);",
+        "Set XCOM = UNITX x COMM;",
+        "Mapping XCOMX from XCOM to COMM;",
+        "Formula (all,c,XCOM) XCOMX(c) = $POS(c);",
+        "Mapping (project) XCOMXP from XCOM to COMM;",
+        "Coefficient (all,c,XCOM)(all,t,ALLTIME) UPOS(c,t) # position #;",
+        "Formula (all,c,XCOM)(all,t,ALLTIME) UPOS(c,t) = $POS(c) + $POS(XCOMXP(c),COMM);",
         sep = "\n"
       )
     ),
     closure_file
   )
-  expect_true("UCOM" %in% model$name[model$type == "Set"])
+  expect_true("XCOM" %in% model$name[model$type == "Set"])
   expect_identical(
-    model$qualifier_list[model$type == "Mapping" & model$name == "UCOM2COMMP"],
+    model$qualifier_list[model$type == "Mapping" & model$name == "XCOMXP"],
     "(project)"
   )
   expect_true(any(grepl("$POS(c)", model$tab, fixed = TRUE)))
@@ -447,9 +447,11 @@ test_that("expression IF conditions (LULC shape, manual 11.4.5/11.4.6)", {
   # an Equation host: (always) helper + the indicator route
   h3 <- tab[grepl("Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX3(c,r,t) = VDB(c,r,t)*VST(c,r,t)", tab, fixed = TRUE)]
   expect_length(h3, 1L)
-  expect_true(any(grepl("IFX3(c,r,t) > 0", tab[grepl("^Formula .*IFC1", tab)], fixed = TRUE)))
-  expect_true(any(grepl("E_ifxv", tab, fixed = TRUE) & grepl("= IFC1(c,r,t) * pds(c,r,t)", tab, fixed = TRUE)))
-  expect_true(all(c("IFX1", "IFX2", "IFX3", "IFC1") %in% model$name))
+  # the indicator's number follows the fixture's own IF equations
+  ind <- sub("^.*= (IFC[0-9]+)\\(c,r,t\\) \\* pds\\(c,r,t\\);.*$", "\\1", grep("E_ifxv", tab, fixed = TRUE, value = TRUE))
+  expect_match(ind, "^IFC[0-9]+$")
+  expect_true(any(grepl("IFX3(c,r,t) > 0", tab[grepl(paste0("^Formula .*", ind, "\\("), tab)], fixed = TRUE)))
+  expect_true(all(c("IFX1", "IFX2", "IFX3", ind) %in% model$name))
 
   # a variable inside a condition is named
   expect_snapshot_error(ems_model(
@@ -819,7 +821,7 @@ test_that("in-TAB Omit statements are honored and stripped", {
   omit_model <- write_modified_model(model_file, "Omit atall avaall ;")
   model <- ems_model(omit_model, closure_file)
   flagged <- model$name[model$condense %in% "omit"]
-  expect_setequal(flagged, c("atall", "avaall"))
+  expect_true(all(c("atall", "avaall") %in% flagged))
   # references zeroed, statement stripped, declaration row retained
   expect_false(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
   expect_false(any(grepl("^Omit", model$tab)))

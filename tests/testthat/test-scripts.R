@@ -3,7 +3,7 @@ skip_on_cran()
 # Every example script under inst/scripts is solved once per model and
 # database: the GTAPv7-format models (GTAPv7, GTAP-RE) on v11 and v12
 # natively and on v10 converted up; GTAPv6 on v10 natively and on v11
-# and v12 converted down. GTAP-INT is exercised by test-ems_example.R.
+# and v12 converted down.
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset(), teardown_env())
 

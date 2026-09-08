@@ -11,7 +11,6 @@
 #' @param model Character vector of length 1, name of model.
 #'   Options include:
 #'   * `"GTAP-RE"`: GTAP Rational Expectations
-#'   * `"GTAP-INT"`: GTAP Intertemporal
 #'   * `"GTAPv7"`: Standard GTAP model
 #'   * `"GTAPv6"`: Classic GTAP model
 #' @param path Character vector of length 1. Directory where

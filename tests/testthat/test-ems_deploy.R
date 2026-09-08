@@ -32,8 +32,8 @@ dat <- ems_data(
   time_steps = c(0, 1, 2)
 )
 
-model <- ems_model(model_file, closure_file)
-auto_model <- ems_model(model_file, closure_file, auto_omit = TRUE)
+model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
+auto_model <- ems_model(model_file, closure_file, auto_omit = TRUE, ignore_condense = TRUE)
 
 test_that("ems_deploy errors when .data is missing", {
   expect_snapshot_error(ems_deploy())
@@ -129,7 +129,8 @@ test_that("coefficient CSV Write pairs are opt-in (default off)", {
   cmf <- ems_deploy(dat, model)
   tab <- readLines(attr(cmf, "tab_path"))
   cmf_lines <- readLines(cmf)
-  n_coeff <- sum(model$type == "Coefficient")
+  # PostSim coefficients have no CSV pair
+  n_coeff <- sum(model$type == "Coefficient" & !model$postsim)
   # sets still get their Write pairs and outdata lines
   expect_true(any(grepl("^Write \\(set\\) REG to file REG ", tab)))
   expect_true(any(grepl("^outdata \"REG\"", cmf_lines)))

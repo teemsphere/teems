@@ -10,6 +10,7 @@ solve_in_situ(
   model_file,
   closure_file,
   shock_file,
+  ignore_condense = FALSE,
   solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32",
     "DoPri54"),
   matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
@@ -62,6 +63,12 @@ for closure file formatting.}
 with .shf extension representing a fully prepared shock
 file. No checks or modifications are carried out on this
 file.}
+
+\item{ignore_condense}{Logical length 1 (default is \code{FALSE}).
+If \code{TRUE}, \code{Omit}, \code{Substitute}, and \code{Backsolve} statements
+found in the model file are ignored, as for
+\code{\link[=ems_model]{ems_model()}}. Set this to match the \code{ems_model()} call
+that produced the closure and shock files.}
 
 \item{solution_method}{The solution method to be used, default
 is the one-step \code{"Johansen"}. Choices:

@@ -12,9 +12,12 @@ dat <- ems_data(
 
 
 # parse the model Tablo file and load the closure
+# tfd is omitted by the model file's condensation statements; ignore
+# them so that it can be swapped into the closure
 model <- ems_model(
   model_file = model_file,
-  closure_file = closure_file
+  closure_file = closure_file,
+  ignore_condense = TRUE
 )
 
 # define a uniform shock on a subset of qfd elements

@@ -37,8 +37,11 @@ check <- all(unlist(lapply(
   }
 )))
 
-n_var <- nrow(model[which(model$type == "Variable"), ])
+# variables omitted by the model file's condensation statements leave the
+# system and do not appear in the outputs
+n_var <- nrow(model[which(model$type == "Variable" & !model$condense %in% "omit"), ])
 n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
 
 var_check <- isTRUE(all.equal(n_var, nrow(outputs[which(outputs$type == "variable"), ])))
-coeff_check <- isTRUE(all.equal(n_coeff, nrow(outputs[which(outputs$type == "coefficient"), ])))
+# PostSim report coefficients return with their own output type
+coeff_check <- isTRUE(all.equal(n_coeff, nrow(outputs[which(outputs$type %in% c("coefficient", "postsim")), ])))

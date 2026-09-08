@@ -53,7 +53,7 @@
 
 # unbalanced PostSim markers
 
-    x Unbalanced PostSim section markers: 1 `PostSim (Begin)` against 0 `PostSim (End)` (GEMPACK manual 12.2).
+    x Unbalanced PostSim section markers: 3 `PostSim (Begin)` against 2 `PostSim (End)` (GEMPACK manual 12.2).
 
 # invalid tab statement
 

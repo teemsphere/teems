@@ -56,6 +56,15 @@
 #'             par_input = "v7_data/gsdfpar.har",
 #'             set_input = "v7_data/gsdfset.har")
 #'
+#' # Generate GTAP-AEZ example scripts (a GTAP-AEZ database is
+#' # required; ems_data() prepares its AEZ layer automatically)
+#' ems_example(model = "GTAP-AEZ",
+#'             path = tempdir(),
+#'             type = "scripts",
+#'             dat_input = "aez_data/gsdfdat.har",
+#'             par_input = "aez_data/gsdfpar.har",
+#'             set_input = "aez_data/gsdfset.har")
+#'
 #' # Generate GTAPv7 example scripts from a v6.2 format database
 #' converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",
 #'                           par_har = "v6_data/gsdpar.har",

@@ -42,6 +42,7 @@ input, not just clean strings.
 | set_ele_empty | S9 | trailing empty element in list |
 | set_header_len | S10 | set-declaration header over 4 characters |
 | subset_undeclared | S2 | Subset statement names an undeclared superset |
+| index_not_subset | S19 | quantifier set is not a declared subset of the argument's declared set |
 | mapping_malformed | M1 | Mapping statement not of the `from ... to ...` form |
 | mapping_undeclared_set | M2 | Mapping codomain set not declared |
 | mapping_no_read | M4 | Mapping with no `Read (by_elements)` statement |

@@ -1,0 +1,9 @@
+File GTAPDATA # base data #;
+Set REG # regions # read elements from file GTAPDATA header "H1";
+Set ACTS (crops, food, svces);
+Set LANDACTS (crops);
+Coefficient (all,a,ACTS)(all,r,REG) VOA(a,r) # output #;
+Read VOA from file GTAPDATA header "VOA";
+Variable (all,a,ACTS)(all,r,REG) qo(a,r) # output #;
+Variable (all,a,LANDACTS)(all,r,REG) qlnd(a,r) # land demand #;
+Equation E_qlnd # land demand # (all,a,LANDACTS)(all,r,REG) qlnd(a,r) = qo(a,r);

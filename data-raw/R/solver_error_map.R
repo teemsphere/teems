@@ -39,6 +39,8 @@ build_solver_error_map <- function() {
     c("fractional power of a negative number", "numeric", NA),
     c("zero pivot", "numeric", "14.1.10"),
     # names (names_validate)
+    c("or a declared subset of it", "tab", "10.1.2"),
+    c("is not a declared subset of", "tab", "10.1.2"),
     c("declared as both a", "tab", "11.2.1"),
     c("declared more than once", "tab", "11.2.1"),
     c("is a reserved word", "tab", "11.2.1"),

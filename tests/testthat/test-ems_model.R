@@ -425,27 +425,27 @@ test_that("expression IF conditions (LULC shape, manual 11.4.5/11.4.6)", {
     model_file,
     paste(
       "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXT(c,r,t) # expr cond #;",
-      "Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXT(c,r,t) = IF[VDB(c,r,t)*VST(c,r,t) <= 0, VDB(c,r,t)] + IF[VDB(c,r,t)*VST(c,r,t) > 0, VST(c,r,t)/[VDB(c,r,t) + 1]];",
+      "Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXT(c,r,t) = IF[VDB(c,r,t)*VMPB(c,r,t) <= 0, VDB(c,r,t)] + IF[VDB(c,r,t)*VMPB(c,r,t) > 0, VMPB(c,r,t)/[VDB(c,r,t) + 1]];",
       "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXU(c,r,t) # two-sided expr cond #;",
-      "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXU(c,r,t) = IF[VDB(c,r,t) GE VST(c,r,t) + VDPB(c,r,t), 1];",
+      "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFXU(c,r,t) = IF[VDB(c,r,t) GE VMPB(c,r,t) + VDPB(c,r,t), 1];",
       "Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifxv(c,r,t) # expr cond in an equation #;",
-      "Equation E_ifxv (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifxv(c,r,t) = IF[VDB(c,r,t)*VST(c,r,t) > 0, pds(c,r,t)];",
+      "Equation E_ifxv (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifxv(c,r,t) = IF[VDB(c,r,t)*VMPB(c,r,t) > 0, pds(c,r,t)];",
       sep = "\n"
     )
   )
   model <- ems_model(ok_model, closure_file)
   tab <- model$tab
   # one shared helper for the two <= 0 / > 0 terms, inheriting (initial)
-  h1 <- tab[grepl("Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX1(c,r,t) = VDB(c,r,t)*VST(c,r,t)", tab, fixed = TRUE)]
+  h1 <- tab[grepl("Formula (initial) (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX1(c,r,t) = VDB(c,r,t)*VMPB(c,r,t)", tab, fixed = TRUE)]
   expect_length(h1, 1L)
   expect_true(any(grepl("(all,t,ALLTIME: IFX1(c,r,t) <= 0) IFXT(c,r,t) = IFXT(c,r,t) + [VDB(c,r,t)]", tab, fixed = TRUE)))
-  expect_true(any(grepl("(all,t,ALLTIME: IFX1(c,r,t) > 0) IFXT(c,r,t) = IFXT(c,r,t) + [VST(c,r,t)/[VDB(c,r,t) + 1]]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,t,ALLTIME: IFX1(c,r,t) > 0) IFXT(c,r,t) = IFXT(c,r,t) + [VMPB(c,r,t)/[VDB(c,r,t) + 1]]", tab, fixed = TRUE)))
   # two-sided comparison: helper = lhs - rhs against 0, (always) like its host
-  h2 <- tab[grepl("Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX2(c,r,t) = [VDB(c,r,t)] - [VST(c,r,t) + VDPB(c,r,t)]", tab, fixed = TRUE)]
+  h2 <- tab[grepl("Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX2(c,r,t) = [VDB(c,r,t)] - [VMPB(c,r,t) + VDPB(c,r,t)]", tab, fixed = TRUE)]
   expect_length(h2, 1L)
   expect_true(any(grepl("(all,t,ALLTIME: IFX2(c,r,t) >= 0) IFXU(c,r,t)", tab, fixed = TRUE)))
   # an Equation host: (always) helper + the indicator route
-  h3 <- tab[grepl("Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX3(c,r,t) = VDB(c,r,t)*VST(c,r,t)", tab, fixed = TRUE)]
+  h3 <- tab[grepl("Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFX3(c,r,t) = VDB(c,r,t)*VMPB(c,r,t)", tab, fixed = TRUE)]
   expect_length(h3, 1L)
   # the indicator's number follows the fixture's own IF equations
   ind <- sub("^.*= (IFC[0-9]+)\\(c,r,t\\) \\* pds\\(c,r,t\\);.*$", "\\1", grep("E_ifxv", tab, fixed = TRUE, value = TRUE))

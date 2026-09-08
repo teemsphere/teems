@@ -345,6 +345,16 @@ build_model_err <- function() {
       "Sets must be declared before they are used in a definition or
       {.field Subset} statement (GEMPACK manual 10.1)."
     ),
+    # test-tab_fuzz_corpus.R: index_not_subset fixture
+    index_not_subset = c(
+      "Index {.val {bad_idx}} of {.code {bad_ref}} in {.field {bad_stmt}}
+      ranges over set {.val {bad_set}}, which is not {.val {decl_set}}
+      (the declared set at that argument position) or a declared subset
+      of it.",
+      "GEMPACK requires the relation to be declared (manual 10.1.2):
+      add {.code Subset {bad_set} is subset of {decl_set};}. Without it
+      the solver would address the wrong elements of {.val {decl_set}}."
+    ),
     # test-chk_tab_preflight.R: "set self-equality aborts"
     set_self_eq = "Set {.field {bad_set}} is defined as equal to
     itself (GEMPACK manual 10.1.2.1).",

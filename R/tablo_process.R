@@ -120,6 +120,12 @@
     call = call
   )
 
+  .check_index_domains(
+    extract = extract$model,
+    set_extract = extract$set,
+    call = call
+  )
+
   .check_netcut(
     var_extract = var_extract,
     math_extract = math_extract,

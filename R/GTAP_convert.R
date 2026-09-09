@@ -20,12 +20,17 @@
 #'   elements and attributes.
 #' @param target Character vector of length 1 (default is
 #'   `NULL`). The target format to convert to. Currently supports
-#'   `"GTAPv6"`, `"GTAPv7"` or `"GTAP-AEZ"` (a GTAPv7-format
-#'   GTAP-AEZ database prepared for the GTAP-AEZ model: the
-#'   disaggregated activity sets and mapping the model reads, the
-#'   model's `CROPACTS`/`LCOV` dimension names and the AEZ
-#'   parameters; [`ems_data()`] applies the same preparation on its
-#'   own when it detects the AEZ layer). If `NULL`, no data format
+#'   `"GTAPv6"`, `"GTAPv7"`, `"GTAP-AEZ"` or `"GTAP-E"`. The two
+#'   layer targets prepare a GTAPv7-format database for the
+#'   corresponding model: `"GTAP-AEZ"` supplies the disaggregated
+#'   activity sets and mapping the model reads, the model's
+#'   `CROPACTS`/`LCOV` dimension names and the AEZ parameters;
+#'   `"GTAP-E"` supplies the disaggregated commodity set and mapping
+#'   (`DCOM`, `MCOM`, `DELY`), the aggregated energy sets (`EGY`,
+#'   `ENYP`, `ENYG`, `ENYI`), `TOPP`, and binds the database's
+#'   `SUBE`/`INCE` to the `SUBP`/`INCP` headers the model reads over
+#'   `TOPP`. [`ems_data()`] applies the same preparation on its own
+#'   when it detects either layer. If `NULL`, no data format
 #'   conversion will take place.
 #' @seealso [`ems_data()`] for loading and preparing converted
 #'   data for a model run.

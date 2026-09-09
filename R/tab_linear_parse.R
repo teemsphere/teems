@@ -262,11 +262,17 @@
     return(node)
   }
 
+  # TABLO takes `(` and `]` as interchangeable with `[` and `)`, in a
+  # reference's arguments as much as in a grouping: GTAP-E writes the
+  # intrinsic as ID01[VXW(c,r)]. The brackets actually used are kept so
+  # a coefficient factor serializes back as it was written.
   args <- NULL
-  if (.pk(st) %=% "(") {
-    .adv(st)
+  open <- "("
+  if (.pk(st) %in% c("(", "[")) {
+    open <- .adv(st)
     args <- .pe_args(st)
   }
+  close <- ifelse(open %=% "[", "]", ")")
 
   canonical <- var_lookup[[tolower(tok)]]
   if (!is.null(canonical)) {
@@ -286,7 +292,7 @@
            call. = FALSE)
     }
   }
-  return(.coeff_node(paste0(tok, "(", paste(args, collapse = ","), ")")))
+  return(.coeff_node(paste0(tok, open, paste(args, collapse = ","), close)))
 }
 
 # Arguments of a reference: raw texts split on depth-1 commas.

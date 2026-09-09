@@ -17,7 +17,26 @@
     convert = TRUE
   )
 
-  if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
+  if (!is.null(v$target) && v$target %=% "GTAP-E") {
+    # the GTAP-E layer on the GTAPv7 format: a v6-format database
+    # (GTAP 10a E) carries different headers and is not prepared
+    if (isTRUE(attr(i_data, "metadata")$e)) {
+      target <- v$target
+      .cli_action(convert_wrn$format,
+        action = "warn",
+        call = call
+      )
+    } else {
+      if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
+        .cli_action(data_err$e_v6_format,
+          action = "abort",
+          call = call
+        )
+      }
+      i_data <- .prepare_e(i_data = i_data, call = call)
+    }
+    v$target <- NULL
+  } else if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
     # the GTAP-AEZ layer on the GTAPv7 format: a v6-format database
     # (GTAPv10a AEZ) converts to v7 first
     if (isTRUE(attr(i_data, "metadata")$aez)) {

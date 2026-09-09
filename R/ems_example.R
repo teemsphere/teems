@@ -14,6 +14,8 @@
 #'   * `"GTAPv7"`: Standard GTAP model
 #'   * `"GTAP-AEZ"`: GTAP-AEZ land-use model on the GTAPv7.1 core
 #'     (requires a GTAP-AEZ database)
+#'   * `"GTAP-E"`: GTAP-E energy and carbon model on the GTAPv7.1
+#'     core (requires a GTAP-E database)
 #'   * `"GTAPv6"`: Classic GTAP model
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.
@@ -64,6 +66,15 @@
 #'             dat_input = "aez_data/gsdfdat.har",
 #'             par_input = "aez_data/gsdfpar.har",
 #'             set_input = "aez_data/gsdfset.har")
+#'
+#' # Generate GTAP-E example scripts (a GTAP-E database is required;
+#' # ems_data() prepares its energy layer automatically)
+#' ems_example(model = "GTAP-E",
+#'             path = tempdir(),
+#'             type = "scripts",
+#'             dat_input = "e_data/gsdfdat.har",
+#'             par_input = "e_data/gsdfpar.har",
+#'             set_input = "e_data/gsdfset.har")
 #'
 #' # Generate GTAPv7 example scripts from a v6.2 format database
 #' converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",

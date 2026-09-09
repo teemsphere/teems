@@ -32,13 +32,21 @@ db_inputs <- list(
   aez = list(
     dat = Sys.getenv("GTAP12AEZ_dat"), par = Sys.getenv("GTAP12AEZ_par"),
     set = Sys.getenv("GTAP12AEZ_set"), format = "GTAPv7", year = 2017
+  ),
+  # the GTAP-E database (v12a E), for the GTAP-E model only
+  e = list(
+    dat = Sys.getenv("GTAP12E_dat"), par = Sys.getenv("GTAP12E_par"),
+    set = Sys.getenv("GTAP12E_set"), format = "GTAPv7", year = 2017
   )
 )
 
-model_format <- c(GTAPv6 = "GTAPv6", GTAPv7 = "GTAPv7", "GTAP-RE" = "GTAPv7", "GTAP-AEZ" = "GTAPv7")
+model_format <- c(
+  GTAPv6 = "GTAPv6", GTAPv7 = "GTAPv7", "GTAP-RE" = "GTAPv7",
+  "GTAP-AEZ" = "GTAPv7", "GTAP-E" = "GTAPv7"
+)
 model_dbs <- list(
   GTAPv6 = c("v10", "v11", "v12"), GTAPv7 = c("v10", "v11", "v12"),
-  "GTAP-RE" = c("v10", "v11", "v12"), "GTAP-AEZ" = "aez"
+  "GTAP-RE" = c("v10", "v11", "v12"), "GTAP-AEZ" = "aez", "GTAP-E" = "e"
 )
 
 # the COMM elements of the "services" ACTS mapping, read by the k3/k4

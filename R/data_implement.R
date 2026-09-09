@@ -27,6 +27,19 @@
     }
   }
 
+  # a GTAP-E database (v7 format with the energy layer) gets the same
+  # preparation; kept independent of the AEZ branch so a database
+  # carrying both layers is prepared by both
+  if (.is_e_input(i_data) && !isTRUE(attr(i_data, "metadata")$e)) {
+    i_data <- .prepare_e(i_data = i_data, call = call)
+    if (.o_verbose()) {
+      .cli_action(data_info$e,
+        action = "inform",
+        call = call
+      )
+    }
+  }
+
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,
     set_data = i_data[purrr::map_lgl(i_data, inherits, "set")],

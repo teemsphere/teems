@@ -243,20 +243,55 @@ NULL
   steps
 }
 
+#' Elements of a set the IF rewrite synthesized for an element-equality
+#' condition (`Set IFSn # ... # = "coa" & DCOMM;`). Such a set is a
+#' quoted element intersected with the quantifier's range, so its
+#' elements are read straight off the declaration; the caller narrows
+#' them to the operand's own elements, which also covers an element
+#' that is not in the range at all. The rewrite's other synthesized
+#' form, a set-algebra remainder, is left unresolved.
+#'
+#' @keywords internal
+#' @noRd
+.if_rewrite_elements <- function(model, nm) {
+  if (is.null(model)) {
+    return(NULL)
+  }
+  rows <- which(model$type %in% "Set" & grepl(
+    paste0("^\\s*Set\\s+", nm, "\\s*[#=]"), model$tab,
+    ignore.case = TRUE
+  ))
+  if (!length(rows) %=% 1L) {
+    return(NULL)
+  }
+  body <- trimws(sub(";\\s*$", "", sub("^[^=]*=", "", model$tab[rows[[1]]])))
+  m <- regmatches(body, regexec(
+    "^\"([^\"]+)\"\\s*&\\s*[A-Za-z_][A-Za-z0-9_]*$", body
+  ))[[1]]
+  if (length(m) == 0L) {
+    return(NULL)
+  }
+  tolower(m[2])
+}
+
 #' Values of an indicator operand over the elements of `over` (named
 #' by lowercase element): the steps applied in order, elements outside
 #' `over` ignored. NULL while a step's set is unresolved.
 #'
 #' @keywords internal
 #' @noRd
-.eval_indicator <- function(steps, over, mappings) {
+.eval_indicator <- function(steps, over, mappings, model = NULL) {
   vals <- stats::setNames(rep(0, length(over)), tolower(over))
   for (s in steps) {
     m <- mappings[[s$set]]
     if (is.null(m)) {
-      return(NULL)
+      ele <- .if_rewrite_elements(model, s$set)
+      if (is.null(ele)) {
+        return(NULL)
+      }
+    } else {
+      ele <- tolower(unique(m$mapping))
     }
-    ele <- tolower(unique(m$mapping))
     ele <- ele[ele %in% names(vals)]
     if (s$mode == "set") {
       vals[ele] <- s$value
@@ -307,7 +342,7 @@ NULL
       call = call
     )
   }
-  .eval_indicator(steps, over, mappings)
+  .eval_indicator(steps, over, mappings, model = model)
 }
 
 #' @keywords internal
@@ -370,7 +405,7 @@ NULL
     # a 1-D indicator operand assigned only constants
     steps <- if (is.null(model)) NULL else .indicator_formulas(model, b$coef)
     if (!is.null(steps)) {
-      vals <- .eval_indicator(steps, src_ele, mappings)
+      vals <- .eval_indicator(steps, src_ele, mappings, model = model)
       if (is.null(vals)) {
         return(NULL)
       }

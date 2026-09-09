@@ -67,7 +67,7 @@ test_that("ems_example closure_file is a .cls file", {
 })
 
 test_that("ems_example generates every script of a model", {
-  for (model in c("GTAPv6", "GTAPv7", "GTAP-RE", "GTAP-AEZ")) {
+  for (model in c("GTAPv6", "GTAPv7", "GTAP-RE", "GTAP-AEZ", "GTAP-E")) {
     scripts <- ems_example(
       model,
       ems_test_dir(write_dir, paste0("gen_", model)),

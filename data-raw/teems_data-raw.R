@@ -7,6 +7,9 @@ lapply(fun, source)
 db_version <- c("GTAPv9", "GTAPv10", "GTAPv11", "GTAPv12")
 vetted_db_versions <- c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c", "GTAPv12", "GTAPv12a")
 data_format <- c("GTAPv6", "GTAPv7")
+# model layers that redefine a set's elements carry their own mappings
+# alongside the data formats; .map_layers picks the bucket at load
+map_layers <- c("GTAP-AEZ", "GTAP-P")
 
 # models
 dir <- list.dirs(
@@ -84,7 +87,7 @@ mapping_files <- list.files(
 mappings <- process_mappings(
   mapping_files = mapping_files,
   db_version = db_version,
-  data_format = data_format
+  data_format = c(data_format, map_layers)
 )
 
 # parameters

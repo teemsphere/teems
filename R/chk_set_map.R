@@ -19,12 +19,24 @@
                                     database_version,
                                     call,
                                     available_mappings,
+                                    map_layers = NULL,
                                     ...) {
-  
-  available_mappings <- purrr::pluck(mappings, database_version, data_format)
-  map_name <- attr(set_map, "name")
 
-  if (!map_name %in% names(available_mappings)) {
+  map_name <- attr(set_map, "name")
+  # a model layer redefines the elements of some sets and leaves the
+  # rest to the core mappings, so take the first bucket carrying this
+  # set rather than merging them: the two element lists differ and
+  # could not share one table
+  available_mappings <- NULL
+  for (bucket in c(map_layers, data_format)) {
+    candidate <- purrr::pluck(mappings, database_version, bucket)
+    if (map_name %in% names(candidate)) {
+      available_mappings <- candidate
+      break
+    }
+  }
+
+  if (is.null(available_mappings)) {
     .cli_action(
       data_err$no_internal_mapping,
       action = "abort",

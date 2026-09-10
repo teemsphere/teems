@@ -16,6 +16,8 @@
 #'     (requires a GTAP-AEZ database)
 #'   * `"GTAP-E"`: GTAP-E energy and carbon model on the GTAPv7.1
 #'     core (requires a GTAP-E database)
+#'   * `"GTAP-EP"`: GTAP-E with the GTAP-Power electricity
+#'     technologies (requires a GTAP-Power database)
 #'   * `"GTAPv6"`: Classic GTAP model
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.
@@ -75,6 +77,16 @@
 #'             dat_input = "e_data/gsdfdat.har",
 #'             par_input = "e_data/gsdfpar.har",
 #'             set_input = "e_data/gsdfset.har")
+#'
+#' # Generate GTAP-EP example scripts (a GTAP-Power database is
+#' # required; ems_data() prepares its energy and power layer
+#' # automatically)
+#' ems_example(model = "GTAP-EP",
+#'             path = tempdir(),
+#'             type = "scripts",
+#'             dat_input = "power_data/gsdfdat.har",
+#'             par_input = "power_data/gsdfpar.har",
+#'             set_input = "power_data/gsdfset.har")
 #'
 #' # Generate GTAPv7 example scripts from a v6.2 format database
 #' converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",

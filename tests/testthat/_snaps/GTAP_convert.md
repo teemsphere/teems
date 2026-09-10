@@ -1,6 +1,6 @@
 # GTAP_convert errors when invalid target
 
-    `target` must be one of "GTAPv6", "GTAPv7", "GTAP-AEZ", or "GTAP-E", not "GTAPv3".
+    `target` must be one of "GTAPv6", "GTAPv7", "GTAP-AEZ", "GTAP-E", or "GTAP-EP", not "GTAPv3".
     i Did you mean "GTAPv6"?
 
 # GTAP_convert warns when v9 inputs are already in target format

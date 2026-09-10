@@ -106,7 +106,8 @@
     agg_ele <- sets$ele[[dom_idx]]
     composed <- .compose_map_values(
       vals = vals, dom_orig = dom_orig, dom_map = dom_map, cod_map = cod_map,
-      agg_ele = agg_ele, map_name = map_name, call = data_call
+      agg_ele = agg_ele, map_name = map_name, dom = dom, cod = cod,
+      header = header, call = data_call
     )
 
     if (onto) {
@@ -143,6 +144,10 @@
 #' every source element merged into one aggregated domain element
 #' must land on one aggregated codomain element. Returns the composed
 #' codomain element per `agg_ele` (the aggregated domain elements).
+#' `dom`, `cod` and `header` are the domain and codomain SET names and
+#' the mapping's data header, needed by the
+#' aborts here: .cli_action interpolates in its immediate caller's
+#' frame, so a message naming them cannot reach the loop that composes.
 #'
 #' @keywords internal
 #' @noRd
@@ -152,6 +157,9 @@
                                 cod_map,
                                 agg_ele,
                                 map_name,
+                                dom,
+                                cod,
+                                header,
                                 call) {
   # source elements the pipeline dropped (e.g. cgds) have no
   # aggregated counterpart; their mapping values drop with them

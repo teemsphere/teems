@@ -564,7 +564,8 @@ NULL
   map_name <- b$map
   composed <- .compose_map_values(
     vals = vals, dom_orig = dom_orig, dom_map = dom_map, cod_map = src_map,
-    agg_ele = agg_ele, map_name = map_name, call = call
+    agg_ele = agg_ele, map_name = map_name, dom = dom, cod = cod,
+    header = header, call = call
   )
 
   vals_coef <- .sb_operand_values(

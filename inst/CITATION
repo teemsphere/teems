@@ -1,0 +1,59 @@
+## Citation for the teems package.
+##
+## Version and year are read from the DESCRIPTION of the installed package so
+## this file does not need editing on release. `Date/Publication` is present in
+## CRAN builds; the other branches cover source installs and devtools::load_all.
+
+pkg_meta <- if (exists("meta") && !is.null(meta)) meta else list()
+
+version <- if (!is.null(pkg_meta$Version)) pkg_meta$Version else "1.0.0"
+
+year <- if (!is.null(pkg_meta$`Date/Publication`)) {
+  substr(pkg_meta$`Date/Publication`, 1, 4)
+} else if (!is.null(pkg_meta$Date)) {
+  substr(pkg_meta$Date, 1, 4)
+} else {
+  format(Sys.Date(), "%Y")
+}
+
+citHeader("To cite teems in publications, please use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "{teems}: Trade and Environment Equilibrium Modeling System",
+  author   = c(
+    person(
+      given   = "Matthew",
+      family  = "Cantele",
+      email   = "matthew.cantele@protonmail.com",
+      comment = c(ORCID = "0000-0003-3729-1764")
+    ),
+    person(
+      given   = "Tom",
+      family  = "Kompas",
+      comment = c(ORCID = "0000-0002-0665-0966")
+    ),
+    person(
+      given   = c("Ha", "Van"),
+      family  = "Pham",
+      comment = c(ORCID = "0000-0002-5927-6568")
+    ),
+    person(
+      given   = "Martin",
+      family  = "Ingram",
+      comment = c(ORCID = "0000-0001-6269-8342")
+    )
+  ),
+  year     = year,
+  note     = paste("R package version", version),
+  url      = "https://CRAN.R-project.org/package=teems",
+  ## Once a Zenodo release DOI exists, uncomment and cite the *concept* DOI so
+  ## the reference always resolves to the current version:
+  # doi    = "10.5281/zenodo.XXXXXXX",
+  textVersion = paste0(
+    "Cantele, M., Kompas, T., Pham, H. V., & Ingram, M. (", year, "). ",
+    "teems: Trade and Environment Equilibrium Modeling System. ",
+    "R package version ", version, ". ",
+    "https://CRAN.R-project.org/package=teems"
+  )
+)

@@ -9,7 +9,7 @@ vetted_db_versions <- c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c", "GTAPv12"
 data_format <- c("GTAPv6", "GTAPv7")
 # model layers that redefine a set's elements carry their own mappings
 # alongside the data formats; .map_layers picks the bucket at load
-map_layers <- c("GTAP-AEZ", "GTAP-P")
+map_layers <- c("GTAP-AEZ", "GTAP-EP")
 
 # models
 dir <- list.dirs(

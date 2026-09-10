@@ -123,6 +123,23 @@
         call = call
       )
     }
+    # SUBPAR enters the CDE expenditure function as ALPHA = 1 - SUBPAR,
+    # so it cannot exceed one. The eny row of the 11c releases is an
+    # un-normalised sum and reaches five (GTAP-E) to fourteen
+    # (GTAP-Power); nothing downstream checks a parameter's magnitude,
+    # so refuse it here rather than solve a silently wrong demand
+    # system. INCPAR is an income parameter and is legitimately above
+    # one, so it is not bounded here.
+    if (to %=% "SUBP") {
+      e_max <- signif(max(a, na.rm = TRUE), 4)
+      if (e_max > 1) {
+        e_header <- from
+        .cli_action(data_err$cde_range,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
+    }
     class(a)[1] <- to
     i_data[[i]] <<- a
     names(i_data)[i] <<- to

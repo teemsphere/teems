@@ -8,7 +8,7 @@
     target <- a$target
     rlang::arg_match(
       target,
-      c("GTAPv6", "GTAPv7", "GTAP-AEZ", "GTAP-E"),
+      c("GTAPv6", "GTAPv7", "GTAP-AEZ", "GTAP-E", "GTAP-EP"),
       error_call = call
     )
   }

@@ -40,6 +40,19 @@
     }
   }
 
+  # a GTAP-Power database gets the same preparation; kept independent of
+  # the other branches so a database carrying several layers is prepared
+  # by each of their hooks
+  if (.is_ep_input(i_data) && !isTRUE(attr(i_data, "metadata")$p)) {
+    i_data <- .prepare_ep(i_data = i_data, call = call)
+    if (.o_verbose()) {
+      .cli_action(data_info$ep,
+        action = "inform",
+        call = call
+      )
+    }
+  }
+
   set_mappings <- .load_mappings(
     set_mappings = v$set_mappings,
     set_data = i_data[purrr::map_lgl(i_data, inherits, "set")],

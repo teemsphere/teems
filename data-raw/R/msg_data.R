@@ -42,6 +42,22 @@ build_data_err <- function() {
       "GTAP-E parameter {.field {e_header}} is dimensioned on {.val {e_dim}}, not {.val TOPP}.",
       "{.field {e_header}} supplies the CDE parameters the model reads over {.val TOPP}; a different dimension would bind the wrong values."
     ),
+    ep_v6_format = c(
+      "The {.val GTAP-EP} target prepares the GTAPv7-format GTAP-Power layer (GTAP 11c/12a Power databases); the input is in the v6.2 format.",
+      "The v6-format GTAP-Power layer (GTAP 10a) carries different headers and is not supported."
+    ),
+    ep_incomplete = c(
+      "The GTAP-Power layer is incomplete: {cli::qty(missing_ep)}header{?s} {.val {missing_ep}} {?is/are} missing.",
+      "GTAP-Power preparation needs the sets COMM, ACTS, REG, COME, FUEL, ELEC and ELEA and the parameters SUBE and INCE."
+    ),
+    ep_load_split = c(
+      "The GTAP-Power generation technologies {.val {ep_techs}} do not split into base load and peak load.",
+      "The split is read from the {.val BL} and {.val P} name suffixes; the long labels are inconsistent and cannot stand in for them."
+    ),
+    cde_range = c(
+      "The CDE substitution parameter {.field {e_header}} reaches {.val {e_max}}, so {.code ALPHA = 1 - SUBPAR} would be negative.",
+      "The {.val eny} row of the 11c releases is an un-normalised sum over the energy commodities rather than a share-weighted parameter; the 12a releases carry it correctly."
+    ),
     e_topp_weight = c(
       "GTAP-E weight {.field {e_header}} cannot be recast onto {.val TOPP} from {.val {e_dim}}.",
       "The CDE parameters are aggregated with private consumption over {.val COMM}, which {.val TOPP} must cover with exactly one aggregate element."
@@ -69,6 +85,7 @@ build_data_info <- function() {
   list(
     aez = "GTAP-AEZ layer detected: disaggregated activity sets and mapping (DACT, DCRP, DFRS, DGRZ, DLUA, MACT), CROPACTS/LCOV dimensions and AEZ parameters prepared.",
     e = "GTAP-E layer detected: disaggregated commodity set and mapping (DCOM, MCOM, DELY), aggregated energy sets (EGY, ENYP, ENYG, ENYI), TOPP, and the CDE parameters SUBE/INCE bound to SUBP/INCP.",
+    ep = "GTAP-Power layer detected: disaggregated commodity set and mapping (DCOM, MCOM, DELY), aggregated energy sets (EGY, ENYP, ENYG, ENYI), the electricity nest sets (ELE*, ELY*, EGN*, EBL*, EPL*), TOPP, and the CDE parameters SUBE/INCE bound to SUBP/INCP.",
     dat = c(
       "GTAP Data Base version: {.field {full_database_version}}",
       "Reference year: {.field {reference_year}}",

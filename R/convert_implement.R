@@ -17,7 +17,26 @@
     convert = TRUE
   )
 
-  if (!is.null(v$target) && v$target %=% "GTAP-E") {
+  if (!is.null(v$target) && v$target %=% "GTAP-EP") {
+    # the GTAP-Power layer on the GTAPv7 format: a v6-format database
+    # (GTAP 10a Power) carries different headers and is not prepared
+    if (isTRUE(attr(i_data, "metadata")$p)) {
+      target <- v$target
+      .cli_action(convert_wrn$format,
+        action = "warn",
+        call = call
+      )
+    } else {
+      if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
+        .cli_action(data_err$ep_v6_format,
+          action = "abort",
+          call = call
+        )
+      }
+      i_data <- .prepare_ep(i_data = i_data, call = call)
+    }
+    v$target <- NULL
+  } else if (!is.null(v$target) && v$target %=% "GTAP-E") {
     # the GTAP-E layer on the GTAPv7 format: a v6-format database
     # (GTAP 10a E) carries different headers and is not prepared
     if (isTRUE(attr(i_data, "metadata")$e)) {

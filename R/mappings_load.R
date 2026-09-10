@@ -6,7 +6,7 @@
 #' Mapping-tree buckets a database's model layers contribute, searched
 #' before the data-format bucket so a layer overrides the core mappings
 #' for the sets whose elements it redefines: GTAP-AEZ replaces the
-#' endowments with the agro-ecological zones, GTAP-P replaces the
+#' endowments with the agro-ecological zones, GTAP-EP replaces the
 #' electricity activity with the generation technologies. A layer that
 #' leaves every element list alone (GTAP-E) contributes no bucket and
 #' reads the core mappings unchanged. More than one may apply, a
@@ -17,7 +17,7 @@
 .map_layers <- function(metadata) {
   c(
     if (isTRUE(metadata$aez)) "GTAP-AEZ",
-    if (isTRUE(metadata$p)) "GTAP-P"
+    if (isTRUE(metadata$ep)) "GTAP-EP"
   )
 }
 

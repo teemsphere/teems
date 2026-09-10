@@ -302,7 +302,15 @@
     )
 
     metadata[["full_database_version"]] <- metadata[["database_version"]]
-    metadata[["database_version"]] <- gsub("(\\d.*?)[A-Za-z]", "\\1", metadata[["database_version"]])
+    # the release letter and any model-layer suffix are dropped to leave
+    # the version number the mappings and set conversions are keyed on:
+    # GTAPv12a and GTAPv12aPower both key on GTAPv12. Anchoring the strip
+    # matters, a trailing pattern having eaten the P of Power and left
+    # GTAPv12aower, which matches no mapping bucket at all.
+    metadata[["database_version"]] <- sub(
+      "^(GTAP[A-Za-z]*[0-9]+).*$", "\\1",
+      metadata[["database_version"]]
+    )
   }
 
 

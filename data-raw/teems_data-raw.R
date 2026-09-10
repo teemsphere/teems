@@ -5,7 +5,13 @@ lapply(fun, source)
 
 # databases
 db_version <- c("GTAPv9", "GTAPv10", "GTAPv11", "GTAPv12")
-vetted_db_versions <- c("GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c", "GTAPv12", "GTAPv12a")
+# checked against full_database_version, so a layer release is a
+# distinct entry: the AEZ and E databases report the plain version,
+# the Power ones carry the layer in DREL
+vetted_db_versions <- c(
+  "GTAPv9A", "GTAPv10A", "GTAPv11a", "GTAPv11c", "GTAPv12", "GTAPv12a",
+  "GTAPv11cPower", "GTAPv12aPower"
+)
 data_format <- c("GTAPv6", "GTAPv7")
 # model layers that redefine a set's elements carry their own mappings
 # alongside the data formats; .map_layers picks the bucket at load

@@ -16,7 +16,9 @@
     "\"[^\"]*\"",
     "|[A-Za-z_][A-Za-z0-9_]*",
     "|(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?",
-    "|[-+*/^(),\\[\\]{}]"
+    # `:` and the comparison characters occur only inside a sum's
+    # condition segment, which is carried verbatim (.pe_factor)
+    "|[-+*/^(),\\[\\]{}:=<>]"
   )
   tokens <- regmatches(text, gregexpr(pattern, text, perl = TRUE))[[1]]
   leftover <- gsub(pattern, "", text, perl = TRUE)
@@ -249,14 +251,19 @@
     if (!.is_ident(set)) {
       stop("malformed sum set", call. = FALSE)
     }
+    # `sum{j,S: COND, expr}` -- the condition ranges over set elements
+    # only (11.9), so substitution never touches it: it is captured
+    # verbatim and serialized back onto the sum it came from
+    cond <- .pe_sum_cond(st)
     .expect(st, ",")
     node <- .pe_expr(st, var_lookup)
     .expect(st, close)
     if (node$kind %=% "coeff") {
-      return(.coeff_node(paste0("sum{", idx, ",", set, ", ", node$text, "}")))
+      return(.coeff_node(paste0("sum{", idx, ",", set, cond, ", ",
+                                node$text, "}")))
     }
     node$terms <- lapply(node$terms, function(t) {
-      t$quants <- c(list(list(idx = idx, set = set)), t$quants)
+      t$quants <- c(list(list(idx = idx, set = set, cond = cond)), t$quants)
       t
     })
     return(node)
@@ -293,6 +300,41 @@
     }
   }
   return(.coeff_node(paste0(tok, open, paste(args, collapse = ","), close)))
+}
+
+# A sum's condition segment: "" when the sum is unconditional, else
+# ": <text>" up to the comma that opens the summand. Depth-tracked, so
+# commas inside the condition's own references stay put.
+#' @keywords internal
+#' @noRd
+.pe_sum_cond <- function(st) {
+  if (!identical(.pk(st), ":")) {
+    return("")
+  }
+  .adv(st)
+  parts <- character()
+  depth <- 0L
+  repeat {
+    tok <- .pk(st)
+    if (is.na(tok)) {
+      stop("unterminated sum condition", call. = FALSE)
+    }
+    if (tok %in% c("(", "[", "{")) {
+      depth <- depth + 1L
+    } else if (tok %in% c(")", "]", "}")) {
+      if (depth == 0L) {
+        stop("unterminated sum condition", call. = FALSE)
+      }
+      depth <- depth - 1L
+    } else if (tok %=% "," && depth == 0L) {
+      break
+    }
+    parts <- c(parts, .adv(st))
+  }
+  if (length(parts) == 0L) {
+    stop("empty sum condition", call. = FALSE)
+  }
+  paste0(": ", paste(parts, collapse = ""))
 }
 
 # Arguments of a reference: raw texts split on depth-1 commas.
@@ -361,6 +403,9 @@
     if (q$idx %in% names(map)) {
       q$idx <- unname(map[[q$idx]])
     }
+    if (!is.null(q$cond)) {
+      q$cond <- .rename_expr_tokens(q$cond, map = map)
+    }
     q
   })
   if (!is.null(term$var) && length(term$var$args) > 0L) {
@@ -390,7 +435,8 @@
     prod <- "1"
   }
   for (q in rev(term$quants)) {
-    prod <- paste0("sum{", q$idx, ",", q$set, ", ", prod, "}")
+    prod <- paste0("sum{", q$idx, ",", q$set, q$cond %|||% "", ", ",
+                   prod, "}")
   }
   return(prod)
 }

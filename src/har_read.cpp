@@ -11,6 +11,46 @@
 
 namespace {
 
+// HAR character fields are 8-bit bytes with no declared encoding:
+// GEMPACK writes whatever the producing machine used, so GTAP ships long
+// names like "C\xf4te d'Ivoire" (Latin-1). cpp11 marks every string it
+// builds CE_UTF8, which leaves such a field declared UTF-8 while holding
+// bytes that are not, and the first tolower() on it aborts the run in
+// utf8towcs. Tag what the bytes actually are instead: pure ASCII and
+// well-formed UTF-8 are marked UTF-8, anything else Latin-1 (the
+// GEMPACK-era default), leaving R to convert on demand.
+inline bool is_valid_utf8(const char* s, std::size_t n) {
+  const uint8_t* p = reinterpret_cast<const uint8_t*>(s);
+  std::size_t i = 0;
+  while (i < n) {
+    const uint8_t c = p[i];
+    int extra;
+    uint32_t cp;
+    if (c < 0x80) { ++i; continue; }
+    else if ((c & 0xE0) == 0xC0) { extra = 1; cp = c & 0x1F; }
+    else if ((c & 0xF0) == 0xE0) { extra = 2; cp = c & 0x0F; }
+    else if ((c & 0xF8) == 0xF0) { extra = 3; cp = c & 0x07; }
+    else return false;
+    if (i + extra >= n) return false;
+    for (int k = 1; k <= extra; ++k) {
+      const uint8_t cc = p[i + k];
+      if ((cc & 0xC0) != 0x80) return false;
+      cp = (cp << 6) | (cc & 0x3F);
+    }
+    if (extra == 1 && cp < 0x80) return false;
+    if (extra == 2 && cp < 0x800) return false;
+    if (extra == 3 && cp < 0x10000) return false;
+    if (cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) return false;
+    i += extra + 1;
+  }
+  return true;
+}
+
+inline SEXP har_char(const char* s, std::size_t n) {
+  const cetype_t ce = is_valid_utf8(s, n) ? CE_UTF8 : CE_LATIN1;
+  return Rf_mkCharLenCE(s, static_cast<int>(n), ce);
+}
+
 inline std::string trim_ws(const char* s, int n) {
   int b = 0, e = n;
   while (b < e && (s[b] == ' ' || s[b] == '\t' || s[b] == '\r' || s[b] == '\n')) ++b;
@@ -223,9 +263,10 @@ cpp11::strings har_fixed_width_strings(cpp11::raws bytes, int width, bool trim) 
       buf[j] = (b == 0x00) ? ' ' : static_cast<char>(b);
     }
     if (trim) {
-      out[s] = trim_ws(buf.data(), width);
+      const std::string field = trim_ws(buf.data(), width);
+      SET_STRING_ELT((SEXP)out, s, har_char(field.data(), field.size()));
     } else {
-      out[s] = buf;
+      SET_STRING_ELT((SEXP)out, s, har_char(buf.data(), buf.size()));
     }
   }
   return out;

@@ -21,12 +21,21 @@ elements and attributes.}
 
 \item{target}{Character vector of length 1 (default is
 \code{NULL}). The target format to convert to. Currently supports
-\code{"GTAPv6"}, \code{"GTAPv7"} or \code{"GTAP-AEZ"} (a GTAPv7-format
-GTAP-AEZ database prepared for the GTAP-AEZ model: the
-disaggregated activity sets and mapping the model reads, the
-model's \code{CROPACTS}/\code{LCOV} dimension names and the AEZ
-parameters; \code{\link[=ems_data]{ems_data()}} applies the same preparation on its
-own when it detects the AEZ layer). If \code{NULL}, no data format
+\code{"GTAPv6"}, \code{"GTAPv7"}, \code{"GTAP-AEZ"}, \code{"GTAP-E"} or \code{"GTAP-EP"}.
+The three layer targets prepare a GTAPv7-format database for the
+corresponding model: \code{"GTAP-AEZ"} supplies the disaggregated
+activity sets and mapping the model reads, the model's
+\code{CROPACTS}/\code{LCOV} dimension names and the AEZ parameters;
+\code{"GTAP-E"} supplies the disaggregated commodity set and mapping
+(\code{DCOM}, \code{MCOM}, \code{DELY}), the aggregated energy sets (\code{EGY},
+\code{ENYP}, \code{ENYG}, \code{ENYI}), \code{TOPP}, and binds the database's
+\code{SUBE}/\code{INCE} to the \code{SUBP}/\code{INCP} headers the model reads over
+\code{TOPP}; \code{"GTAP-EP"} does the same for a GTAP-Power database and
+adds the electricity nest sets (\verb{ELE*}, \verb{ELY*}, \verb{EGN*}, \verb{EBL*},
+\verb{EPL*}). The 12a energy and power releases prepare; the 11c
+releases carry an un-normalised \code{SUBE} row and are refused by
+name. \code{\link[=ems_data]{ems_data()}} applies the same preparation on its own
+when it detects a layer. If \code{NULL}, no data format
 conversion will take place.}
 }
 \value{

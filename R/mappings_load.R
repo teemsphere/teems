@@ -3,6 +3,10 @@
 #' @importFrom tools file_ext
 #' @importFrom cli cli_h1 cli_text
 #'
+#' @keywords internal
+#' @noRd
+NULL
+
 #' Mapping-tree buckets a database's model layers contribute, searched
 #' before the data-format bucket so a layer overrides the core mappings
 #' for the sets whose elements it redefines: GTAP-AEZ replaces the
@@ -16,8 +20,8 @@
 #' @keywords internal
 .map_layers <- function(metadata) {
   c(
-    if (isTRUE(metadata$aez)) "GTAP-AEZ",
-    if (isTRUE(metadata$ep)) "GTAP-EP"
+    if (isTRUE(metadata[["aez"]])) "GTAP-AEZ",
+    if (isTRUE(metadata[["ep"]])) "GTAP-EP"
   )
 }
 

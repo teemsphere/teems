@@ -33,9 +33,8 @@
 #' @keywords internal
 #' @noRd
 .prepare_aez <- function(i_data, call) {
-  metadata <- attr(i_data, "metadata")
-  fmt <- metadata$data_format
-  cls <- class(i_data)
+  attrs <- attributes(i_data)
+  fmt <- attrs[["metadata"]][["data_format"]]
   nm <- toupper(names(i_data))
   req <- c("AEZS", "COVS", "CROP", "LUSA", "ACTS", "REG", "AREA", "TONS", "LCOV")
   missing_aez <- setdiff(req, nm)
@@ -45,24 +44,17 @@
       call = call
     )
   }
-  set_of <- function(h) tolower(trimws(as.character(i_data[[match(h, nm)]])))
-  acts <- set_of("ACTS")
-  crop <- set_of("CROP")
-  lusa <- set_of("LUSA")
+  acts <- .layer_elements(i_data, "ACTS")
+  crop <- .layer_elements(i_data, "CROP")
+  lusa <- .layer_elements(i_data, "LUSA")
 
-  mk_set <- function(header, ele) {
-    s <- ele
-    class(s) <- c(header, header, "set", fmt, "character")
-    attr(s, "user_set") <- TRUE
-    s
-  }
   new_sets <- list(
-    DACT = mk_set("DACT", acts),
-    DCRP = mk_set("DCRP", intersect(crop, acts)),
-    DFRS = mk_set("DFRS", intersect("frs", acts)),
-    DGRZ = mk_set("DGRZ", intersect(c("ctl", "rmk", "wol"), acts)),
-    DLUA = mk_set("DLUA", intersect(lusa, acts)),
-    MACT = mk_set("MACT", acts)
+    DACT = .layer_set("DACT", acts, fmt),
+    DCRP = .layer_set("DCRP", intersect(crop, acts), fmt),
+    DFRS = .layer_set("DFRS", intersect("frs", acts), fmt),
+    DGRZ = .layer_set("DGRZ", intersect(c("ctl", "rmk", "wol"), acts), fmt),
+    DLUA = .layer_set("DLUA", intersect(lusa, acts), fmt),
+    MACT = .layer_set("MACT", acts, fmt)
   )
   new_sets <- new_sets[!names(new_sets) %in% nm]
 
@@ -90,8 +82,8 @@
   rename_dim("TONS", "CROP", "CROPACTS")
   rename_dim("LCOV", "COVS", "LCOV")
 
-  reg <- set_of("REG")
-  aezs <- set_of("AEZS")
+  reg <- .layer_elements(i_data, "REG")
+  aezs <- .layer_elements(i_data, "AEZS")
   mk_par <- function(header, dims, value) {
     if (length(dims) == 0L) {
       arr <- array(value, dim = 1L)
@@ -110,19 +102,5 @@
   )
   new_par <- new_par[!names(new_par) %in% nm]
 
-  # keep the set / par / dat grouping: new sets after the last set,
-  # new parameters after the last parameter
-  attrs <- attributes(i_data)
-  out <- unclass(i_data)
-  at_set <- max(which(purrr::map_lgl(out, inherits, "set")), 0L)
-  out <- append(out, new_sets, after = at_set)
-  at_par <- max(which(purrr::map_lgl(out, inherits, "par")), 0L)
-  out <- append(out, new_par, after = at_par)
-  for (a in setdiff(names(attrs), c("names", "class", "metadata"))) {
-    attr(out, a) <- attrs[[a]]
-  }
-  metadata$aez <- TRUE
-  attr(out, "metadata") <- metadata
-  class(out) <- cls
-  out
+  .layer_finish(i_data, new_sets, new_par, attrs = attrs, flag = "aez")
 }

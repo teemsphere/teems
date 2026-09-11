@@ -73,9 +73,8 @@
 #' @keywords internal
 #' @noRd
 .prepare_ep <- function(i_data, call) {
-  metadata <- attr(i_data, "metadata")
-  fmt <- metadata$data_format
-  cls <- class(i_data)
+  attrs <- attributes(i_data)
+  fmt <- attrs[["metadata"]][["data_format"]]
   nm <- toupper(names(i_data))
   req <- c("COMM", "ACTS", "REG", "COME", "FUEL", "ELEC", "ELEA", "SUBE", "INCE")
   missing_ep <- setdiff(req, nm)
@@ -85,11 +84,10 @@
       call = call
     )
   }
-  set_of <- function(h) tolower(trimws(as.character(i_data[[match(h, nm)]])))
-  comm <- set_of("COMM")
-  fuel <- set_of("FUEL")
-  elec <- set_of("ELEC")
-  techs <- set_of("ELEA")
+  comm <- .layer_elements(i_data, "COMM")
+  fuel <- .layer_elements(i_data, "FUEL")
+  elec <- .layer_elements(i_data, "ELEC")
+  techs <- .layer_elements(i_data, "ELEA")
 
   split <- .ep_load_split(techs)
   if (is.null(split)) {
@@ -108,117 +106,38 @@
   ely_nodes <- c("egen", setdiff(elec, techs))
   egn_nodes <- c("ebl", "epl")
 
-  mk_set <- function(header, ele, user_set = TRUE) {
-    s <- ele
-    class(s) <- c(header, header, "set", fmt, "character")
-    if (user_set) {
-      attr(s, "user_set") <- TRUE
-    }
-    s
-  }
   # the disaggregated commodity list and its mapping stay at source; the
   # energy and nest sets follow COMM, the node lists being aggregation
   # invariant either way
   new_sets <- list(
-    DCOM = mk_set("DCOM", comm),
-    MCOM = mk_set("MCOM", comm),
-    DELY = mk_set("DELY", elec),
-    EGY = mk_set("EGY", egy, user_set = FALSE),
-    TOPP = mk_set("TOPP", c("eny", setdiff(comm, egy)), user_set = FALSE)
+    DCOM = .layer_set("DCOM", comm, fmt),
+    MCOM = .layer_set("MCOM", comm, fmt),
+    DELY = .layer_set("DELY", elec, fmt),
+    EGY = .layer_set("EGY", egy, fmt, user_set = FALSE),
+    TOPP = .layer_set("TOPP", c("eny", setdiff(comm, egy)), fmt, user_set = FALSE)
   )
   for (agent in c("P", "G", "I")) {
-    new_sets[[paste0("ENY", agent)]] <-
-      mk_set(paste0("ENY", agent), eny, user_set = FALSE)
+    h <- paste0("ENY", agent)
+    new_sets[[h]] <- .layer_set(h, eny, fmt, user_set = FALSE)
   }
   for (agent in c("F", "G", "I", "P")) {
-    new_sets[[paste0("ELE", agent)]] <-
-      mk_set(paste0("ELE", agent), ele_nodes)
-    new_sets[[paste0("ELY", agent)]] <-
-      mk_set(paste0("ELY", agent), ely_nodes)
-    new_sets[[paste0("EGN", agent)]] <-
-      mk_set(paste0("EGN", agent), egn_nodes)
-    new_sets[[paste0("EBL", agent)]] <-
-      mk_set(paste0("EBL", agent), split$base, user_set = FALSE)
-    new_sets[[paste0("EPL", agent)]] <-
-      mk_set(paste0("EPL", agent), split$peak, user_set = FALSE)
+    nest <- list(
+      ELE = list(ele_nodes, TRUE),
+      ELY = list(ely_nodes, TRUE),
+      EGN = list(egn_nodes, TRUE),
+      EBL = list(split$base, FALSE),
+      EPL = list(split$peak, FALSE)
+    )
+    for (family in names(nest)) {
+      h <- paste0(family, agent)
+      new_sets[[h]] <- .layer_set(h, nest[[family]][[1]], fmt,
+        user_set = nest[[family]][[2]]
+      )
+    }
   }
   new_sets <- new_sets[!names(new_sets) %in% nm]
 
-  # taken before the reclass below, which would otherwise carry the last
-  # set past the parameters and scatter the new sets among them
-  at_set <- max(which(purrr::map_lgl(i_data, inherits, "set")), 0L)
-
-  # BLOC and the REGTOBLOC mapping are read from GTAPPARM rather than
-  # GTAPSETS, so the loader classes them as parameters and they would
-  # reach the numeric aggregation path; as in the GTAP-E layer
-  reclass_set <- function(header, user_set) {
-    i <- match(header, nm)
-    if (is.na(i)) {
-      return(invisible(NULL))
-    }
-    s <- tolower(trimws(as.character(i_data[[i]])))
-    class(s) <- c(header, header, "set", fmt, "character")
-    if (user_set) {
-      attr(s, "user_set") <- TRUE
-    }
-    i_data[[i]] <<- s
-  }
-  reclass_set("TRBL", user_set = FALSE)
-  reclass_set("MAPB", user_set = TRUE)
-
-  # the model reads the CDE parameters over TOPP under the names
-  # SUBP/INCP, the database shipping them as SUBE/INCE
-  promote <- function(from, to) {
-    i <- match(from, nm)
-    a <- i_data[[i]]
-    dn <- names(dimnames(a))
-    if (is.null(dn) || !dn[[1]] %=% "TOPP") {
-      e_header <- from
-      e_dim <- if (is.null(dn)) "unnamed" else dn[[1]]
-      .cli_action(data_err$e_topp_dim,
-        action = "abort",
-        call = call
-      )
-    }
-    # SUBPAR enters the CDE expenditure function as ALPHA = 1 - SUBPAR,
-    # so it cannot exceed one. The eny row of the 11c releases is an
-    # un-normalised sum and reaches five (GTAP-E) to fourteen
-    # (GTAP-Power); nothing downstream checks a parameter's magnitude,
-    # so refuse it here rather than solve a silently wrong demand
-    # system. INCPAR is an income parameter and is legitimately above
-    # one, so it is not bounded here.
-    if (to %=% "SUBP") {
-      e_max <- signif(max(a, na.rm = TRUE), 4)
-      if (e_max > 1) {
-        e_header <- from
-        .cli_action(data_err$cde_range,
-          action = c("abort", "inform"),
-          call = call
-        )
-      }
-    }
-    class(a)[1] <- to
-    i_data[[i]] <<- a
-    names(i_data)[i] <<- to
-    nm[i] <<- to
-    j <- which(nm %in% to)
-    if (length(j) > 1L) {
-      drop <- setdiff(j, i)
-      i_data <<- i_data[-drop]
-      nm <<- nm[-drop]
-    }
-  }
-  promote("SUBE", "SUBP")
-  promote("INCE", "INCP")
-
-  attrs <- attributes(i_data)
-  out <- unclass(i_data)
-  out <- append(out, new_sets, after = at_set)
-  for (a in setdiff(names(attrs), c("names", "class", "metadata"))) {
-    attr(out, a) <- attrs[[a]]
-  }
-  metadata$ep <- TRUE
-  attr(out, "metadata") <- metadata
-  class(out) <- cls
-  out
+  i_data <- .layer_reclass_blocs(i_data, fmt)
+  i_data <- .layer_promote_cde(i_data, call = call)
+  .layer_finish(i_data, new_sets, attrs = attrs, flag = "ep")
 }

@@ -372,3 +372,75 @@ test_that("GTAP_convert GTAP-AEZ target rejects the v6-format layer (v10a AEZ)",
     "GTAP-AEZ"
   )))
 })
+
+test_that("GTAP_convert GTAP-E target (v12a E, v7 format)", {
+  skip_if(!nzchar(Sys.getenv("GTAP12E_dat")), "GTAP12E_* inputs not set")
+  e <- GTAP_convert(
+    Sys.getenv("GTAP12E_dat"),
+    Sys.getenv("GTAP12E_par"),
+    Sys.getenv("GTAP12E_set"),
+    "GTAP-E"
+  )
+  md <- attr(e$dat, "metadata")
+  expect_true(isTRUE(md[["e"]]))
+  expect_null(md[["ep"]])
+  expect_equal(md$database_version, "GTAPv12")
+  expect_true(all(c("DCOM", "MCOM", "DELY", "EGY", "ENYP", "ENYG", "ENYI", "TOPP") %in% names(e$set)))
+  expect_equal(as.character(e$set$DCOM), tolower(as.character(e$set$COMM)))
+  expect_equal(as.character(e$set$DELY), "ely")
+  expect_equal(as.character(e$set$EGY), tolower(as.character(e$set$COME)))
+  expect_true("eny" %in% as.character(e$set$TOPP))
+  expect_equal(names(dimnames(e$par$SUBP))[[1]], "TOPP")
+  expect_equal(names(dimnames(e$par$INCP))[[1]], "TOPP")
+  expect_false(any(c("SUBE", "INCE") %in% names(e$par)))
+  expect_lte(max(e$par$SUBP), 1)
+  expect_true(inherits(e$set$TRBL, "set"))
+})
+
+test_that("GTAP_convert GTAP-EP target (v12a Power, v7 format)", {
+  skip_if(!nzchar(Sys.getenv("GTAP12P_dat")), "GTAP12P_* inputs not set")
+  ep <- GTAP_convert(
+    Sys.getenv("GTAP12P_dat"),
+    Sys.getenv("GTAP12P_par"),
+    Sys.getenv("GTAP12P_set"),
+    "GTAP-EP"
+  )
+  md <- attr(ep$dat, "metadata")
+  expect_true(isTRUE(md[["ep"]]))
+  expect_null(md[["e"]])
+  expect_equal(md$full_database_version, "GTAPv12aPower")
+  expect_equal(md$database_version, "GTAPv12")
+  nests <- as.vector(outer(c("ELE", "ELY", "EGN", "EBL", "EPL"), c("F", "G", "I", "P"), paste0))
+  expect_true(all(c("DCOM", "MCOM", "DELY", "EGY", "ENYP", "ENYG", "ENYI", "TOPP", nests) %in% names(ep$set)))
+  expect_length(as.character(ep$set$DCOM), 76L)
+  expect_equal(as.character(ep$set$ELYF), c("egen", "tnd"))
+  expect_setequal(as.character(ep$set$EBLF), c("nuclearbl", "coalbl", "gasbl", "windbl", "hydrobl", "oilbl", "otherbl"))
+  expect_setequal(as.character(ep$set$EPLF), c("gasp", "hydrop", "oilp", "solarp"))
+  expect_true("tnd" %in% as.character(ep$set$EGY))
+  expect_false("tnd" %in% as.character(ep$set$TOPP))
+  expect_equal(names(dimnames(ep$par$SUBP))[[1]], "TOPP")
+  expect_lte(max(ep$par$SUBP), 1)
+})
+
+test_that("GTAP_convert refuses the 11c energy releases by name", {
+  skip_if(!nzchar(Sys.getenv("GTAP11cE_dat")), "GTAP11cE_* inputs not set")
+  expect_error(
+    GTAP_convert(
+      Sys.getenv("GTAP11cE_dat"),
+      Sys.getenv("GTAP11cE_par"),
+      Sys.getenv("GTAP11cE_set"),
+      "GTAP-E"
+    ),
+    "un-normalised"
+  )
+  skip_if(!nzchar(Sys.getenv("GTAP11cP_dat")), "GTAP11cP_* inputs not set")
+  expect_error(
+    GTAP_convert(
+      Sys.getenv("GTAP11cP_dat"),
+      Sys.getenv("GTAP11cP_par"),
+      Sys.getenv("GTAP11cP_set"),
+      "GTAP-EP"
+    ),
+    "un-normalised"
+  )
+})

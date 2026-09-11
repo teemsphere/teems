@@ -20,7 +20,7 @@
   if (!is.null(v$target) && v$target %=% "GTAP-EP") {
     # the GTAP-Power layer on the GTAPv7 format: a v6-format database
     # (GTAP 10a Power) carries different headers and is not prepared
-    if (isTRUE(attr(i_data, "metadata")$p)) {
+    if (isTRUE(attr(i_data, "metadata")[["ep"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
         action = "warn",
@@ -39,7 +39,7 @@
   } else if (!is.null(v$target) && v$target %=% "GTAP-E") {
     # the GTAP-E layer on the GTAPv7 format: a v6-format database
     # (GTAP 10a E) carries different headers and is not prepared
-    if (isTRUE(attr(i_data, "metadata")$e)) {
+    if (isTRUE(attr(i_data, "metadata")[["e"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
         action = "warn",
@@ -58,7 +58,7 @@
   } else if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
     # the GTAP-AEZ layer on the GTAPv7 format: a v6-format database
     # (GTAPv10a AEZ) converts to v7 first
-    if (isTRUE(attr(i_data, "metadata")$aez)) {
+    if (isTRUE(attr(i_data, "metadata")[["aez"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
         action = "warn",

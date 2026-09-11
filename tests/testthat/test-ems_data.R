@@ -336,4 +336,58 @@ test_that("ems_data prepares a GTAP-AEZ database in place", {
   expect_true("LCOV" %in% names(aez$LCOV))
 })
 
+test_that("ems_data prepares a GTAP-E database in place", {
+  skip_if(!nzchar(Sys.getenv("GTAP12E_dat")), "GTAP12E_* inputs not set")
+  e <- ems_data(
+    dat_input = Sys.getenv("GTAP12E_dat"),
+    par_input = Sys.getenv("GTAP12E_par"),
+    set_input = Sys.getenv("GTAP12E_set"),
+    REG = "big3",
+    ACTS = "energy"
+  )
+  md <- attr(e, "metadata")
+  expect_true(isTRUE(md[["e"]]))
+  expect_null(md[["ep"]])
+  # the disaggregated commodity list and its mapping stay at source
+  expect_equal(nrow(e$DCOM), 65L)
+  expect_true(all(e$DCOM$origin == e$DCOM$mapping))
+  expect_equal(length(attr(e, "set_raw")$MCOM), 65L)
+  # the energy sets follow COMM; the energy mapping keeps them apart
+  energy <- c("coa", "oil", "gas", "p_c", "ely", "gdt")
+  expect_setequal(unique(e$EGY$mapping), energy)
+  expect_setequal(unique(e$ENYP$mapping), energy)
+  # the CDE parameters are read over TOPP: the energy node plus the
+  # aggregated non-energy commodities, weighted through that recast
+  expect_true("TOPP" %in% names(e$SUBP))
+  expect_true("eny" %in% e$SUBP$TOPP)
+  expect_false(any(energy %in% e$SUBP$TOPP))
+  expect_false(any(c("SUBE", "INCE") %in% names(e)))
+  expect_lte(max(e$SUBP$Value), 1)
+})
+
+test_that("ems_data prepares a GTAP-Power database in place", {
+  skip_if(!nzchar(Sys.getenv("GTAP12P_dat")), "GTAP12P_* inputs not set")
+  ep <- ems_data(
+    dat_input = Sys.getenv("GTAP12P_dat"),
+    par_input = Sys.getenv("GTAP12P_par"),
+    set_input = Sys.getenv("GTAP12P_set"),
+    REG = "big3",
+    ACTS = "power"
+  )
+  md <- attr(ep, "metadata")
+  expect_true(isTRUE(md[["ep"]]))
+  expect_null(md[["e"]])
+  expect_equal(nrow(ep$DCOM), 76L)
+  # the power mapping (the layer's own bucket, not a core mapping) keeps
+  # transmission, base load and peak load apart
+  expect_false("power" %in% names(getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$ACTS))
+  expect_equal(unique(ep$EBLF$mapping), "baseload")
+  expect_equal(unique(ep$EPLF$mapping), "peakload")
+  expect_setequal(unique(ep$ELYF$mapping), c("egen", "tnd"))
+  expect_true("ely" %in% ep$ENYP$mapping)
+  expect_true("tnd" %in% ep$EGY$mapping)
+  expect_true("eny" %in% ep$SUBP$TOPP)
+  expect_false("tnd" %in% ep$SUBP$TOPP)
+})
+
 unlink(write_dir, recursive = TRUE)

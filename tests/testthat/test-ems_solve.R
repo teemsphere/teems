@@ -50,7 +50,6 @@ static_model <- suppressMessages(suppressWarnings(
   ems_model(static_model_file, static_closure_file, ignore_condense = TRUE)
 ))
 
-variant <- Sys.info()["sysname"]
 
 # the shock behind every equivalence test below: a real productivity
 # shock, so that alternative TAB forms, condensation and the solution /
@@ -64,10 +63,7 @@ dynamic_shock <- ems_uniform_shock("aoall", 2)
 
 # snapshot normaliser: the log stamp and the resolved image tag are
 # environment-specific
-norm_cmd <- function(lines) {
-  lines <- gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
-  gsub("teems:[A-Za-z0-9._-]+ /bin/bash", "teems:TAG /bin/bash", lines)
-}
+# path, log-name and tag scrubbing: scrub_paths (helper-script_run.R)
 
 test_that("ems_solve suppress_outputs returns cmf_path character", {
   nest_temp("solve_suppress", write_dir)
@@ -222,8 +218,7 @@ test_that("ems_solve errors when solution errors detected", {
   # 25.4.4); make it fatal so the bound violations abort the run
   expect_snapshot(ems_solve(cmf_path, range_test_updated = "fatal"),
     error = TRUE,
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 })
 
@@ -233,7 +228,7 @@ test_that("ems_deploy errors when the closure does not square the system", {
   # count-squaring pre-flight rejects it before any solver call
   expect_snapshot(ems_deploy(static_data, static_model, swap_out = "pop"),
     error = TRUE,
-    variant = variant
+    transform = scrub_paths
   )
 })
 
@@ -258,8 +253,7 @@ test_that("ems_solve informs terminal run", {
   cmf_path <- ems_deploy(static_data, static_model)
   expect_snapshot(
     ems_solve(cmf_path, terminal_run = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 })
 
@@ -268,8 +262,7 @@ test_that("matrix_method auto resolves by model type", {
   cmf_path <- ems_deploy(static_data, static_model)
   expect_snapshot(
     ems_solve(cmf_path, matrix_method = "auto", terminal_run = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
   nest_temp("solve_auto_dynamic", write_dir)
   cmf_path <- ems_deploy(dynamic_data, dynamic_model)
@@ -279,8 +272,7 @@ test_that("matrix_method auto resolves by model type", {
       matrix_method = "auto",
       terminal_run = TRUE
     ),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 })
 
@@ -295,8 +287,7 @@ test_that("matrix_method auto selects DBBD for large static deployments", {
   saveRDS(metadata, metadata_path)
   expect_snapshot(
     ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
   # the probe ran once and left its report next to the solution files
   expect_true(file.exists(file.path(
@@ -305,15 +296,13 @@ test_that("matrix_method auto selects DBBD for large static deployments", {
   # single task: no probe (LU is forced), metadata hint only
   expect_snapshot(
     ems_solve(cmf_path, terminal_run = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
   # 4 tasks: the 3-block partition cannot serve them and the next
   # candidate's border is too wide -> LU
   expect_snapshot(
     ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 })
 
@@ -327,8 +316,7 @@ test_that("matrix_method auto probes the deployed structure and records the deci
   # pre_probe shares the auto method's probe: one probe run per solve
   expect_snapshot(
     out <- ems_solve(cmf_path, n_tasks = 2L, pre_probe = TRUE),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
   expect_s3_class(out, "data.frame")
   probe_logs <- list.files(
@@ -500,7 +488,7 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
     "PRDX(c,r) > 5e11", "PRDX(c,r) <= 5e11",
     c(
       "Coefficient (all,c,COMM)(all,r,REG) PRDX(c,r) # hand-staged condition #;",
-      "Formula (all,c,COMM)(all,r,REG) PRDX(c,r) = VDB(c,r)*VST(c,r);"
+      "Formula (all,c,COMM)(all,r,REG) PRDX(c,r) = VDB(c,r)*VCB(c,r);"
     )
   )
   hand_model <- ems_model(hand_file, static_closure_file, ignore_condense = TRUE)
@@ -509,13 +497,13 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
 
   nest_temp("solve_ifexpr", write_dir)
   expr_file <- probe(
-    "VDB(c,r)*VST(c,r) > 5e11", "VDB(c,r)*VST(c,r) <= 5e11"
+    "VDB(c,r)*VCB(c,r) > 5e11", "VDB(c,r)*VCB(c,r) <= 5e11"
   )
   expr_model <- ems_model(expr_file, static_closure_file, ignore_condense = TRUE)
   # one (always) helper shared by the equation's two conditions, one
   # (initial) helper for the formula host
-  expect_true(any(grepl("Formula (all,c,COMM)(all,r,REG) IFX1(c,r) = VDB(c,r)*VST(c,r)", expr_model$tab, fixed = TRUE)))
-  expect_true(any(grepl("Formula (initial) (all,c,COMM)(all,r,REG) IFX2(c,r) = VDB(c,r)*VST(c,r)", expr_model$tab, fixed = TRUE)))
+  expect_true(any(grepl("Formula (all,c,COMM)(all,r,REG) IFX1(c,r) = VDB(c,r)*VCB(c,r)", expr_model$tab, fixed = TRUE)))
+  expect_true(any(grepl("Formula (initial) (all,c,COMM)(all,r,REG) IFX2(c,r) = VDB(c,r)*VCB(c,r)", expr_model$tab, fixed = TRUE)))
   expect_false(any(grepl("IFX3", expr_model$tab, fixed = TRUE)))
   cmf_expr <- ems_deploy(static_data, expr_model, real_shock)
   expr_out <- ems_solve(cmf_expr)
@@ -805,8 +793,7 @@ test_that("condensed deployments are advised against bordered methods (roadmap 6
       n_tasks = 2L,
       terminal_run = TRUE
     ),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 
   # LU is the method condensation was measured to help: no advice
@@ -840,8 +827,7 @@ test_that("condensed intertemporal deployments are advised against (roadmap 6.2)
       matrix_method = "SBBD",
       terminal_run = TRUE
     ),
-    transform = norm_cmd,
-    variant = variant
+    transform = scrub_paths
   )
 })
 

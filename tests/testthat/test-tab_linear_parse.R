@@ -1,0 +1,52 @@
+skip_on_cran()
+
+# the condensation parser: an equation side is read into linear terms
+# (variable factors with their coefficient factors and sum quantifiers)
+# and serialized back for the rewritten equation
+
+test_that("a conditional sum carries its condition through parse, rename and serialize", {
+  vl <- list(gco2t = "gco2t")
+  side <- "sum{r,REG: REGTOBLOC(r) = b, CO2T(r)*gco2t(r)}"
+  terms <- .parse_linear_side(side, vl)
+  expect_length(terms, 1L)
+  q <- terms[[1]]$quants[[1]]
+  expect_equal(q$idx, "r")
+  expect_equal(q$set, "REG")
+  expect_equal(q$cond, ": REGTOBLOC(r)=b")
+  expect_match(.serialize_linear(terms), "sum{r,REG: REGTOBLOC(r)=b, ", fixed = TRUE)
+  expect_match(.serialize_linear(terms), "gco2t(r)}", fixed = TRUE)
+
+  # renaming the index reaches the condition too
+  renamed <- .rename_term(terms[[1]], c(r = "rr"))
+  expect_equal(renamed$quants[[1]]$idx, "rr")
+  expect_equal(renamed$quants[[1]]$cond, ": REGTOBLOC(rr)=b")
+  expect_match(.serialize_linear(list(renamed)), "sum{rr,REG: REGTOBLOC(rr)=b, ", fixed = TRUE)
+  expect_match(.serialize_linear(list(renamed)), "gco2t(rr)}", fixed = TRUE)
+
+  # a conditional sum with no variable inside is one coefficient factor
+  coef <- .parse_linear_side("sum{r,REG: REGTOBLOC(r) = b, CO2T(r)} * gco2tb(b)", list(gco2tb = "gco2tb"))
+  expect_length(coef, 1L)
+  expect_match(.serialize_linear(coef), "sum{r,REG: REGTOBLOC(r)=b, CO2T(r)}", fixed = TRUE)
+
+  # commas inside the condition's references stay put; an unconditional
+  # sum serializes as before
+  nested <- .parse_linear_side("sum{c,COMM: MAPC(c,r) = cc, VXW(c,r)*qxw(c,r)}", list(qxw = "qxw"))
+  expect_equal(nested[[1]]$quants[[1]]$cond, ": MAPC(c,r)=cc")
+  plain <- .parse_linear_side("sum{r,REG, GDP(r)*pop(r)}", list(pop = "pop"))
+  expect_equal(plain[[1]]$quants[[1]]$cond, "")
+  expect_match(.serialize_linear(plain), "sum{r,REG, GDP(r)*pop(r)}", fixed = TRUE)
+
+  # malformed conditions are refused, not silently dropped
+  expect_error(.parse_linear_side("sum{r,REG: , CO2T(r)*gco2t(r)}", vl), "empty sum condition")
+  expect_error(.parse_linear_side("sum{r,REG: REGTOBLOC(r) = b}", vl), "unterminated sum condition")
+})
+
+test_that("a reference written with square brackets keeps them", {
+  vl <- list(qxw = "qxw")
+  terms <- .parse_linear_side("ID01[VXW(c,r)] * qxw(c,r)", vl)
+  expect_length(terms, 1L)
+  expect_match(.serialize_linear(terms), "ID01[VXW(c,r)]", fixed = TRUE)
+  expect_match(.serialize_linear(terms), "qxw(c,r)", fixed = TRUE)
+  round <- .parse_linear_side("ID01(VXW(c,r)) * qxw(c,r)", vl)
+  expect_match(.serialize_linear(round), "ID01(VXW(c,r))", fixed = TRUE)
+})

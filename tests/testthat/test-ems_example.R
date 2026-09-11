@@ -21,7 +21,6 @@ withr::defer(ems_option_reset(), teardown_env())
 # the GTAPv6, GTAPv7 and GTAP-RE scripts are solved in test-scripts.R;
 # here they are generated only
 
-variant <- Sys.info()["sysname"]
 
 test_that("ems_example errors when model is missing", {
   expect_snapshot_error(ems_example())
@@ -32,9 +31,9 @@ test_that("ems_example errors when path is missing", {
 })
 
 test_that("ems_example errors when path does not exist", {
-  expect_snapshot_error(
+  expect_snapshot(
     ems_example("GTAPv7", file.path(write_dir, "not_a_dir")),
-    variant = variant
+    error = TRUE, transform = scrub_paths
   )
 })
 

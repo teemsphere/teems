@@ -2,6 +2,14 @@
 
     `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", and "docker_tag", not "not_an_option".
 
+# ems_option errors when write_dir does not exist
+
+    Code
+      ems_option_set(tempdir = file.path(basename(getwd()), "does_not_exist"))
+    Condition
+      Error in `ems_option_set()`:
+      ! 'testthat/does_not_exist' does not exist.
+
 # docker tag auto-selection
 
     Code

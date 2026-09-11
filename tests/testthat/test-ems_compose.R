@@ -37,7 +37,6 @@ n_postsim <- sum(model$type == "Coefficient" & model$postsim)
 cmf_path <- ems_deploy(dat, model)
 ems_solve(cmf_path, suppress_outputs = TRUE)
 
-variant <- Sys.info()["sysname"]
 
 test_that("ems_compose errors when cmf_path is missing", {
   expect_snapshot_error(ems_compose())
@@ -163,8 +162,8 @@ test_that("ems_compose examples run", {
 
 test_that("ems_compose errors when model run has not taken place", {
   unlink(file.path(write_dir, "out"), recursive = TRUE)
-  expect_snapshot_error(ems_compose(cmf_path),
-                        variant = variant)
+  expect_snapshot(ems_compose(cmf_path),
+                  error = TRUE, transform = scrub_paths)
 })
 
 unlink(write_dir, recursive = TRUE)

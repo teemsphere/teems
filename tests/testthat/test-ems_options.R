@@ -1,7 +1,6 @@
 skip_on_cran()
 
 withr::defer(ems_option_reset(), teardown_env())
-variant <- Sys.info()["sysname"]
 
 test_that("ems_option_get errors on invalid name", {
   expect_snapshot_error(ems_option_get("not_an_option"))
@@ -88,9 +87,9 @@ test_that("ems_option_set sets timestep_header", {
 })
 
 test_that("ems_option errors when write_dir does not exist", {
-  expect_snapshot_error(
+  expect_snapshot(
     ems_option_set(tempdir = file.path(basename(getwd()), "does_not_exist")),
-    variant = variant
+    error = TRUE, transform = scrub_paths
   )
 })
 

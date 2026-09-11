@@ -36,7 +36,6 @@ dat <- ems_data(
 
 model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
 
-variant <- Sys.info()["sysname"]
 
 test_that("solve_in_situ solves", {
   REG <- c("chn", "usa", "row")
@@ -169,7 +168,7 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
   GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
   shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
 
-  expect_snapshot_error(solve_in_situ(
+  expect_snapshot(solve_in_situ(
     GTAPDATA = GTAPDATA,
     GTAPINT = GTAPINT,
     GTAPSETS = GTAPSETS,
@@ -182,7 +181,7 @@ test_that("solve_in_situ errors when model directory doesn't exist", {
     n_subintervals = 1,
     n_tasks = 1
   ),
-  variant = variant)
+  error = TRUE, transform = scrub_paths)
 })
 
 test_that("solve_in_situ errors when missing input file", {

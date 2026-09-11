@@ -68,3 +68,26 @@ ems_test_dir <- function(write_dir, name) {
   }
   return(test_dir)
 }
+# Snapshot transform for messages that embed a path or a run-specific
+# name. The user cache root (tools::R_user_dir) made every such snapshot
+# user- and OS-specific: variants keyed by sysname were really keyed by
+# the home directory, so any other user, WSL2 or a fresh laptop
+# regenerated them on every run and the stored Windows/Linux sets could
+# never be diffed cleanly. Scrubbing the root (in the forms R prints it,
+# including the mixed separators R_user_dir yields on Windows) and the
+# per-run solver log name and image tag leaves one platform-independent
+# snapshot set.
+scrub_paths <- function(lines) {
+  cache <- tools::R_user_dir("teems", "cache")
+  forms <- unique(c(
+    cache,
+    normalizePath(cache, winslash = "/", mustWork = FALSE),
+    normalizePath(cache, winslash = "\\", mustWork = FALSE),
+    gsub("/", "\\", cache, fixed = TRUE)
+  ))
+  for (p in forms[nzchar(forms)]) {
+    lines <- gsub(p, "<cache>", lines, fixed = TRUE)
+  }
+  lines <- gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
+  gsub("teems:[A-Za-z0-9._-]+ /bin/bash", "teems:TAG /bin/bash", lines)
+}

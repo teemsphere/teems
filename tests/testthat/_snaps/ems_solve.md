@@ -229,6 +229,17 @@
       structure solver binary outputs:
       `ems_compose("<cache>/solve/solve_auto_dbbd/GTAPv7.cmf")`
 
+# a second solve in one deploy directory is refused by name
+
+    Code
+      ems_solve(cmf_path)
+    Message
+      i `matrix_method` "auto": using "LU" for this static model.
+    Condition
+      Error in `ems_solve()`:
+      x A solve is already running in this deploy directory: run 010203_999 (pid 999) started 2026-01-01 01:02:03 UTC.
+      i Concurrent runs need a deploy directory each: call `ems_option_set(tempdir = ...)` before `ems_deploy()` for every run. Two solves in one directory share the solver's scratch files and the outputs the CMF names, and would corrupt each other. If a previous run was interrupted, remove '<cache>/solve/solve_lock/.solve_lock'.
+
 # matrix_method auto probes the deployed structure and records the decision
 
     Code

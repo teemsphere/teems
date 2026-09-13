@@ -21,6 +21,21 @@
     timeID = timeID
   )
 
+  # one solve at a time per deploy directory: runs separated by their own
+  # tempdir go in parallel, two in one directory would share the solver's
+  # scratch files and the outputs the CMF names (.solve_lock_acquire).
+  # terminal_run only prints the command for the user to run, so it takes
+  # no claim.
+  lock_path <- NULL
+  if (!isTRUE(v$terminal_run)) {
+    lock_path <- .solve_lock_acquire(
+      run_dir = dirname(paths$cmf),
+      timeID = timeID,
+      call = call
+    )
+    on.exit(.solve_lock_release(lock_path), add = TRUE)
+  }
+
   cmds <- .construct_cmd(
     paths = paths,
     terminal_run = v$terminal_run,

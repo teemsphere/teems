@@ -306,6 +306,24 @@ test_that("matrix_method auto selects DBBD for large static deployments", {
   )
 })
 
+test_that("a second solve in one deploy directory is refused by name", {
+  nest_temp("solve_lock", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  lock <- file.path(dirname(cmf_path), ".solve_lock")
+  dir.create(lock)
+  # a claim held by another process: concurrent runs are supported a
+  # deploy directory at a time, and two in one directory would share the
+  # solver's scratch files and the outputs the CMF names
+  writeLines("run 010203_999 (pid 999) started 2026-01-01 01:02:03 UTC", file.path(lock, "owner"))
+  expect_snapshot(ems_solve(cmf_path), error = TRUE, transform = scrub_paths)
+
+  # released, the directory takes a solve again, and the solve leaves no
+  # claim behind
+  unlink(lock, recursive = TRUE)
+  expect_s3_class(ems_solve(cmf_path), "data.frame")
+  expect_false(dir.exists(lock))
+})
+
 test_that("matrix_method auto probes the deployed structure and records the decision", {
   nest_temp("solve_auto_record", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)

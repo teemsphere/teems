@@ -89,7 +89,7 @@ ems_probe <- function(cmf_path,
     image_name = "teems",
     call = call
   )
-  timeID <- format(x = Sys.time(), "%H%M")
+  timeID <- .run_id()
   paths <- .get_solver_paths(
     cmf_path = cmf_path,
     timeID = paste0(timeID, "_probe"),
@@ -128,7 +128,10 @@ ems_probe <- function(cmf_path,
                                  extra = NULL) {
   docker_preamble <- paste(
     "docker run --rm --mount",
-    paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ","),
+    # quoted for the platform's shell: an unquoted --mount value split on
+    # the first space in the user's path, and the failure surfaced as a
+    # bare connection error naming neither the path nor docker
+    .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
     paste0("teems", ":", .resolve_docker_tag()),
     "/bin/bash -c"
   )

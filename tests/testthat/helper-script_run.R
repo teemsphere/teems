@@ -88,6 +88,11 @@ scrub_paths <- function(lines) {
   for (p in forms[nzchar(forms)]) {
     lines <- gsub(p, "<cache>", lines, fixed = TRUE)
   }
-  lines <- gsub("solver_out_\\d{4}\\.txt", "solver_out_HHMM.txt", lines)
+  # the docker --mount value is quoted for the platform's shell (single
+  # quotes under sh, double under cmd); the quoting is not what these
+  # snapshots are about, and leaving it in would make them OS-specific
+  # again, which is exactly what the scrubbing removed
+  lines <- gsub("--mount ['\"](type=bind[^'\"]*)['\"]", "--mount \\1", lines)
+  lines <- gsub("solver_out_[0-9]+(_[0-9]+)?\\.txt", "solver_out_HHMM.txt", lines)
   gsub("teems:[A-Za-z0-9._-]+ /bin/bash", "teems:TAG /bin/bash", lines)
 }

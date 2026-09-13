@@ -108,7 +108,7 @@
     )
     probe <- .run_probe(
       cmf_path = cmf_path,
-      timeID = timeID %|||% format(x = Sys.time(), "%H%M"),
+      timeID = timeID %|||% .run_id(),
       call = call
     )
     structure <- probe$structure

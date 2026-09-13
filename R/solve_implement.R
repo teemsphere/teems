@@ -7,7 +7,7 @@
     image_name = "teems",
     call = call
   )
-  timeID <- format(x = Sys.time(), "%H%M")
+  timeID <- .run_id()
   paths <- .get_solver_paths(
     cmf_path = args_list$cmf_path,
     timeID = timeID,
@@ -67,7 +67,13 @@
   status <- 0L
   if (Sys.info()[["sysname"]] == "Windows") {
     captured <- character(0)
-    elapsed_time <- system.time(captured <- system(cmds$solve, intern = TRUE))
+    # system(intern = TRUE) warns on a non-zero status, printing the whole
+    # docker command ahead of the package's own named error; the status is
+    # read from the attribute instead, so the warning carries nothing the
+    # user needs and only buries the message that matters
+    elapsed_time <- system.time(
+      captured <- suppressWarnings(system(cmds$solve, intern = TRUE))
+    )
     if (.o_verbose()) cat(captured, sep = "\n")
     status <- attr(captured, "status") %|||% 0L
   } else if (.o_verbose()) {

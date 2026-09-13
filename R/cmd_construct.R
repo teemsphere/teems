@@ -1,3 +1,13 @@
+#' Quote one argument for the shell `system()` hands the command to:
+#' cmd.exe on Windows, the POSIX shell elsewhere. Used for the docker
+#' `--mount` value, whose `src=` carries the user's own path.
+#'
+#' @keywords internal
+#' @noRd
+.shell_quote <- function(x) {
+  shQuote(x, type = if (.Platform$OS.type %=% "windows") "cmd" else "sh")
+}
+
 #' @importFrom cli cli_verbatim cli_ol
 #'
 #' @keywords internal
@@ -29,7 +39,10 @@
                            extra_flags = NULL) {
   docker_preamble <- paste(
     "docker run --rm --mount",
-    paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ","),
+    # quoted for the platform's shell: an unquoted --mount value split on
+    # the first space in the user's path, and the failure surfaced as a
+    # bare connection error naming neither the path nor docker
+    .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
     paste0("teems", ":", .resolve_docker_tag()),
     "/bin/bash -c"
   )

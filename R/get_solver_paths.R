@@ -1,3 +1,17 @@
+#' Identifier for one solve, carried into the names of the files that
+#' solve writes (`out/solver_out_<id>.txt` above all). Minute
+#' resolution collided: two solves started in the same minute named the
+#' same log, `tee` truncated it, and the surviving file could belong to
+#' the other run while the abort message pointed at it. Seconds plus the
+#' process id are unique across concurrent processes, which is the case
+#' that actually collided.
+#'
+#' @keywords internal
+#' @noRd
+.run_id <- function() {
+  paste0(format(x = Sys.time(), "%H%M%S"), "_", Sys.getpid())
+}
+
 #' @keywords internal
 #' @noRd
 .get_solver_paths <- function(cmf_path,

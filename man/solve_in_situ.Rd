@@ -15,7 +15,7 @@ solve_in_situ(
     "DoPri54"),
   matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
-  steps = c(2L, 4L, 8L),
+  steps = NULL,
   adaptive = c("no", "yes", "accuracy-only"),
   eps_tolerance = 0.1,
   max_retries = NULL,
@@ -140,10 +140,12 @@ number of subintervals for the applied shock. More
 subintervals may alleviate accuracy issues stemming from
 large shock magnitudes.}
 
-\item{steps}{Integer length 3 (default is \code{c(2L, 4L, 8L)}). A
+\item{steps}{Integer (default is \code{NULL}, the step count the
+chosen method expects: \code{c(2L, 4L, 8L)} for \code{"Gragg"} and
+\code{"Euler"}, \code{4L} for the Runge-Kutta methods). Given
+explicitly for \code{"Gragg"} and \code{"Euler"}, a length-3
 strictly increasing vector of step counts for the three
-extrapolation solutions of the \code{"Gragg"} and \code{"Euler"}
-methods. A larger number of steps may improve accuracy for
+extrapolation solutions. A larger number of steps may improve accuracy for
 some model runs. For \code{"Gragg"} all three must additionally be
 even, because the error-cancellation theory behind the
 extrapolation assumes even step counts (Pearson 1991,

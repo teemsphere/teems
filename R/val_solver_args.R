@@ -16,6 +16,14 @@
   is_rk <- a$solution_method %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")
   is_rk_embedded <- a$solution_method %in% c("BoSha32", "DoPri54")
 
+  # the step count the method expects, when the user named none: the
+  # extrapolating methods take the triple, the Runge-Kutta methods one
+  # count (as ems_RK defaults it). A single shared default could not
+  # serve both, and the triple reached the RK branch as a user error.
+  if (is.null(a$steps)) {
+    a$steps <- if (is_rk) 4L else c(2L, 4L, 8L)
+  }
+
   adaptive <- a$adaptive
   a$adaptive <- rlang::arg_match(
     arg = adaptive,
@@ -43,7 +51,7 @@
       solution_method = "character",
       matrix_method = "character",
       n_subintervals = c("numeric", "integer"),
-      steps = c("numeric", "integer"),
+      steps = c("NULL", "numeric", "integer"),
       n_tasks = c("numeric", "integer"),
       n_threads = c("numeric", "integer"),
       precision = "character",

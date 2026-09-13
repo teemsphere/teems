@@ -70,10 +70,12 @@
 #'   number of subintervals for the applied shock. More
 #'   subintervals may alleviate accuracy issues stemming from
 #'   large shock magnitudes.
-#' @param steps Integer length 3 (default is `c(2L, 4L, 8L)`). A
+#' @param steps Integer (default is `NULL`, the step count the
+#'   chosen method expects: `c(2L, 4L, 8L)` for `"Gragg"` and
+#'   `"Euler"`, `4L` for the Runge-Kutta methods). Given
+#'   explicitly for `"Gragg"` and `"Euler"`, a length-3
 #'   strictly increasing vector of step counts for the three
-#'   extrapolation solutions of the `"Gragg"` and `"Euler"`
-#'   methods. A larger number of steps may improve accuracy for
+#'   extrapolation solutions. A larger number of steps may improve accuracy for
 #'   some model runs. For `"Gragg"` all three must additionally be
 #'   even, because the error-cancellation theory behind the
 #'   extrapolation assumes even step counts (Pearson 1991,
@@ -253,7 +255,7 @@ ems_solve <- function(cmf_path,
                       solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
                       matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
                       n_subintervals = 1L,
-                      steps = c(2L, 4L, 8L),
+                      steps = NULL,
                       n_tasks = 1L,
                       n_threads = 1L,
                       precision = c("single", "double"),

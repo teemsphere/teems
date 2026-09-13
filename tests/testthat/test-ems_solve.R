@@ -321,7 +321,7 @@ test_that("matrix_method auto probes the deployed structure and records the deci
   expect_s3_class(out, "data.frame")
   probe_logs <- list.files(
     file.path(dirname(cmf_path), "out"),
-    pattern = "^solver_out_\\d{4}_probe\\.txt$"
+    pattern = "^solver_out_[0-9]+_[0-9]+_probe\\.txt$"
   )
   expect_length(probe_logs, 1L)
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))

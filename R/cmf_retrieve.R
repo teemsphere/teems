@@ -14,7 +14,16 @@
                     docker_path,
                     fixed = TRUE)
   
-  file_name <- strsplit(file_entry, " ")[[1]][2]
+  # the path is the quoted field of the entry. Taking the second
+  # whitespace-delimited token truncated any path containing a space at
+  # that space, and the run then failed on a file name that was never
+  # written ("cannot open the connection", naming a prefix of the path)
+  quoted <- regmatches(file_entry, regexpr('"[^"]*"', file_entry))
+  file_name <- if (length(quoted) > 0L) {
+    quoted[[1]]
+  } else {
+    strsplit(file_entry, " ")[[1]][2]
+  }
   file_name <- gsub(
     pattern = "\"|;",
     replacement = "",

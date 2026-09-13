@@ -149,19 +149,24 @@ test_that("GTAP_convert from v7 to v6", {
     ENDW_COMM = "full"
   )
 
+  # the GDYN 11c set file spells NatRes in its ENDW header where the
+  # mappings say natlres: the spelling is mapped explicitly
+  ENDW_COMM <- getFromNamespace("mappings", "teems")$GTAPv11$GTAPv6$ENDW_COMM[, c(1, 2)]
+  ENDW_COMM <- rbind(ENDW_COMM, as.list(c("natres", "natlres")))
+  ENDW_COMM_csv <- tempfile("ENDW_COMM_natres", fileext = ".csv")
+  write.csv(ENDW_COMM, ENDW_COMM_csv, row.names = FALSE)
   gdyn <- ems_data(
     Sys.getenv("GDYN11c_dat"),
     Sys.getenv("GDYN11c_par"),
     Sys.getenv("GDYN11c_set"),
     REG = "full",
     PROD_COMM = "full",
-    ENDW_COMM = "full"
+    ENDW_COMM = ENDW_COMM_csv
   )
 
   gdyn <- lapply(gdyn, \(h) {
     nmes <- colnames(h)
     if ("ENDW_COMM" %in% nmes) {
-      h[is.na(ENDW_COMM), ENDW_COMM := "natlres"]
       data.table::setorderv(h, setdiff(nmes, "Value"))
     }
     return(h)
@@ -197,13 +202,19 @@ test_that("GTAP_convert from v6 to v7", {
 
   converted$set <- converted$set[!duplicated(names(converted$set))]
 
+  # the GDYN 11c set file spells NatRes in its ENDW header where the
+  # mappings say natlres: the spelling is mapped explicitly
+  ENDW <- getFromNamespace("mappings", "teems")$GTAPv11$GTAPv7$ENDW[, c(1, 2)]
+  ENDW <- rbind(ENDW, as.list(c("natres", "natlres")))
+  ENDW_csv <- tempfile("ENDW_natres", fileext = ".csv")
+  write.csv(ENDW, ENDW_csv, row.names = FALSE)
   gdyn <- ems_data(
     converted$dat,
     converted$par,
     converted$set,
     REG = "full",
     ACTS = "full",
-    ENDW = "full"
+    ENDW = ENDW_csv
   )
 
   gdyn <- gdyn[!duplicated(names(gdyn))]
@@ -220,7 +231,6 @@ test_that("GTAP_convert from v6 to v7", {
   gdyn <- lapply(gdyn, \(h) {
     nmes <- colnames(h)
     if ("ENDW" %in% nmes) {
-      h[is.na(ENDW), ENDW := "natlres"]
       data.table::setorderv(h, setdiff(nmes, "Value"))
     }
     return(h)

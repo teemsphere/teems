@@ -120,6 +120,55 @@ test_that("ems_data rejects invalid mapping values in CSV", {
   ))
 })
 
+test_that("ems_data folds an uppercase user mapping to lowercase", {
+  REG_upper <- data.table::copy(REG)
+  REG_upper[, names(REG_upper) := lapply(.SD, toupper)]
+  write.csv(REG_upper, REG_csv, row.names = FALSE)
+  upper <- ems_data(
+    dat_input,
+    par_input,
+    set_input,
+    REG = REG_csv,
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  expect_setequal(unique(upper$VDFB$REG), unique(tolower(REG[[2]])))
+  expect_false(anyNA(upper$VDFB$REG))
+})
+
+test_that("ems_data accepts a lowercase user mapping against mixed-case data elements", {
+  # the database spells Land, Capital and NatlRes in its ENDW header
+  ENDW <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$ENDW[, c(1, 2)]
+  ENDW_csv <- file.path(write_dir, "ENDW.csv")
+  write.csv(ENDW, ENDW_csv, row.names = FALSE)
+  folded <- ems_data(
+    dat_input,
+    par_input,
+    set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = ENDW_csv
+  )
+  with_endw <- Filter(\(h) is.data.frame(h) && "ENDW" %in% colnames(h), folded)
+  expect_gt(length(with_endw), 0L)
+  expect_setequal(unique(with_endw[[1]]$ENDW), unique(ENDW[[2]]))
+  expect_false(anyNA(with_endw[[1]]$ENDW))
+})
+
+test_that("ems_data rejects a data element its mapping does not cover", {
+  expect_snapshot_error(
+    getFromNamespace(".check_map_coverage", "teems")(
+      set_mapping = data.table::data.table(
+        ENDW = c("land", "capital", "natlres"),
+        full = c("land", "capital", "natlres")
+      ),
+      data_ele = c("Land", "Capital", "NatRes"),
+      map_name = "ENDW",
+      call = NULL
+    )
+  )
+})
+
 test_that("ems_data warns CSV with extra columns", {
   REG$extra_col <- NA
   write.csv(REG, REG_csv, row.names = FALSE)

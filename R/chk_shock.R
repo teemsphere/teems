@@ -80,8 +80,11 @@
       ele_set <- .dock_tail(shock_subsets[[i]])
       recognized_ele <- purrr::pluck(sets, "ele", ele_set)
       recognized_ss <- purrr::pluck(sets, "subsets", ele_set)
+      # element names are case-insensitive on input
+      ele <- .canonical_ele(ele, recognized_ele, recognized_ss)
+      shock$subset[[i]] <- ele
       
-      if (!ele %in% c(recognized_ele, recognized_ss)) {
+      if (!all(ele %in% c(recognized_ele, recognized_ss))) {
         .cli_action(
           shk_err$uni_invalid_RHS,
           action = c("abort", rep("inform", 3)),
@@ -89,7 +92,7 @@
         )
       }
       
-      if (ele %in% recognized_ele) {
+      if (all(ele %in% recognized_ele)) {
         attr(shock$subset[[i]], "subset") <- FALSE
       } else {
         attr(shock$subset[[i]], "subset") <- TRUE

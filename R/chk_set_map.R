@@ -20,6 +20,7 @@
                                     call,
                                     available_mappings,
                                     map_layers = NULL,
+                                    set_data = NULL,
                                     ...) {
 
   map_name <- attr(set_map, "name")
@@ -55,8 +56,60 @@
 
   available_mappings <- available_mappings[[map_name]]
   set_mapping <- available_mappings[, c(1, which(names(available_mappings) == set_map)), with = FALSE]
+  # an element the table does not know would otherwise map to NA and
+  # its data would drop out silently (GDYN 11c spells NatRes in the
+  # ENDW header where every mapping says natlres)
+  matched_data <- .match_set_data(set_data, map_name)
+  if (length(matched_data) > 0L) {
+    .check_map_coverage(
+      set_mapping = set_mapping,
+      data_ele = matched_data[[1]],
+      map_name = map_name,
+      call = call
+    )
+  }
   class(set_mapping) <- c("internal", class(set_mapping))
   return(set_mapping)
+}
+
+#' The set headers a mapping applies to: those classed by the set's
+#' name, or carrying the header the set conversion table lists for it
+#' (a v6-format GTAPv11 database names its set headers H1 to H9)
+#'
+#' @keywords internal
+#' @noRd
+.match_set_data <- function(set_data,
+                            map_name) {
+  hit <- purrr::map_lgl(set_data, function(s) {
+    if (inherits(s, map_name)) {
+      return(TRUE)
+    }
+    fmt <- if (inherits(s, "GTAPv7")) "GTAPv7" else "GTAPv6"
+    id <- match(class(s)[1], set_conversion[[paste0(fmt, "header")]])
+    !is.na(id) && identical(set_conversion[[paste0(fmt, "name")]][id], map_name)
+  })
+  set_data[hit]
+}
+
+#' Every element the data carries for a set must have a row in its
+#' mapping; both sides compare in lowercase
+#'
+#' @keywords internal
+#' @noRd
+.check_map_coverage <- function(set_mapping,
+                                data_ele,
+                                map_name,
+                                call) {
+  supplied_ele <- tolower(set_mapping[[1]])
+  data_ele <- unique(tolower(as.character(data_ele)))
+  if (!all(data_ele %in% supplied_ele)) {
+    missing_ele <- setdiff(data_ele, supplied_ele)
+    .cli_action(data_err$missing_ele_mapping,
+      action = "abort",
+      call = call
+    )
+  }
+  invisible(NULL)
 }
 
 #' @importFrom data.table fread is.data.table as.data.table copy fsetequal
@@ -101,31 +154,23 @@
     set_mapping <- set_mapping[, c(1,2)]
   }
   
-  matched_data <- set_data[purrr::map_lgl(set_data, inherits, map_name)]
+  matched_data <- .match_set_data(set_data, map_name)
   
   if (length(matched_data) %=% 0L) {
     .cli_action(data_err$missing_data,
                 action = "abort",
                 call = call)
-  } else {
-    supplied_ele <- purrr::pluck(set_mapping, 1)
-    if (!all(matched_data[[map_name]] %in% supplied_ele)) {
-      missing_ele <- setdiff(matched_data[[map_name]], supplied_ele)
-      .cli_action(data_err$missing_ele_mapping,
-                  action = "abort",
-                  call = call
-      )
-    }
   }
-  
-  orig_mapping <- data.table::copy(set_mapping)
-  set_mapping[, names(set_mapping) := lapply(.SD, tolower)]
-  
-  if (!data.table::fsetequal(set_mapping, orig_mapping)) {
-    .cli_action(data_wrn$mapping_case,
-                action = "warn",
-                call = call)
-  }
+
+  # element names are case-insensitive on input and lowercase inside
+  # TEEMS, so a mapping is folded before it is compared with the data
+  set_mapping[, names(set_mapping) := lapply(.SD, .fold_elements)]
+  .check_map_coverage(
+    set_mapping = set_mapping,
+    data_ele = matched_data[[1]],
+    map_name = map_name,
+    call = call
+  )
 
   if (colnames(set_mapping[,c(1,2)]) %!=% c(map_name, "mapping")) {
     colnames(set_mapping)[c(1,2)] <- c(map_name, "mapping")

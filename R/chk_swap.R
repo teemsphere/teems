@@ -135,7 +135,10 @@
       vs_check <- valid_subsets
     }
 
-    if (!comp %in% c(valid_ele, vs_check)) {
+    # element names are case-insensitive on input
+    comp <- .canonical_ele(comp, valid_ele, vs_check)
+
+    if (!all(comp %in% c(valid_ele, vs_check))) {
       invalid_comp <- setdiff(comp, c(valid_ele, vs_check))
       .cli_action(swap_err$invalid_comp,
         action = c("abort", rep("inform", 3)),
@@ -143,9 +146,9 @@
       )
     }
 
-    if (comp %in% valid_ele) {
+    if (all(comp %in% valid_ele)) {
       attr(comp, "type") <- "ele"
-    } else if (comp %in% valid_subsets) {
+    } else if (all(comp %in% valid_subsets)) {
       attr(comp, "type") <- "subset"
     }
 

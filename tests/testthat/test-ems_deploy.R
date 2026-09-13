@@ -89,6 +89,64 @@ test_that("ems_deploy accepts mixed direct input ems_swap partial variable swap"
   expect_true(file.exists(cmf_path))
 })
 
+test_that("ems_deploy folds element case in swaps", {
+  shk <- ems_uniform_shock("qfd", 1)
+  nest_temp("deploy_case_lower", write_dir)
+  cmf_lower <- ems_deploy(
+    dat, model, shk,
+    list(ems_swap("yp", REGr = "row"), "qfd"),
+    list(ems_swap("dppriv", REGr = "row"), "tfd")
+  )
+  nest_temp("deploy_case_upper", write_dir)
+  cmf_upper <- ems_deploy(
+    dat, model, shk,
+    list(ems_swap("yp", REGr = "ROW"), "qfd"),
+    list(ems_swap("dppriv", REGr = "Row"), "tfd")
+  )
+  expect_identical(
+    readLines(file.path(dirname(cmf_upper), basename(closure_file))),
+    readLines(file.path(dirname(cmf_lower), basename(closure_file)))
+  )
+})
+
+test_that("ems_deploy folds element case in closure entries", {
+  static_dat <- ems_data(
+    dat_input,
+    par_input,
+    set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  v7 <- ems_example("GTAPv7", write_dir)
+  cls <- readLines(v7[["closure_file"]])
+  lower_cls <- file.path(write_dir, "lower.cls")
+  upper_cls <- file.path(write_dir, "upper.cls")
+  writeLines(
+    sub("^pop$", 'pop("chn")\npop("usa")\npop("row")', cls),
+    lower_cls
+  )
+  writeLines(
+    sub("^pop$", 'pop("CHN")\npop("Usa")\npop("ROW")', cls),
+    upper_cls
+  )
+  m_lower <- suppressMessages(suppressWarnings(
+    ems_model(v7[["model_file"]], lower_cls, ignore_condense = TRUE)
+  ))
+  m_upper <- suppressMessages(suppressWarnings(
+    ems_model(v7[["model_file"]], upper_cls, ignore_condense = TRUE)
+  ))
+  nest_temp("deploy_cls_lower", write_dir)
+  cmf_lower <- ems_deploy(static_dat, m_lower)
+  nest_temp("deploy_cls_upper", write_dir)
+  cmf_upper <- ems_deploy(static_dat, m_upper)
+  expect_identical(
+    readLines(file.path(dirname(cmf_upper), "upper.cls")),
+    readLines(file.path(dirname(cmf_lower), "lower.cls"))
+  )
+  expect_true(any(grepl('pop("usa")', readLines(file.path(dirname(cmf_upper), "upper.cls")), fixed = TRUE)))
+})
+
 test_that("ems_deploy errors when invalid variable provided for swap-in", {
   nest_temp("invalid_swap", write_dir)
   expect_snapshot_error(

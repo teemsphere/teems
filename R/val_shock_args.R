@@ -64,6 +64,12 @@
   )
 
   shock$set <- colnames(shock$input)[!colnames(shock$input) %in% "Value"]
+  # element names are case-insensitive on input, lowercase inside TEEMS
+  for (col in shock$set) {
+    if (is.character(shock$input[[col]])) {
+      data.table::set(shock$input, j = col, value = tolower(shock$input[[col]]))
+    }
+  }
   shock <- structure(shock,
     call = call,
     class = class(shock)

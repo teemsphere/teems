@@ -348,6 +348,15 @@
       name <- h$name
       .data <- h$data
       if (!is.null(.data)) {
+        # element names are lowercase throughout TEEMS: every string
+        # header and every dimension label is folded here, once, so the
+        # mixed case a database ships (Land, NatlRes, CGDS, AEZ1, and
+        # the GTAPv7 ENDW/ENDWS disagreement inside one file) never
+        # reaches a mapping check, a set table or a solver file. The
+        # release, version and history headers keep their text
+        if (!toupper(header) %in% c("DREL", "DVER", "XXHS")) {
+          .data <- .fold_elements(.data)
+        }
         if (is.null(name)) {
           class(.data) <- c(header, data_type, metadata$data_format, class(.data))
         } else {
@@ -364,4 +373,19 @@
   }
 
   return(headers)
+}
+
+#' Lowercase the strings of a character header and the dimension labels
+#' of a numeric one, keeping every other attribute
+#'
+#' @keywords internal
+#' @noRd
+.fold_elements <- function(x) {
+  if (is.character(x)) {
+    x[] <- tolower(x)
+  }
+  if (!is.null(dimnames(x))) {
+    dimnames(x) <- lapply(dimnames(x), tolower)
+  }
+  return(x)
 }

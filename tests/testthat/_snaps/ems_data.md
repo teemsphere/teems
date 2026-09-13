@@ -47,6 +47,10 @@
 
     x The REG mapping has no entries for "afg".
 
+# ems_data rejects a data element its mapping does not cover
+
+    x The ENDW mapping has no entries for "natres".
+
 # ems_data warns CSV with extra columns
 
     ! The REG mapping has more than 2 columns; only columns 1 (origin) and 2 (destination) will be used.

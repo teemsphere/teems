@@ -76,8 +76,7 @@ build_data_wrn <- function() {
     db_version = c(
       "{.pkg teems} version: {teems_version} has only been vetted on GTAP Data Base versions: {vetted}.",
       "The {.fn teems::solve_in_situ} function can bypass the pipeline and be called on solver-ready input files."
-    ),
-    mapping_case = "Some {.field {map_name}} elements converted to lowercase for consistency."
+    )
   )
 }
 

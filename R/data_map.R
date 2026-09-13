@@ -18,10 +18,28 @@
 
     if (set_col %in% names(sets)) {
       table <- sets[[set_col]]
-      # random capitalization in data leads to issues
       r_idx <- match(dt[[col_pos]], tolower(table[, 1][[1]]))
+      # a data element the mapping does not know must not map to NA
+      # and drop out silently
+      .abort_unmapped(dt[[col_pos]], r_idx, set_col)
       data.table::set(dt, j = col_pos, value = table[, 2][[1]][r_idx])
     }
   }
   return(dt)
+}
+
+#' Abort on data elements the mapping table has no row for
+#'
+#' @keywords internal
+#' @noRd
+.abort_unmapped <- function(ele,
+                            r_idx,
+                            map_name) {
+  if (anyNA(r_idx)) {
+    missing_ele <- unique(ele[is.na(r_idx)])
+    .cli_action(data_err$missing_ele_mapping,
+      action = "abort"
+    )
+  }
+  invisible(NULL)
 }

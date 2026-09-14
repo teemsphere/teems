@@ -63,6 +63,20 @@ build_model_err <- function() {
     {.code p_}/{.code c_} linear name: {.val {bad_stmt}}",
     qual_empty = "Empty qualifier {.code ()} in declaration:
     {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
+    quantifier_malformed = c(
+      "Malformed quantifier {.val {bad_group}} in: {.val {bad_stmt}}",
+      "A quantifier is {.code (all,<index>,<set>)}; the index and the set
+      are both required (GEMPACK manual 10.7)."
+    ),
+    dims_too_many = "{n_dims} dimensions in declaration (the solver holds
+    at most {max_dims}): {.val {bad_stmt}}",
+    sum_index_empty = c(
+      "Sum with an empty index in: {.val {bad_stmt}}",
+      "Write {.code sum(<index>,<set>, <expression>)}."
+    ),
+    zerodivide_unknown = "Zerodivide default {.val {bad_val}} is neither a
+    number nor a declared coefficient: {.val {bad_stmt}}",
     qual_unbalanced = "Unbalanced parentheses in the qualifier list of:
     {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "duplicate bounds abort"

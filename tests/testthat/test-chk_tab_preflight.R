@@ -256,3 +256,17 @@ test_that("internal models pass the pre-flight", {
     )
   }
 })
+
+# fuzz batch 13 (2026-09-14): shapes the solver used to fault on
+test_that("malformed quantifiers, sums and zerodivide defaults abort", {
+  expect_preflight_error("Variable (all,r) qbad(r);")
+  expect_preflight_error("Equation E_qbad2 (all,REG) qgdp(REG) = 0;")
+  expect_preflight_error(
+    "Coefficient (all,r,REG) CBAD(r);\nFormula (all,r,REG) CBAD(r) = sum(,REG, VGDP(r));"
+  )
+  expect_preflight_error(paste0(
+    "Variable ", paste0("(all,d", 1:11, ",REG)", collapse = ""),
+    " vbig(", paste0("d", 1:11, collapse = ","), ");"
+  ))
+  expect_preflight_error("Zerodivide (nonzero_by_zero) default NOSUCHCOEF;")
+})

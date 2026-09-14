@@ -166,3 +166,26 @@
 
     x PostSim Formula assigns ordinary coefficient "save"; the LHS must be a PostSim coefficient (GEMPACK manual 12.2.2).
 
+# malformed quantifiers, sums and zerodivide defaults abort
+
+    x Malformed quantifier "(all,r)" in: "Variable (all,r) qbad(r)"
+    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 10.7).
+
+---
+
+    x Malformed quantifier "(all,REG)" in: "Equation E_qbad2 (all,REG) qgdp(REG) = 0"
+    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 10.7).
+
+---
+
+    x Sum with an empty index in: "Formula (all,r,REG) CBAD(r) = sum(,REG, VGDP(r))"
+    i Write `sum(<index>,<set>, <expression>)`.
+
+---
+
+    x 11 dimensions in declaration (the solver holds at most 10): "Variable (all,d1,REG)(all,d2,REG)(all,d3,REG)(all,d4,REG)(all,d5,REG)(all,d6,REG)(all,d7,REG)(all,d8,REG)(all,d9,REG)(all,d10,REG)(all,d11,REG) vbig(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11)"
+
+---
+
+    x Zerodivide default "NOSUCHCOEF" is neither a number nor a declared coefficient: "Zerodivide (nonzero_by_zero) default NOSUCHCOEF"
+

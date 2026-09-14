@@ -4,8 +4,8 @@
 #'
 #' @keywords internal
 #' @noRd
-.shell_quote <- function(x) {
-  shQuote(x, type = if (.Platform$OS.type %=% "windows") "cmd" else "sh")
+.shell_quote <- function(x, os = .Platform$OS.type) {
+  shQuote(x, type = if (os %=% "windows") "cmd" else "sh")
 }
 
 #' @importFrom cli cli_verbatim cli_ol

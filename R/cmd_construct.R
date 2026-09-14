@@ -21,7 +21,7 @@
                            matsol,
                            steps,
                            adaptive = "no",
-                           eps_tolerance = 0.1,
+                           eps_tolerance = 0.01,
                            max_retries = NULL,
                            retry_adjust = NULL,
                            n_threads = 1L,

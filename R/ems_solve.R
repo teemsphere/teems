@@ -281,7 +281,7 @@ call <- match.call()
 # error, never silently ignored.
 rk_args <- list(
   adaptive = c("no", "yes", "accuracy-only"),
-  eps_tolerance = 0.1,
+  eps_tolerance = 0.01,
   max_retries = NULL,
   retry_adjust = NULL
 )

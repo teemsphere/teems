@@ -17,7 +17,7 @@ solve_in_situ(
   n_subintervals = 1L,
   steps = NULL,
   adaptive = c("no", "yes", "accuracy-only"),
-  eps_tolerance = 0.1,
+  eps_tolerance = 0.01,
   max_retries = NULL,
   retry_adjust = NULL,
   n_tasks = 1L,
@@ -160,9 +160,13 @@ for the embedded Runge-Kutta methods (\code{"BoSha32"},
 \code{"DoPri54"}); default is \code{"no"}. See \code{\link[=ems_RK]{ems_RK()}} for the
 choices.}
 
-\item{eps_tolerance}{Numeric length 1 (default is \code{0.1}), the
+\item{eps_tolerance}{Numeric length 1 (default is \code{0.01}), the
 per-step error-metric bound targeted by \code{adaptive} control.
-Ignored when \code{adaptive = "no"}. See \code{\link[=ems_RK]{ems_RK()}}.}
+Ignored when \code{adaptive = "no"}. The default is the measured
+accuracy-per-factorization optimum: four correct digits on 92-96\%
+of elements at a third of the factorizations of \code{0.1}'s
+Gragg-equivalent (teems-solver rk_comparison, 2026-09). See
+\code{\link[=ems_RK]{ems_RK()}}.}
 
 \item{max_retries}{Integer length 1 (default \code{NULL}, solver
 default \code{3L}), \code{adaptive = "yes"} only: retries of a step

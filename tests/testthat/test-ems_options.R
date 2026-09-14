@@ -165,17 +165,54 @@ test_that("ems_option_reset examples work", {
 test_that("supported ISA levels resolve per platform", {
   expect_identical(.supported_isa_levels(machine = "arm64"), "armv8-a")
   expect_identical(.supported_isa_levels(machine = "aarch64"), "armv8-a")
-  expect_identical(
-    .supported_isa_levels(sysname = "Windows", machine = "x86_64"),
-    "x86-64-v2"
-  )
   expect_identical(.supported_isa_levels(machine = "ppc64le"), character(0))
-  if (Sys.info()[["sysname"]] == "Linux" && Sys.info()[["machine"]] == "x86_64") {
-    levels <- .supported_isa_levels()
-    expect_true(all(grepl("^x86-64-v[0-9]+$", levels)))
-    expect_true(is.element("x86-64-v2", levels))
-    expect_identical(levels, sort(levels, decreasing = TRUE))
+
+  # x86-64 asks the image's own ld.so, so the answer is the same on
+  # Linux, Windows and macOS hosts; the probe is cached per session
+  rm(list = ls(.isa_cache), envir = .isa_cache)
+  local_mocked_bindings(
+    .container_isa_levels = function(...) c("x86-64-v3", "x86-64-v2")
+  )
+  for (machine in c("x86_64", "x86-64", "AMD64")) {
+    expect_identical(
+      .supported_isa_levels(machine = machine),
+      c("x86-64-v3", "x86-64-v2")
+    )
   }
+  local_mocked_bindings(.container_isa_levels = function(...) stop("cached"))
+  expect_identical(.supported_isa_levels(machine = "x86_64"), c("x86-64-v3", "x86-64-v2"))
+
+  # no image to ask (or an image without a level-aware ld.so): baseline
+  rm(list = ls(.isa_cache), envir = .isa_cache)
+  local_mocked_bindings(.container_isa_levels = function(...) character(0))
+  expect_identical(.supported_isa_levels(machine = "x86_64"), "x86-64-v2")
+  rm(list = ls(.isa_cache), envir = .isa_cache)
+})
+
+test_that("container ISA probe parses ld.so and skips images that cannot answer", {
+  ld_out <- c("  x86-64-v4", "  x86-64-v3 (supported, searched)",
+              "  x86-64-v2 (supported, searched)")
+  calls <- character(0)
+  local_mocked_bindings(
+    .container_ld_so_help = function(image) {
+      calls <<- c(calls, image)
+      if (image == "teems:latest") return(character(0))
+      ld_out
+    }
+  )
+  expect_identical(
+    .container_isa_levels(c("teems:latest", "teems:dev")),
+    c("x86-64-v3", "x86-64-v2")
+  )
+  expect_identical(calls, c("teems:latest", "teems:dev"))
+  expect_identical(.container_isa_levels(character(0)), character(0))
+
+  # live: any local teems image answers with the baseline at least
+  skip_if(!length(.local_teems_images()), "no local teems image")
+  levels <- .container_isa_levels()
+  expect_true(all(grepl("^x86-64-v[0-9]+$", levels)))
+  expect_true(is.element("x86-64-v2", levels))
+  expect_identical(levels, sort(levels, decreasing = TRUE))
 })
 
 test_that("docker tag auto-selection", {

@@ -55,9 +55,11 @@ properly will result in errors. Modify with caution.}
 \item{docker_tag}{Character length 1. Docker tag specifying
 which \code{teems} image to use. When unset, the tag is selected
 automatically: the highest CPU capability level the host
-supports (e.g. \code{"x86-64-v3"}, probed via \code{ld.so}) with a
-matching local image \verb{teems:<level>} (or its short form,
-e.g. \code{teems:v3}) is preferred, falling back to \code{"latest"}.}
+supports (e.g. \code{"x86-64-v3"}, probed by running \code{ld.so} inside a
+local \code{teems} image, so the answer is the same on Linux, Windows
+and macOS hosts) with a matching local image \verb{teems:<level>} (or
+its short form, e.g. \code{teems:v3}) is preferred, falling back to
+\code{"latest"}.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

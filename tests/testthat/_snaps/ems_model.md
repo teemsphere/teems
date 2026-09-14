@@ -206,6 +206,14 @@
       i In-TAB Substitute statement for "tva" executed as backsolve.
       i Backsolved values remain available in solve outputs; plain substitution is not implemented.
 
+# ems_model rejects a non-logical or non-scalar ignore_condense
+
+    x `ignore_condense` must be "TRUE" or "FALSE".
+
+---
+
+    x `ignore_condense` must be "TRUE" or "FALSE".
+
 # ems_model rejects invalid variable names in backsolve
 
     x "not_a_var" designated for backsolving not found in the model.

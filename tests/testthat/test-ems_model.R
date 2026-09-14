@@ -940,6 +940,92 @@ test_that("ignore_condense disables in-TAB condensation statements", {
   expect_true(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
 })
 
+test_that("ems_model rejects a non-logical or non-scalar ignore_condense", {
+  expect_snapshot_error(
+    ems_model(model_file, closure_file, ignore_condense = NA)
+  )
+  expect_snapshot_error(
+    ems_model(model_file, closure_file, ignore_condense = c(TRUE, FALSE))
+  )
+})
+
+test_that("ignore_condense drops in-TAB statements but still applies the arguments (ICT)", {
+  ict_model <- write_modified_model(
+    model_file,
+    paste(condense_graft, "Omit atall ;", "Backsolve tvb using E_tvb ;", sep = "\n")
+  )
+  expect_message(
+    model <- ems_model(ict_model, closure_file,
+      ignore_condense = TRUE, omit = "avaall", backsolve = "tva"
+    ),
+    "3 in-TAB condensation statements ignored"
+  )
+  vars <- model[model$type == "Variable", ]
+  # the in-TAB nominations are gone
+  expect_true(is.na(vars$condense[vars$name %in% "atall"]))
+  expect_true(is.na(vars$condense[vars$name %in% "tvb"]))
+  expect_true(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
+  # the arguments applied
+  expect_identical(vars$condense[vars$name %in% "avaall"], "omit")
+  expect_identical(vars$condense[vars$name %in% "tva"], "backsolve")
+  expect_identical(vars$condense_eq[vars$name %in% "tva"], "E_tva")
+  e_tvb <- model$tab[model$type == "Equation" & model$name %in% "E_tvb"]
+  expect_match(e_tvb, "tvb(r,t) = 3*2*qgdp(r,t) + 3*pop(r,t);", fixed = TRUE)
+})
+
+test_that("ignore_condense on a model without condensation statements is a silent no-op", {
+  strip_condense <- function(text, x) {
+    gsub("(?mi)^[[:blank:]]*(omit|backsolve|substitute)\\b[^;]*;", "",
+      text, perl = TRUE
+    )
+  }
+  bare_model <- write_modified_model(model_file, "", .fn = strip_condense)
+  expect_no_message(
+    model <- ems_model(bare_model, closure_file, ignore_condense = TRUE),
+    message = "ignored"
+  )
+  expect_true(all(is.na(model$condense)))
+  expect_identical(
+    sum(model$type == "Variable"),
+    sum(ems_model(bare_model, closure_file)$type == "Variable")
+  )
+})
+
+test_that("in-TAB statements and arguments combine under ignore_condense = FALSE", {
+  # documented order: in-TAB omissions, then in-TAB backsolves, then the
+  # omit and backsolve arguments (model_load.qmd); the union is applied
+  both_model <- write_modified_model(
+    model_file,
+    paste(condense_graft, "Omit atall ;", "Backsolve tva using E_tva ;", sep = "\n")
+  )
+  model <- ems_model(both_model, closure_file, omit = "avaall", backsolve = "tvb")
+  vars <- model[model$type == "Variable", ]
+  # the GTAP-RE file's own in-TAB omissions stay in force beside them
+  expect_true(all(c("atall", "avaall") %in% vars$name[vars$condense %in% "omit"]))
+  expect_setequal(vars$name[vars$condense %in% "backsolve"], c("tva", "tvb"))
+  expect_identical(vars$condense_eq[vars$name %in% "tva"], "E_tva")
+  expect_identical(vars$condense_eq[vars$name %in% "tvb"], "E_tvb")
+  eqs <- model[model$type == "Equation", ]
+  # tva was substituted out of the tvb defining equation and of E_tvc
+  expect_match(
+    eqs$tab[eqs$name %in% "E_tvb"],
+    "tvb(r,t) = 3*2*qgdp(r,t) + 3*pop(r,t);", fixed = TRUE
+  )
+  expect_false(grepl("tva\\(", eqs$tab[eqs$name %in% "E_tvc"]))
+  expect_false(any(grepl("atall\\(|avaall\\(", eqs$tab)))
+  tab <- strsplit(teems:::.finalize_tab(model), "\n")[[1]]
+  expect_setequal(
+    tab[grepl("^Backsolve ", tab)],
+    c("Backsolve tva using E_tva ;", "Backsolve tvb using E_tvb ;")
+  )
+  # the same nomination from both sources is one backsolve, not a conflict
+  dup_model <- write_modified_model(
+    model_file, paste(condense_graft, "Backsolve tva using E_tva ;", sep = "\n")
+  )
+  dup <- ems_model(dup_model, closure_file, backsolve = "tva")
+  expect_identical(sum(dup$condense %in% "backsolve" & dup$type == "Variable"), 1L)
+})
+
 test_that("ems_model rejects invalid variable names in backsolve", {
   expect_snapshot_error(ems_model(model_file, closure_file, backsolve = "not_a_var"))
 })

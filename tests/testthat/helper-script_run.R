@@ -88,6 +88,23 @@ scrub_paths <- function(lines) {
   for (p in forms[nzchar(forms)]) {
     lines <- gsub(p, "<cache>", lines, fixed = TRUE)
   }
+  # separators below the scrubbed root: the package builds its paths with
+  # file.path() over R_user_dir() and normalises with an explicit forward
+  # slash, so Windows renders them the same way Linux does, but a message
+  # that reached plain normalizePath() would carry backslashes and differ
+  # for that alone. Only the run of path characters after <cache> is
+  # touched, so nothing else in the message is rewritten.
+  lines <- vapply(
+    lines,
+    function(x) {
+      while (grepl("<cache>[^\\\\\"']*\\\\", x)) {
+        x <- sub("(<cache>[^\\\\\"']*)\\\\", "\\1/", x)
+      }
+      x
+    },
+    character(1),
+    USE.NAMES = FALSE
+  )
   # the docker --mount value is quoted for the platform's shell (single
   # quotes under sh, double under cmd); the quoting is not what these
   # snapshots are about, and leaving it in would make them OS-specific

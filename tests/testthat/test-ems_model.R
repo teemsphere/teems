@@ -570,6 +570,78 @@ test_that("expression IF conditions (LULC shape, manual 11.4.5/11.4.6)", {
   ))
 })
 
+test_that("index, element and mapping IF comparisons take the $POS route (manual 11.4.11)", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,r,REG)(all,s,REG)(all,t,ALLTIME) IFI1(r,s,t) # index EQ index #;",
+      "Formula (all,r,REG)(all,s,REG)(all,t,ALLTIME) IFI1(r,s,t) = IF[r EQ s, VTRPROV(r,t)];",
+      "Coefficient (all,c,COMM)(all,m,MARG) IFI2(c,m) # index over a subset #;",
+      "Formula (all,c,COMM)(all,m,MARG) IFI2(c,m) = IF[c ne m, 1];",
+      "Coefficient (all,r,REG) IFI3(r) # index <> element #;",
+      "Formula (all,r,REG) IFI3(r) = IF[r <> \"usa\", 1] + IF[\"usa\" EQ r, 10];",
+      "Set BLOC (blk1, blk2);",
+      "Mapping (onto) RTOB from REG to BLOC;",
+      "Read (by_elements) RTOB from file GTAPSETS header \"MBLC\";",
+      "Coefficient (all,r,REG)(all,b,BLOC) IFI4(r,b) # mapping EQ index #;",
+      "Formula (all,r,REG)(all,b,BLOC) IFI4(r,b) = IF[RTOB(r) = b, 1];",
+      "Coefficient (all,t,ALLTIME)(all,u,ALLTIME) IFI5(t,u) # ordered on an intertemporal set #;",
+      "Formula (all,t,ALLTIME)(all,u,ALLTIME) IFI5(t,u) = IF[t <= u, 1];",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  tab <- model$tab
+  expect_true(any(grepl("IFX1(r,s) = [$POS(r)] - [$POS(s)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,t,ALLTIME: IFX1(r,s) = 0) IFI1(r,s,t)", tab, fixed = TRUE)))
+  expect_true(any(grepl("IFX2(c,m) = [$POS(c)] - [$POS(m,COMM)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,m,MARG: IFX2(c,m) <> 0) IFI2(c,m)", tab, fixed = TRUE)))
+  expect_true(any(grepl("IFX3(r) = [$POS(r)] - [$POS(\"usa\",REG)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,r,REG: IFX3(r) <> 0) IFI3(r) = IFI3(r) + [1]", tab, fixed = TRUE)))
+  expect_true(any(grepl("IFX4(r) = [$POS(\"usa\",REG)] - [$POS(r)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,r,REG: IFX4(r) = 0) IFI3(r) = IFI3(r) + [10]", tab, fixed = TRUE)))
+  expect_true(any(grepl("IFX5(r,b) = [$POS(RTOB(r))] - [$POS(b)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("IFX6(t,u) = [$POS(t)] - [$POS(u)]", tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,u,ALLTIME: IFX6(t,u) <= 0) IFI5(t,u)", tab, fixed = TRUE)))
+
+  # an index against a number is not a data comparison
+  expect_snapshot_error(ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        "Coefficient (all,r,REG) IFBAD(r) # bad #;",
+        "Formula (all,r,REG) IFBAD(r) = IF[r > 3, 1];",
+        sep = "\n"
+      )
+    ),
+    closure_file
+  ))
+  # unrelated sets
+  expect_snapshot_error(ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        "Coefficient (all,r,REG)(all,c,COMM) IFBAD(r,c) # bad #;",
+        "Formula (all,r,REG)(all,c,COMM) IFBAD(r,c) = IF[r EQ c, 1];",
+        sep = "\n"
+      )
+    ),
+    closure_file
+  ))
+  # ordered comparison on a set that is not intertemporal
+  expect_snapshot_error(ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        "Coefficient (all,r,REG)(all,s,REG) IFBAD(r,s) # bad #;",
+        "Formula (all,r,REG)(all,s,REG) IFBAD(r,s) = IF[r < s, 1];",
+        sep = "\n"
+      )
+    ),
+    closure_file
+  ))
+})
+
 test_that("unsupported IF placement", {
   err_model <- write_modified_model(
     model_file,

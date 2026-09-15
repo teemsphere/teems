@@ -415,6 +415,11 @@ build_model_err <- function() {
       "Unsupported {.field IF} condition detected: {.field {if_cond}}.",
       "Supported forms: {.field <index> in <set>}, {.field <index> = \"<element>\"}, and {.field <expression> <op> <expression>} over coefficients (no AND/OR/NOT compounds)."
     ),
+    # test-ems_model.R: "index, element and mapping IF comparisons"
+    invalid_if_index_cond = c(
+      "Unsupported {.field IF} condition detected: {.field {if_cond}}.",
+      "{if_reason}"
+    ),
     # test-ems_model.R: "expression IF conditions"
     if_cond_variable = c(
       "{.field IF} condition references {cli::qty(bad_vars)}variable{?s} {.val {bad_vars}}: {.field {if_statement}}.",

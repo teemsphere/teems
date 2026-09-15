@@ -78,6 +78,9 @@ build_solver_error_map <- function() {
     c("malformed element list", "tab", NA),
     # set product builder (tab_parse.c): joined element name past NAMESIZE
     c("set product element .* exceeds", "tab", NA),
+    # formula.c formula_bind_operand: an index or quoted element used as
+    # an arithmetic operand
+    c("cannot be an arithmetic operand", "tab", NA),
     c("negative size in TAB file", "tab", NA),
     c("elements of set .* are not in set", "tab", NA),
     # intrinsics / formula compilation

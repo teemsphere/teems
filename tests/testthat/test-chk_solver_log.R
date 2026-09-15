@@ -196,13 +196,14 @@ test_that(".map_solver_errors classifies representative catalog lines", {
     "variable qq is not declared",
     "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
     "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)",
-    "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters"
+    "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters",
+    "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)"
   ))
   expect_identical(
     mapped$class,
     c(
       "tab", "tab", "tab", "tab", "tab", "tab", "tab",
-      "closure", "numeric", "numeric", "tab"
+      "closure", "numeric", "numeric", "tab", "tab"
     )
   )
   expect_identical(mapped$manual[1], "11.2.1")

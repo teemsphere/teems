@@ -131,6 +131,21 @@
     x Unsupported IF condition detected: VDB(c,r,t) > 0 and VST(c,r,t) > 0.
     i Supported forms: <index> in <set>, <index> = "<element>", and <expression> <op> <expression> over coefficients (no AND/OR/NOT compounds).
 
+# index, element and mapping IF comparisons take the $POS route (manual 11.4.11)
+
+    x Unsupported IF condition detected: r > 3.
+    i An index, quoted element or mapping expression can only be compared with another index, mapping expression or quoted element (GEMPACK manual 11.4.11); a data comparison takes a coefficient reference on both sides.
+
+---
+
+    x Unsupported IF condition detected: r EQ c.
+    i The compared sets REG and COMM are neither equal nor is one a declared subset of the other (GEMPACK manual 11.4.11.2).
+
+---
+
+    x Unsupported IF condition detected: r < s.
+    i Ordered comparisons (< <= > >=) of indices need an intertemporal set; REG is not one, so only EQ/NE apply (GEMPACK manual 11.4.11.2).
+
 # unsupported IF placement
 
     x Unsupported IF placement detected: Formula (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) = 2 * IF[r in REG, VTRPROV(r,t)].

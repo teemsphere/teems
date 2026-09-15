@@ -189,3 +189,13 @@
 
     x Zerodivide default "NOSUCHCOEF" is neither a number nor a declared coefficient: "Zerodivide (nonzero_by_zero) default NOSUCHCOEF"
 
+---
+
+    x Reference "VGDP( )" has an empty index in: "Formula (all,r,REG) CBAD2(r) = VGDP( )"
+    i A reference carries exactly the declared indices, `NAME(<index>, ...)` (GEMPACK manual 10.3, 11.4.10).
+
+---
+
+    x Reference "VGDP(r,,)" has an empty index in: "Formula (all,r,REG) CBAD3(r) = VGDP(r,,)"
+    i A reference carries exactly the declared indices, `NAME(<index>, ...)` (GEMPACK manual 10.3, 11.4.10).
+

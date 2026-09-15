@@ -269,4 +269,10 @@ test_that("malformed quantifiers, sums and zerodivide defaults abort", {
     " vbig(", paste0("d", 1:11, collapse = ","), ");"
   ))
   expect_preflight_error("Zerodivide (nonzero_by_zero) default NOSUCHCOEF;")
+  expect_preflight_error(
+    "Coefficient (all,r,REG) CBAD2(r);\nFormula (all,r,REG) CBAD2(r) = VGDP( );"
+  )
+  expect_preflight_error(
+    "Coefficient (all,r,REG) CBAD3(r);\nFormula (all,r,REG) CBAD3(r) = VGDP(r,,);"
+  )
 })

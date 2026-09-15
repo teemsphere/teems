@@ -75,6 +75,11 @@ build_model_err <- function() {
       "Sum with an empty index in: {.val {bad_stmt}}",
       "Write {.code sum(<index>,<set>, <expression>)}."
     ),
+    ref_index_empty = c(
+      "Reference {.val {bad_ref}} has an empty index in: {.val {bad_stmt}}",
+      "A reference carries exactly the declared indices,
+      {.code NAME(<index>, ...)} (GEMPACK manual 10.3, 11.4.10)."
+    ),
     zerodivide_unknown = "Zerodivide default {.val {bad_val}} is neither a
     number nor a declared coefficient: {.val {bad_stmt}}",
     qual_unbalanced = "Unbalanced parentheses in the qualifier list of:

@@ -31,6 +31,9 @@ build_solver_error_map <- function() {
     # limit rather than a workspace one -- remedies differ
     c("ceiling of the [0-9]+-bit PetscInt build", "size", NA),
     c("could not preallocate the", "size", NA),
+    # HSL_MP48 (SBBD) takes INTEGER(4) counts: hsl_kernels.f90 hsl_i4
+    # aborts past that range, the same size class with the same remedy
+    c("32-bit HSL MP48 interface", "size", NA),
     # runtime numeric evaluation
     c("zero divided by zero", "numeric", "10.11.1"),
     c("division by zero in a formula", "numeric", "10.11.1"),
@@ -73,6 +76,8 @@ build_solver_error_map <- function() {
     c("not a declared set", "tab", "10.1.2.1"),
     c("malformed .*set declaration", "tab", NA),
     c("malformed element list", "tab", NA),
+    # set product builder (tab_parse.c): joined element name past NAMESIZE
+    c("set product element .* exceeds", "tab", NA),
     c("negative size in TAB file", "tab", NA),
     c("elements of set .* are not in set", "tab", NA),
     # intrinsics / formula compilation

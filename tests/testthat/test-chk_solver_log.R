@@ -138,6 +138,11 @@ test_that("index ceiling maps to the size abort", {
     "Error: PETSc could not preallocate the exogenous block for the linear system (PETSc error 63)"
   )
   expect_error(check_log(paths), "too large for the solver")
+  # hsl_kernels.f90 hsl_i4: an INTEGER(8) count past HSL_MP48's INTEGER(4)
+  paths <- local_solver_log(
+    "Error: NE = 2147483648 exceeds the 32-bit HSL MP48 interface"
+  )
+  expect_error(check_log(paths), "too large for the solver")
 })
 
 test_that("TAB class takes priority over data class", {
@@ -190,13 +195,14 @@ test_that(".map_solver_errors classifies representative catalog lines", {
     "Read without a header is not supported (use 'Read X from file <log> header \"H\"')",
     "variable qq is not declared",
     "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
-    "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)"
+    "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)",
+    "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters"
   ))
   expect_identical(
     mapped$class,
     c(
       "tab", "tab", "tab", "tab", "tab", "tab", "tab",
-      "closure", "numeric", "numeric"
+      "closure", "numeric", "numeric", "tab"
     )
   )
   expect_identical(mapped$manual[1], "11.2.1")

@@ -642,6 +642,22 @@ test_that("index, element and mapping IF comparisons take the $POS route (manual
   ))
 })
 
+test_that("levels variables may enter an IF condition, linear ones may not (manual 11.4.5/11.4.8)", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Variable (levels) (all,r,REG)(all,t,ALLTIME) LVIF(r,t) # levels operand #;",
+      "Formula (initial) (all,r,REG)(all,t,ALLTIME) LVIF(r,t) = VTRPROV(r,t);",
+      "Coefficient (all,r,REG)(all,t,ALLTIME) IFLV(r,t) # levels expression condition #;",
+      "Formula (all,r,REG)(all,t,ALLTIME) IFLV(r,t) = IF[LVIF(r,t) * 2 > VT(t), 1] + IF[LVIF(r,t) > 3, 10];",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  expect_true(any(grepl("IFX1(r,t) = [LVIF(r,t) * 2] - [VT(t)]", model$tab, fixed = TRUE)))
+  expect_true(any(grepl("(all,t,ALLTIME: LVIF(r,t) > 3) IFLV(r,t)", model$tab, fixed = TRUE)))
+})
+
 test_that("unsupported IF placement", {
   err_model <- write_modified_model(
     model_file,

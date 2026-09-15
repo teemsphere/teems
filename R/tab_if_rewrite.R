@@ -422,6 +422,26 @@
   toupper(sub("^\\s*[Ss][Ee][Tt]\\s*\\([^)]*\\)\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", stmts))
 }
 
+#' Names of the declared LINEAR variables (every Variable statement
+#' whose qualifiers do not say levels), upper-cased.
+#'
+#' @keywords internal
+#' @noRd
+.tab_linear_variable_names <- function(tab) {
+  stmts <- tab[grepl("^\\s*variable\\b", tab, ignore.case = TRUE)]
+  if (length(stmts) == 0L) {
+    return(character(0))
+  }
+  quals <- vapply(stmts, function(st) {
+    body <- sub("^\\s*variable\\s*", "", st, ignore.case = TRUE)
+    body <- gsub("#[^#]*#", "", body)
+    paste(regmatches(body, gregexpr("^\\s*(\\([^)]*\\)\\s*)*", body))[[1]], collapse = "")
+  }, character(1), USE.NAMES = FALSE)
+  quals <- gsub("\\(all\\s*,[^)]*\\)", "", quals, ignore.case = TRUE)
+  linear <- !grepl("levels", quals, ignore.case = TRUE)
+  .tab_declared_names(stmts[linear], "variable")
+}
+
 #' Helper coefficient for an expression-valued IF condition
 #'
 #' `IF[<lhs> <op> <rhs>, value]` where a side is an arithmetic
@@ -454,9 +474,10 @@
     num <- "0"
     paste0("[", cond_info$lhs, "] - [", cond_info$rhs, "]")
   }
-  # variables cannot enter a condition (11.4.6/11.4.8): the helper is a
-  # Formula
-  var_names <- .tab_declared_names(synth$tab, "variable")
+  # linear variables cannot enter a condition (11.4.5/11.4.8); levels
+  # variables can, and reach the solver as their paired value
+  # coefficient. The helper is a Formula.
+  var_names <- .tab_linear_variable_names(synth$tab)
   toks <- toupper(unique(regmatches(expr, gregexpr("[A-Za-z_][A-Za-z0-9_]*", expr))[[1]]))
   # a quantifier index shadows any variable of the same name inside
   # the statement (GTAP-RE's utility u against an index u)

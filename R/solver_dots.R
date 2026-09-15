@@ -13,6 +13,8 @@
     laA = NULL,
     laD = NULL,
     laDi = NULL,
+    postsim = NULL,
+    inmemory = NULL,
     fastrefac = NULL,
     gpzerodivide = NULL,
     cntl_3 = NULL,
@@ -44,6 +46,8 @@
     laA = c("NULL", "numeric", "integer"),
     laD = c("NULL", "numeric", "integer"),
     laDi = c("NULL", "numeric", "integer"),
+    postsim = c("NULL", "logical"),
+    inmemory = c("NULL", "logical"),
     fastrefac = c("NULL", "logical"),
     gpzerodivide = c("NULL", "logical"),
     cntl_3 = c("NULL", "numeric"),
@@ -84,7 +88,7 @@
       )
     }
   }
-  for (nme in c("fastrefac", "gpzerodivide", "withmc66", "nowrites", "condest")) {
+  for (nme in c("postsim", "inmemory", "fastrefac", "gpzerodivide", "withmc66", "nowrites", "condest")) {
     x <- a[[nme]]
     if (!is.null(x) && (!is.logical(x) || length(x) != 1L || is.na(x))) {
       bad_arg <- nme
@@ -183,6 +187,8 @@
 .extra_cli_flags <- function(a) {
   as01 <- function(x) as.integer(isTRUE(x))
   flags <- c(
+    if (!is.null(a$postsim)) paste("-postsim", as01(a$postsim)),
+    if (!is.null(a$inmemory)) paste("-inmemory", as01(a$inmemory)),
     if (!is.null(a$fastrefac)) paste("-fastrefac", as01(a$fastrefac)),
     if (!is.null(a$gpzerodivide)) paste("-gpzerodivide", as01(a$gpzerodivide)),
     if (!is.null(a$cntl_3)) paste("-cntl_3", a$cntl_3),
@@ -229,7 +235,7 @@
       jsonlite::read_json(stats_path, simplifyVector = TRUE),
       error = function(e) NULL
     )
-    # a structural probe run (ems_probe(), pre_probe, the auto method's
+    # a structural probe run (ems_probe(), the recommendation's
     # probe) writes the same stats.json but never factorizes: its
     # la_used is the launch default, not a measurement -- ignore it
     if (!identical(stats$solution_method, "probe")) {

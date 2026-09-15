@@ -13,25 +13,22 @@ solve_in_situ(
   ignore_condense = FALSE,
   solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32",
     "DoPri54"),
-  matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
+  matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
   steps = NULL,
   adaptive = c("no", "yes", "accuracy-only"),
   eps_tolerance = 0.01,
-  max_retries = NULL,
-  retry_adjust = NULL,
+  max_retries = 3L,
+  retry_adjust = 0.5,
   n_tasks = 1L,
   n_threads = 1L,
   precision = c("single", "double"),
-  inmemory = NULL,
-  resources = c("manual", "auto"),
-  verbosity = NULL,
+  verbosity = 1L,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
-  assertions = NULL,
-  range_test_initial = NULL,
-  range_test_updated = NULL,
-  postsim = NULL,
+  assertions = c("fatal", "warn", "off"),
+  range_test_initial = c("warn", "fatal", "off"),
+  range_test_updated = c("warn", "fatal", "off"),
   complementarity = NULL,
   solver_args = NULL
 )
@@ -118,43 +115,22 @@ recommended high-accuracy choice.
 }}
 
 \item{matrix_method}{Character of length 1, matrix solution
-method (default is \code{"auto"}). Choices:
+method (default is \code{"LU"}). Choices:
 \itemize{
-\item \code{"auto"}: Selects the method from the model type and size
-(see Details). The selection is reported at run time.
 \item \code{"LU"}: Standard LU decomposition, the most robust and
 potentially slowest for a large model. For use with both
 static and dynamic models.
 \item \code{"DBBD"}: Doubly bordered block diagonal, parallel solution
-method for static models. Potentially faster than \code{"LU"}
-although less robust.
+for static models partitioned by their regional set.
 \item \code{"SBBD"}: Singly bordered block diagonal, parallel solution
-method for intertemporal models. Potentially faster than
-\code{"LU"} although less robust.
-\item \code{"NDBBD"}: Nested doubly bordered block diagonal, parallel
-solution method for large intertemporal models with many
-timesteps.
+for intertemporal models partitioned along the time chain.
+\item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
+intertemporal models whose \code{"SBBD"} host copy does not fit the
+memory available.
+\code{\link[=ems_probe]{ems_probe()}} recommends the method and the tasks, threads
+and scratch to run it with for a deployment and a machine, and
+prints the call to paste (see Details).
 }}
-
-\item{n_subintervals}{Integer length 1 (default is \code{1L}),
-number of subintervals for the applied shock. More
-subintervals may alleviate accuracy issues stemming from
-large shock magnitudes.}
-
-\item{steps}{Integer (default is \code{NULL}, the step count the
-chosen method expects: \code{c(2L, 4L, 8L)} for \code{"Gragg"} and
-\code{"Euler"}, \code{4L} for the Runge-Kutta methods). Given
-explicitly for \code{"Gragg"} and \code{"Euler"}, a length-3
-strictly increasing vector of step counts for the three
-extrapolation solutions. A larger number of steps may improve accuracy for
-some model runs. For \code{"Gragg"} all three must additionally be
-even, because the error-cancellation theory behind the
-extrapolation assumes even step counts (Pearson 1991,
-Theorem 6.1); \code{"Euler"} has no parity requirement. The
-Runge-Kutta methods compute a single solution and instead
-take one step count (e.g. \code{steps = 8L}), which under
-\code{adaptive} control is the initial step count only. Ignored
-when \code{solution_method = "Johansen"}.}
 
 \item{adaptive}{Character length 1, adaptive step-size control
 for the embedded Runge-Kutta methods (\code{"BoSha32"},
@@ -169,12 +145,11 @@ of elements at a third of the factorizations of \code{0.1}'s
 Gragg-equivalent (teems-solver rk_comparison, 2026-09). See
 \code{\link[=ems_RK]{ems_RK()}}.}
 
-\item{max_retries}{Integer length 1 (default \code{NULL}, solver
-default \code{3L}), \code{adaptive = "yes"} only: retries of a step
+\item{max_retries}{Integer length 1 (default \code{3L}),
+\code{adaptive = "yes"} only: retries of a step
 failing the -100\% crossing check. See \code{\link[=ems_RK]{ems_RK()}}.}
 
-\item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{NULL},
-solver default \code{0.5}), adaptive control only: the step-length
+\item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{0.5}), adaptive control only: the step-length
 multiplier applied on each retry. See \code{\link[=ems_RK]{ems_RK()}}.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
@@ -198,37 +173,8 @@ floor extra steps stop helping). Roughly doubles
 coefficient-array memory. The effective precision is recorded in
 \code{sol.stats.json} and the model diagnostics solve record.}
 
-\item{inmemory}{Logical length 1 or \code{NULL} (default). When
-\code{TRUE}, the solver keeps value arrays and block factors
-resident in memory instead of spilling them to scratch
-files; when \code{FALSE}, scratch files are used. The default
-(\code{NULL}) lets the solver choose per matrix method (currently
-in-memory for all methods except \code{"NDBBD"}). The solver
-falls back to scratch files with a warning if the estimated
-memory requirement exceeds what is available.}
-
-\item{resources}{Character length 1, \code{"manual"} (default) or
-\code{"auto"}. \code{"manual"} runs with the \code{n_tasks}, \code{n_threads} and
-\code{inmemory} given. \code{"auto"} reads the container's cores and memory
-(one throwaway container per session; Docker Desktop's Resources
-setting is what a laptop reports) and resolves them for the
-matrix method from the measured rules: \code{"SBBD"} takes ranks to
-the knee (\code{min(8, cores, blocks)}) and gives the remaining cores
-to threads; \code{"DBBD"} takes two ranks on a laptop (up to eight
-where cores and the memory model allow) and threads for the
-rest; \code{"LU"} one rank with up to eight threads; \code{"NDBBD"} one
-rank and every core. Any of the three arguments passed
-explicitly keeps its value. The resolved values, the container
-inspected and the memory estimate are reported and written to
-\code{model_diagnostics.txt}. In both modes, when the container's
-memory is known, a run whose estimated peak exceeds it by more
-than the model's error band is refused before it starts, with
-the estimate, the limit and the remedies named; a run inside the
-band is warned about.}
-
-\item{verbosity}{Integer length 1 (\code{0}, \code{1}, or \code{2}) or \code{NULL}
-(default, equivalent to the solver default of \code{1}). Solver
-log detail: \code{0} restricts output to errors, warnings, and
+\item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
+Solver log detail: \code{0} restricts output to errors, warnings, and
 the accuracy summary; \code{1} adds phase progress and timings;
 \code{2} adds per-rank and per-block debug detail.}
 
@@ -243,22 +189,20 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{assertions}{Character length 1, \code{"fatal"}, \code{"warn"} or
-\code{"off"} (default \code{NULL}, solver default \code{"fatal"}). Severity of
-TAB \code{Assertion} statement failures (GEMPACK manual 25.3):
+\item{assertions}{Character length 1, \code{"fatal"} (default),
+\code{"warn"} or \code{"off"}. Severity of TAB \code{Assertion} statement
+failures (GEMPACK manual 25.3):
 \code{"warn"} reports and continues, \code{"off"} skips the checks.}
 
-\item{range_test_initial}{Character length 1, \code{"fatal"}, \code{"warn"}
-or \code{"off"} (default \code{NULL}, solver default \code{"warn"}). Severity of
-declared-range violations (e.g. \verb{(ge 0)}) on initial values
-(GEMPACK manual 25.4.4).}
+\item{range_test_initial}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. Severity of declared-range violations
+(e.g. \verb{(ge 0)}) on initial values (GEMPACK manual 25.4.4,
+\verb{range test initial values}; GEMPACK's \code{yes}/\code{warn}/\code{no} are
+\code{"fatal"}/\code{"warn"}/\code{"off"} here).}
 
-\item{range_test_updated}{Character length 1, \code{"fatal"}, \code{"warn"}
-or \code{"off"} (default \code{NULL}, solver default \code{"warn"}). As
-\code{range_test_initial}, for updated values.}
-
-\item{postsim}{Logical length 1 (default \code{NULL}, solver default
-\code{TRUE}). \code{FALSE} skips the TAB's \code{PostSim} sections.}
+\item{range_test_updated}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated
+values (\verb{range test updated values}).}
 
 \item{complementarity}{A \code{teems_complementarity} object built by
 \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for

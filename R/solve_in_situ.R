@@ -44,11 +44,10 @@
 #'   of elements at a third of the factorizations of `0.1`'s
 #'   Gragg-equivalent (teems-solver rk_comparison, 2026-09). See
 #'   [`ems_RK()`].
-#' @param max_retries Integer length 1 (default `NULL`, solver
-#'   default `3L`), `adaptive = "yes"` only: retries of a step
+#' @param max_retries Integer length 1 (default `3L`),
+#'   `adaptive = "yes"` only: retries of a step
 #'   failing the -100% crossing check. See [`ems_RK()`].
-#' @param retry_adjust Numeric length 1 in (0, 1) (default `NULL`,
-#'   solver default `0.5`), adaptive control only: the step-length
+#' @param retry_adjust Numeric length 1 in (0, 1) (default `0.5`), adaptive control only: the step-length
 #'   multiplier applied on each retry. See [`ems_RK()`].
 #' @param solver_args Named list (default `NULL`). The additional
 #'   named solver arguments [`ems_solve()`] accepts through `...` —
@@ -83,25 +82,22 @@ solve_in_situ <- function(...,
                           shock_file,
                           ignore_condense = FALSE,
                           solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
-                          matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
+                          matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
                           n_subintervals = 1L,
                           steps = NULL,
                           adaptive = c("no", "yes", "accuracy-only"),
                           eps_tolerance = 0.01,
-                          max_retries = NULL,
-                          retry_adjust = NULL,
+                          max_retries = 3L,
+                          retry_adjust = 0.5,
                           n_tasks = 1L,
                           n_threads = 1L,
                           precision = c("single", "double"),
-                          inmemory = NULL,
-                          resources = c("manual", "auto"),
-                          verbosity = NULL,
+                          verbosity = 1L,
                           suppress_outputs = FALSE,
                           terminal_run = FALSE,
-                          assertions = NULL,
-                          range_test_initial = NULL,
-                          range_test_updated = NULL,
-                          postsim = NULL,
+                          assertions = c("fatal", "warn", "off"),
+                          range_test_initial = c("warn", "fatal", "off"),
+                          range_test_updated = c("warn", "fatal", "off"),
                           complementarity = NULL,
                           solver_args = NULL
 ) {
@@ -174,18 +170,14 @@ return(.implement_solve_in_situ(
   n_tasks = n_tasks,
   n_threads = n_threads,
   precision = precision,
-  inmemory = inmemory,
-  resources = resources,
   verbosity = verbosity,
   suppress_outputs = suppress_outputs,
   terminal_run = terminal_run,
   assertions = assertions,
   range_test_initial = range_test_initial,
   range_test_updated = range_test_updated,
-  postsim = postsim,
   complementarity = complementarity,
   solver_args = solver_args,
-  call = call,
-  explicit = intersect(c("n_tasks", "n_threads", "inmemory"), names(call))
+  call = call
 ))
 }

@@ -43,12 +43,12 @@
 #'   test is steered by percentage-change variables only, and
 #'   `0.001` buys the last digits at roughly 1.6x the cost. Ignored
 #'   when `adaptive = "no"`.
-#' @param max_retries Integer length 1 (default `NULL`, solver
-#'   default `3L`), `adaptive = "yes"` only: how many times a step
+#' @param max_retries Integer length 1 (default `3L`),
+#'   `adaptive = "yes"` only: how many times a step
 #'   failing the -100% crossing check is retried at reduced length
 #'   before the run aborts.
-#' @param retry_adjust Numeric length 1 in (0, 1) (default `NULL`,
-#'   solver default `0.5`), adaptive control only: the step-length
+#' @param retry_adjust Numeric length 1 in (0, 1) (default `0.5`),
+#'   adaptive control only: the step-length
 #'   multiplier applied on each retry.
 #' @param chart Character length 1, the coordinate the stages are
 #'   combined in. `"log"` (default) carries every percentage-change
@@ -107,8 +107,8 @@ ems_RK <- function(cmf_path,
                    steps = 4L,
                    adaptive = NULL,
                    eps_tolerance = 0.01,
-                   max_retries = NULL,
-                   retry_adjust = NULL,
+                   max_retries = 3L,
+                   retry_adjust = 0.5,
                    chart = c("log", "percent"),
                    error_norm = c("max", "rms"),
                    controller = c("std", "pi"),

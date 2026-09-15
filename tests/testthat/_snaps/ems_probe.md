@@ -76,3 +76,56 @@
       condensation: none, and no usable block partition -- this "LU"-bound system is
       a candidate for `ems_model()` `backsolve`
 
+# the probe prints its recommendation
+
+    Code
+      print(probe)
+    Message
+      -- teems structural probe ------------------------------------------------------
+      condensed system: 10524 x 10524
+      v structural pattern: full structural rank 10524 of 10524
+      v realized pattern (nonzero at base data): full structural rank 10524 of 10524
+      fine DM: 6049 strongly connected components — 28 simultaneous cores (>1
+      element), largest 4341
+      largest core by equation: "e_qfa ×225", "e_qfd ×225", "e_qfm ×225", "e_pfa
+      ×225", "e_pfd ×225", and "e_pfm ×225"
+      247 equation statements, 856 statement-variable incidences
+      ordering evidence: chain none, partition structural
+      recommended for 8 cores, 12.0 GB (as given): "DBBD", 2 tasks x 4 threads
+      evidence: 10,524 equations, no chain, partition reg (3 blocks, border 6.4%),
+      n_tasks 2
+      two ranks on a laptop, more only where cores and memory allow; threads take the
+      rest
+      memory: about 0.01 GB at 2 tasks, 0% of 12.0 GB -- fits
+      `ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2, n_threads = 4)`
+
+---
+
+    Code
+      print(probe)
+    Message
+      -- teems structural probe ------------------------------------------------------
+      condensed system: 10524 x 10524
+      v structural pattern: full structural rank 10524 of 10524
+      v realized pattern (nonzero at base data): full structural rank 10524 of 10524
+      fine DM: 6049 strongly connected components — 28 simultaneous cores (>1
+      element), largest 4341
+      largest core by equation: "e_qfa ×225", "e_qfd ×225", "e_qfm ×225", "e_pfa
+      ×225", "e_pfd ×225", and "e_pfm ×225"
+      247 equation statements, 856 statement-variable incidences
+      ordering evidence: chain none, partition structural
+      recommended (container not inspected, so one task and one thread): "LU"
+      evidence: 10,524 equations, no chain, partition reg (3 blocks, border 6.4%),
+      n_tasks 1
+      one rank; threads for the condensed factorization
+      memory: about 0.01 GB at 1 task -- unknown
+      `ems_solve(cmf_path, matrix_method = "LU")`
+
+# ems_probe validates the cores and memory overrides
+
+    x `cores` must be a positive number of length 1 or "NULL".
+
+---
+
+    x `memory` must be a positive number of length 1 or "NULL".
+

@@ -17,19 +17,15 @@
                                      n_tasks,
                                      n_threads,
                                      precision,
-                                     inmemory,
-                                     resources,
                                      verbosity,
                                      suppress_outputs,
                                      terminal_run,
                                      assertions,
                                      range_test_initial,
                                      range_test_updated,
-                                     postsim,
                                      complementarity,
                                      solver_args,
-                                     call,
-                                     explicit = character()) {
+                                     call) {
   cmf_path <- .in_situ_cmf(
     input_files = input_files,
     model_file = model_file,
@@ -40,14 +36,7 @@
     call = call
   )
   
-  # splice the named solver extras into the ems_solve dots; the
-  # resource arguments travel only when the caller wrote them, so
-  # ems_solve() sees the same explicit set under resources = "auto"
-  resource_args <- list(
-    n_tasks = n_tasks,
-    n_threads = n_threads,
-    inmemory = inmemory
-  )[explicit]
+  # splice the named solver extras into the ems_solve dots
   return(do.call(ems_solve, c(
     list(
       cmf_path = cmf_path,
@@ -59,18 +48,17 @@
       eps_tolerance = eps_tolerance,
       max_retries = max_retries,
       retry_adjust = retry_adjust,
+      n_tasks = n_tasks,
+      n_threads = n_threads,
       precision = precision,
-      resources = resources,
       verbosity = verbosity,
       suppress_outputs = suppress_outputs,
       terminal_run = terminal_run,
       assertions = assertions,
       range_test_initial = range_test_initial,
       range_test_updated = range_test_updated,
-      postsim = postsim,
       complementarity = complementarity
     ),
-    resource_args,
     solver_args
   )))
 }

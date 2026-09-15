@@ -8,23 +8,19 @@ ems_solve(
   cmf_path,
   solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32",
     "DoPri54"),
-  matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
+  matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
   steps = NULL,
   n_tasks = 1L,
   n_threads = 1L,
   precision = c("single", "double"),
-  inmemory = NULL,
-  resources = c("manual", "auto"),
-  verbosity = NULL,
+  verbosity = 1L,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
-  assertions = NULL,
-  range_test_initial = NULL,
-  range_test_updated = NULL,
-  postsim = NULL,
+  assertions = c("fatal", "warn", "off"),
+  range_test_initial = c("warn", "fatal", "off"),
+  range_test_updated = c("warn", "fatal", "off"),
   complementarity = NULL,
-  pre_probe = FALSE,
   ...
 )
 }
@@ -79,43 +75,22 @@ recommended high-accuracy choice.
 }}
 
 \item{matrix_method}{Character of length 1, matrix solution
-method (default is \code{"auto"}). Choices:
+method (default is \code{"LU"}). Choices:
 \itemize{
-\item \code{"auto"}: Selects the method from the model type and size
-(see Details). The selection is reported at run time.
 \item \code{"LU"}: Standard LU decomposition, the most robust and
 potentially slowest for a large model. For use with both
 static and dynamic models.
 \item \code{"DBBD"}: Doubly bordered block diagonal, parallel solution
-method for static models. Potentially faster than \code{"LU"}
-although less robust.
+for static models partitioned by their regional set.
 \item \code{"SBBD"}: Singly bordered block diagonal, parallel solution
-method for intertemporal models. Potentially faster than
-\code{"LU"} although less robust.
-\item \code{"NDBBD"}: Nested doubly bordered block diagonal, parallel
-solution method for large intertemporal models with many
-timesteps.
+for intertemporal models partitioned along the time chain.
+\item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
+intertemporal models whose \code{"SBBD"} host copy does not fit the
+memory available.
+\code{\link[=ems_probe]{ems_probe()}} recommends the method and the tasks, threads
+and scratch to run it with for a deployment and a machine, and
+prints the call to paste (see Details).
 }}
-
-\item{n_subintervals}{Integer length 1 (default is \code{1L}),
-number of subintervals for the applied shock. More
-subintervals may alleviate accuracy issues stemming from
-large shock magnitudes.}
-
-\item{steps}{Integer (default is \code{NULL}, the step count the
-chosen method expects: \code{c(2L, 4L, 8L)} for \code{"Gragg"} and
-\code{"Euler"}, \code{4L} for the Runge-Kutta methods). Given
-explicitly for \code{"Gragg"} and \code{"Euler"}, a length-3
-strictly increasing vector of step counts for the three
-extrapolation solutions. A larger number of steps may improve accuracy for
-some model runs. For \code{"Gragg"} all three must additionally be
-even, because the error-cancellation theory behind the
-extrapolation assumes even step counts (Pearson 1991,
-Theorem 6.1); \code{"Euler"} has no parity requirement. The
-Runge-Kutta methods compute a single solution and instead
-take one step count (e.g. \code{steps = 8L}), which under
-\code{adaptive} control is the initial step count only. Ignored
-when \code{solution_method = "Johansen"}.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
@@ -138,37 +113,8 @@ floor extra steps stop helping). Roughly doubles
 coefficient-array memory. The effective precision is recorded in
 \code{sol.stats.json} and the model diagnostics solve record.}
 
-\item{inmemory}{Logical length 1 or \code{NULL} (default). When
-\code{TRUE}, the solver keeps value arrays and block factors
-resident in memory instead of spilling them to scratch
-files; when \code{FALSE}, scratch files are used. The default
-(\code{NULL}) lets the solver choose per matrix method (currently
-in-memory for all methods except \code{"NDBBD"}). The solver
-falls back to scratch files with a warning if the estimated
-memory requirement exceeds what is available.}
-
-\item{resources}{Character length 1, \code{"manual"} (default) or
-\code{"auto"}. \code{"manual"} runs with the \code{n_tasks}, \code{n_threads} and
-\code{inmemory} given. \code{"auto"} reads the container's cores and memory
-(one throwaway container per session; Docker Desktop's Resources
-setting is what a laptop reports) and resolves them for the
-matrix method from the measured rules: \code{"SBBD"} takes ranks to
-the knee (\code{min(8, cores, blocks)}) and gives the remaining cores
-to threads; \code{"DBBD"} takes two ranks on a laptop (up to eight
-where cores and the memory model allow) and threads for the
-rest; \code{"LU"} one rank with up to eight threads; \code{"NDBBD"} one
-rank and every core. Any of the three arguments passed
-explicitly keeps its value. The resolved values, the container
-inspected and the memory estimate are reported and written to
-\code{model_diagnostics.txt}. In both modes, when the container's
-memory is known, a run whose estimated peak exceeds it by more
-than the model's error band is refused before it starts, with
-the estimate, the limit and the remedies named; a run inside the
-band is warned about.}
-
-\item{verbosity}{Integer length 1 (\code{0}, \code{1}, or \code{2}) or \code{NULL}
-(default, equivalent to the solver default of \code{1}). Solver
-log detail: \code{0} restricts output to errors, warnings, and
+\item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
+Solver log detail: \code{0} restricts output to errors, warnings, and
 the accuracy summary; \code{1} adds phase progress and timings;
 \code{2} adds per-rank and per-block debug detail.}
 
@@ -183,39 +129,26 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{assertions}{Character length 1, \code{"fatal"}, \code{"warn"} or
-\code{"off"} (default \code{NULL}, solver default \code{"fatal"}). Severity of
-TAB \code{Assertion} statement failures (GEMPACK manual 25.3):
+\item{assertions}{Character length 1, \code{"fatal"} (default),
+\code{"warn"} or \code{"off"}. Severity of TAB \code{Assertion} statement
+failures (GEMPACK manual 25.3):
 \code{"warn"} reports and continues, \code{"off"} skips the checks.}
 
-\item{range_test_initial}{Character length 1, \code{"fatal"}, \code{"warn"}
-or \code{"off"} (default \code{NULL}, solver default \code{"warn"}). Severity of
-declared-range violations (e.g. \verb{(ge 0)}) on initial values
-(GEMPACK manual 25.4.4).}
+\item{range_test_initial}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. Severity of declared-range violations
+(e.g. \verb{(ge 0)}) on initial values (GEMPACK manual 25.4.4,
+\verb{range test initial values}; GEMPACK's \code{yes}/\code{warn}/\code{no} are
+\code{"fatal"}/\code{"warn"}/\code{"off"} here).}
 
-\item{range_test_updated}{Character length 1, \code{"fatal"}, \code{"warn"}
-or \code{"off"} (default \code{NULL}, solver default \code{"warn"}). As
-\code{range_test_initial}, for updated values.}
-
-\item{postsim}{Logical length 1 (default \code{NULL}, solver default
-\code{TRUE}). \code{FALSE} skips the TAB's \code{PostSim} sections.}
+\item{range_test_updated}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated
+values (\verb{range test updated values}).}
 
 \item{complementarity}{A \code{teems_complementarity} object built by
 \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
 models with active \code{Complementarity} statements (GEMPACK manual
 ch. 51). \code{NULL} applies the solver defaults; ignored by the
 solver when the model has no active complementarity component.}
-
-\item{pre_probe}{Logical length 1 (default \code{FALSE}). When \code{TRUE},
-run the solver's structural probe first and abort — with the
-defective variable and equation elements named — if the deployed
-system is structurally singular, instead of failing mid-solve
-with an unnamed singularity. Adds a probe run's cost (the
-pre-solve pipeline plus a maximum matching: negligible below
-~10^5 equations, tens of seconds around 10^6); with
-\code{matrix_method = "auto"} the same probe run also supplies the
-structural evidence for the method choice. See \code{\link[=ems_probe]{ems_probe()}}
-for the full diagnosis.}
 
 \item{...}{Additional named solver arguments; anything else is an
 error, never a silently ignored flag. Three groups are accepted:
@@ -229,7 +162,14 @@ nonzeros — \code{laA} for \code{"LU"}/\code{"SBBD"} and the diagonal blocks,
 of the same deployment warm-starts them from its recorded
 \code{la_used} in \code{sol.stats.json}, else package defaults apply, and
 the solver grows the workspace itself if any guess proves too
-small); and the expert solver flags \code{fastrefac} (persistent-pivot
+small); and the expert solver flags \code{postsim} (logical; \code{FALSE}
+skips the TAB's \code{PostSim} sections, a TEEMS-only switch with no
+GEMPACK counterpart), \code{inmemory} (logical: keep
+value arrays and block factors resident in memory rather than
+in scratch files; absent, the solver applies its per-method
+default, in-memory for every method except \code{"NDBBD"}, and falls
+back to scratch with a warning when the estimated need exceeds
+the memory available), \code{fastrefac} (persistent-pivot
 refactorization, logical), \code{gpzerodivide} (GEMPACK dual-class
 ZERODIVIDE semantics, logical), \code{cntl_3}/\code{cntl_6} (HSL
 pivot/ordering thresholds, numeric), \code{nsbbdblocks} (SBBD
@@ -263,39 +203,35 @@ Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
 \details{
-\code{matrix_method = "auto"} selects the method from the
-model type, the deployed system's size and condensation record,
-the measured structure where a probe is cheap, and the
-container's memory. Intertemporal models take \code{"SBBD"} (fastest
-at every measured size, 2.4 to 230 million equations; ranks beat
-threads at every core count) and fall back to \code{"NDBBD"} only when
-the memory model says SBBD's host copy does not fit the container.
-Static models take \code{"LU"} at a single task. At \code{n_tasks >= 2} an
-uncondensed static system takes \code{"DBBD"} at any size where a
-block partition with enough blocks exists (measured faster than
-LU at every rung from 346 thousand to 7.7 million equations), and
-a condensed one (in-TAB \code{Backsolve}, the vetted GTAP models'
-default) takes \code{"DBBD"} from about 120 thousand condensed
-equations for multi-step methods and 70 thousand for Johansen,
-where threaded LU stops winning -- provided DBBD's memory estimate
-fits the container. The structural probe (the same run
-\code{pre_probe} uses, never launched twice) supplies the partition
-evidence where it is cheap: always on condensed systems (seconds),
-on uncondensed static systems below one million equations, never
-on intertemporal ones; above that the deploy metadata's region
-count stands in. Its evidence -- chain dimension, chosen
-partition, block count and border share -- is reported with the
-selection and written, with the constants used and the memory
-estimates, into \code{model_diagnostics.txt}. A model that declares
-intertemporal sets but couples no equation through lead/lag
-offsets is measured as static. The constants were measured on the
-2026-09 laptop ladder (12 GB, 4 and 8 cores) and the top-end
-cells (teems-solver \code{hpc_auto_plan.md}); set \code{matrix_method}
-explicitly to override the selection. Runs without deploy
-metadata (e.g. \code{\link[=solve_in_situ]{solve_in_situ()}}) probe when \code{n_tasks >= 2} and
-take the system size from the probe.
+Nothing is chosen for you here: the run is exactly the
+arguments given, so it is reproducible from its record on any
+machine. \code{\link[=ems_probe]{ems_probe()}} makes the choice explicit instead: it
+measures the deployed system's structure, reads the container's
+cores and memory (or the ones passed for another machine) and
+prints a recommended \code{matrix_method}, \code{n_tasks} and \code{n_threads}
+with the evidence, the memory estimate and the call to paste.
+The rules it applies were measured on the 2026-09 laptop ladder
+(12 GB, 4 and 8 cores) and the top-end cells: \code{"SBBD"} for every
+intertemporal model (fastest at every measured size, 2.4 to 230
+million equations; ranks to the knee of four to eight, threads
+for the remaining cores), \code{"NDBBD"} on one rank only where SBBD's
+host copy would not fit; \code{"DBBD"} at two tasks for an uncondensed
+static system with a usable partition (faster than LU at every
+rung from 346 thousand to 7.7 million equations) and for a
+condensed one from about 120 thousand condensed equations (70
+thousand under Johansen), where threaded \code{"LU"} stops winning;
+\code{"LU"} with up to eight threads otherwise. A bare
+\code{ems_solve(cmf_path)} runs \code{"LU"} on one task and one thread,
+which is correct for every model and slow for a large
+intertemporal one.
 
-The memory model behind the fit checks is peak GB per
+Before any run starts, its peak memory is estimated and compared
+with the container's memory (Docker Desktop's Resources setting
+on a laptop, the cgroup limit or the machine elsewhere, read once
+per session from inside the image): a run whose estimate exceeds
+the memory by more than the model's error band is refused by
+name with the estimate, the limit and the remedies; one inside
+the band is warned about. The memory model is peak GB per
 plain-equivalent equation (the solved system plus the backsolved
 elements, since condensation cuts equations twentyfold but not
 peak memory): LU about 0.9 kB, DBBD 0.85 + 0.27 per rank kB

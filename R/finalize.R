@@ -98,9 +98,9 @@
   metadata$n_var_ele <- size_metadata$n_var_ele
   metadata$n_exo_ele <- size_metadata$n_exo_ele
   metadata$n_reg <- size_metadata$n_reg
-  # chain blocks of an intertemporal deployment (the SBBD rank cap for
-  # resources = "auto"): one per time step, as the solver's probe counts
-  # them (ntime)
+  # chain blocks of an intertemporal deployment (the SBBD rank cap in
+  # the ems_probe() recommendation): one per time step, as the solver's
+  # probe counts them (ntime)
   time_steps <- attr(args_list$.data, "time_steps")
   metadata$n_time <- if (is.null(time_steps)) 0L else length(time_steps)
   # read back at solve/probe time by the condensation advisory

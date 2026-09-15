@@ -15,6 +15,14 @@
 #'   view of the system — its irreducible simultaneous cores versus the
 #'   recursively solvable remainder — including the composition of the
 #'   largest cores by equation and variable.
+#' @param cores Integer length 1 or `NULL` (default): the core count
+#'   the recommendation is made for. `NULL` reads it from the
+#'   container the solver runs in (Docker Desktop's Resources setting
+#'   on a laptop); pass a number to get the recommendation for
+#'   another machine.
+#' @param memory Numeric length 1 or `NULL` (default): the memory in
+#'   GB the recommendation is made for, read from the container when
+#'   `NULL`, as for `cores`.
 #' @param ... Additional named solver arguments: the MA48 workspace
 #'   initial guesses (`laA`, `laD`, `laDi`) and the expert solver
 #'   flags (`fastrefac`, `gpzerodivide`, `cntl_3`, `cntl_6`,
@@ -25,9 +33,7 @@
 #'   pre-solve pipeline plus the matching (milliseconds at 10^4
 #'   equations, ~a minute at 10^6). A structurally singular result does
 #'   not error here — the object reports it (see
-#'   [`plot.teems_probe()`] and the `defects` tibble). Use
-#'   `ems_solve(pre_probe = TRUE)` to abort a solve on structural
-#'   singularity instead.
+#'   [`plot.teems_probe()`] and the `defects` tibble).
 #'
 #'   The probe also settles the condensation question, which the
 #'   deploy-time advice in [`ems_solve()`] can only guess at: the
@@ -36,16 +42,26 @@
 #'   substitution densifies the blocks; a system without one is
 #'   `"LU"`-bound, where condensation is the lever. The verdict prints
 #'   with the object and is carried in `condense$verdict`.
+#'
+#'   The probe also recommends how to solve the deployment: the matrix
+#'   method and the tasks, threads and scratch directory to run it
+#'   with on this machine (or on the `cores` and `memory` given),
+#'   from the measured structure, the deploy metadata and a peak-memory
+#'   model per method (see [`ems_solve()`] Details for the rules and
+#'   their provenance). The recommendation prints with the object as a
+#'   ready-to-paste [`ems_solve()`] call and is carried in
+#'   `recommendation`; `ems_solve()` itself chooses nothing.
 #' @seealso [`ems_deploy()`] for generating `"cmf_path"`;
 #'   [`plot.teems_probe()`] for the incidence, Dulmage-Mendelsohn and
-#'   core visualizations; [`ems_solve()`] and its `pre_probe` argument.
+#'   core visualizations; [`ems_solve()`].
 #' @return A `teems_probe` object: validity verdict and rank per
 #'   pattern, named defect tibble, statement-level incidence tibbles
 #'   (`statements`, `incidence`), core structure (`cores`), ordering
 #'   evidence (`structure`: the chain dimension and the block-partition
 #'   candidate table the solver measured -- the evidence
-#'   `ems_solve(matrix_method = "auto")` decides from), the
-#'   condensation verdict (`condense`), and report paths.
+#'   the recommendation is made from), the
+#'   condensation verdict (`condense`), the recommended method and
+#'   resources (`recommendation`), and report paths.
 #' @examples
 #' \dontrun{
 #' # The following examples require the teems solver to be built.
@@ -58,6 +74,8 @@
 #' }
 ems_probe <- function(cmf_path,
                       fine = TRUE,
+                      cores = NULL,
+                      memory = NULL,
                       ...) {
   if (missing(cmf_path)) {
     .cli_missing(cmf_path)
@@ -81,6 +99,22 @@ ems_probe <- function(cmf_path,
   if (!rlang::is_logical(fine, n = 1) || is.na(fine)) {
     arg <- "fine"
     .cli_action(probe_err$x_logical,
+      action = "abort",
+      call = call
+    )
+  }
+  if (!is.null(cores) &&
+    (!rlang::is_integerish(cores) || length(cores) != 1L || is.na(cores) || cores < 1)) {
+    arg <- "cores"
+    .cli_action(probe_err$x_positive,
+      action = "abort",
+      call = call
+    )
+  }
+  if (!is.null(memory) &&
+    (!is.numeric(memory) || length(memory) != 1L || is.na(memory) || memory <= 0)) {
+    arg <- "memory"
+    .cli_action(probe_err$x_positive,
       action = "abort",
       call = call
     )
@@ -112,6 +146,26 @@ ems_probe <- function(cmf_path,
       call = call
     )
   }
+  # the recommendation: for this container unless a machine is given
+  host <- if (is.null(cores) && is.null(memory)) {
+    .container_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+  } else {
+    inspected <- if (is.null(cores) || is.null(memory)) {
+      .container_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+    } else {
+      NULL
+    }
+    list(
+      cores = as.integer(cores %|||% inspected$cores %|||% 1L),
+      mem_gb = as.numeric(memory %|||% inspected$mem_gb %|||% NA_real_),
+      source = "given"
+    )
+  }
+  probe$recommendation <- .probe_recommend(
+    probe = probe,
+    metadata = .deploy_metadata(cmf_path = cmf_path),
+    host = host
+  )
   return(probe)
 }
 
@@ -207,90 +261,3 @@ ems_probe <- function(cmf_path,
   )
 }
 
-#' @description Run the structural probe (without the fine
-#'   decomposition) on a deployment and return the `teems_probe`
-#'   object. One run serves both consumers in `ems_solve()`: the
-#'   `pre_probe` singularity verdict (`.probe_verdict()`) and the
-#'   `matrix_method = "auto"` structure evidence (`probe$structure`;
-#'   the solver's probe measures the chain dimension and the
-#'   partition candidates irrespective of the `-matsol` it is
-#'   launched with).
-#' @keywords internal
-#' @noRd
-.run_probe <- function(cmf_path,
-                       timeID,
-                       call) {
-  paths <- .get_solver_paths(
-    cmf_path = cmf_path,
-    timeID = paste0(timeID, "_probe"),
-    call = call
-  )
-  probe_cmd <- .construct_probe_cmd(
-    paths = paths,
-    timeID = paste0(timeID, "_probe"),
-    fine = FALSE
-  )
-  .run_solver_cmd(probe_cmd)
-  .collect_probe(
-    paths = paths,
-    call = call
-  )
-}
-
-#' @description `ems_solve(pre_probe = TRUE)` pre-flight: run the
-#'   structural probe (or reuse the one the auto method resolution
-#'   already ran) and abort with the named defect sets when the
-#'   system is structurally singular.
-#' @keywords internal
-#' @noRd
-.probe_preflight <- function(cmf_path,
-                             timeID,
-                             call,
-                             probe = NULL) {
-  if (is.null(probe)) {
-    probe <- .run_probe(
-      cmf_path = cmf_path,
-      timeID = timeID,
-      call = call
-    )
-  }
-  .probe_verdict(
-    probe = probe,
-    cmf_path = cmf_path,
-    call = call
-  )
-}
-
-#' @description Abort with the named defect sets when the probe found
-#'   the system structurally singular; inform otherwise.
-#' @keywords internal
-#' @noRd
-.probe_verdict <- function(probe,
-                           cmf_path,
-                           call) {
-  if (probe$valid) {
-    n <- probe$vecsize
-    .cli_action(probe_info$preflight_ok,
-      action = "inform",
-      call = call
-    )
-    return(invisible(NULL))
-  }
-  p <- probe$structural
-  pattern <- "structural"
-  if (is.null(p) || !p$defective) {
-    p <- probe$realized
-    pattern <- "realized"
-  }
-  rank <- p$rank
-  n <- p$n
-  n_under <- p$unmatched_cols
-  n_over <- p$unmatched_rows
-  under_preview <- utils::head(p$under_determined$element, 5L)
-  over_preview <- utils::head(p$over_constrained$element, 5L)
-  probe_path <- probe$paths$report
-  .cli_action(probe_err$structurally_singular,
-    action = "abort",
-    call = call
-  )
-}

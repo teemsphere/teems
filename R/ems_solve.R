@@ -51,39 +51,20 @@
 #'   `eps_tolerance`. `"DoPri54"` with `adaptive = "yes"` is the
 #'   recommended high-accuracy choice.
 #' @param matrix_method Character of length 1, matrix solution
-#'   method (default is `"auto"`). Choices:
-#'   * `"auto"`: Selects the method from the model type and size
-#'   (see Details). The selection is reported at run time.
+#'   method (default is `"LU"`). Choices:
 #'   * `"LU"`: Standard LU decomposition, the most robust and
 #'   potentially slowest for a large model. For use with both
 #'   static and dynamic models.
 #'   * `"DBBD"`: Doubly bordered block diagonal, parallel solution
-#'   method for static models. Potentially faster than `"LU"`
-#'   although less robust.
+#'   for static models partitioned by their regional set.
 #'   * `"SBBD"`: Singly bordered block diagonal, parallel solution
-#'   method for intertemporal models. Potentially faster than
-#'   `"LU"` although less robust.
-#'   * `"NDBBD"`: Nested doubly bordered block diagonal, parallel
-#'   solution method for large intertemporal models with many
-#'   timesteps.
-#' @param n_subintervals Integer length 1 (default is `1L`),
-#'   number of subintervals for the applied shock. More
-#'   subintervals may alleviate accuracy issues stemming from
-#'   large shock magnitudes.
-#' @param steps Integer (default is `NULL`, the step count the
-#'   chosen method expects: `c(2L, 4L, 8L)` for `"Gragg"` and
-#'   `"Euler"`, `4L` for the Runge-Kutta methods). Given
-#'   explicitly for `"Gragg"` and `"Euler"`, a length-3
-#'   strictly increasing vector of step counts for the three
-#'   extrapolation solutions. A larger number of steps may improve accuracy for
-#'   some model runs. For `"Gragg"` all three must additionally be
-#'   even, because the error-cancellation theory behind the
-#'   extrapolation assumes even step counts (Pearson 1991,
-#'   Theorem 6.1); `"Euler"` has no parity requirement. The
-#'   Runge-Kutta methods compute a single solution and instead
-#'   take one step count (e.g. `steps = 8L`), which under
-#'   `adaptive` control is the initial step count only. Ignored
-#'   when `solution_method = "Johansen"`.
+#'   for intertemporal models partitioned along the time chain.
+#'   * `"NDBBD"`: Nested doubly bordered block diagonal, for
+#'   intertemporal models whose `"SBBD"` host copy does not fit the
+#'   memory available.
+#'   [`ems_probe()`] recommends the method and the tasks, threads
+#'   and scratch to run it with for a deployment and a machine, and
+#'   prints the call to paste (see Details).
 #' @param ... Additional named solver arguments; anything else is an
 #'   error, never a silently ignored flag. Three groups are accepted:
 #'   the Runge-Kutta step controls (`adaptive`, `eps_tolerance`,
@@ -96,7 +77,14 @@
 #'   of the same deployment warm-starts them from its recorded
 #'   `la_used` in `sol.stats.json`, else package defaults apply, and
 #'   the solver grows the workspace itself if any guess proves too
-#'   small); and the expert solver flags `fastrefac` (persistent-pivot
+#'   small); and the expert solver flags `postsim` (logical; `FALSE`
+#'   skips the TAB's `PostSim` sections, a TEEMS-only switch with no
+#'   GEMPACK counterpart), `inmemory` (logical: keep
+#'   value arrays and block factors resident in memory rather than
+#'   in scratch files; absent, the solver applies its per-method
+#'   default, in-memory for every method except `"NDBBD"`, and falls
+#'   back to scratch with a warning when the estimated need exceeds
+#'   the memory available), `fastrefac` (persistent-pivot
 #'   refactorization, logical), `gpzerodivide` (GEMPACK dual-class
 #'   ZERODIVIDE semantics, logical), `cntl_3`/`cntl_6` (HSL
 #'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
@@ -134,70 +122,39 @@
 #' @param n_tasks Integer length 1 (default is `1L`), number of
 #'   tasks to run in parallel. Must be `1L` if `"matrix_method"`
 #'   == "LU".
-#' @param inmemory Logical length 1 or `NULL` (default). When
-#'   `TRUE`, the solver keeps value arrays and block factors
-#'   resident in memory instead of spilling them to scratch
-#'   files; when `FALSE`, scratch files are used. The default
-#'   (`NULL`) lets the solver choose per matrix method (currently
-#'   in-memory for all methods except `"NDBBD"`). The solver
-#'   falls back to scratch files with a warning if the estimated
-#'   memory requirement exceeds what is available.
-#' @param resources Character length 1, `"manual"` (default) or
-#'   `"auto"`. `"manual"` runs with the `n_tasks`, `n_threads` and
-#'   `inmemory` given. `"auto"` reads the container's cores and memory
-#'   (one throwaway container per session; Docker Desktop's Resources
-#'   setting is what a laptop reports) and resolves them for the
-#'   matrix method from the measured rules: `"SBBD"` takes ranks to
-#'   the knee (`min(8, cores, blocks)`) and gives the remaining cores
-#'   to threads; `"DBBD"` takes two ranks on a laptop (up to eight
-#'   where cores and the memory model allow) and threads for the
-#'   rest; `"LU"` one rank with up to eight threads; `"NDBBD"` one
-#'   rank and every core. Any of the three arguments passed
-#'   explicitly keeps its value. The resolved values, the container
-#'   inspected and the memory estimate are reported and written to
-#'   `model_diagnostics.txt`. In both modes, when the container's
-#'   memory is known, a run whose estimated peak exceeds it by more
-#'   than the model's error band is refused before it starts, with
-#'   the estimate, the limit and the remedies named; a run inside the
-#'   band is warned about.
-#' @param verbosity Integer length 1 (`0`, `1`, or `2`) or `NULL`
-#'   (default, equivalent to the solver default of `1`). Solver
-#'   log detail: `0` restricts output to errors, warnings, and
+#' @param verbosity Integer length 1, `0`, `1` (default) or `2`.
+#'   Solver log detail: `0` restricts output to errors, warnings, and
 #'   the accuracy summary; `1` adds phase progress and timings;
 #'   `2` adds per-rank and per-block debug detail.
-#' @details `matrix_method = "auto"` selects the method from the
-#'   model type, the deployed system's size and condensation record,
-#'   the measured structure where a probe is cheap, and the
-#'   container's memory. Intertemporal models take `"SBBD"` (fastest
-#'   at every measured size, 2.4 to 230 million equations; ranks beat
-#'   threads at every core count) and fall back to `"NDBBD"` only when
-#'   the memory model says SBBD's host copy does not fit the container.
-#'   Static models take `"LU"` at a single task. At `n_tasks >= 2` an
-#'   uncondensed static system takes `"DBBD"` at any size where a
-#'   block partition with enough blocks exists (measured faster than
-#'   LU at every rung from 346 thousand to 7.7 million equations), and
-#'   a condensed one (in-TAB `Backsolve`, the vetted GTAP models'
-#'   default) takes `"DBBD"` from about 120 thousand condensed
-#'   equations for multi-step methods and 70 thousand for Johansen,
-#'   where threaded LU stops winning -- provided DBBD's memory estimate
-#'   fits the container. The structural probe (the same run
-#'   `pre_probe` uses, never launched twice) supplies the partition
-#'   evidence where it is cheap: always on condensed systems (seconds),
-#'   on uncondensed static systems below one million equations, never
-#'   on intertemporal ones; above that the deploy metadata's region
-#'   count stands in. Its evidence -- chain dimension, chosen
-#'   partition, block count and border share -- is reported with the
-#'   selection and written, with the constants used and the memory
-#'   estimates, into `model_diagnostics.txt`. A model that declares
-#'   intertemporal sets but couples no equation through lead/lag
-#'   offsets is measured as static. The constants were measured on the
-#'   2026-09 laptop ladder (12 GB, 4 and 8 cores) and the top-end
-#'   cells (teems-solver `hpc_auto_plan.md`); set `matrix_method`
-#'   explicitly to override the selection. Runs without deploy
-#'   metadata (e.g. [`solve_in_situ()`]) probe when `n_tasks >= 2` and
-#'   take the system size from the probe.
+#' @details Nothing is chosen for you here: the run is exactly the
+#'   arguments given, so it is reproducible from its record on any
+#'   machine. [`ems_probe()`] makes the choice explicit instead: it
+#'   measures the deployed system's structure, reads the container's
+#'   cores and memory (or the ones passed for another machine) and
+#'   prints a recommended `matrix_method`, `n_tasks` and `n_threads`
+#'   with the evidence, the memory estimate and the call to paste.
+#'   The rules it applies were measured on the 2026-09 laptop ladder
+#'   (12 GB, 4 and 8 cores) and the top-end cells: `"SBBD"` for every
+#'   intertemporal model (fastest at every measured size, 2.4 to 230
+#'   million equations; ranks to the knee of four to eight, threads
+#'   for the remaining cores), `"NDBBD"` on one rank only where SBBD's
+#'   host copy would not fit; `"DBBD"` at two tasks for an uncondensed
+#'   static system with a usable partition (faster than LU at every
+#'   rung from 346 thousand to 7.7 million equations) and for a
+#'   condensed one from about 120 thousand condensed equations (70
+#'   thousand under Johansen), where threaded `"LU"` stops winning;
+#'   `"LU"` with up to eight threads otherwise. A bare
+#'   `ems_solve(cmf_path)` runs `"LU"` on one task and one thread,
+#'   which is correct for every model and slow for a large
+#'   intertemporal one.
 #'
-#'   The memory model behind the fit checks is peak GB per
+#'   Before any run starts, its peak memory is estimated and compared
+#'   with the container's memory (Docker Desktop's Resources setting
+#'   on a laptop, the cgroup limit or the machine elsewhere, read once
+#'   per session from inside the image): a run whose estimate exceeds
+#'   the memory by more than the model's error band is refused by
+#'   name with the estimate, the limit and the remedies; one inside
+#'   the band is warned about. The memory model is peak GB per
 #'   plain-equivalent equation (the solved system plus the backsolved
 #'   elements, since condensation cuts equations twentyfold but not
 #'   peak memory): LU about 0.9 kB, DBBD 0.85 + 0.27 per rank kB
@@ -229,34 +186,23 @@
 #'   programs prior to running from the terminal. When `TRUE`
 #'   solver outputs are not automatically converted into
 #'   structured data with [`ems_compose()`].
-#' @param assertions Character length 1, `"fatal"`, `"warn"` or
-#'   `"off"` (default `NULL`, solver default `"fatal"`). Severity of
-#'   TAB `Assertion` statement failures (GEMPACK manual 25.3):
+#' @param assertions Character length 1, `"fatal"` (default),
+#'   `"warn"` or `"off"`. Severity of TAB `Assertion` statement
+#'   failures (GEMPACK manual 25.3):
 #'   `"warn"` reports and continues, `"off"` skips the checks.
-#' @param range_test_initial Character length 1, `"fatal"`, `"warn"`
-#'   or `"off"` (default `NULL`, solver default `"warn"`). Severity of
-#'   declared-range violations (e.g. `(ge 0)`) on initial values
-#'   (GEMPACK manual 25.4.4).
-#' @param range_test_updated Character length 1, `"fatal"`, `"warn"`
-#'   or `"off"` (default `NULL`, solver default `"warn"`). As
-#'   `range_test_initial`, for updated values.
-#' @param postsim Logical length 1 (default `NULL`, solver default
-#'   `TRUE`). `FALSE` skips the TAB's `PostSim` sections.
+#' @param range_test_initial Character length 1, `"warn"` (default),
+#'   `"fatal"` or `"off"`. Severity of declared-range violations
+#'   (e.g. `(ge 0)`) on initial values (GEMPACK manual 25.4.4,
+#'   `range test initial values`; GEMPACK's `yes`/`warn`/`no` are
+#'   `"fatal"`/`"warn"`/`"off"` here).
+#' @param range_test_updated Character length 1, `"warn"` (default),
+#'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
+#'   values (`range test updated values`).
 #' @param complementarity A `teems_complementarity` object built by
 #'   [`ems_complementarity()`] (default is `NULL`), run controls for
 #'   models with active `Complementarity` statements (GEMPACK manual
 #'   ch. 51). `NULL` applies the solver defaults; ignored by the
 #'   solver when the model has no active complementarity component.
-#' @param pre_probe Logical length 1 (default `FALSE`). When `TRUE`,
-#'   run the solver's structural probe first and abort — with the
-#'   defective variable and equation elements named — if the deployed
-#'   system is structurally singular, instead of failing mid-solve
-#'   with an unnamed singularity. Adds a probe run's cost (the
-#'   pre-solve pipeline plus a maximum matching: negligible below
-#'   ~10^5 equations, tens of seconds around 10^6); with
-#'   `matrix_method = "auto"` the same probe run also supplies the
-#'   structural evidence for the method choice. See [`ems_probe()`]
-#'   for the full diagnosis.
 #' @seealso [`ems_deploy()`] for generating `"cmf_path"`.
 #'   [`solve_in_situ()`] for calling the solver on existing input
 #'   files. [`ems_compose()`] for structuring data when
@@ -287,23 +233,19 @@
 #' }
 ems_solve <- function(cmf_path,
                       solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
-                      matrix_method = c("auto", "LU", "DBBD", "SBBD", "NDBBD"),
+                      matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
                       n_subintervals = 1L,
                       steps = NULL,
                       n_tasks = 1L,
                       n_threads = 1L,
                       precision = c("single", "double"),
-                      inmemory = NULL,
-                      resources = c("manual", "auto"),
-                      verbosity = NULL,
+                      verbosity = 1L,
                       suppress_outputs = FALSE,
                       terminal_run = FALSE,
-                      assertions = NULL,
-                      range_test_initial = NULL,
-                      range_test_updated = NULL,
-                      postsim = NULL,
+                      assertions = c("fatal", "warn", "off"),
+                      range_test_initial = c("warn", "fatal", "off"),
+                      range_test_updated = c("warn", "fatal", "off"),
                       complementarity = NULL,
-                      pre_probe = FALSE,
                       ...
 ) {
 if (missing(cmf_path)) {
@@ -317,8 +259,8 @@ call <- match.call()
 rk_args <- list(
   adaptive = c("no", "yes", "accuracy-only"),
   eps_tolerance = 0.01,
-  max_retries = NULL,
-  retry_adjust = NULL
+  max_retries = 3L,
+  retry_adjust = 0.5
 )
 xtr_args <- .solver_extra_args()
 dots <- list(...)
@@ -339,13 +281,9 @@ for (nm in names(dots)) {
   }
 }
 args_list <- c(mget(setdiff(names(formals()), "...")), rk_args, xtr_args)
-# resource arguments the caller wrote out keep their values under
-# resources = "auto"
-explicit <- intersect(c("n_tasks", "n_threads", "inmemory"), names(call))
 output <- .implement_solve(
   args_list = args_list,
-  call = call,
-  explicit = explicit
+  call = call
 )
 if (is.null(output)) invisible(output) else output
 }

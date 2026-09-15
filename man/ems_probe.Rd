@@ -4,7 +4,7 @@
 \alias{ems_probe}
 \title{Structural probe of a deployed model}
 \usage{
-ems_probe(cmf_path, fine = TRUE, ...)
+ems_probe(cmf_path, fine = TRUE, cores = NULL, memory = NULL, ...)
 }
 \arguments{
 \item{cmf_path}{Character length 1, path to the CMF file generated
@@ -15,6 +15,16 @@ Dulmage-Mendelsohn decomposition: the strongly-connected-component
 view of the system — its irreducible simultaneous cores versus the
 recursively solvable remainder — including the composition of the
 largest cores by equation and variable.}
+
+\item{cores}{Integer length 1 or \code{NULL} (default): the core count
+the recommendation is made for. \code{NULL} reads it from the
+container the solver runs in (Docker Desktop's Resources setting
+on a laptop); pass a number to get the recommendation for
+another machine.}
+
+\item{memory}{Numeric length 1 or \code{NULL} (default): the memory in
+GB the recommendation is made for, read from the container when
+\code{NULL}, as for \code{cores}.}
 
 \item{...}{Additional named solver arguments: the MA48 workspace
 initial guesses (\code{laA}, \code{laD}, \code{laDi}) and the expert solver
@@ -29,8 +39,9 @@ pattern, named defect tibble, statement-level incidence tibbles
 (\code{statements}, \code{incidence}), core structure (\code{cores}), ordering
 evidence (\code{structure}: the chain dimension and the block-partition
 candidate table the solver measured -- the evidence
-\code{ems_solve(matrix_method = "auto")} decides from), the
-condensation verdict (\code{condense}), and report paths.
+the recommendation is made from), the
+condensation verdict (\code{condense}), the recommended method and
+resources (\code{recommendation}), and report paths.
 }
 \description{
 Runs the solver's structural probe (\verb{-solmed probe}) on
@@ -47,9 +58,7 @@ The probe runs on a single MPI rank; its cost is the
 pre-solve pipeline plus the matching (milliseconds at 10^4
 equations, ~a minute at 10^6). A structurally singular result does
 not error here — the object reports it (see
-\code{\link[=plot.teems_probe]{plot.teems_probe()}} and the \code{defects} tibble). Use
-\code{ems_solve(pre_probe = TRUE)} to abort a solve on structural
-singularity instead.
+\code{\link[=plot.teems_probe]{plot.teems_probe()}} and the \code{defects} tibble).
 
 The probe also settles the condensation question, which the
 deploy-time advice in \code{\link[=ems_solve]{ems_solve()}} can only guess at: the
@@ -58,6 +67,15 @@ system with a usable partition belongs to a bordered method, where
 substitution densifies the blocks; a system without one is
 \code{"LU"}-bound, where condensation is the lever. The verdict prints
 with the object and is carried in \code{condense$verdict}.
+
+The probe also recommends how to solve the deployment: the matrix
+method and the tasks, threads and scratch directory to run it
+with on this machine (or on the \code{cores} and \code{memory} given),
+from the measured structure, the deploy metadata and a peak-memory
+model per method (see \code{\link[=ems_solve]{ems_solve()}} Details for the rules and
+their provenance). The recommendation prints with the object as a
+ready-to-paste \code{\link[=ems_solve]{ems_solve()}} call and is carried in
+\code{recommendation}; \code{ems_solve()} itself chooses nothing.
 }
 \examples{
 \dontrun{
@@ -73,5 +91,5 @@ plot(probe, type = "cores")
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for generating \code{"cmf_path"};
 \code{\link[=plot.teems_probe]{plot.teems_probe()}} for the incidence, Dulmage-Mendelsohn and
-core visualizations; \code{\link[=ems_solve]{ems_solve()}} and its \code{pre_probe} argument.
+core visualizations; \code{\link[=ems_solve]{ems_solve()}}.
 }

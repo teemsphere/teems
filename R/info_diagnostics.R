@@ -83,7 +83,6 @@
 #' @keywords internal
 #' @noRd
 .solve_record_append <- function(run_dir,
-                                 auto_decision = NULL,
                                  resources_record = NULL) {
   diagnostic_file <- file.path(run_dir, "model_diagnostics.txt")
   stats_path <- file.path(run_dir, "out", "variables", "bin", "sol.stats.json")
@@ -148,11 +147,8 @@
       stats$matrix_method, opt$laA, opt$laDi, opt$laD, onoff(opt$fastrefac),
       if (is.null(opt$ma48u)) "default" else opt$ma48u
     ),
-    # matrix_method = "auto" evidence and the placeholder thresholds it
-    # was decided against (ROADMAP 6.10)
-    .auto_record_lines(auto_decision),
-    # resolved tasks/threads (resources = "auto" or as given), the
-    # container inspected and the pre-solve memory check
+    # tasks/threads/scratch as run, the container inspected and the
+    # pre-solve memory check
     .resources_record_lines(resources_record),
     # effective MA48 workspace sizes after any in-solver growth
     # (solver >= la auto-sizing); the next run warm-starts from these

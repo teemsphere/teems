@@ -60,11 +60,11 @@
 
 # ems_solve errors when inmemory is not a logical scalar
 
-    x `inmemory` must be a NULL or logical, not a string.
+    x `inmemory` must be a non-missing logical of length 1.
 
 ---
 
-    x `inmemory` must be logical of length 1.
+    x `inmemory` must be a non-missing logical of length 1.
 
 # ems_solve errors when verbosity is invalid
 
@@ -78,8 +78,6 @@
 
     Code
       ems_solve(cmf_path, range_test_updated = "fatal")
-    Message
-      i `matrix_method` "auto": using "LU" for this static model.
     Condition
       Error in `ems_solve()`:
       x The solver stopped on 1 runtime error while evaluating model values:
@@ -108,9 +106,8 @@
     Code
       ems_solve(cmf_path, terminal_run = TRUE)
     Message
-      i `matrix_method` "auto": using "LU" for this static model.
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is
@@ -123,176 +120,14 @@
       structure solver binary outputs:
       `ems_compose("<cache>/solve/solve_info_terminal/GTAPv7.cmf")`
 
-# matrix_method auto resolves by model type
-
-    Code
-      ems_solve(cmf_path, matrix_method = "auto", terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": using "LU" for this static model.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_static,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_static/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_static/GTAPv7.cmf")`
-
----
-
-    Code
-      ems_solve(cmf_path, solution_method = "Gragg", matrix_method = "auto",
-        terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": using "SBBD" for this intertemporal model.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dynamic,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_dynamic/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_dynamic/GTAP-RE.cmf")`
-
-# matrix_method auto selects DBBD for static deployments from the probe
-
-    Code
-      ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
-      i `matrix_method` "auto": using "DBBD" for this static model.
-      i Structural evidence: 900,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_dbbd/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_dbbd/GTAPv7.cmf")`
-
----
-
-    Code
-      ems_solve(cmf_path, terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": using "LU" for this static model.
-      i This static model favors "DBBD": `n_tasks = 2` (or `resources = "auto"`) with `matrix_method` "auto" may solve faster than single-task "LU".
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_dbbd/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_dbbd/GTAPv7.cmf")`
-
----
-
-    Code
-      ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
-      i `matrix_method` "auto": using "LU" for this static model.
-      i Structural evidence: 900,000 equations, no chain, partition demd (9 blocks, border 15.6%), n_tasks 4.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 4 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_dbbd/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_dbbd/GTAPv7.cmf")`
-
-# matrix_method auto skips the probe on a large plain static system and decides from the region count
-
-    Code
-      ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": using "DBBD" for this static model.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_metadata,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_metadata/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_metadata/GTAPv7.cmf")`
-
----
-
-    Code
-      ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE)
-    Message
-      i `matrix_method` "auto": using "LU" for this static model.
-      i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_metadata,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 4 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
-      
-      1. Run the above command in your OS terminal.
-      2. If errors are present in the terminal output during an ongoing run, it is
-      possible to stop the relevant teems-solver process early according to your
-      OS-specific system activity monitor.
-      3. Any error and/or singularity indicators will be present in the model
-      diagnostic output:
-      '<cache>/solve/solve_auto_metadata/out/solver_out_HHMM.txt'.
-      4. If no errors or singularities are detected, use the following expression to
-      structure solver binary outputs:
-      `ems_compose("<cache>/solve/solve_auto_metadata/GTAPv7.cmf")`
-
 # a second solve in one deploy directory is refused by name
 
     Code
       ems_solve(cmf_path)
-    Message
-      i `matrix_method` "auto": using "LU" for this static model.
     Condition
       Error in `ems_solve()`:
       x A solve is already running in this deploy directory: run 010203_999 (pid 999) started 2026-01-01 01:02:03 UTC.
       i Concurrent runs need a deploy directory each: call `ems_option_set(tempdir = ...)` before `ems_deploy()` for every run. Two solves in one directory share the solver's scratch files and the outputs the CMF names, and would corrupt each other. If a previous run was interrupted, remove '<cache>/solve/solve_lock/.solve_lock'.
-
-# matrix_method auto probes the deployed structure and records the decision
-
-    Code
-      out <- ems_solve(cmf_path, n_tasks = 2L, pre_probe = TRUE)
-    Message
-      i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
-      i `matrix_method` "auto": using "DBBD" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
-      i Structural probe: full structural rank 3494 of 3494; the closure is structurally valid.
-
-# resources auto resolves tasks and threads from the container and records them
-
-    `resources` must be one of "manual" or "auto", not "yes".
 
 # condensed deployments are advised against bordered methods (roadmap 6.2)
 
@@ -303,7 +138,7 @@
       i Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.
       i Condensation pays under "LU"; deploy without `backsolve` for bordered runs (`omit` is unaffected -- omission does not densify).
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is
@@ -326,7 +161,7 @@
       i Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed "LU" run is slower still than plain "SBBD".
       i Deploy without `backsolve` and solve with "SBBD" (`omit` is unaffected -- omission does not densify).
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is

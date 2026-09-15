@@ -99,21 +99,6 @@ test_that("ems_probe errors when fine is not a logical scalar", {
   expect_snapshot_error(ems_probe(cmf_path = "some.cmf", fine = "yes"))
 })
 
-test_that("probe verdict informs on a valid system", {
-  expect_message(
-    .probe_verdict(probe = healthy, cmf_path = "some.cmf", call = NULL),
-    regexp = "structurally valid"
-  )
-})
-
-test_that("pre_probe verdict aborts on a structurally singular system", {
-  # the message embeds the absolute report path, so no snapshot
-  expect_error(
-    .probe_verdict(probe = broken, cmf_path = "some.cmf", call = NULL),
-    regexp = "structurally singular.*rank 10527 of 10530"
-  )
-})
-
 # probe-informed condensation advice (roadmap 6.2 via 6.10): the verdict
 # reads the measured block structure, so it is exercised against stats
 # variants of the healthy fixture
@@ -177,4 +162,59 @@ test_that("probe prints each condensation verdict", {
       .probe_print_condense(do.call(probe_stats_variant, v))
     }
   })
+})
+
+test_that("the probe recommends method and resources from the structure and a host", {
+  laptop8 <- list(cores = 8L, mem_gb = 12, source = "given")
+  box <- list(cores = 32L, mem_gb = 125, source = "given")
+  # the healthy fixture has no usable partition: threaded LU
+  r <- .probe_recommend(healthy, host = laptop8)
+  expect_identical(r$matrix_method, "LU")
+  expect_identical(c(r$n_tasks, r$n_threads), c(1L, 8L))
+  # a small plain static system with a 3-block regional partition
+  healthy <- .probe_object(
+    probe_path = file.path(fx, "healthy.probe.json"),
+    stats_path = file.path(fx, "structural_static.stats.json")
+  )
+  r <- .probe_recommend(healthy, host = laptop8)
+  expect_identical(r$matrix_method, "DBBD")
+  expect_identical(c(r$n_tasks, r$n_threads), c(2L, 4L))
+  expect_identical(r$model_type, "static")
+  expect_identical(r$fit$verdict, "fits")
+  expect_match(r$call, "^ems_solve\\(cmf_path, matrix_method = \"DBBD\", n_tasks = 2, n_threads = 4\\)$")
+  # the region count caps the box's rank count
+  r <- .probe_recommend(healthy, host = box)
+  expect_identical(c(r$n_tasks, r$n_threads), c(3L, 8L))
+  # condensed below the crossover: threaded LU, Johansen named as the alternative
+  meta <- list(system_size = 3485, n_reg = 3L, condense = list(n_backsolve = 60L, n_backsolve_ele = 60000))
+  r <- .probe_recommend(healthy, metadata = meta, host = laptop8)
+  expect_identical(r$matrix_method, "LU")
+  expect_identical(c(r$n_tasks, r$n_threads), c(1L, 8L))
+  expect_identical(r$method_johansen, "LU")
+  expect_match(r$call, "^ems_solve\\(cmf_path, matrix_method = \"LU\", n_threads = 8\\)$")
+  # no host known: one task, one thread, memory check not applied
+  r <- .probe_recommend(healthy, host = NULL)
+  expect_identical(c(r$n_tasks, r$n_threads), c(1L, 1L))
+  expect_identical(r$fit$verdict, "unknown")
+  # a system too big for the machine is reported, not refused
+  big <- healthy
+  big$vecsize <- 40e6
+  r <- .probe_recommend(big, host = laptop8)
+  expect_identical(r$fit$verdict, "exceeds")
+})
+
+test_that("the probe prints its recommendation", {
+  probe <- .probe_object(
+    probe_path = file.path(fx, "healthy.probe.json"),
+    stats_path = file.path(fx, "structural_static.stats.json")
+  )
+  probe$recommendation <- .probe_recommend(probe, host = list(cores = 8L, mem_gb = 12, source = "given"))
+  expect_snapshot(print(probe))
+  probe$recommendation <- .probe_recommend(probe, host = NULL)
+  expect_snapshot(print(probe))
+})
+
+test_that("ems_probe validates the cores and memory overrides", {
+  expect_snapshot_error(ems_probe("x.cmf", cores = 0))
+  expect_snapshot_error(ems_probe("x.cmf", memory = -1))
 })

@@ -262,7 +262,7 @@
   }
   # the candidate table the solver's partition detection scored (one
   # row per eligible set) and the set it selected at the probe's rank
-  # count; the auto method replays the selection at the solve's
+  # count; the recommendation replays the selection at the solve's
   pa <- stats$partition_auto
   if (!is.null(pa)) {
     cand <- if (is.data.frame(pa)) pa else pa$candidates

@@ -22,16 +22,14 @@
                            steps,
                            adaptive = "no",
                            eps_tolerance = 0.01,
-                           max_retries = NULL,
-                           retry_adjust = NULL,
+                           max_retries = 3L,
+                           retry_adjust = 0.5,
                            n_threads = 1L,
                            precision = "single",
-                           inmemory = NULL,
-                           verbosity = NULL,
+                           verbosity = 1L,
                            assertions = NULL,
                            range_test_initial = NULL,
                            range_test_updated = NULL,
-                           postsim = NULL,
                            complementarity = NULL,
                            laA = NULL,
                            laD = NULL,
@@ -88,32 +86,25 @@
     "-laA", la$laA,
     "-laDi", la$laDi,
     "-laD", la$laD,
-    if (!is.null(inmemory)) {
-      paste("-inmemory", as.integer(inmemory))
-    },
-    if (!is.null(verbosity)) {
-      paste("-verbosity", as.integer(verbosity))
-    },
+    paste("-verbosity", as.integer(verbosity)),
     paste("-maxthreads", as.integer(n_threads)),
     "-nox"
   )
 
-  # run-mode switches (solver defaults applied when absent; effective
-  # values recorded in sol.stats.json and model_diagnostics.txt)
+  # run-mode switches, always rendered so the command records the run
+  # (the R defaults are the solver's; effective values also land in
+  # sol.stats.json and model_diagnostics.txt)
   mode_flag <- function(flag, x) {
-    if (is.null(x)) {
-      return(NULL)
-    }
     paste(flag, c(off = 0L, warn = 1L, fatal = 2L)[[x]])
   }
   solver_param <- paste(c(
     solver_param,
-    if (!is.null(max_retries)) paste("-maxretries", as.integer(max_retries)),
-    if (!is.null(retry_adjust)) paste("-retryadj", retry_adjust),
+    if (solmed %in% c("BoSha32", "DoPri54") && adaptive != "no") {
+      paste("-maxretries", as.integer(max_retries), "-retryadj", retry_adjust)
+    },
     mode_flag("-assertions", assertions),
     mode_flag("-range_test_initial", range_test_initial),
-    mode_flag("-range_test_updated", range_test_updated),
-    if (!is.null(postsim)) paste("-postsim", as.integer(postsim))
+    mode_flag("-range_test_updated", range_test_updated)
   ), collapse = " ")
 
   # ch. 51 complementarity run controls (ems_complementarity();

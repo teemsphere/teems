@@ -10,8 +10,8 @@ ems_RK(
   steps = 4L,
   adaptive = NULL,
   eps_tolerance = 0.01,
-  max_retries = NULL,
-  retry_adjust = NULL,
+  max_retries = 3L,
+  retry_adjust = 0.5,
   chart = c("log", "percent"),
   error_norm = c("max", "rms"),
   controller = c("std", "pi"),
@@ -65,13 +65,13 @@ test is steered by percentage-change variables only, and
 \code{0.001} buys the last digits at roughly 1.6x the cost. Ignored
 when \code{adaptive = "no"}.}
 
-\item{max_retries}{Integer length 1 (default \code{NULL}, solver
-default \code{3L}), \code{adaptive = "yes"} only: how many times a step
+\item{max_retries}{Integer length 1 (default \code{3L}),
+\code{adaptive = "yes"} only: how many times a step
 failing the -100\% crossing check is retried at reduced length
 before the run aborts.}
 
-\item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{NULL},
-solver default \code{0.5}), adaptive control only: the step-length
+\item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{0.5}),
+adaptive control only: the step-length
 multiplier applied on each retry.}
 
 \item{chart}{Character length 1, the coordinate the stages are

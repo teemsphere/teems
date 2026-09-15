@@ -5,8 +5,7 @@
 .validate_solver_args <- function(a,
                                   paths,
                                   call,
-                                  timeID = NULL,
-                                  explicit = character()) {
+                                  timeID = NULL) {
   
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
@@ -35,7 +34,7 @@
   matrix_method <- a$matrix_method
   a$matrix_method <- rlang::arg_match(
     arg = matrix_method,
-    values = c("LU", "DBBD", "SBBD", "NDBBD", "auto"),
+    values = c("LU", "DBBD", "SBBD", "NDBBD"),
     error_call = call
   )
 
@@ -43,12 +42,6 @@
   a$precision <- rlang::arg_match(
     arg = precision,
     values = c("single", "double"),
-    error_call = call
-  )
-  resources <- a$resources
-  a$resources <- rlang::arg_match(
-    arg = resources,
-    values = c("manual", "auto"),
     error_call = call
   )
   
@@ -62,24 +55,20 @@
       n_tasks = c("numeric", "integer"),
       n_threads = c("numeric", "integer"),
       precision = "character",
-      inmemory = c("NULL", "logical"),
-      resources = "character",
-      verbosity = c("NULL", "numeric", "integer"),
+      verbosity = c("numeric", "integer"),
       suppress_outputs = "logical",
       terminal_run = "logical",
-      assertions = c("NULL", "character"),
-      range_test_initial = c("NULL", "character"),
-      range_test_updated = c("NULL", "character"),
-      postsim = c("NULL", "logical"),
+      assertions = "character",
+      range_test_initial = "character",
+      range_test_updated = "character",
       complementarity = c("NULL", "teems_complementarity"),
-      pre_probe = "logical",
       # dot-passed Runge-Kutta controls sit after the formals in
       # args_list (ems_solve appends them; .check_arg_class is
       # positional)
       adaptive = "character",
       eps_tolerance = c("numeric", "integer"),
-      max_retries = c("NULL", "numeric", "integer"),
-      retry_adjust = c("NULL", "numeric")
+      max_retries = c("numeric", "integer"),
+      retry_adjust = "numeric"
     ),
     # dot-passed la* initial guesses and expert flags follow the RK
     # controls, in .solver_extra_args() order
@@ -101,9 +90,8 @@
       call = call
     )
   }
-  if (!is.null(a$max_retries) &&
-    (!rlang::is_integerish(a$max_retries) || length(a$max_retries) != 1L ||
-      a$max_retries < 1)) {
+  if (!rlang::is_integerish(a$max_retries) || length(a$max_retries) != 1L ||
+    a$max_retries < 1) {
     bad_arg <- "max_retries"
     requirement <- "a positive integer-like numeric of length 1"
     .cli_action(solve_err$comp_arg_type,
@@ -111,10 +99,9 @@
       call = call
     )
   }
-  if (!is.null(a$retry_adjust) &&
-    (!is.numeric(a$retry_adjust) || length(a$retry_adjust) != 1L ||
-      is.na(a$retry_adjust) ||
-      a$retry_adjust <= 0 || a$retry_adjust >= 1)) {
+  if (!is.numeric(a$retry_adjust) || length(a$retry_adjust) != 1L ||
+    is.na(a$retry_adjust) ||
+    a$retry_adjust <= 0 || a$retry_adjust >= 1) {
     bad_arg <- "retry_adjust"
     requirement <- "a numeric of length 1 in (0, 1)"
     .cli_action(solve_err$comp_arg_type,
@@ -122,24 +109,22 @@
       call = call
     )
   }
+  # the run-mode switches: the first value of each formal is the
+  # solver's own default, so the signature states what runs
   for (nme in c("assertions", "range_test_initial", "range_test_updated")) {
     x <- a[[nme]]
-    if (!is.null(x) &&
-      (!is.character(x) || length(x) != 1L || !x %in% c("fatal", "warn", "off"))) {
+    if (!is.character(x) || !length(x) || anyNA(x) ||
+      !all(x %in% c("fatal", "warn", "off"))) {
       bad_arg <- nme
       .cli_action(solve_err$switch_mode,
         action = "abort",
         call = call
       )
     }
-  }
-  if (!is.null(a$postsim) &&
-    (!is.logical(a$postsim) || length(a$postsim) != 1L || is.na(a$postsim))) {
-    bad_arg <- "postsim"
-    requirement <- "a non-missing logical of length 1"
-    .cli_action(solve_err$comp_arg_type,
-      action = "abort",
-      call = call
+    a[[nme]] <- rlang::arg_match(
+      arg = x,
+      values = c("fatal", "warn", "off"),
+      error_call = call
     )
   }
   .validate_solver_extras(a = a, call = call)
@@ -182,23 +167,9 @@
     )
   }
 
-  if (!is.null(a$inmemory) && (as.integer(length(a$inmemory)) %!=% 1L || is.na(a$inmemory))) {
-    arg <- "inmemory"
-    .cli_action(solve_err$logical_scalar,
-      action = "abort",
-      call = call
-    )
-  }
 
-  if (as.integer(length(a$pre_probe)) %!=% 1L || is.na(a$pre_probe)) {
-    arg <- "pre_probe"
-    .cli_action(probe_err$x_logical,
-      action = "abort",
-      call = call
-    )
-  }
 
-  if (!is.null(a$verbosity)) {
+  {
     if (!rlang::is_integerish(a$verbosity)) {
       arg <- "verbosity"
       .cli_action(solve_err$x_integerish,
@@ -290,67 +261,24 @@
     a$enable_time <- FALSE
   }
 
-  # `auto` may run the structural probe; the probe object is kept so
-  # the pre_probe verdict reuses it (one probe run per solve) and the
-  # decision record is written to model_diagnostics.txt after the run
   th <- .auto_thresholds()
   # the container the solver runs in: cores and memory, read once per
-  # image and session; NULL when the inspection fails, which leaves the
-  # memory checks inert and resources = "auto" on one task
+  # image and session for the pre-solve memory check; NULL when the
+  # inspection fails, which leaves the check inert
   host <- .container_resources(
     image = paste0("teems:", .resolve_docker_tag(quiet = TRUE))
   )
   metadata <- .deploy_metadata(cmf_path = paths$cmf)
-  multistep <- !(a$solution_method %=% "Johansen")
-  resources_auto <- a$resources %=% "auto"
-  if (resources_auto && !"n_tasks" %in% explicit) {
-    # provisional rank count for the method decision (the knee for a
-    # chain, two for a static partition); resolved for the chosen
-    # method below
-    cores <- host$cores %|||% 1L
-    a$n_tasks <- if (a$enable_time) {
-      min(th$ranks_sbbd_max, cores)
-    } else {
-      min(2L, cores)
-    }
-  }
-  a$auto_decision <- NULL
-  a$probe <- NULL
-  if (a$matrix_method %=% "auto") {
-    auto <- .resolve_auto_method(
-      enable_time = a$enable_time,
-      n_tasks = a$n_tasks,
-      cmf_path = paths$cmf,
-      pre_probe = isTRUE(a$pre_probe),
-      timeID = timeID,
-      call = call,
-      multistep = multistep,
-      host = host
-    )
-    a$matrix_method <- auto$method
-    a$auto_decision <- auto$decision
-    a$probe <- auto$probe
-  }
-
-  # plain-equivalent size, condensation and block count for the
-  # resource rules and the memory model: the probe's record when it
-  # ran, else the deploy metadata
-  d <- a$auto_decision
-  condensed <- d$condensed %|||% isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
-  plain_size <- d$plain_size %|||% (
-    if (is.null(metadata$system_size)) {
-      NA_real_
-    } else {
-      metadata$system_size + (metadata$condense$n_backsolve_ele %|||% 0)
-    }
-  )
-  n_blocks <- if (a$enable_time) {
-    d$n_time %|||% (if (isTRUE((metadata$n_time %|||% 0L) > 0L)) metadata$n_time else NULL)
+  # no probe is run here: ems_probe() checks the closure structurally
+  # and recommends the method and the resources; ems_solve() runs what
+  # it is given
+  condensed <- isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
+  plain_size <- if (is.null(metadata$system_size)) {
+    NA_real_
   } else {
-    d$partition$n_blocks %|||% metadata$n_reg
+    metadata$system_size + (metadata$condense$n_backsolve_ele %|||% 0)
   }
   resources_record <- list(
-    mode = "manual",
     method = a$matrix_method,
     n_tasks = as.integer(a$n_tasks),
     n_threads = as.integer(a$n_threads),
@@ -358,34 +286,8 @@
     cores = host$cores,
     mem_gb = host$mem_gb
   )
-  if (resources_auto) {
-    r <- .resolve_resources(
-      method = a$matrix_method,
-      host = host,
-      n_blocks = n_blocks,
-      plain_size = plain_size,
-      condensed = condensed,
-      requested = a[c("n_tasks", "n_threads", "inmemory")],
-      explicit = explicit,
-      th = th
-    )
-    a$n_tasks <- r$n_tasks
-    a$n_threads <- r$n_threads
-    a$inmemory <- r$inmemory
-    resources_record <- r
-    n_tasks <- r$n_tasks
-    n_threads <- r$n_threads
-    method <- a$matrix_method
-    cores <- r$cores
-    mem_gb <- if (is.na(r$mem_gb)) "unknown" else format(round(r$mem_gb, 1), nsmall = 1)
-    rationale <- r$rationale
-    .cli_action(solve_info$auto_resources,
-      action = "inform",
-      call = call
-    )
-  }
-  # the pre-solve memory check (both modes): refused by name past the
-  # model's error band, warned inside it, recorded otherwise
+  # the pre-solve memory check: refused by name past the model's error
+  # band, warned inside it, recorded otherwise
   resources_record$fit <- .memory_fit_check(
     method = a$matrix_method,
     n_tasks = a$n_tasks,
@@ -397,7 +299,7 @@
   )
   # scratch inside the container filesystem for the scratch-backed
   # runs: docker's /dev/shm is 64 MB by default (Docker Desktop and
-  # plain docker alike) and the solver puts NDBBD's and inmemory 0's
+  # plain docker alike) and the solver puts NDBBD's and inmemory-off
   # scratch there unless told where else
   if (is.null(a$tempdir) && (a$matrix_method %=% "NDBBD" || isFALSE(a$inmemory))) {
     a$tempdir <- "/tmp"

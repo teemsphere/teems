@@ -1,8 +1,7 @@
 #' @keywords internal
 #' @noRd
 .implement_solve <- function(args_list,
-                             call,
-                             explicit = character()) {
+                             call) {
 
   .check_docker(
     image_name = "teems",
@@ -19,8 +18,7 @@
     a = args_list,
     paths = paths,
     call = call,
-    timeID = timeID,
-    explicit = explicit
+    timeID = timeID
   )
 
   # one solve at a time per deploy directory: runs separated by their own
@@ -53,12 +51,10 @@
     n_threads = v$n_threads,
     precision = v$precision,
     n_subintervals = v$n_subintervals,
-    inmemory = v$inmemory,
     verbosity = v$verbosity,
     assertions = v$assertions,
     range_test_initial = v$range_test_initial,
     range_test_updated = v$range_test_updated,
-    postsim = v$postsim,
     complementarity = v$complementarity,
     laA = v$laA,
     laD = v$laD,
@@ -69,15 +65,6 @@
   # need a process running in parallel, grepping output for error and then kill appropriate PID
   if (isFALSE(cmds)) {
     return(invisible(NULL))
-  }
-
-  if (isTRUE(v$pre_probe)) {
-    .probe_preflight(
-      cmf_path = args_list$cmf_path,
-      timeID = timeID,
-      call = call,
-      probe = v$probe
-    )
   }
 
 
@@ -108,7 +95,6 @@
     paths = paths,
     call = call,
     status = status,
-    auto_decision = v$auto_decision,
     resources_record = v$resources_record
   )
   if (!v$suppress_outputs) {

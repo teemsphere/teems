@@ -1,20 +1,21 @@
-#' Structure-informed `matrix_method = "auto"` (ROADMAP 6.10) and the
-#' `resources = "auto"` resolution
+#' The `ems_probe()` recommendation (ROADMAP 6.10) and the pre-solve
+#' memory check
 #'
-#' The method decision reads the deployed system's MEASURED structure --
-#' the solver's structural probe (`-solmed probe`) -- where the probe is
-#' cheap, and the deploy metadata (system size, region count,
-#' condensation record) where it is not: the chain dimension the
+#' `ems_solve()` runs exactly what it is given. The recommendation of a
+#' matrix method and of the tasks, threads and scratch to run it with
+#' comes from `ems_probe()`, which reads the deployed system's MEASURED
+#' structure (the solver's structural probe: the chain dimension the
 #' equations couple through lead/lag offsets, the diagonal-block
-#' partition candidates (`partition_auto`), and the border sizes of the
-#' chosen partition. A memory model per method turns the container's
-#' memory limit into a third input, so a choice that would not fit is
-#' never made and a run that cannot fit is refused by name before it
-#' starts.
+#' partition candidates and the border of the chosen partition), the
+#' deploy metadata (system size, region count, condensation record) and
+#' the container's cores and memory (or the ones given, for a machine
+#' other than this one). A memory model per method turns the memory
+#' limit into a third input, so a recommendation never names a method
+#' that would not fit, and `ems_solve()` refuses by name a run the
+#' memory limit would kill.
 #'
-#' Every constant is a named entry of `.auto_thresholds()`, reported in
-#' the auto message and written to model_diagnostics.txt, with its
-#' provenance beside it. Calibration (2026-09): the laptop ladder on the
+#' Every constant is a named entry of `.auto_thresholds()`, printed with
+#' the recommendation, with its provenance beside it. Calibration (2026-09): the laptop ladder on the
 #' HPC box (`teems-dev/hpc/results.csv`, labels `laptop4_*`/`laptop8_*`:
 #' a 16 GB laptop emulated as `--memory 12g` with 4 or 8 cores; static
 #' plain 346k-7.69M and condensed 20k-230k equations, intertemporal
@@ -129,157 +130,6 @@
     NA_real_
   )
   kb * plain_size / 1e6
-}
-
-#' @description Resolve `matrix_method = "auto"`. Returns a list:
-#'   `method` (the chosen method), `decision` (the evidence record
-#'   rendered in the message and model_diagnostics.txt) and `probe`
-#'   (the `teems_probe` object when a probe ran, else `NULL`; the
-#'   caller reuses it for the `pre_probe` verdict so one probe run
-#'   serves both). `pre_probe = TRUE` forces the probe, so its
-#'   structure feeds the decision at any size. `host` is the
-#'   container's cores/memory (`.container_resources()`) or `NULL`;
-#'   `multistep` says whether the solution method factorizes more than
-#'   once (the condensed crossover differs for Johansen).
-#' @keywords internal
-#' @noRd
-.resolve_auto_method <- function(enable_time,
-                                 n_tasks,
-                                 cmf_path,
-                                 pre_probe = FALSE,
-                                 timeID = NULL,
-                                 call = NULL,
-                                 multistep = TRUE,
-                                 host = NULL) {
-  th <- .auto_thresholds()
-  metadata <- .deploy_metadata(cmf_path = cmf_path)
-  system_size <- metadata$system_size
-  n_tasks <- as.integer(n_tasks)
-  condensed <- isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
-  n_backsolve_ele <- metadata$condense$n_backsolve_ele %|||% 0
-
-  size_known <- !is.null(system_size)
-  probe_reason <- NULL
-  probe_skip <- NULL
-  if (isTRUE(pre_probe)) {
-    probe_reason <- "pre_probe"
-  } else if (enable_time) {
-    probe_skip <- "intertemporal: the method is fixed by structure"
-  } else if (n_tasks < 2L) {
-    probe_skip <- "single task"
-  } else if (condensed) {
-    probe_reason <- "condensed static candidate"
-  } else if (!size_known || system_size < th$probe_plain_max) {
-    probe_reason <- "static candidate"
-  } else {
-    probe_skip <- paste0(
-      "plain static above ",
-      format(th$probe_plain_max, big.mark = ",", scientific = FALSE),
-      " equations (the probe costs more than the solve)"
-    )
-  }
-
-  probe <- NULL
-  structure <- NULL
-  if (!is.null(probe_reason)) {
-    .cli_action(solve_info$auto_probe,
-      action = "inform",
-      call = call
-    )
-    probe <- .run_probe(
-      cmf_path = cmf_path,
-      timeID = timeID %|||% .run_id(),
-      call = call
-    )
-    structure <- probe$structure
-    if (!size_known && !is.null(probe$vecsize)) {
-      system_size <- probe$vecsize
-    }
-  }
-
-  d <- .auto_decide(
-    enable_time = enable_time,
-    n_tasks = n_tasks,
-    system_size = system_size,
-    n_reg = metadata$n_reg,
-    structure = structure,
-    th = th,
-    condensed = condensed,
-    n_backsolve_ele = n_backsolve_ele,
-    multistep = multistep,
-    mem_limit_gb = host$mem_gb
-  )
-  d$probe_reason <- probe_reason
-  d$probe_skip <- probe_skip
-
-  chosen <- d$method
-  model_type <- d$model_type
-  .cli_action(solve_info$auto_method,
-    action = "inform",
-    call = call
-  )
-  if (!is.null(probe)) {
-    evidence <- .auto_evidence(d)
-    .cli_action(solve_info$auto_evidence,
-      action = "inform",
-      call = call
-    )
-  }
-  fmt_gb <- function(x) format(round(x, 1), nsmall = 1, trim = TRUE)
-  if (isTRUE(d$memory_arm)) {
-    sbbd_gb <- fmt_gb(d$memory$estimates$SBBD)
-    ndbbd_gb <- fmt_gb(d$memory$estimates$NDBBD)
-    mem_gb <- fmt_gb(d$memory$limit_gb)
-    .cli_action(solve_info$auto_memory_arm,
-      action = "inform",
-      call = call
-    )
-  }
-  if (isTRUE(d$dbbd_memory_blocked)) {
-    dbbd_gb <- fmt_gb(d$memory$estimates$DBBD)
-    mem_gb <- fmt_gb(d$memory$limit_gb)
-    .cli_action(solve_info$auto_dbbd_memory,
-      action = "inform",
-      call = call
-    )
-  }
-  if (isTRUE(d$dbbd_hint)) {
-    .cli_action(solve_info$auto_dbbd_hint,
-      action = "inform",
-      call = call
-    )
-  }
-  if (isTRUE(d$no_chain)) {
-    .cli_action(solve_info$auto_no_chain,
-      action = "inform",
-      call = call
-    )
-  }
-  if (isTRUE(d$lu_excluded)) {
-    la_ceiling <- format(d$lu_ceiling$ceiling, big.mark = ",", scientific = FALSE, trim = TRUE)
-    if (isTRUE(d$lu_unavoidable)) {
-      projected <- format(round(d$lu_ceiling$projected),
-        big.mark = ",", scientific = FALSE, trim = TRUE
-      )
-      .cli_action(solve_wrn$auto_lu_ceiling,
-        action = c("warn", "inform"),
-        call = call
-      )
-    } else {
-      .cli_action(solve_info$auto_lu_excluded,
-        action = c("inform", "inform"),
-        call = call
-      )
-    }
-  } else if (identical(chosen, "LU") && isTRUE(d$lu_ceiling$near)) {
-    la_ceiling <- format(d$lu_ceiling$ceiling, big.mark = ",", scientific = FALSE, trim = TRUE)
-    share <- paste0(round(100 * d$lu_ceiling$share), "%")
-    .cli_action(solve_info$auto_lu_near_ceiling,
-      action = c("inform", "inform"),
-      call = call
-    )
-  }
-  list(method = chosen, decision = d, probe = probe)
 }
 
 #' @description Pure decision rule over the evidence (no I/O), unit
@@ -434,6 +284,94 @@
   finish(d)
 }
 
+#' @description The `ems_probe()` recommendation: method, tasks,
+#'   threads, in-memory switch and scratch directory for the probed
+#'   deployment on `host` (cores, mem_gb), with the evidence, the memory
+#'   estimates and the fits verdict. Pure over the probe object, the
+#'   deploy metadata and the host (unit tested on fixtures and synthetic
+#'   hosts). The recommendation targets the multi-step solution methods;
+#'   where the Johansen crossover differs the alternative is named.
+#' @keywords internal
+#' @noRd
+.probe_recommend <- function(probe,
+                             metadata = NULL,
+                             host = NULL,
+                             th = .auto_thresholds()) {
+  structure <- probe$structure
+  chain <- isTRUE(identical(structure$chain_source, "structural"))
+  system_size <- probe$vecsize %|||% metadata$system_size
+  condensed <- isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
+  n_backsolve_ele <- metadata$condense$n_backsolve_ele %|||% 0
+  cores <- as.integer(host$cores %|||% 1L)
+  # the rank count the method decision is made at: the knee for a
+  # chain, two for a static partition; resolved for the method below
+  provisional <- if (chain) min(th$ranks_sbbd_max, cores) else min(2L, cores)
+  decide <- function(multistep) {
+    .auto_decide(
+      enable_time = chain,
+      n_tasks = provisional,
+      system_size = system_size,
+      n_reg = metadata$n_reg,
+      structure = structure,
+      th = th,
+      condensed = condensed,
+      n_backsolve_ele = n_backsolve_ele,
+      multistep = multistep,
+      mem_limit_gb = host$mem_gb
+    )
+  }
+  d <- decide(TRUE)
+  d_johansen <- decide(FALSE)
+  n_blocks <- if (chain) {
+    d$n_time %|||% (if (isTRUE((metadata$n_time %|||% 0L) > 0L)) metadata$n_time else NULL)
+  } else {
+    d$partition$n_blocks %|||% metadata$n_reg
+  }
+  r <- .resolve_resources(
+    method = d$method,
+    host = host,
+    n_blocks = n_blocks,
+    plain_size = d$plain_size,
+    condensed = d$condensed,
+    th = th
+  )
+  fit <- .memory_fit_check(
+    method = d$method,
+    n_tasks = r$n_tasks,
+    plain_size = d$plain_size,
+    condensed = d$condensed,
+    host = host,
+    th = th,
+    report_only = TRUE
+  )
+  tempdir <- if (identical(d$method, "NDBBD")) "/tmp" else NULL
+  call <- paste0(
+    "ems_solve(cmf_path, matrix_method = \"", d$method, "\"",
+    if (r$n_tasks > 1L) paste0(", n_tasks = ", r$n_tasks) else "",
+    if (r$n_threads > 1L) paste0(", n_threads = ", r$n_threads) else "",
+    ")"
+  )
+  list(
+    matrix_method = d$method,
+    n_tasks = r$n_tasks,
+    n_threads = r$n_threads,
+    inmemory = NULL,
+    tempdir = tempdir,
+    model_type = d$model_type,
+    method_johansen = d_johansen$method,
+    evidence = .auto_evidence(d),
+    rationale = r$rationale,
+    decision = d,
+    host = list(
+      cores = host$cores,
+      mem_gb = host$mem_gb,
+      source = host$source %|||% "container"
+    ),
+    fit = fit,
+    call = call
+  )
+}
+
 #' @description Projected MA48 workspace for a single sequential LU
 #'   factorization, and whether it clears the 32-bit ceiling. Returns
 #'   `NULL` when the probe supplied no nonzero count (the exclusion
@@ -564,7 +502,6 @@
   if ("n_threads" %in% explicit) n_threads <- as.integer(requested$n_threads)
   inmemory <- if ("inmemory" %in% explicit) requested$inmemory else NULL
   list(
-    mode = "auto",
     method = method,
     n_tasks = n_tasks,
     n_threads = n_threads,
@@ -589,7 +526,8 @@
                               condensed = FALSE,
                               host = NULL,
                               th = .auto_thresholds(),
-                              call = NULL) {
+                              call = NULL,
+                              report_only = FALSE) {
   est_gb <- .auto_memory_gb(method, n_tasks, plain_size, condensed, th)
   limit <- host$mem_gb %|||% NA_real_
   rec <- list(
@@ -609,6 +547,9 @@
   fmt_gb <- function(x) format(round(x, 1), nsmall = 1, trim = TRUE)
   if (rec$share > th$mem_abort_ratio) {
     rec$verdict <- "exceeds"
+    if (isTRUE(report_only)) {
+      return(rec)
+    }
     est_gb <- fmt_gb(est_gb)
     mem_gb <- fmt_gb(limit)
     kb_per_eq <- format(round(1e6 * rec$est_gb / plain_size, 2), nsmall = 2, trim = TRUE)
@@ -620,6 +561,9 @@
   }
   if (rec$share > th$mem_fit_share) {
     rec$verdict <- "tight"
+    if (isTRUE(report_only)) {
+      return(rec)
+    }
     est_gb <- fmt_gb(est_gb)
     mem_gb <- fmt_gb(limit)
     share <- paste0(round(100 * rec$share), "%")
@@ -676,70 +620,9 @@
   paste0(size, ", ", chain, ", ", part, ", n_tasks ", d$n_tasks, ceil)
 }
 
-#' @description Lines for the model_diagnostics.txt solve record.
-#' @keywords internal
-#' @noRd
-.auto_record_lines <- function(d) {
-  if (is.null(d)) {
-    return(NULL)
-  }
-  th <- d$thresholds
-  fmt <- function(x) format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
-  fmt_gb <- function(x) if (is.null(x) || is.na(x)) "n/a" else paste0(format(round(x, 2), nsmall = 2, trim = TRUE), " GB")
-  mem_line <- if (is.na(d$memory$limit_gb)) {
-    "  memory: container limit unknown (memory arm and won't-fit check not applied)"
-  } else {
-    est <- d$memory$estimates
-    sprintf(
-      "  memory: container %s; estimates %s%s%s",
-      fmt_gb(d$memory$limit_gb),
-      paste(
-        vapply(names(est), function(m) paste0(m, " ", fmt_gb(est[[m]])), character(1)),
-        collapse = ", "
-      ),
-      if (isTRUE(d$memory_arm)) " -- SBBD does not fit, NDBBD chosen" else "",
-      if (isTRUE(d$dbbd_memory_blocked)) " -- DBBD does not fit, LU kept" else ""
-    )
-  }
-  c(
-    sprintf(
-      "Matrix method auto: %s (%s: %s)", d$method,
-      if (isTRUE(d$probed)) "structural probe" else "deploy metadata",
-      .auto_evidence(d)
-    ),
-    sprintf(
-      "  thresholds: probe_plain_max %s, dbbd_condensed_size %s (Johansen %s), dbbd_hint_min %s, border_share_max %s, mem_fit_share %s, mem_abort_ratio %s",
-      format(th$probe_plain_max, scientific = FALSE),
-      format(th$dbbd_condensed_size, scientific = FALSE),
-      format(th$dbbd_condensed_size_johansen, scientific = FALSE),
-      format(th$dbbd_hint_min, scientific = FALSE),
-      th$border_share_max, th$mem_fit_share, th$mem_abort_ratio
-    ),
-    mem_line,
-    sprintf(
-      "  LU workspace ceiling: %s elements, fill %s%s, advisory share %s%s",
-      format(th$lu_la_ceiling, scientific = FALSE),
-      if (is.null(d$lu_ceiling)) th$lu_fill else d$lu_ceiling$fill,
-      if (is.null(d$lu_ceiling)) " (nnz unknown: exclusion not applied)" else "",
-      th$lu_ceiling_warn_share,
-      if (is.null(d$lu_ceiling)) {
-        ""
-      } else {
-        sprintf(
-          "; nnz %s -> projected %s (%s of ceiling)%s",
-          fmt(d$lu_ceiling$nnz),
-          fmt(round(d$lu_ceiling$projected)),
-          paste0(round(100 * d$lu_ceiling$share, 1), "%"),
-          if (isTRUE(d$lu_excluded)) " -- LU EXCLUDED" else ""
-        )
-      }
-    )
-  )
-}
-
-#' @description Lines for the model_diagnostics.txt solve record:
-#'   the resolved resources (auto or manual), the container inspected
-#'   and the pre-solve memory check.
+#' @description Lines for the model_diagnostics.txt solve record: the
+#'   tasks/threads/scratch the run used, the container inspected and
+#'   the pre-solve memory check.
 #' @keywords internal
 #' @noRd
 .resources_record_lines <- function(r) {
@@ -769,12 +652,11 @@
   }
   c(
     sprintf(
-      "Resources %s: n_tasks %s, n_threads %s, inmemory %s, tempdir %s (%s)%s",
-      r$mode, r$n_tasks, r$n_threads,
+      "Resources: n_tasks %s, n_threads %s, inmemory %s, tempdir %s (%s)",
+      r$n_tasks, r$n_threads,
       if (is.null(r$inmemory)) "solver default" else tolower(as.character(r$inmemory)),
       r$tempdir %|||% "solver default",
-      host,
-      if (identical(r$mode, "auto")) paste0("; ", r$rationale) else ""
+      host
     ),
     fit_line
   )

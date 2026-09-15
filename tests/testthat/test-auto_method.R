@@ -262,7 +262,6 @@ test_that("resources auto follows the measured rank and thread rules", {
   expect_null(.resolve_resources("SBBD", box)$inmemory)
   # no host: one task, one thread
   expect_identical(split(.resolve_resources("SBBD", NULL)), c(1L, 1L))
-  expect_identical(.resolve_resources("SBBD", box)$mode, "auto")
 })
 
 test_that("the memory fit check refuses a run past the error band and warns inside it", {
@@ -282,49 +281,29 @@ test_that("the memory fit check refuses a run past the error band and warns insi
   expect_identical(.memory_fit_check("DBBD", 4L, 7.69e6)$verdict, "unknown")
 })
 
-test_that("auto evidence and record lines render every input", {
+test_that("evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
   expect_match(.auto_evidence(d), "^2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.4%\\), n_tasks 2$")
   d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats)
   expect_match(.auto_evidence(d), "chain alltime \\(3 blocks\\), partition reg \\(12 blocks, border 2.8%\\)")
   d <- .auto_decide(FALSE, 4L, 3485)
   expect_match(.auto_evidence(d), "^3,485 equations, n_tasks 4; structural probe skipped \\(not a candidate\\)")
-  d$probe_skip <- "single task"
-  expect_match(.auto_evidence(d), "skipped \\(single task\\)$")
-  lines <- .auto_record_lines(d)
-  expect_length(lines, 4L)
-  expect_match(lines[1], "^Matrix method auto: LU \\(deploy metadata: 3,485 equations")
-  expect_match(lines[2], "^  thresholds: probe_plain_max 1000000, dbbd_condensed_size 120000 \\(Johansen 70000\\), dbbd_hint_min 300000, border_share_max 0.1, mem_fit_share 0.9, mem_abort_ratio 1.2$")
-  expect_match(lines[3], "container limit unknown")
-  # no probe -> no nonzero count -> the exclusion is recorded as
-  # not applied, so the record still says what was and was not checked
-  expect_match(lines[4], "LU workspace ceiling: 2147483647 elements")
-  expect_match(lines[4], "nnz unknown: exclusion not applied")
-  # with a container the estimates are recorded
-  d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats, mem_limit_gb = 12)
-  rec <- .auto_record_lines(d)
-  expect_match(rec[1], "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations")
-  expect_match(rec[3], "^  memory: container 12.00 GB; estimates DBBD 3.4[78] GB$")
   d <- .auto_decide(FALSE, 2L, 1.3e5, n_reg = 3L, condensed = TRUE, n_backsolve_ele = 60000)
   expect_match(.auto_evidence(d), "^130,000 equations \\(condensed\\), n_tasks 2; structural probe skipped")
-  # with a nonzero count the projection and its share are recorded
-  big <- static_stats
-  big$nnz <- 500e6
-  rec <- .auto_record_lines(.auto_decide(FALSE, 2L, 3485, structure = big))
-  expect_match(rec[4], "nnz 500,000,000 -> projected 6,000,000,000")
-  expect_match(rec[4], "LU EXCLUDED")
-  expect_null(.auto_record_lines(NULL))
-  # the resources record
+  # the solve record
   host <- list(cores = 8L, mem_gb = 12)
   r <- .resolve_resources("SBBD", host, plain_size = 4.5e6)
   r$fit <- .memory_fit_check("SBBD", r$n_tasks, 4.5e6, host = host)
   lines <- .resources_record_lines(r)
   expect_length(lines, 2L)
-  expect_match(lines[1], "^Resources auto: n_tasks 8, n_threads 1, inmemory solver default, tempdir solver default \\(container 8 core\\(s\\), 12.00 GB\\); ranks to the knee")
+  expect_match(lines[1], "^Resources: n_tasks 8, n_threads 1, inmemory solver default, tempdir solver default \\(container 8 core\\(s\\), 12.00 GB\\)$")
   expect_match(lines[2], "^  memory check: SBBD at 8 task\\(s\\) estimated 2.34 GB = 0.52 kB/eq x 4,500,000 plain-equivalent equations -> (19|20)% of 12.00 GB \\(fits\\)$")
-  manual <- list(mode = "manual", method = "LU", n_tasks = 1L, n_threads = 1L, inmemory = FALSE, cores = NULL, mem_gb = NULL, tempdir = "/tmp")
+  manual <- list(method = "LU", n_tasks = 1L, n_threads = 1L, inmemory = FALSE, cores = NULL, mem_gb = NULL, tempdir = "/tmp")
   lines <- .resources_record_lines(manual)
-  expect_match(lines[1], "^Resources manual: n_tasks 1, n_threads 1, inmemory false, tempdir /tmp \\(container not inspected\\)$")
+  expect_match(lines[1], "^Resources: n_tasks 1, n_threads 1, inmemory false, tempdir /tmp \\(container not inspected\\)$")
   expect_match(lines[2], "not applied")
   expect_null(.resources_record_lines(NULL))
+  # the fit check in report mode never aborts
+  expect_identical(.memory_fit_check("DBBD", 4L, 7.69e6, host = host, report_only = TRUE)$verdict, "exceeds")
+  expect_identical(.memory_fit_check("DBBD", 2L, 8.2e6, host = host, report_only = TRUE)$verdict, "tight")
 })

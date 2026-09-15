@@ -1,7 +1,8 @@
 #' @keywords internal
 #' @noRd
 .implement_solve <- function(args_list,
-                             call) {
+                             call,
+                             explicit = character()) {
 
   .check_docker(
     image_name = "teems",
@@ -18,7 +19,8 @@
     a = args_list,
     paths = paths,
     call = call,
-    timeID = timeID
+    timeID = timeID,
+    explicit = explicit
   )
 
   # one solve at a time per deploy directory: runs separated by their own
@@ -106,7 +108,8 @@
     paths = paths,
     call = call,
     status = status,
-    auto_decision = v$auto_decision
+    auto_decision = v$auto_decision,
+    resources_record = v$resources_record
   )
   if (!v$suppress_outputs) {
     output <- ems_compose(cmf_path = v$cmf_path)

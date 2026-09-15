@@ -5,7 +5,8 @@
 .validate_solver_args <- function(a,
                                   paths,
                                   call,
-                                  timeID = NULL) {
+                                  timeID = NULL,
+                                  explicit = character()) {
   
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
@@ -44,6 +45,12 @@
     values = c("single", "double"),
     error_call = call
   )
+  resources <- a$resources
+  a$resources <- rlang::arg_match(
+    arg = resources,
+    values = c("manual", "auto"),
+    error_call = call
+  )
   
   checklist <- c(
     list(
@@ -56,6 +63,7 @@
       n_threads = c("numeric", "integer"),
       precision = "character",
       inmemory = c("NULL", "logical"),
+      resources = "character",
       verbosity = c("NULL", "numeric", "integer"),
       suppress_outputs = "logical",
       terminal_run = "logical",
@@ -285,6 +293,27 @@
   # `auto` may run the structural probe; the probe object is kept so
   # the pre_probe verdict reuses it (one probe run per solve) and the
   # decision record is written to model_diagnostics.txt after the run
+  th <- .auto_thresholds()
+  # the container the solver runs in: cores and memory, read once per
+  # image and session; NULL when the inspection fails, which leaves the
+  # memory checks inert and resources = "auto" on one task
+  host <- .container_resources(
+    image = paste0("teems:", .resolve_docker_tag(quiet = TRUE))
+  )
+  metadata <- .deploy_metadata(cmf_path = paths$cmf)
+  multistep <- !(a$solution_method %=% "Johansen")
+  resources_auto <- a$resources %=% "auto"
+  if (resources_auto && !"n_tasks" %in% explicit) {
+    # provisional rank count for the method decision (the knee for a
+    # chain, two for a static partition); resolved for the chosen
+    # method below
+    cores <- host$cores %|||% 1L
+    a$n_tasks <- if (a$enable_time) {
+      min(th$ranks_sbbd_max, cores)
+    } else {
+      min(2L, cores)
+    }
+  }
   a$auto_decision <- NULL
   a$probe <- NULL
   if (a$matrix_method %=% "auto") {
@@ -294,14 +323,87 @@
       cmf_path = paths$cmf,
       pre_probe = isTRUE(a$pre_probe),
       timeID = timeID,
-      call = call
+      call = call,
+      multistep = multistep,
+      host = host
     )
     a$matrix_method <- auto$method
     a$auto_decision <- auto$decision
     a$probe <- auto$probe
   }
 
-  metadata <- .deploy_metadata(cmf_path = paths$cmf)
+  # plain-equivalent size, condensation and block count for the
+  # resource rules and the memory model: the probe's record when it
+  # ran, else the deploy metadata
+  d <- a$auto_decision
+  condensed <- d$condensed %|||% isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
+  plain_size <- d$plain_size %|||% (
+    if (is.null(metadata$system_size)) {
+      NA_real_
+    } else {
+      metadata$system_size + (metadata$condense$n_backsolve_ele %|||% 0)
+    }
+  )
+  n_blocks <- if (a$enable_time) {
+    d$n_time %|||% (if (isTRUE((metadata$n_time %|||% 0L) > 0L)) metadata$n_time else NULL)
+  } else {
+    d$partition$n_blocks %|||% metadata$n_reg
+  }
+  resources_record <- list(
+    mode = "manual",
+    method = a$matrix_method,
+    n_tasks = as.integer(a$n_tasks),
+    n_threads = as.integer(a$n_threads),
+    inmemory = a$inmemory,
+    cores = host$cores,
+    mem_gb = host$mem_gb
+  )
+  if (resources_auto) {
+    r <- .resolve_resources(
+      method = a$matrix_method,
+      host = host,
+      n_blocks = n_blocks,
+      plain_size = plain_size,
+      condensed = condensed,
+      requested = a[c("n_tasks", "n_threads", "inmemory")],
+      explicit = explicit,
+      th = th
+    )
+    a$n_tasks <- r$n_tasks
+    a$n_threads <- r$n_threads
+    a$inmemory <- r$inmemory
+    resources_record <- r
+    n_tasks <- r$n_tasks
+    n_threads <- r$n_threads
+    method <- a$matrix_method
+    cores <- r$cores
+    mem_gb <- if (is.na(r$mem_gb)) "unknown" else format(round(r$mem_gb, 1), nsmall = 1)
+    rationale <- r$rationale
+    .cli_action(solve_info$auto_resources,
+      action = "inform",
+      call = call
+    )
+  }
+  # the pre-solve memory check (both modes): refused by name past the
+  # model's error band, warned inside it, recorded otherwise
+  resources_record$fit <- .memory_fit_check(
+    method = a$matrix_method,
+    n_tasks = a$n_tasks,
+    plain_size = plain_size,
+    condensed = condensed,
+    host = host,
+    th = th,
+    call = call
+  )
+  # scratch inside the container filesystem for the scratch-backed
+  # runs: docker's /dev/shm is 64 MB by default (Docker Desktop and
+  # plain docker alike) and the solver puts NDBBD's and inmemory 0's
+  # scratch there unless told where else
+  if (is.null(a$tempdir) && (a$matrix_method %=% "NDBBD" || isFALSE(a$inmemory))) {
+    a$tempdir <- "/tmp"
+  }
+  resources_record$tempdir <- a$tempdir
+  a$resources_record <- resources_record
   if (!is.null(metadata)) {
     .advise_condense(
       metadata = metadata,

@@ -1,5 +1,11 @@
 build_solve_err <- function() {
   list(
+    # test-auto_method.R: "the memory fit check refuses a run past the error band"
+    wont_fit = c(
+      "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} exceeds the container's {mem_gb} GB.",
+      "The estimate is {kb_per_eq} kB per equation over {plain_size} plain-equivalent equations (measured 2026-09 on whole containers; conservative by up to a quarter), so the run would be killed by the memory limit, not fail cleanly.",
+      "Remedies: a coarser aggregation, condensation ({.arg backsolve}/{.arg omit} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+    ),
     no_insitu_inputs = "No input files loaded; all files must be passed as named arguments via {.arg ...}.",
     missing_insitu_inputs = "Required files {.val {req_inputs}} not all provided; missing: {.val {missing_files}}.",
     insitu_no_file = "Input file{?s} not found: {.val {nonexist_files}}.",
@@ -171,6 +177,11 @@ build_solve_err <- function() {
 
 build_solve_wrn <- function() {
   list(
+    # test-auto_method.R: "the memory fit check warns inside the model's error band"
+    memory_tight = c(
+      "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit.",
+      "Remedies: a coarser aggregation, condensation ({.arg backsolve}/{.arg omit} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+    ),
     # test-auto_method.R: "no bordered fallback leaves LU with a warning"
     auto_lu_ceiling = c(
       "This system needs about {.val {projected}} elements of MA48 workspace, above the {.val {la_ceiling}}-element limit of the 32-bit HSL build, and no bordered partition is available as an alternative.",
@@ -190,7 +201,11 @@ build_solve_info <- function() {
     auto_method = "{.arg matrix_method} {.val auto}: using {.val {chosen}} for this {model_type} model.",
     # test-ems_solve.R: "matrix_method auto probes the deployed structure"
     auto_evidence = "Structural evidence: {evidence}.",
-    auto_dbbd_hint = "This static model's size favors {.val DBBD}: {.code n_tasks = 4} with {.arg matrix_method} {.val DBBD} (or {.val auto}) may solve faster than single-task {.val LU}.",
+    auto_dbbd_hint = "This static model favors {.val DBBD}: {.code n_tasks = 2} (or {.code resources = \"auto\"}) with {.arg matrix_method} {.val auto} may solve faster than single-task {.val LU}.",
+    # test-ems_solve.R: "the memory arm and resources auto are recorded"
+    auto_memory_arm = "{.val SBBD} at {n_tasks} task{?s} is estimated at {sbbd_gb} GB against the container's {mem_gb} GB; {.val NDBBD} (estimated {ndbbd_gb} GB) is used instead.",
+    auto_dbbd_memory = "{.val DBBD} at {n_tasks} task{?s} would be faster but is estimated at {dbbd_gb} GB against the container's {mem_gb} GB; {.val LU} is used.",
+    auto_resources = "{.arg resources} {.val auto}: {n_tasks} task{?s} x {n_threads} thread{?s} for {.val {method}} on a {cores}-core, {mem_gb} GB container ({rationale}).",
     # test-ems_solve.R: "matrix_method auto probes the deployed structure"
     auto_probe = "{.arg matrix_method} {.val auto}: probing the deployed system's structure (chain dimension, block partition) to choose the method.",
     auto_no_chain = "The model declares intertemporal sets but no equation couples elements through lead/lag offsets; the chain methods ({.val SBBD}, {.val NDBBD}) do not apply and the static family is used.",

@@ -94,6 +94,7 @@ solve_in_situ <- function(...,
                           n_threads = 1L,
                           precision = c("single", "double"),
                           inmemory = NULL,
+                          resources = c("manual", "auto"),
                           verbosity = NULL,
                           suppress_outputs = FALSE,
                           terminal_run = FALSE,
@@ -174,6 +175,7 @@ return(.implement_solve_in_situ(
   n_threads = n_threads,
   precision = precision,
   inmemory = inmemory,
+  resources = resources,
   verbosity = verbosity,
   suppress_outputs = suppress_outputs,
   terminal_run = terminal_run,
@@ -183,6 +185,7 @@ return(.implement_solve_in_situ(
   postsim = postsim,
   complementarity = complementarity,
   solver_args = solver_args,
-  call = call
+  call = call,
+  explicit = intersect(c("n_tasks", "n_threads", "inmemory"), names(call))
 ))
 }

@@ -164,14 +164,14 @@
       structure solver binary outputs:
       `ems_compose("<cache>/solve/solve_auto_dynamic/GTAP-RE.cmf")`
 
-# matrix_method auto selects DBBD for large static deployments
+# matrix_method auto selects DBBD for static deployments from the probe
 
     Code
       ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE)
     Message
       i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
       i `matrix_method` "auto": using "DBBD" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
+      i Structural evidence: 900,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -192,7 +192,7 @@
       ems_solve(cmf_path, terminal_run = TRUE)
     Message
       i `matrix_method` "auto": using "LU" for this static model.
-      i This static model's size favors "DBBD": `n_tasks = 4` with `matrix_method` "DBBD" (or "auto") may solve faster than single-task "LU".
+      i This static model favors "DBBD": `n_tasks = 2` (or `resources = "auto"`) with `matrix_method` "auto" may solve faster than single-task "LU".
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -214,7 +214,7 @@
     Message
       i `matrix_method` "auto": probing the deployed system's structure (chain dimension, block partition) to choose the method.
       i `matrix_method` "auto": using "LU" for this static model.
-      i Structural evidence: 2,500,000 equations, no chain, partition demd (9 blocks, border 15.6%), n_tasks 4.
+      i Structural evidence: 900,000 equations, no chain, partition demd (9 blocks, border 15.6%), n_tasks 4.
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_dbbd,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 4 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -228,6 +228,46 @@
       4. If no errors or singularities are detected, use the following expression to
       structure solver binary outputs:
       `ems_compose("<cache>/solve/solve_auto_dbbd/GTAPv7.cmf")`
+
+# matrix_method auto skips the probe on a large plain static system and decides from the region count
+
+    Code
+      ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE)
+    Message
+      i `matrix_method` "auto": using "DBBD" for this static model.
+      i `terminal_run` activated. To solve and compose outputs:
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_metadata,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      
+      1. Run the above command in your OS terminal.
+      2. If errors are present in the terminal output during an ongoing run, it is
+      possible to stop the relevant teems-solver process early according to your
+      OS-specific system activity monitor.
+      3. Any error and/or singularity indicators will be present in the model
+      diagnostic output:
+      '<cache>/solve/solve_auto_metadata/out/solver_out_HHMM.txt'.
+      4. If no errors or singularities are detected, use the following expression to
+      structure solver binary outputs:
+      `ems_compose("<cache>/solve/solve_auto_metadata/GTAPv7.cmf")`
+
+---
+
+    Code
+      ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE)
+    Message
+      i `matrix_method` "auto": using "LU" for this static model.
+      i `terminal_run` activated. To solve and compose outputs:
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_auto_metadata,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 4 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200   -maxthreads 1 -nox 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      
+      1. Run the above command in your OS terminal.
+      2. If errors are present in the terminal output during an ongoing run, it is
+      possible to stop the relevant teems-solver process early according to your
+      OS-specific system activity monitor.
+      3. Any error and/or singularity indicators will be present in the model
+      diagnostic output:
+      '<cache>/solve/solve_auto_metadata/out/solver_out_HHMM.txt'.
+      4. If no errors or singularities are detected, use the following expression to
+      structure solver binary outputs:
+      `ems_compose("<cache>/solve/solve_auto_metadata/GTAPv7.cmf")`
 
 # a second solve in one deploy directory is refused by name
 
@@ -249,6 +289,10 @@
       i `matrix_method` "auto": using "DBBD" for this static model.
       i Structural evidence: 2,500,000 equations, no chain, partition reg (3 blocks, border 6.5%), n_tasks 2.
       i Structural probe: full structural rank 3494 of 3494; the closure is structurally valid.
+
+# resources auto resolves tasks and threads from the container and records them
+
+    `resources` must be one of "manual" or "auto", not "yes".
 
 # condensed deployments are advised against bordered methods (roadmap 6.2)
 

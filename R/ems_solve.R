@@ -142,34 +142,68 @@
 #'   in-memory for all methods except `"NDBBD"`). The solver
 #'   falls back to scratch files with a warning if the estimated
 #'   memory requirement exceeds what is available.
+#' @param resources Character length 1, `"manual"` (default) or
+#'   `"auto"`. `"manual"` runs with the `n_tasks`, `n_threads` and
+#'   `inmemory` given. `"auto"` reads the container's cores and memory
+#'   (one throwaway container per session; Docker Desktop's Resources
+#'   setting is what a laptop reports) and resolves them for the
+#'   matrix method from the measured rules: `"SBBD"` takes ranks to
+#'   the knee (`min(8, cores, blocks)`) and gives the remaining cores
+#'   to threads; `"DBBD"` takes two ranks on a laptop (up to eight
+#'   where cores and the memory model allow) and threads for the
+#'   rest; `"LU"` one rank with up to eight threads; `"NDBBD"` one
+#'   rank and every core. Any of the three arguments passed
+#'   explicitly keeps its value. The resolved values, the container
+#'   inspected and the memory estimate are reported and written to
+#'   `model_diagnostics.txt`. In both modes, when the container's
+#'   memory is known, a run whose estimated peak exceeds it by more
+#'   than the model's error band is refused before it starts, with
+#'   the estimate, the limit and the remedies named; a run inside the
+#'   band is warned about.
 #' @param verbosity Integer length 1 (`0`, `1`, or `2`) or `NULL`
 #'   (default, equivalent to the solver default of `1`). Solver
 #'   log detail: `0` restricts output to errors, warnings, and
 #'   the accuracy summary; `1` adds phase progress and timings;
 #'   `2` adds per-rank and per-block debug detail.
-#' @details `matrix_method = "auto"` selects `"SBBD"` for
-#'   intertemporal models (fastest on every benchmarked shape,
-#'   including single-task runs) and `"LU"` for static models,
-#'   switching to `"DBBD"` when `n_tasks >= 2`, the deployed system
-#'   is large (roughly 2 million or more equations, or 1.5 million
-#'   with 100+ diagonal blocks) and the solver's structural probe of
-#'   the deployment finds a block partition with at least `n_tasks`
-#'   blocks and a border below a tenth of the system. The probe (a
-#'   sub-second run on small models; the same run `pre_probe` uses,
-#'   never launched twice) is skipped when the deploy metadata already
-#'   settles the choice: static single-task runs and static systems
-#'   below 1.5 million equations resolve to `"LU"` without it. When it
-#'   runs, its evidence -- chain dimension, chosen partition, block
-#'   count and border share -- is reported with the selection and
-#'   written, together with the threshold values used, into
-#'   `model_diagnostics.txt`. A model that declares intertemporal sets
-#'   but couples no equation through lead/lag offsets is measured as
-#'   static. The thresholds are calibrated on 1-4 task benchmarks;
-#'   the `"SBBD"` to `"NDBBD"` escalation is plumbed but disabled
-#'   until measured. Set `matrix_method` explicitly to override the
-#'   selection. Runs without deploy metadata (e.g.
-#'   [`solve_in_situ()`]) probe when `n_tasks >= 2` and take the
-#'   system size from the probe.
+#' @details `matrix_method = "auto"` selects the method from the
+#'   model type, the deployed system's size and condensation record,
+#'   the measured structure where a probe is cheap, and the
+#'   container's memory. Intertemporal models take `"SBBD"` (fastest
+#'   at every measured size, 2.4 to 230 million equations; ranks beat
+#'   threads at every core count) and fall back to `"NDBBD"` only when
+#'   the memory model says SBBD's host copy does not fit the container.
+#'   Static models take `"LU"` at a single task. At `n_tasks >= 2` an
+#'   uncondensed static system takes `"DBBD"` at any size where a
+#'   block partition with enough blocks exists (measured faster than
+#'   LU at every rung from 346 thousand to 7.7 million equations), and
+#'   a condensed one (in-TAB `Backsolve`, the vetted GTAP models'
+#'   default) takes `"DBBD"` from about 120 thousand condensed
+#'   equations for multi-step methods and 70 thousand for Johansen,
+#'   where threaded LU stops winning -- provided DBBD's memory estimate
+#'   fits the container. The structural probe (the same run
+#'   `pre_probe` uses, never launched twice) supplies the partition
+#'   evidence where it is cheap: always on condensed systems (seconds),
+#'   on uncondensed static systems below one million equations, never
+#'   on intertemporal ones; above that the deploy metadata's region
+#'   count stands in. Its evidence -- chain dimension, chosen
+#'   partition, block count and border share -- is reported with the
+#'   selection and written, with the constants used and the memory
+#'   estimates, into `model_diagnostics.txt`. A model that declares
+#'   intertemporal sets but couples no equation through lead/lag
+#'   offsets is measured as static. The constants were measured on the
+#'   2026-09 laptop ladder (12 GB, 4 and 8 cores) and the top-end
+#'   cells (teems-solver `hpc_auto_plan.md`); set `matrix_method`
+#'   explicitly to override the selection. Runs without deploy
+#'   metadata (e.g. [`solve_in_situ()`]) probe when `n_tasks >= 2` and
+#'   take the system size from the probe.
+#'
+#'   The memory model behind the fit checks is peak GB per
+#'   plain-equivalent equation (the solved system plus the backsolved
+#'   elements, since condensation cuts equations twentyfold but not
+#'   peak memory): LU about 0.9 kB, DBBD 0.85 + 0.27 per rank kB
+#'   (1.55 times that when condensed), SBBD 0.36 + 0.02 per rank kB,
+#'   NDBBD 0.15 per rank kB; measured on whole containers under Gragg,
+#'   conservative by up to a quarter on small systems.
 #'
 #'   Condensation interacts with that choice. Backsolving (see the
 #'   `backsolve` argument of [`ems_model()`]) substitutes variables
@@ -260,6 +294,7 @@ ems_solve <- function(cmf_path,
                       n_threads = 1L,
                       precision = c("single", "double"),
                       inmemory = NULL,
+                      resources = c("manual", "auto"),
                       verbosity = NULL,
                       suppress_outputs = FALSE,
                       terminal_run = FALSE,
@@ -304,9 +339,13 @@ for (nm in names(dots)) {
   }
 }
 args_list <- c(mget(setdiff(names(formals()), "...")), rk_args, xtr_args)
+# resource arguments the caller wrote out keep their values under
+# resources = "auto"
+explicit <- intersect(c("n_tasks", "n_threads", "inmemory"), names(call))
 output <- .implement_solve(
   args_list = args_list,
-  call = call
+  call = call,
+  explicit = explicit
 )
 if (is.null(output)) invisible(output) else output
 }

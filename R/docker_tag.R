@@ -92,7 +92,7 @@
 
 #' @keywords internal
 #' @noRd
-.resolve_docker_tag <- function() {
+.resolve_docker_tag <- function(quiet = FALSE) {
   explicit <- ems_options$docker_tag
   if (!is.null(explicit)) {
     return(explicit)
@@ -102,9 +102,11 @@
     candidates <- unique(c(level, sub("^x86-64-", "", level)))
     for (tag in candidates) {
       if (.docker_image_present(paste0("teems:", tag))) {
-        .cli_action(solve_info$docker_tag_auto,
-          action = "inform"
-        )
+        if (!quiet) {
+          .cli_action(solve_info$docker_tag_auto,
+            action = "inform"
+          )
+        }
         return(tag)
       }
     }

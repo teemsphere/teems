@@ -15,6 +15,7 @@ ems_solve(
   n_threads = 1L,
   precision = c("single", "double"),
   inmemory = NULL,
+  resources = c("manual", "auto"),
   verbosity = NULL,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
@@ -146,6 +147,25 @@ in-memory for all methods except \code{"NDBBD"}). The solver
 falls back to scratch files with a warning if the estimated
 memory requirement exceeds what is available.}
 
+\item{resources}{Character length 1, \code{"manual"} (default) or
+\code{"auto"}. \code{"manual"} runs with the \code{n_tasks}, \code{n_threads} and
+\code{inmemory} given. \code{"auto"} reads the container's cores and memory
+(one throwaway container per session; Docker Desktop's Resources
+setting is what a laptop reports) and resolves them for the
+matrix method from the measured rules: \code{"SBBD"} takes ranks to
+the knee (\code{min(8, cores, blocks)}) and gives the remaining cores
+to threads; \code{"DBBD"} takes two ranks on a laptop (up to eight
+where cores and the memory model allow) and threads for the
+rest; \code{"LU"} one rank with up to eight threads; \code{"NDBBD"} one
+rank and every core. Any of the three arguments passed
+explicitly keeps its value. The resolved values, the container
+inspected and the memory estimate are reported and written to
+\code{model_diagnostics.txt}. In both modes, when the container's
+memory is known, a run whose estimated peak exceeds it by more
+than the model's error band is refused before it starts, with
+the estimate, the limit and the remedies named; a run inside the
+band is warned about.}
+
 \item{verbosity}{Integer length 1 (\code{0}, \code{1}, or \code{2}) or \code{NULL}
 (default, equivalent to the solver default of \code{1}). Solver
 log detail: \code{0} restricts output to errors, warnings, and
@@ -243,29 +263,45 @@ Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
 \details{
-\code{matrix_method = "auto"} selects \code{"SBBD"} for
-intertemporal models (fastest on every benchmarked shape,
-including single-task runs) and \code{"LU"} for static models,
-switching to \code{"DBBD"} when \code{n_tasks >= 2}, the deployed system
-is large (roughly 2 million or more equations, or 1.5 million
-with 100+ diagonal blocks) and the solver's structural probe of
-the deployment finds a block partition with at least \code{n_tasks}
-blocks and a border below a tenth of the system. The probe (a
-sub-second run on small models; the same run \code{pre_probe} uses,
-never launched twice) is skipped when the deploy metadata already
-settles the choice: static single-task runs and static systems
-below 1.5 million equations resolve to \code{"LU"} without it. When it
-runs, its evidence -- chain dimension, chosen partition, block
-count and border share -- is reported with the selection and
-written, together with the threshold values used, into
-\code{model_diagnostics.txt}. A model that declares intertemporal sets
-but couples no equation through lead/lag offsets is measured as
-static. The thresholds are calibrated on 1-4 task benchmarks;
-the \code{"SBBD"} to \code{"NDBBD"} escalation is plumbed but disabled
-until measured. Set \code{matrix_method} explicitly to override the
-selection. Runs without deploy metadata (e.g.
-\code{\link[=solve_in_situ]{solve_in_situ()}}) probe when \code{n_tasks >= 2} and take the
-system size from the probe.
+\code{matrix_method = "auto"} selects the method from the
+model type, the deployed system's size and condensation record,
+the measured structure where a probe is cheap, and the
+container's memory. Intertemporal models take \code{"SBBD"} (fastest
+at every measured size, 2.4 to 230 million equations; ranks beat
+threads at every core count) and fall back to \code{"NDBBD"} only when
+the memory model says SBBD's host copy does not fit the container.
+Static models take \code{"LU"} at a single task. At \code{n_tasks >= 2} an
+uncondensed static system takes \code{"DBBD"} at any size where a
+block partition with enough blocks exists (measured faster than
+LU at every rung from 346 thousand to 7.7 million equations), and
+a condensed one (in-TAB \code{Backsolve}, the vetted GTAP models'
+default) takes \code{"DBBD"} from about 120 thousand condensed
+equations for multi-step methods and 70 thousand for Johansen,
+where threaded LU stops winning -- provided DBBD's memory estimate
+fits the container. The structural probe (the same run
+\code{pre_probe} uses, never launched twice) supplies the partition
+evidence where it is cheap: always on condensed systems (seconds),
+on uncondensed static systems below one million equations, never
+on intertemporal ones; above that the deploy metadata's region
+count stands in. Its evidence -- chain dimension, chosen
+partition, block count and border share -- is reported with the
+selection and written, with the constants used and the memory
+estimates, into \code{model_diagnostics.txt}. A model that declares
+intertemporal sets but couples no equation through lead/lag
+offsets is measured as static. The constants were measured on the
+2026-09 laptop ladder (12 GB, 4 and 8 cores) and the top-end
+cells (teems-solver \code{hpc_auto_plan.md}); set \code{matrix_method}
+explicitly to override the selection. Runs without deploy
+metadata (e.g. \code{\link[=solve_in_situ]{solve_in_situ()}}) probe when \code{n_tasks >= 2} and
+take the system size from the probe.
+
+The memory model behind the fit checks is peak GB per
+plain-equivalent equation (the solved system plus the backsolved
+elements, since condensation cuts equations twentyfold but not
+peak memory): LU about 0.9 kB, DBBD 0.85 + 0.27 per rank kB
+(1.55 times that when condensed), SBBD 0.36 + 0.02 per rank kB,
+NDBBD 0.15 per rank kB; measured on whole containers under Gragg,
+conservative by up to a quarter on small systems.
 
 Condensation interacts with that choice. Backsolving (see the
 \code{backsolve} argument of \code{\link[=ems_model]{ems_model()}}) substitutes variables

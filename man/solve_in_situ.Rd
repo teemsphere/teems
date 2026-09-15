@@ -24,6 +24,7 @@ solve_in_situ(
   n_threads = 1L,
   precision = c("single", "double"),
   inmemory = NULL,
+  resources = c("manual", "auto"),
   verbosity = NULL,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
@@ -205,6 +206,25 @@ files; when \code{FALSE}, scratch files are used. The default
 in-memory for all methods except \code{"NDBBD"}). The solver
 falls back to scratch files with a warning if the estimated
 memory requirement exceeds what is available.}
+
+\item{resources}{Character length 1, \code{"manual"} (default) or
+\code{"auto"}. \code{"manual"} runs with the \code{n_tasks}, \code{n_threads} and
+\code{inmemory} given. \code{"auto"} reads the container's cores and memory
+(one throwaway container per session; Docker Desktop's Resources
+setting is what a laptop reports) and resolves them for the
+matrix method from the measured rules: \code{"SBBD"} takes ranks to
+the knee (\code{min(8, cores, blocks)}) and gives the remaining cores
+to threads; \code{"DBBD"} takes two ranks on a laptop (up to eight
+where cores and the memory model allow) and threads for the
+rest; \code{"LU"} one rank with up to eight threads; \code{"NDBBD"} one
+rank and every core. Any of the three arguments passed
+explicitly keeps its value. The resolved values, the container
+inspected and the memory estimate are reported and written to
+\code{model_diagnostics.txt}. In both modes, when the container's
+memory is known, a run whose estimated peak exceeds it by more
+than the model's error band is refused before it starts, with
+the estimate, the limit and the remedies named; a run inside the
+band is warned about.}
 
 \item{verbosity}{Integer length 1 (\code{0}, \code{1}, or \code{2}) or \code{NULL}
 (default, equivalent to the solver default of \code{1}). Solver

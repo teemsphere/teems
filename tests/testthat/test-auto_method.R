@@ -1,9 +1,9 @@
-# matrix_method = "auto" decision rule (ROADMAP 6.10): pure rules over
-# probe evidence, exercised on -solmed probe stats.json fixtures from
-# the GTAPv7 (static) and GTAP-RE (intertemporal) goldens plus
-# synthetic variants. Thresholds are placeholders (see .auto_thresholds)
-# and are passed explicitly where a rule branch needs a value the
-# placeholders keep dormant.
+# matrix_method = "auto" decision rule (ROADMAP 6.10) and the
+# resources = "auto" resolution: pure rules over probe evidence, deploy
+# metadata and the container's memory, exercised on -solmed probe
+# stats.json fixtures from the GTAPv7 (static) and GTAP-RE
+# (intertemporal) goldens plus synthetic variants. The constants are
+# the 2026-09 laptop-ladder measurements (see .auto_thresholds).
 fx <- test_path("fixtures", "probe")
 static_stats <- .probe_stats(jsonlite::fromJSON(file.path(fx, "structural_static.stats.json")))
 inter_stats <- .probe_stats(jsonlite::fromJSON(file.path(fx, "structural_inter.stats.json")))
@@ -46,31 +46,65 @@ test_that("partition replay follows the solver's selection at the solve's rank c
   expect_null(.auto_partition(NULL, n_tasks = 2L))
 })
 
-test_that("static auto chooses DBBD from probe evidence and LU otherwise", {
-  # large system, viable partition with enough blocks, small border
-  d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
+test_that("plain static auto takes DBBD wherever a partition serves the tasks", {
+  # DBBD beat LU at every measured plain rung (346k-7.69M): no size gate
+  d <- .auto_decide(FALSE, 2L, 3485, structure = static_stats)
   expect_identical(d$method, "DBBD")
   expect_identical(d$source, "probe")
   expect_true(d$probed)
-  # too small for DBBD despite a viable partition
-  expect_identical(.auto_decide(FALSE, 2L, 3485, structure = static_stats)$method, "LU")
+  expect_false(d$condensed)
+  expect_identical(.auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)$method, "DBBD")
   # not enough blocks for the tasks -> next candidate's border too wide
   expect_identical(.auto_decide(FALSE, 4L, 2.5e6, structure = static_stats)$method, "LU")
   # a border ceiling that admits demd's 15% border flips it
   wide <- th
   wide$border_share_max <- 0.2
   expect_identical(.auto_decide(FALSE, 4L, 2.5e6, structure = static_stats, th = wide)$method, "DBBD")
-  # single task: LU with the DBBD hint
+  # single task: LU, with the hint from the smallest measured rung up
   d1 <- .auto_decide(FALSE, 1L, 2.5e6, structure = static_stats)
   expect_identical(d1$method, "LU")
   expect_true(d1$dbbd_hint)
-  # many-blocks size gate
-  many <- static_stats
-  many$partition_auto$nblocks[many$partition_auto$set == "reg"] <- 120L
-  expect_identical(.auto_decide(FALSE, 2L, 1.6e6, structure = many)$method, "DBBD")
-  expect_identical(.auto_decide(FALSE, 2L, 1.6e6, structure = static_stats)$method, "LU")
-  # size unknown -> LU
-  expect_identical(.auto_decide(FALSE, 2L, NULL, structure = static_stats)$method, "LU")
+  expect_false(.auto_decide(FALSE, 1L, 3485, structure = static_stats)$dbbd_hint)
+  # size unknown: the partition evidence still decides
+  expect_identical(.auto_decide(FALSE, 2L, NULL, structure = static_stats)$method, "DBBD")
+})
+
+test_that("condensed static auto keeps threaded LU below the crossover", {
+  cond <- static_stats
+  cond$nbacksolve <- 60L
+  cond$nbselems <- 60000
+  # multi-step: threaded LU wins to 110k condensed eq, ties at 140k
+  expect_identical(.auto_decide(FALSE, 2L, 1e5, structure = cond)$method, "LU")
+  expect_identical(.auto_decide(FALSE, 2L, 1.3e5, structure = cond)$method, "DBBD")
+  # Johansen crosses at 70k
+  expect_identical(.auto_decide(FALSE, 2L, 1e5, structure = cond, multistep = FALSE)$method, "DBBD")
+  expect_identical(.auto_decide(FALSE, 2L, 6e4, structure = cond, multistep = FALSE)$method, "LU")
+  # the record carries the condensation and the plain-equivalent size
+  d <- .auto_decide(FALSE, 2L, 1.3e5, structure = cond)
+  expect_true(d$condensed)
+  expect_equal(d$plain_size, 1.3e5 + 60000)
+  # metadata-only: the deploy record supplies the same facts
+  m <- .auto_decide(FALSE, 2L, 1.3e5, n_reg = 3L, condensed = TRUE, n_backsolve_ele = 60000)
+  expect_identical(m$method, "DBBD")
+  expect_identical(m$source, "metadata")
+  expect_equal(m$plain_size, 1.9e5)
+  expect_identical(.auto_decide(FALSE, 2L, 1e5, n_reg = 3L, condensed = TRUE)$method, "LU")
+  # single task: the hint applies above the crossover
+  expect_true(.auto_decide(FALSE, 1L, 1.3e5, n_reg = 3L, condensed = TRUE)$dbbd_hint)
+  expect_false(.auto_decide(FALSE, 1L, 1e5, n_reg = 3L, condensed = TRUE)$dbbd_hint)
+})
+
+test_that("static auto without a probe decides from the region count", {
+  # plain static above the probe cap: DBBD when the regions serve the tasks
+  expect_identical(.auto_decide(FALSE, 2L, 2.5e6, n_reg = 3L)$method, "DBBD")
+  expect_identical(.auto_decide(FALSE, 4L, 2.5e6, n_reg = 3L)$method, "LU")
+  d <- .auto_decide(FALSE, 2L, 2.5e6)
+  expect_identical(d$method, "LU")
+  expect_identical(d$source, "metadata")
+  expect_false(d$probed)
+  expect_identical(.auto_decide(FALSE, 2L, NULL)$source, "none")
+  expect_true(.auto_decide(FALSE, 1L, 2.5e6, n_reg = 3L)$dbbd_hint)
+  expect_false(.auto_decide(FALSE, 1L, 2e5, n_reg = 3L)$dbbd_hint)
 })
 
 test_that("the 32-bit LU workspace ceiling is a hard exclusion", {
@@ -99,11 +133,13 @@ test_that("the 32-bit LU workspace ceiling is a hard exclusion", {
 })
 
 test_that("an excluded LU falls through to the bordered method", {
-  big <- static_stats
+  # a condensed small system every performance gate leaves on LU
+  cond_small <- static_stats
+  cond_small$nbacksolve <- 60L
+  expect_identical(.auto_decide(FALSE, 2L, 3485, structure = cond_small)$method, "LU")
+  big <- cond_small
   big$nnz <- 500e6
-  # small system that every performance gate would have left on LU:
   # the ceiling overrides the crossover and the border-share guard
-  expect_identical(.auto_decide(FALSE, 2L, 3485, structure = static_stats)$method, "LU")
   d <- .auto_decide(FALSE, 2L, 3485, structure = big)
   expect_identical(d$method, "DBBD")
   expect_true(d$lu_excluded)
@@ -120,42 +156,72 @@ test_that("an excluded LU falls through to the bordered method", {
   expect_true(d2$lu_excluded)
   expect_true(d2$lu_unavoidable)
   # under the ceiling nothing changes
-  small <- static_stats
+  small <- cond_small
   small$nnz <- 1e6
   expect_identical(.auto_decide(FALSE, 2L, 3485, structure = small)$method, "LU")
   expect_false(.auto_decide(FALSE, 2L, 3485, structure = small)$lu_excluded)
-  # a probe with no nnz leaves the old behaviour untouched
+  # a probe with no nnz leaves the exclusion unapplied
   expect_false(.auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)$lu_excluded)
 })
 
-test_that("static auto without a probe is metadata-only", {
-  d <- .auto_decide(FALSE, 2L, 2.5e6)
-  expect_identical(d$method, "LU")
-  expect_identical(d$source, "metadata")
-  expect_false(d$probed)
-  expect_true(.auto_decide(FALSE, 1L, 2.5e6)$dbbd_hint)
-  expect_true(.auto_decide(FALSE, 1L, 1.6e6, n_reg = 163L)$dbbd_hint)
-  expect_false(.auto_decide(FALSE, 1L, 1.6e6, n_reg = 33L)$dbbd_hint)
-  expect_identical(.auto_decide(FALSE, 2L, NULL)$source, "none")
+test_that("the memory model reproduces the ladder's binding cells", {
+  # S90P DBBD at 2 ranks (7.69M plain): 10.8-11.2 GB measured
+  expect_equal(.auto_memory_gb("DBBD", 2L, 7.69e6), 7.69e6 * (0.85 + 2 * 0.27) / 1e6)
+  expect_lt(abs(.auto_memory_gb("DBBD", 2L, 7.69e6) - 10.7), 0.1)
+  # I-long-big SBBD at 8 ranks (21.9M): 9.98 GB measured, within 15 %
+  expect_lt(abs(.auto_memory_gb("SBBD", 8L, 21.9e6) / 9.98 - 1), 0.15)
+  # condensed DBBD = 1.55x the plain rig's DBBD at the same plain size
+  expect_equal(
+    .auto_memory_gb("DBBD", 2L, 3.77e6, condensed = TRUE) / .auto_memory_gb("DBBD", 2L, 3.77e6),
+    1.55
+  )
+  # NDBBD on one rank at Q34 (234M): tables 34.7 GB measured, estimate above it
+  expect_equal(.auto_memory_gb("NDBBD", 1L, 234e6), 234 * 0.20)
+  expect_gt(.auto_memory_gb("NDBBD", 1L, 234e6), 34.7)
+  # unknown size or method
+  expect_true(is.na(.auto_memory_gb("LU", 1L, NA_real_)))
+  expect_true(is.na(.auto_memory_gb("LU", 1L, NULL)))
+  expect_true(is.na(.auto_memory_gb("other", 1L, 1e6)))
 })
 
-test_that("intertemporal auto stays SBBD unless the NDBBD escalation is enabled", {
+test_that("intertemporal auto is SBBD, NDBBD only through the memory arm", {
   expect_identical(.auto_decide(TRUE, 4L, 10524)$method, "SBBD")
   expect_identical(.auto_decide(TRUE, 4L, 10524, structure = inter_stats)$method, "SBBD")
-  # placeholder keeps the escalation dormant even at many tasks
   expect_identical(.auto_decide(TRUE, 32L, 4.4e6, structure = inter_stats)$method, "SBBD")
-  esc <- th
-  esc$ndbbd_n_tasks <- 4L
-  d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats, th = esc)
-  expect_identical(d$method, "NDBBD")
+  d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats)
   expect_identical(d$chain_set, "alltime")
   expect_identical(d$chain_border, 18L)
-  # not enough nested blocks for the tasks -> SBBD
-  expect_identical(.auto_decide(TRUE, 16L, 10524, structure = inter_stats, th = esc)$method, "SBBD")
-  # wide nested border -> SBBD
-  narrow <- esc
-  narrow$border_share_max <- 0.01
-  expect_identical(.auto_decide(TRUE, 4L, 10524, structure = inter_stats, th = narrow)$method, "SBBD")
+  # Q34-sized system (234M) on a 60 GB container at one task: SBBD's
+  # 89 GB does not fit, NDBBD's 47 GB does
+  d <- .auto_decide(TRUE, 1L, 234e6, mem_limit_gb = 60)
+  expect_identical(d$method, "NDBBD")
+  expect_true(d$memory_arm)
+  expect_equal(d$memory$estimates$SBBD, 234 * 0.38)
+  expect_equal(d$memory$estimates$NDBBD, 234 * 0.20)
+  expect_equal(d$memory$chosen_gb, 234 * 0.20)
+  # at 8 tasks on 125 GB neither fits: SBBD stands and the fit check speaks
+  d <- .auto_decide(TRUE, 8L, 234e6, mem_limit_gb = 125)
+  expect_identical(d$method, "SBBD")
+  expect_false(d$memory_arm)
+  # unknown limit: the arm is inert
+  expect_identical(.auto_decide(TRUE, 1L, 234e6)$method, "SBBD")
+  expect_true(is.na(.auto_decide(TRUE, 1L, 234e6)$memory$limit_gb))
+})
+
+test_that("DBBD is not chosen where its estimate does not fit the container", {
+  # S90C-like: 230k condensed of 7.69M plain on a 12 GB laptop -> the
+  # condensed DBBD estimate (16.6 GB) exceeds it, LU stays
+  d <- .auto_decide(FALSE, 2L, 2.3e5,
+    n_reg = 30L, condensed = TRUE, n_backsolve_ele = 7.46e6, mem_limit_gb = 12
+  )
+  expect_identical(d$method, "LU")
+  expect_true(d$dbbd_memory_blocked)
+  # S56C-like: 140k condensed of 3.77M plain -> 8.1 GB fits
+  d <- .auto_decide(FALSE, 2L, 1.4e5,
+    n_reg = 30L, condensed = TRUE, n_backsolve_ele = 3.63e6, mem_limit_gb = 12
+  )
+  expect_identical(d$method, "DBBD")
+  expect_false(d$dbbd_memory_blocked)
 })
 
 test_that("a declared intertemporal model without a chain falls to the static family", {
@@ -165,28 +231,100 @@ test_that("a declared intertemporal model without a chain falls to the static fa
   expect_identical(.auto_decide(TRUE, 1L, 10524, structure = static_stats)$method, "LU")
 })
 
+test_that("resources auto follows the measured rank and thread rules", {
+  laptop4 <- list(cores = 4L, mem_gb = 12)
+  laptop8 <- list(cores = 8L, mem_gb = 12)
+  box <- list(cores = 32L, mem_gb = 125)
+  split <- function(r) c(r$n_tasks, r$n_threads)
+  # SBBD: ranks to the knee (cap 8), threads take the rest
+  expect_identical(split(.resolve_resources("SBBD", laptop8)), c(8L, 1L))
+  expect_identical(split(.resolve_resources("SBBD", laptop4)), c(4L, 1L))
+  expect_identical(split(.resolve_resources("SBBD", box)), c(8L, 4L))
+  expect_identical(split(.resolve_resources("SBBD", box, n_blocks = 3L)), c(3L, 8L))
+  # DBBD: two ranks on a laptop, up to eight on a box
+  expect_identical(split(.resolve_resources("DBBD", laptop8)), c(2L, 4L))
+  expect_identical(split(.resolve_resources("DBBD", laptop4)), c(2L, 2L))
+  expect_identical(split(.resolve_resources("DBBD", box)), c(8L, 4L))
+  # memory pulls the DBBD rank count back (S-full 40.5M: 8 ranks 122 GB, 4 ranks 78 GB)
+  expect_identical(split(.resolve_resources("DBBD", box, plain_size = 40.5e6)), c(4L, 8L))
+  # LU: one rank, threads for the condensed factorization
+  expect_identical(split(.resolve_resources("LU", laptop8)), c(1L, 8L))
+  expect_identical(split(.resolve_resources("LU", box)), c(1L, 8L))
+  # NDBBD: one rank, every core (the solver budgets its regions)
+  expect_identical(split(.resolve_resources("NDBBD", box)), c(1L, 32L))
+  # explicit values stay, the rest is resolved around them
+  r <- .resolve_resources("SBBD", box,
+    requested = list(n_tasks = 2L, n_threads = 3L, inmemory = FALSE),
+    explicit = c("n_tasks", "inmemory")
+  )
+  expect_identical(split(r), c(2L, 8L))
+  expect_false(r$inmemory)
+  expect_null(.resolve_resources("SBBD", box)$inmemory)
+  # no host: one task, one thread
+  expect_identical(split(.resolve_resources("SBBD", NULL)), c(1L, 1L))
+  expect_identical(.resolve_resources("SBBD", box)$mode, "auto")
+})
+
+test_that("the memory fit check refuses a run past the error band and warns inside it", {
+  laptop <- list(cores = 8L, mem_gb = 12)
+  expect_identical(.memory_fit_check("SBBD", 4L, 4.5e6, host = laptop)$verdict, "fits")
+  # 95 % of the container: inside the band, warned
+  expect_warning(
+    rec <- .memory_fit_check("DBBD", 2L, 8.2e6, host = laptop),
+    "may not fit"
+  )
+  expect_identical(rec$verdict, "tight")
+  expect_equal(rec$share, 8.2 * 1.39 / 12)
+  # past the band: refused by name
+  expect_snapshot_error(.memory_fit_check("DBBD", 4L, 7.69e6, host = laptop))
+  # unknown size or container: not applied
+  expect_identical(.memory_fit_check("DBBD", 4L, NA_real_, host = laptop)$verdict, "unknown")
+  expect_identical(.memory_fit_check("DBBD", 4L, 7.69e6)$verdict, "unknown")
+})
+
 test_that("auto evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
   expect_match(.auto_evidence(d), "^2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.4%\\), n_tasks 2$")
   d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats)
   expect_match(.auto_evidence(d), "chain alltime \\(3 blocks\\), partition reg \\(12 blocks, border 2.8%\\)")
   d <- .auto_decide(FALSE, 4L, 3485)
-  expect_match(.auto_evidence(d), "^3,485 equations, n_tasks 4; structural probe skipped")
+  expect_match(.auto_evidence(d), "^3,485 equations, n_tasks 4; structural probe skipped \\(not a candidate\\)")
+  d$probe_skip <- "single task"
+  expect_match(.auto_evidence(d), "skipped \\(single task\\)$")
   lines <- .auto_record_lines(d)
-  expect_length(lines, 3L)
+  expect_length(lines, 4L)
   expect_match(lines[1], "^Matrix method auto: LU \\(deploy metadata: 3,485 equations")
-  d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
-  expect_match(.auto_record_lines(d)[1], "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations")
-  expect_match(lines[2], "probe_min_size 1500000, dbbd_size 2000000, dbbd_size_many_blocks 1500000, dbbd_n_blocks 100, border_share_max 0.1, ndbbd_n_tasks Inf")
+  expect_match(lines[2], "^  thresholds: probe_plain_max 1000000, dbbd_condensed_size 120000 \\(Johansen 70000\\), dbbd_hint_min 300000, border_share_max 0.1, mem_fit_share 0.9, mem_abort_ratio 1.2$")
+  expect_match(lines[3], "container limit unknown")
   # no probe -> no nonzero count -> the exclusion is recorded as
   # not applied, so the record still says what was and was not checked
-  expect_match(lines[3], "LU workspace ceiling: 2147483647 elements")
-  expect_match(lines[3], "nnz unknown: exclusion not applied")
+  expect_match(lines[4], "LU workspace ceiling: 2147483647 elements")
+  expect_match(lines[4], "nnz unknown: exclusion not applied")
+  # with a container the estimates are recorded
+  d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats, mem_limit_gb = 12)
+  rec <- .auto_record_lines(d)
+  expect_match(rec[1], "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations")
+  expect_match(rec[3], "^  memory: container 12.00 GB; estimates DBBD 3.4[78] GB$")
+  d <- .auto_decide(FALSE, 2L, 1.3e5, n_reg = 3L, condensed = TRUE, n_backsolve_ele = 60000)
+  expect_match(.auto_evidence(d), "^130,000 equations \\(condensed\\), n_tasks 2; structural probe skipped")
   # with a nonzero count the projection and its share are recorded
   big <- static_stats
   big$nnz <- 500e6
   rec <- .auto_record_lines(.auto_decide(FALSE, 2L, 3485, structure = big))
-  expect_match(rec[3], "nnz 500,000,000 -> projected 6,000,000,000")
-  expect_match(rec[3], "LU EXCLUDED")
+  expect_match(rec[4], "nnz 500,000,000 -> projected 6,000,000,000")
+  expect_match(rec[4], "LU EXCLUDED")
   expect_null(.auto_record_lines(NULL))
+  # the resources record
+  host <- list(cores = 8L, mem_gb = 12)
+  r <- .resolve_resources("SBBD", host, plain_size = 4.5e6)
+  r$fit <- .memory_fit_check("SBBD", r$n_tasks, 4.5e6, host = host)
+  lines <- .resources_record_lines(r)
+  expect_length(lines, 2L)
+  expect_match(lines[1], "^Resources auto: n_tasks 8, n_threads 1, inmemory solver default, tempdir solver default \\(container 8 core\\(s\\), 12.00 GB\\); ranks to the knee")
+  expect_match(lines[2], "^  memory check: SBBD at 8 task\\(s\\) estimated 2.34 GB = 0.52 kB/eq x 4,500,000 plain-equivalent equations -> (19|20)% of 12.00 GB \\(fits\\)$")
+  manual <- list(mode = "manual", method = "LU", n_tasks = 1L, n_threads = 1L, inmemory = FALSE, cores = NULL, mem_gb = NULL, tempdir = "/tmp")
+  lines <- .resources_record_lines(manual)
+  expect_match(lines[1], "^Resources manual: n_tasks 1, n_threads 1, inmemory false, tempdir /tmp \\(container not inspected\\)$")
+  expect_match(lines[2], "not applied")
+  expect_null(.resources_record_lines(NULL))
 })

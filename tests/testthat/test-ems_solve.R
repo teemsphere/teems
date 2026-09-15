@@ -276,14 +276,15 @@ test_that("matrix_method auto resolves by model type", {
   )
 })
 
-test_that("matrix_method auto selects DBBD for large static deployments", {
-  # the size gate is deploy metadata (faked large here); the partition
-  # evidence is the real structural probe of the deployed system
+test_that("matrix_method auto selects DBBD for static deployments from the probe", {
+  # the size comes from the deploy metadata (faked here to a rung where
+  # the hint applies but the plain-static probe still runs); the
+  # partition evidence is the real structural probe of the deployment
   nest_temp("solve_auto_dbbd", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
   metadata_path <- file.path(dirname(cmf_path), "metadata.rds")
   metadata <- readRDS(metadata_path)
-  metadata$system_size <- 2.5e6
+  metadata$system_size <- 9e5
   saveRDS(metadata, metadata_path)
   expect_snapshot(
     ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE),
@@ -300,6 +301,28 @@ test_that("matrix_method auto selects DBBD for large static deployments", {
   )
   # 4 tasks: the 3-block partition cannot serve them and the next
   # candidate's border is too wide -> LU
+  expect_snapshot(
+    ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE),
+    transform = scrub_paths
+  )
+})
+
+test_that("matrix_method auto skips the probe on a large plain static system and decides from the region count", {
+  # above the plain-static probe cap the probe costs more than the
+  # solve; the metadata's region count (3) serves 2 tasks, not 4
+  nest_temp("solve_auto_metadata", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  metadata_path <- file.path(dirname(cmf_path), "metadata.rds")
+  metadata <- readRDS(metadata_path)
+  metadata$system_size <- 2.5e6
+  saveRDS(metadata, metadata_path)
+  expect_snapshot(
+    ems_solve(cmf_path, n_tasks = 2L, terminal_run = TRUE),
+    transform = scrub_paths
+  )
+  expect_false(file.exists(file.path(
+    dirname(cmf_path), "out", "variables", "bin", "sol.probe.json"
+  )))
   expect_snapshot(
     ems_solve(cmf_path, n_tasks = 4L, terminal_run = TRUE),
     transform = scrub_paths
@@ -348,7 +371,9 @@ test_that("matrix_method auto probes the deployed structure and records the deci
     "^Matrix method auto: DBBD \\(structural probe: 2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.5%\\), n_tasks 2\\)$",
     record
   )))
-  expect_true(any(grepl("^  thresholds: probe_min_size 1500000", record)))
+  expect_true(any(grepl("^  thresholds: probe_plain_max 1000000", record)))
+  expect_true(any(grepl("^Resources manual: n_tasks 2, n_threads 1, inmemory solver default, tempdir solver default \\(container ", record)))
+  expect_true(any(grepl("^  memory check: DBBD at 2 task\\(s\\) estimated ", record)))
 })
 
 test_that("matrix_method auto skips the probe below the size threshold and records that", {
@@ -364,6 +389,58 @@ test_that("matrix_method auto skips the probe below the size threshold and recor
     "^Matrix method auto: LU \\(deploy metadata: 3,494 equations, n_tasks 1; structural probe skipped",
     record
   )))
+})
+
+test_that("resources auto resolves tasks and threads from the container and records them", {
+  host <- .container_resources(paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+  skip_if(is.null(host))
+  threads <- function(n_tasks) max(1L, min(8L, host$cores %/% n_tasks))
+  # cli wraps the message at the console width: any whitespace between
+  # the tokens is a match
+  msg <- function(...) paste(c(...), collapse = "\\s+")
+  # static, plain: DBBD on the 3-block region partition -- two ranks on
+  # a laptop, cores %/% 4 (at most 8, at most 3 blocks) on a bigger
+  # host -- and threads for the remaining cores; the record carries the
+  # container and the estimate
+  n_dbbd <- if (host$cores <= 8L) 2L else min(8L, max(2L, host$cores %/% 4L))
+  n_dbbd <- min(n_dbbd, 3L, host$cores)
+  nest_temp("solve_resources_auto", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  expect_message(
+    out <- ems_solve(cmf_path, resources = "auto"),
+    msg("`resources` \"auto\":", n_dbbd, "tasks? x", threads(n_dbbd), "threads? for \"DBBD\" on a", paste0(host$cores, "-core,"))
+  )
+  expect_s3_class(out, "data.frame")
+  record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
+  expect_true(any(grepl(
+    paste0("^Resources auto: n_tasks ", n_dbbd, ", n_threads ", threads(n_dbbd), ", inmemory solver default, tempdir solver default \\(container ", host$cores, " core\\(s\\), "),
+    record
+  )))
+  expect_true(any(grepl("^  memory check: DBBD at [0-9] task\\(s\\) estimated .* plain-equivalent equations -> [0-9]+% of .* \\(fits\\)$", record)))
+  # an explicit value keeps, the rest resolves around it
+  expect_message(
+    ems_solve(cmf_path, resources = "auto", n_tasks = 1L, terminal_run = TRUE),
+    msg("\"auto\": 1 task x", threads(1L), "threads? for \"LU\"")
+  )
+  # intertemporal: SBBD ranks to the knee, capped by the chain blocks
+  nest_temp("solve_resources_auto_dyn", write_dir)
+  cmf_path <- ems_deploy(dynamic_data, dynamic_model)
+  metadata <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))
+  expect_identical(metadata$n_time, 3L)
+  n_sbbd <- min(8L, host$cores, 3L)
+  expect_message(
+    ems_solve(cmf_path, solution_method = "Gragg", resources = "auto", terminal_run = TRUE),
+    msg("\"auto\":", n_sbbd, "tasks? x", threads(n_sbbd), "threads? for \"SBBD\"")
+  )
+  # a scratch-backed run gets its scratch inside the container
+  # filesystem (docker's /dev/shm is 64 MB by default) and the record
+  # says so
+  out <- ems_solve(cmf_path, solution_method = "Gragg", matrix_method = "NDBBD", n_tasks = 2L)
+  expect_s3_class(out, "data.frame")
+  record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
+  expect_true(any(grepl("^Resources manual: n_tasks 2, n_threads 1, inmemory solver default, tempdir /tmp \\(container ", record)))
+  expect_match(readLines(file.path(dirname(cmf_path), "model_exec.txt")), "-tempdir /tmp", fixed = TRUE, all = FALSE)
+  expect_snapshot_error(ems_solve(cmf_path, resources = "yes"))
 })
 
 test_that("deploy metadata records system size", {

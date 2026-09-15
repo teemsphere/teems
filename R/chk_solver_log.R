@@ -32,7 +32,8 @@
                               paths,
                               call,
                               status = 0L,
-                              auto_decision = NULL) {
+                              auto_decision = NULL,
+                              resources_record = NULL) {
   model_log <- readLines(paths$diag_out)
   diag_out <- normalizePath(paths$diag_out, "/")
   paths$diag_out <- diag_out
@@ -134,7 +135,8 @@
   # solver-written sol.stats.json options object
   .solve_record_append(
     run_dir = paths$run,
-    auto_decision = auto_decision
+    auto_decision = auto_decision,
+    resources_record = resources_record
   )
 
   return(invisible(NULL))

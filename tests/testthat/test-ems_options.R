@@ -116,6 +116,26 @@ test_that("ems_option_reset restores default ndigits", {
   expect_equal(ems_option_get("ndigits"), 6)
 })
 
+test_that("ems_option_get returns character for version_check", {
+  expect_identical(ems_option_get("version_check"), "abort")
+})
+
+test_that("ems_option_set sets version_check and rejects other values", {
+  ems_option_set(version_check = "warn")
+  expect_identical(ems_option_get("version_check"), "warn")
+  ems_option_set(version_check = "off")
+  expect_identical(ems_option_get("version_check"), "off")
+  expect_snapshot_error(ems_option_set(version_check = "maybe"))
+  expect_snapshot_error(ems_option_set(version_check = c("abort", "warn")))
+  ems_option_reset()
+})
+
+test_that("ems_option_reset restores default version_check", {
+  ems_option_set(version_check = "off")
+  ems_option_reset()
+  expect_identical(ems_option_get("version_check"), "abort")
+})
+
 test_that("ems_option_reset restores default docker_tag", {
   ems_option_set(docker_tag = "v1.0")
   ems_option_reset()

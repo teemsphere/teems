@@ -13,7 +13,8 @@ ems_option_set(
   timestep_header = NULL,
   n_timestep_header = NULL,
   full_exclude = NULL,
-  docker_tag = NULL
+  docker_tag = NULL,
+  version_check = NULL
 )
 }
 \arguments{
@@ -60,6 +61,16 @@ local \code{teems} image, so the answer is the same on Linux, Windows
 and macOS hosts) with a matching local image \verb{teems:<level>} (or
 its short form, e.g. \code{teems:v3}) is preferred, falling back to
 \code{"latest"}.}
+
+\item{version_check}{Character length 1 (default \code{"abort"}). What
+the solve pre-flight does with the image's answer to
+\code{teems-solver -version}, asked once per image per session. The
+solver's major version must equal this package's (the interface
+contract) and be at least the package's minimum (\verb{1.1.0}, the
+first solver that answers at all); \code{"abort"} stops on an old,
+silent or mismatched image, \code{"warn"} reports it and runs anyway
+(bit-exact reproduction against a pinned old image), \code{"off"}
+never asks.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

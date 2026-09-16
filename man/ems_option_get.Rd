@@ -35,6 +35,9 @@ fully exclude from all aspects of the model run.
 which Docker image to use. \code{"latest"} when unset; note
 the solve command auto-selects a host-matched variant
 tag when the option is unset (see \code{\link[=ems_option_set]{ems_option_set()}}).
+\item \code{"version_check"} Character. \code{"abort"} (the default),
+\code{"warn"} or \code{"off"}: what the solve pre-flight does with the
+image's solver version (see \code{\link[=ems_option_set]{ems_option_set()}}).
 }}
 }
 \value{

@@ -102,6 +102,9 @@
     "",
     sprintf("-- Solve record (%s) --", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
     "",
+    if (!is.null(stats$solver_version)) {
+      sprintf("Solver version: %s", stats$solver_version)
+    },
     sprintf(
       "Solution method: %s%s (subintervals %s)",
       stats$solution_method,

@@ -39,6 +39,15 @@
 #'   and macOS hosts) with a matching local image `teems:<level>` (or
 #'   its short form, e.g. `teems:v3`) is preferred, falling back to
 #'   `"latest"`.
+#' @param version_check Character length 1 (default `"abort"`). What
+#'   the solve pre-flight does with the image's answer to
+#'   `teems-solver -version`, asked once per image per session. The
+#'   solver's major version must equal this package's (the interface
+#'   contract) and be at least the package's minimum (`1.1.0`, the
+#'   first solver that answers at all); `"abort"` stops on an old,
+#'   silent or mismatched image, `"warn"` reports it and runs anyway
+#'   (bit-exact reproduction against a pinned old image), `"off"`
+#'   never asks.
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -58,7 +67,8 @@ ems_option_set <- function(verbose = NULL,
                            timestep_header = NULL,
                            n_timestep_header = NULL,
                            full_exclude = NULL,
-                           docker_tag = NULL) {
+                           docker_tag = NULL,
+                           version_check = NULL) {
   call <- match.call()
   if (!is.null(verbose)) ems_options$set_verbose(verbose, call = call)
   if (!is.null(tempdir)) ems_options$set_tempdir(tempdir, call = call)
@@ -69,6 +79,7 @@ ems_option_set <- function(verbose = NULL,
   if (!is.null(n_timestep_header)) ems_options$set_n_timestep_header(n_timestep_header, call = call)
   if (!is.null(full_exclude)) ems_options$set_full_exclude(full_exclude, call = call)
   if (!is.null(docker_tag)) ems_options$set_docker_tag(docker_tag, call = call)
+  if (!is.null(version_check)) ems_options$set_version_check(version_check, call = call)
   invisible(NULL)
 }
 
@@ -106,6 +117,9 @@ ems_option_set <- function(verbose = NULL,
 #'     which Docker image to use. `"latest"` when unset; note
 #'     the solve command auto-selects a host-matched variant
 #'     tag when the option is unset (see [`ems_option_set()`]).
+#'   * `"version_check"` Character. `"abort"` (the default),
+#'     `"warn"` or `"off"`: what the solve pre-flight does with the
+#'     image's solver version (see [`ems_option_set()`]).
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -134,7 +148,8 @@ ems_option_get <- function(name = NULL) {
          timestep_header    = ems_options$get_timestep_header(),
          n_timestep_header  = ems_options$get_n_timestep_header(),
          full_exclude       = ems_options$get_full_exclude(),
-         docker_tag         = ems_options$get_docker_tag()
+         docker_tag         = ems_options$get_docker_tag(),
+         version_check      = ems_options$get_version_check()
   )
 }
 

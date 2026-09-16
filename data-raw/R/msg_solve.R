@@ -171,7 +171,22 @@ build_solve_err <- function() {
     # test-ems_solve.R: "ems_solve errors when verbosity is out of range"
     verbosity_range = "{.arg verbosity} must be 0, 1, or 2.",
     # test-chk_solver_log.R: "a non-zero exit status aborts even with a clean log"
-    solver_exit = "The solver exited with status {status} without a recognised error in its log. See {.path {paths$diag_out}}."
+    solver_exit = "The solver exited with status {status} without a recognised error in its log. See {.path {paths$diag_out}}.",
+    # test-chk_solver_version.R: the version handshake (release plan
+    # 1.1.0): abort by default, downgraded to a warning under
+    # ems_option_set(version_check = "warn")
+    solver_version_none = c(
+      "The {.val {image}} image gives no answer to {.code teems-solver -version}: its solver predates the versioned interface, and teems {pkg_version} requires teems-solver {min_version} or later.",
+      "Pull or rebuild a current image (see the teems-solver repository), or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+    ),
+    solver_version_major = c(
+      "The {.val {image}} image carries teems-solver {solver_version}, whose major version is not the {pkg_major}.x interface teems {pkg_version} drives.",
+      "Use a teems-solver {pkg_major}.x image, or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+    ),
+    solver_version_floor = c(
+      "The {.val {image}} image carries teems-solver {solver_version}; teems {pkg_version} requires {min_version} or later.",
+      "Pull or rebuild a current image, or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+    )
   )
 }
 

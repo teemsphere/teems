@@ -19,6 +19,7 @@ options_class <- R6::R6Class(
     n_timestep_header = NULL,
     full_exclude = NULL,
     docker_tag = NULL,
+    version_check = NULL,
 
     initialize = function(verbose = NULL,
                           tempdir = NULL,
@@ -28,7 +29,8 @@ options_class <- R6::R6Class(
                           timestep_header = NULL,
                           n_timestep_header = NULL,
                           full_exclude = NULL,
-                          docker_tag = NULL) {
+                          docker_tag = NULL,
+                          version_check = NULL) {
       self$verbose <- verbose
       self$tempdir <- tempdir
       self$ndigits <- ndigits
@@ -38,6 +40,7 @@ options_class <- R6::R6Class(
       self$n_timestep_header <- n_timestep_header
       self$full_exclude <- full_exclude
       self$docker_tag <- docker_tag
+      self$version_check <- version_check
     },
 
     export = function() {
@@ -50,7 +53,8 @@ options_class <- R6::R6Class(
         timestep_header = self$get_timestep_header(),
         n_timestep_header = self$get_n_timestep_header(),
         full_exclude = self$get_full_exclude(),
-        docker_tag = self$get_docker_tag()
+        docker_tag = self$get_docker_tag(),
+        version_check = self$get_version_check()
       )
     },
 
@@ -64,6 +68,7 @@ options_class <- R6::R6Class(
       self$set_n_timestep_header(list$n_timestep_header)
       self$set_full_exclude(list$full_exclude)
       self$set_docker_tag(list$docker_tag)
+      self$set_version_check(list$version_check)
     },
 
     reset = function() {
@@ -76,6 +81,7 @@ options_class <- R6::R6Class(
       self$n_timestep_header <- NULL
       self$full_exclude <- NULL
       self$docker_tag <- NULL
+      self$version_check <- NULL
     },
 
     get_verbose = function() {
@@ -112,6 +118,10 @@ options_class <- R6::R6Class(
 
     get_docker_tag = function() {
       self$docker_tag %|||% "latest"
+    },
+
+    get_version_check = function() {
+      self$version_check %|||% "abort"
     },
 
     set_verbose = function(verbose, call = rlang::caller_env()) {
@@ -157,6 +167,11 @@ options_class <- R6::R6Class(
     set_docker_tag = function(docker_tag, call = rlang::caller_env()) {
       self$validate_docker_tag(docker_tag, call = call)
       self$docker_tag <- docker_tag
+    },
+
+    set_version_check = function(version_check, call = rlang::caller_env()) {
+      self$validate_version_check(version_check, call = call)
+      self$version_check <- version_check
     },
 
     validate_verbose = function(verbose, call = rlang::caller_env()) {
@@ -213,6 +228,13 @@ options_class <- R6::R6Class(
       }
     },
 
+    validate_version_check = function(version_check, call = rlang::caller_env()) {
+      if (!is.character(version_check) || length(version_check) != 1L ||
+        !version_check %in% c("abort", "warn", "off")) {
+        cli::cli_abort("{.arg version_check} must be one of {.val abort}, {.val warn} or {.val off}.", call = call)
+      }
+    },
+
     validate = function() {
       self$validate_verbose(self$get_verbose())
       self$validate_tempdir(self$get_tempdir())
@@ -223,6 +245,7 @@ options_class <- R6::R6Class(
       self$validate_n_timestep_header(self$get_n_timestep_header())
       self$validate_full_exclude(self$get_full_exclude())
       self$validate_docker_tag(self$get_docker_tag())
+      self$validate_version_check(self$get_version_check())
     }
   )
 )
@@ -235,7 +258,8 @@ options_new <- function(verbose = NULL,
                         timestep_header = NULL,
                         n_timestep_header = NULL,
                         full_exclude = NULL,
-                        docker_tag = NULL) {
+                        docker_tag = NULL,
+                        version_check = NULL) {
   options_class$new(
     verbose = verbose,
     tempdir = tempdir,
@@ -245,7 +269,8 @@ options_new <- function(verbose = NULL,
     timestep_header = timestep_header,
     n_timestep_header = n_timestep_header,
     full_exclude = full_exclude,
-    docker_tag = docker_tag
+    docker_tag = docker_tag,
+    version_check = version_check
   )
 }
 

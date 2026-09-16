@@ -37,5 +37,12 @@
     )
   }
 
+  # version handshake against the image the solve command will run
+  # (ems_solve, solve_in_situ and ems_probe all pass through here)
+  .check_solver_version(
+    image = paste0(image_name, ":", .resolve_docker_tag(quiet = TRUE)),
+    call = call
+  )
+
   return(invisible(NULL))
 }

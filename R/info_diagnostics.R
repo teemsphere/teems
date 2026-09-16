@@ -105,6 +105,12 @@
     if (!is.null(stats$solver_version)) {
       sprintf("Solver version: %s", stats$solver_version)
     },
+    # BLAS kernel family the run actually dispatched (solver >= the
+    # OpenBLAS pin): the images pin it to the family matching their ISA
+    # level, so this is what makes a solve reproducible off this machine
+    if (!is.null(opt$blas_core)) {
+      sprintf("BLAS kernels: %s", opt$blas_core)
+    },
     sprintf(
       "Solution method: %s%s (subintervals %s)",
       stats$solution_method,

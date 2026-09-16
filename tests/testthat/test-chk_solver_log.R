@@ -230,6 +230,51 @@ test_that("memory record lines do not trip the generic scans", {
   expect_no_error(suppressMessages(check_log(paths)))
 })
 
+test_that("the solve record names the BLAS kernel family the run dispatched", {
+  run_dir <- withr::local_tempdir()
+  stats_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(stats_dir, recursive = TRUE)
+  writeLines("diag", file.path(run_dir, "model_diagnostics.txt"))
+  writeLines(
+    paste0(
+      '{"version": 2, "solver_version": "1.1.0-dev.4", ',
+      '"solution_method": "Johansen", "matrix_method": "LU", ',
+      '"mpi_size": 1, "vecsize": 10, "nexo": 3, ',
+      '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
+      '"fastrefac": false, "max_threads": 1, "blas_core": "Nehalem", ',
+      '"assertions": "warn", "range_test_initial": "warn", ',
+      '"range_test_updated": "warn", "postsim": false, "gpzerodivide": false}}'
+    ),
+    file.path(stats_dir, "sol.stats.json")
+  )
+  .solve_record_append(run_dir)
+  rec <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("BLAS kernels: Nehalem", rec, fixed = TRUE)))
+})
+
+# an image predating the pin writes no blas_core: the line is dropped
+# rather than rendered empty
+test_that("the solve record omits the BLAS line when the solver did not record one", {
+  run_dir <- withr::local_tempdir()
+  stats_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(stats_dir, recursive = TRUE)
+  writeLines("diag", file.path(run_dir, "model_diagnostics.txt"))
+  writeLines(
+    paste0(
+      '{"version": 2, "solution_method": "Johansen", "matrix_method": "LU", ',
+      '"mpi_size": 1, "vecsize": 10, "nexo": 3, ',
+      '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
+      '"fastrefac": false, "max_threads": 1, "assertions": "warn", ',
+      '"range_test_initial": "warn", "range_test_updated": "warn", ',
+      '"postsim": false, "gpzerodivide": false}}'
+    ),
+    file.path(stats_dir, "sol.stats.json")
+  )
+  .solve_record_append(run_dir)
+  rec <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_false(any(grepl("BLAS kernels", rec, fixed = TRUE)))
+})
+
 test_that("the solve record renders the per-phase memory table", {
   run_dir <- withr::local_tempdir()
   stats_dir <- file.path(run_dir, "out", "variables", "bin")

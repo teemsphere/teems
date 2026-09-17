@@ -80,6 +80,13 @@ build_model_err <- function() {
       "A reference carries exactly the declared indices,
       {.code NAME(<index>, ...)} (GEMPACK manual 10.3, 11.4.10)."
     ),
+    stmt_too_long = c(
+      "Statement {.val {bad_stmt}} needs about {stmt_len} characters in the
+      solver, over its 20000-character statement limit.",
+      "Split it into shorter statements, for example through intermediate
+      coefficients or variables. Equation and Update statements count 2
+      extra characters per variable reference."
+    ),
     zerodivide_unknown = "Zerodivide default {.val {bad_val}} is neither a
     number nor a declared coefficient: {.val {bad_stmt}}",
     qual_unbalanced = "Unbalanced parentheses in the qualifier list of:

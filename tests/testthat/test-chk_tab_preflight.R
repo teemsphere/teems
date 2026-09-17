@@ -276,3 +276,14 @@ test_that("malformed quantifiers, sums and zerodivide defaults abort", {
     "Coefficient (all,r,REG) CBAD3(r);\nFormula (all,r,REG) CBAD3(r) = VGDP(r,,);"
   )
 })
+
+test_that("statements over the solver statement buffer abort", {
+  expect_preflight_error(paste0(
+    "Coefficient (all,r,REG) CLONG(r);\nFormula (all,r,REG) CLONG(r) = VGDP(r)",
+    strrep("+VGDP(r)", 2600), ";"
+  ))
+  # under the buffer as written, over it once each qgdp is prefixed p_
+  expect_preflight_error(paste0(
+    "Equation E_long (all,r,REG) qgdp(r) = 0", strrep("+qgdp(r)", 2100), ";"
+  ))
+})

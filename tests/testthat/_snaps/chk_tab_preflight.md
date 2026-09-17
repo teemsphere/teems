@@ -199,3 +199,13 @@
     x Reference "VGDP(r,,)" has an empty index in: "Formula (all,r,REG) CBAD3(r) = VGDP(r,,)"
     i A reference carries exactly the declared indices, `NAME(<index>, ...)` (GEMPACK manual 10.3, 11.4.10).
 
+# statements over the solver statement buffer abort
+
+    x Statement "Formula (all,r,REG) CLONG(r) = VGDP(r)+VGDP(r)+VGDP(r)+VGDP(..." needs about 20858 characters in the solver, over its 20000-character statement limit.
+    i Split it into shorter statements, for example through intermediate coefficients or variables. Equation and Update statements count 2 extra characters per variable reference.
+
+---
+
+    x Statement "Equation E_long (all,r,REG) qgdp(r) = 0+qgdp(r)+qgdp(r)+qgdp..." needs about 21061 characters in the solver, over its 20000-character statement limit.
+    i Split it into shorter statements, for example through intermediate coefficients or variables. Equation and Update statements count 2 extra characters per variable reference.
+

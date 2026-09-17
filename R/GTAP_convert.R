@@ -1,11 +1,13 @@
-#' @title Convert GTAP HAR files and data formats
+#' @title Load GTAP HAR files and convert data formats
 #' @export
-#' @description `GTAP_convert()` converts GTAP HAR database files
-#'   into lists of arrays as well as converts between the classic
-#'   v6.2 and standard v7.0 data formats. The output can then be
-#'   passed directly to [`ems_data()`] via its `dat_input`,
-#'   `par_input`, and `set_input` arguments, or written to disk
-#'   for later use.
+#' @description `GTAP_convert()` reads a GTAP database's HAR files
+#'   into lists of arrays at full resolution, without any
+#'   aggregation. With `target` it can also convert a standard GTAP
+#'   database between the classic v6.2 and standard v7 data formats,
+#'   or prepare a GTAP-AEZ, GTAP-E or GTAP-Power database for its
+#'   model. The output can be inspected or modified in R, passed
+#'   directly to [`ems_data()`] via its `dat_input`, `par_input`, and
+#'   `set_input` arguments, or written to disk for later use.
 #' @return A named list with elements `dat`, `par`, and `set`,
 #'   each containing a list of arrays corresponding to database
 #'   headers. Suitable for direct use with [`ems_data()`].
@@ -19,23 +21,20 @@
 #'   working directory or path to a GTAP HAR file with set
 #'   elements and attributes.
 #' @param target Character vector of length 1 (default is
-#'   `NULL`). The target format to convert to. Currently supports
-#'   `"GTAPv6"`, `"GTAPv7"`, `"GTAP-AEZ"`, `"GTAP-E"` or `"GTAP-EP"`.
-#'   The three layer targets prepare a GTAPv7-format database for the
-#'   corresponding model: `"GTAP-AEZ"` supplies the disaggregated
-#'   activity sets and mapping the model reads, the model's
-#'   `CROPACTS`/`LCOV` dimension names and the AEZ parameters;
-#'   `"GTAP-E"` supplies the disaggregated commodity set and mapping
-#'   (`DCOM`, `MCOM`, `DELY`), the aggregated energy sets (`EGY`,
-#'   `ENYP`, `ENYG`, `ENYI`), `TOPP`, and binds the database's
-#'   `SUBE`/`INCE` to the `SUBP`/`INCP` headers the model reads over
-#'   `TOPP`; `"GTAP-EP"` does the same for a GTAP-Power database and
-#'   adds the electricity nest sets (`ELE*`, `ELY*`, `EGN*`, `EBL*`,
-#'   `EPL*`). The 12a energy and power releases prepare; the 11c
-#'   releases carry an un-normalised `SUBE` row and are refused by
-#'   name. [`ems_data()`] applies the same preparation on its own
-#'   when it detects a layer. If `NULL`, no data format
-#'   conversion will take place.
+#'   `NULL`). One of:
+#'   * `NULL`: the files are read as they are, with no conversion
+#'   or preparation.
+#'   * `"GTAPv6"` or `"GTAPv7"`: converts a standard GTAP database to
+#'   the v6.2 or v7 data format. Version conversion applies to the
+#'   standard GTAP database only.
+#'   * `"GTAP-AEZ"`, `"GTAP-E"` or `"GTAP-EP"`: prepares a v7-format
+#'   GTAP-AEZ, GTAP-E (12a) or GTAP-Power (12a) database for the
+#'   corresponding model, adding the sets and parameters the model
+#'   reads that the database does not ship. These targets do not
+#'   convert between data formats: a v6-format database (the GTAP
+#'   10a layers) is refused, as are the GTAP 11c E and Power
+#'   releases. [`ems_data()`] applies the same preparation on its
+#'   own when it detects one of these databases.
 #' @seealso [`ems_data()`] for loading and preparing converted
 #'   data for a model run.
 #' @examples

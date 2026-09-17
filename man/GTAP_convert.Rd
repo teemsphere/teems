@@ -2,7 +2,7 @@
 % Please edit documentation in R/GTAP_convert.R
 \name{GTAP_convert}
 \alias{GTAP_convert}
-\title{Convert GTAP HAR files and data formats}
+\title{Load GTAP HAR files and convert data formats}
 \usage{
 GTAP_convert(dat_har, par_har, set_har, target = NULL)
 }
@@ -20,23 +20,22 @@ working directory or path to a GTAP HAR file with set
 elements and attributes.}
 
 \item{target}{Character vector of length 1 (default is
-\code{NULL}). The target format to convert to. Currently supports
-\code{"GTAPv6"}, \code{"GTAPv7"}, \code{"GTAP-AEZ"}, \code{"GTAP-E"} or \code{"GTAP-EP"}.
-The three layer targets prepare a GTAPv7-format database for the
-corresponding model: \code{"GTAP-AEZ"} supplies the disaggregated
-activity sets and mapping the model reads, the model's
-\code{CROPACTS}/\code{LCOV} dimension names and the AEZ parameters;
-\code{"GTAP-E"} supplies the disaggregated commodity set and mapping
-(\code{DCOM}, \code{MCOM}, \code{DELY}), the aggregated energy sets (\code{EGY},
-\code{ENYP}, \code{ENYG}, \code{ENYI}), \code{TOPP}, and binds the database's
-\code{SUBE}/\code{INCE} to the \code{SUBP}/\code{INCP} headers the model reads over
-\code{TOPP}; \code{"GTAP-EP"} does the same for a GTAP-Power database and
-adds the electricity nest sets (\verb{ELE*}, \verb{ELY*}, \verb{EGN*}, \verb{EBL*},
-\verb{EPL*}). The 12a energy and power releases prepare; the 11c
-releases carry an un-normalised \code{SUBE} row and are refused by
-name. \code{\link[=ems_data]{ems_data()}} applies the same preparation on its own
-when it detects a layer. If \code{NULL}, no data format
-conversion will take place.}
+\code{NULL}). One of:
+\itemize{
+\item \code{NULL}: the files are read as they are, with no conversion
+or preparation.
+\item \code{"GTAPv6"} or \code{"GTAPv7"}: converts a standard GTAP database to
+the v6.2 or v7 data format. Version conversion applies to the
+standard GTAP database only.
+\item \code{"GTAP-AEZ"}, \code{"GTAP-E"} or \code{"GTAP-EP"}: prepares a v7-format
+GTAP-AEZ, GTAP-E (12a) or GTAP-Power (12a) database for the
+corresponding model, adding the sets and parameters the model
+reads that the database does not ship. These targets do not
+convert between data formats: a v6-format database (the GTAP
+10a layers) is refused, as are the GTAP 11c E and Power
+releases. \code{\link[=ems_data]{ems_data()}} applies the same preparation on its
+own when it detects one of these databases.
+}}
 }
 \value{
 A named list with elements \code{dat}, \code{par}, and \code{set},
@@ -44,12 +43,14 @@ each containing a list of arrays corresponding to database
 headers. Suitable for direct use with \code{\link[=ems_data]{ems_data()}}.
 }
 \description{
-\code{GTAP_convert()} converts GTAP HAR database files
-into lists of arrays as well as converts between the classic
-v6.2 and standard v7.0 data formats. The output can then be
-passed directly to \code{\link[=ems_data]{ems_data()}} via its \code{dat_input},
-\code{par_input}, and \code{set_input} arguments, or written to disk
-for later use.
+\code{GTAP_convert()} reads a GTAP database's HAR files
+into lists of arrays at full resolution, without any
+aggregation. With \code{target} it can also convert a standard GTAP
+database between the classic v6.2 and standard v7 data formats,
+or prepare a GTAP-AEZ, GTAP-E or GTAP-Power database for its
+model. The output can be inspected or modified in R, passed
+directly to \code{\link[=ems_data]{ems_data()}} via its \code{dat_input}, \code{par_input}, and
+\code{set_input} arguments, or written to disk for later use.
 }
 \examples{
 \dontrun{

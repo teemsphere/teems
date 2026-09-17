@@ -57,7 +57,7 @@
     v$target <- NULL
   } else if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
     # the GTAP-AEZ layer on the GTAPv7 format: a v6-format database
-    # (GTAPv10a AEZ) converts to v7 first
+    # (GTAPv10a AEZ) carries different headers and is not prepared
     if (isTRUE(attr(i_data, "metadata")[["aez"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,

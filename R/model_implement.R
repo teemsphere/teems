@@ -12,7 +12,6 @@
 
   model <- .process_tablo(
     tab_file = v$model_file,
-    omit = v$omit,
     backsolve = v$backsolve,
     ignore_condense = v$ignore_condense,
     call = call
@@ -43,7 +42,6 @@
   model <- structure(model,
     closure = closure,
     closure_file = attr(v$closure, "file"),
-    auto_omit = v$auto_omit,
     call = call
   )
 

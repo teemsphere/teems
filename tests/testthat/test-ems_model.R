@@ -61,14 +61,6 @@ test_that("ems_model rejects non-existent closure_file", {
   expect_snapshot_error(ems_model(model_file, "not_a_file"))
 })
 
-test_that("ems_model rejects non-character omit", {
-  expect_snapshot_error(ems_model(model_file, closure_file, 1))
-})
-
-test_that("ems_model rejects invalid variable names in omit", {
-  expect_snapshot_error(ems_model(model_file, closure_file, "not_a_var"))
-})
-
 test_that("ems_model rejects invalid coefficient arguments", {
   expect_snapshot_error(ems_model(model_file, closure_file, NOT_A_COEFF = 2))
 })
@@ -884,9 +876,7 @@ test_that("ems_model errors dots passed without names", {
   expect_snapshot_error(
     ems_model(model_file,
       closure_file,
-      omit = NULL,
       backsolve = NULL,
-      auto_omit = FALSE,
       ignore_condense = FALSE,
       1
     )
@@ -913,20 +903,18 @@ test_that("ems_model examples run", {
   )
   SUBPAR$Value <- runif(nrow(SUBPAR))
   # Model load with:
-  # 1) variable omission
-  # 2) uniform numeric value applied to KAPPA coefficient
-  # 3) heterogeneous values allocated to SUBPAR via data frame
+  # 1) uniform numeric value applied to KAPPA coefficient
+  # 2) heterogeneous values allocated to SUBPAR via data frame
   model <- ems_model(
     model_file = GTAP_RE[["model_file"]],
     closure_file = GTAP_RE[["closure_file"]],
-    omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
     KAPPA = 0.03,
     SUBPAR = SUBPAR
   )
   expect_s3_class(model, "tbl_df")
 })
 
-# --- condensation (roadmap 6.2: omit / backsolve, GEMPACK 10.16 & 14.1.10) ---
+# --- condensation (roadmap 6.2: backsolve, GEMPACK 10.16 & 14.1.10) ---
 
 condense_graft <- paste(
   "Variable (all,r,REG)(all,t,ALLTIME) tva(r,t) # test var A #;",
@@ -996,17 +984,15 @@ test_that("backsolve through a coefficient pivot synthesizes a reciprocal and wa
   expect_identical(eqs$name[hits], "E_qgdp")
 })
 
-test_that("in-TAB Omit statements are honored and stripped", {
+test_that("in-TAB Omit statements are ignored", {
   omit_model <- write_modified_model(model_file, "Omit atall avaall ;")
-  model <- ems_model(omit_model, closure_file)
-  flagged <- model$name[model$condense %in% "omit"]
-  expect_true(all(c("atall", "avaall") %in% flagged))
-  # references zeroed, statement stripped, declaration row retained
-  expect_false(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
+  expect_snapshot(model <- ems_model(omit_model, closure_file))
+  # nothing condensed: references kept, statement stripped, variables deployed
+  expect_true(all(is.na(model$condense)))
+  expect_true(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
   expect_false(any(grepl("^Omit", model$tab)))
-  expect_true("atall" %in% model$name[model$type == "Variable"])
   tab <- teems:::.finalize_tab(model)
-  expect_false(grepl("(?<![[:alnum:]_])atall(?![[:alnum:]_])", tab, perl = TRUE))
+  expect_true(grepl("(?<![[:alnum:]_])atall(?![[:alnum:]_])", tab, perl = TRUE))
 })
 
 test_that("in-TAB Substitute executes as backsolve with a message", {
@@ -1022,10 +1008,13 @@ test_that("in-TAB Substitute executes as backsolve with a message", {
 })
 
 test_that("ignore_condense disables in-TAB condensation statements", {
-  omit_model <- write_modified_model(model_file, "Omit atall avaall ;")
-  model <- ems_model(omit_model, closure_file, ignore_condense = TRUE)
+  bs_model <- write_modified_model(
+    model_file,
+    paste(condense_graft, "Backsolve tva using E_tva ;", sep = "\n")
+  )
+  model <- ems_model(bs_model, closure_file, ignore_condense = TRUE)
   expect_true(all(is.na(model$condense)))
-  expect_true(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
+  expect_true(any(grepl("tva\\(", model$tab[model$type == "Equation" & model$name %in% "E_tvb"])))
 })
 
 test_that("ems_model rejects a non-logical or non-scalar ignore_condense", {
@@ -1040,21 +1029,18 @@ test_that("ems_model rejects a non-logical or non-scalar ignore_condense", {
 test_that("ignore_condense drops in-TAB statements but still applies the arguments (ICT)", {
   ict_model <- write_modified_model(
     model_file,
-    paste(condense_graft, "Omit atall ;", "Backsolve tvb using E_tvb ;", sep = "\n")
+    paste(condense_graft, "Backsolve tvb using E_tvb ;", sep = "\n")
   )
   expect_message(
     model <- ems_model(ict_model, closure_file,
-      ignore_condense = TRUE, omit = "avaall", backsolve = "tva"
+      ignore_condense = TRUE, backsolve = "tva"
     ),
-    "3 in-TAB condensation statements ignored"
+    "in-TAB condensation statement"
   )
   vars <- model[model$type == "Variable", ]
-  # the in-TAB nominations are gone
-  expect_true(is.na(vars$condense[vars$name %in% "atall"]))
+  # the in-TAB nomination is gone
   expect_true(is.na(vars$condense[vars$name %in% "tvb"]))
-  expect_true(any(grepl("atall\\(", model$tab[model$type == "Equation"])))
-  # the arguments applied
-  expect_identical(vars$condense[vars$name %in% "avaall"], "omit")
+  # the argument applied
   expect_identical(vars$condense[vars$name %in% "tva"], "backsolve")
   expect_identical(vars$condense_eq[vars$name %in% "tva"], "E_tva")
   e_tvb <- model$tab[model$type == "Equation" & model$name %in% "E_tvb"]
@@ -1080,16 +1066,14 @@ test_that("ignore_condense on a model without condensation statements is a silen
 })
 
 test_that("in-TAB statements and arguments combine under ignore_condense = FALSE", {
-  # documented order: in-TAB omissions, then in-TAB backsolves, then the
-  # omit and backsolve arguments (model_load.qmd); the union is applied
+  # documented order: in-TAB backsolves, then the backsolve argument
+  # (model_load.qmd); the union is applied
   both_model <- write_modified_model(
     model_file,
-    paste(condense_graft, "Omit atall ;", "Backsolve tva using E_tva ;", sep = "\n")
+    paste(condense_graft, "Backsolve tva using E_tva ;", sep = "\n")
   )
-  model <- ems_model(both_model, closure_file, omit = "avaall", backsolve = "tvb")
+  model <- ems_model(both_model, closure_file, backsolve = "tvb")
   vars <- model[model$type == "Variable", ]
-  # the GTAP-RE file's own in-TAB omissions stay in force beside them
-  expect_true(all(c("atall", "avaall") %in% vars$name[vars$condense %in% "omit"]))
   expect_setequal(vars$name[vars$condense %in% "backsolve"], c("tva", "tvb"))
   expect_identical(vars$condense_eq[vars$name %in% "tva"], "E_tva")
   expect_identical(vars$condense_eq[vars$name %in% "tvb"], "E_tvb")
@@ -1100,7 +1084,6 @@ test_that("in-TAB statements and arguments combine under ignore_condense = FALSE
     "tvb(r,t) = 3*2*qgdp(r,t) + 3*pop(r,t);", fixed = TRUE
   )
   expect_false(grepl("tva\\(", eqs$tab[eqs$name %in% "E_tvc"]))
-  expect_false(any(grepl("atall\\(|avaall\\(", eqs$tab)))
   tab <- strsplit(teems:::.finalize_tab(model), "\n")[[1]]
   expect_setequal(
     tab[grepl("^Backsolve ", tab)],
@@ -1132,7 +1115,7 @@ test_that("ems_model rejects unresolvable backsolve entries", {
 test_that("ems_model rejects conflicting condensation actions", {
   bs_model <- write_modified_model(model_file, condense_graft)
   expect_snapshot_error(
-    ems_model(bs_model, closure_file, omit = "tva", backsolve = "tva")
+    ems_model(bs_model, closure_file, backsolve = c(tva = "E_tva", tva = "E_tvb"))
   )
 })
 
@@ -1192,28 +1175,21 @@ test_that("backsolved variables must be endogenous in the closure", {
   )
 })
 
-test_that("omitted variables must be exogenous in the closure", {
-  expect_snapshot_error(ems_model(model_file, closure_file, omit = "qgdp"))
-})
-
 test_that("swaps and shocks on condensed variables abort", {
-  model <- ems_model(model_file, closure_file, omit = "atall")
+  bs_model <- write_modified_model(model_file, condense_graft)
+  model <- ems_model(bs_model, closure_file, backsolve = "tva")
   nest_temp("condensed_guard", write_dir)
   expect_snapshot_error(
-    ems_deploy(dat, model, swap_in = "atall", swap_out = "pop")
+    ems_deploy(dat, model, swap_in = "tva", swap_out = "pop")
   )
   expect_snapshot_error(
-    ems_deploy(dat, model, shock = ems_uniform_shock("atall", 1))
+    ems_deploy(dat, model, shock = ems_uniform_shock("tva", 1))
   )
 })
 
 test_that("GTAP standard condensation condenses cleanly", {
-  # gtapv7.sti (corpus 12102.zip) standard condensation, minus the four
+  # gtapv7.sti (corpus 12102.zip) standard backsolves, minus the four
   # regional-aggregate CNT* variables absent from the teems GTAPv7 variant
-  std_omit <- c(
-    "atall", "avaall", "tfe", "tfd", "tfm", "tgd", "tgm",
-    "tpdall", "tpmall", "tid", "tim"
-  )
   std_backsolve <- c(
     "pfactreal", "CNTqpm", "CNTqfd", "CNTqfm", "qfe", "CNTqim", "pfd",
     "qia", "qtmfsd", "qfd", "CNTqfe", "c2_cr", "ptrans", "atmfsd", "afa",
@@ -1230,12 +1206,11 @@ test_that("GTAP standard condensation condenses cleanly", {
   GTAPv7 <- ems_example("GTAPv7", write_dir)
   suppressWarnings(
     model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]],
-      omit = std_omit, backsolve = std_backsolve
+      backsolve = std_backsolve, ignore_condense = TRUE
     )
   )
 
   var_flags <- model[model$type == "Variable" & !is.na(model$condense), ]
-  expect_identical(sum(var_flags$condense == "omit"), length(std_omit))
   expect_identical(sum(var_flags$condense == "backsolve"), length(std_backsolve))
 
   # no equation other than the retained defining equation references a
@@ -1262,9 +1237,8 @@ test_that("GTAPv6 condenses automatically from its in-TAB statements (gtap.sti)"
   model <- ems_model(v6[["model_file"]], v6[["closure_file"]])
   vars <- model[model$type == "Variable", ]
 
-  # the nine gtap.sti omissions and 60 backsolves
-  std_omit <- c("atall", "avaall", "tf", "tfd", "tfm", "tgd", "tgm", "tpd", "tpm")
-  expect_setequal(vars$name[vars$condense %in% "omit"], std_omit)
+  # the 60 gtap.sti backsolves; its omissions are not carried
+  expect_false(any(vars$condense %in% "omit"))
   expect_identical(sum(vars$condense %in% "backsolve"), 60L)
   expect_identical(
     vars$condense_eq[vars$name %in% "pgov"], "GPRICEINDEX"
@@ -1281,7 +1255,7 @@ test_that("GTAPv6 condenses automatically from its in-TAB statements (gtap.sti)"
     expect_identical(eqs$name[hits], bs$condense_eq[r], label = bs$name[r])
   }
 
-  # the deployed TAB carries the backsolves and no omit statement
+  # the deployed TAB carries the backsolves
   tab <- strsplit(teems:::.finalize_tab(model), "\n")[[1]]
   expect_identical(sum(grepl("^Backsolve ", tab)), 60L)
   expect_false(any(grepl("^Omit", tab, ignore.case = TRUE)))
@@ -1306,11 +1280,7 @@ test_that("GTAPv7 condenses automatically from its in-TAB statements (gtapv7.sti
     "split by the IF rewrite"
   )
   vars <- model[model$type == "Variable", ]
-  std_omit <- c(
-    "atall", "avaall", "tfe", "tfd", "tfm", "tgd", "tgm", "tpdall", "tpmall",
-    "tid", "tim"
-  )
-  expect_setequal(vars$name[vars$condense %in% "omit"], std_omit)
+  expect_false(any(vars$condense %in% "omit"))
   # 72 nominations less the four whose defining equations the IF rewrite
   # partitioned (CNTqfr, CNTqgr, CNTalleffr, CNTtechr)
   expect_identical(sum(vars$condense %in% "backsolve"), 68L)
@@ -1322,6 +1292,4 @@ test_that("GTAPv7 condenses automatically from its in-TAB statements (gtapv7.sti
 })
 
 unlink(write_dir, recursive = TRUE)
-test_that("ems_model rejects a non-logical auto_omit", {
-  expect_snapshot_error(ems_model(model_file, closure_file, auto_omit = NA))
-})
+

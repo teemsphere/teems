@@ -7,11 +7,8 @@
     model$postsim <- FALSE
   }
 
-  # omitted variables: declaration rows are retained in the model tibble
-  # (closure/shock validation reads the condense flag) but filtered from
-  # the deployed TAB; backsolved declarations stay (the solver recovers
-  # their values from the retained defining equations)
-  omitted <- model$type == "Variable" & model$condense %in% "omit"
+  # backsolved declarations stay in the deployed TAB (the solver
+  # recovers their values from the retained defining equations)
   backsolved <- model$type == "Variable" & model$condense %in% "backsolve"
   backsolve_writeout <- paste(
     "Backsolve",
@@ -23,7 +20,6 @@
   if (!any(backsolved)) {
     backsolve_writeout <- NULL
   }
-  model <- model[!omitted, ]
 
   is_ps <- !is.na(model$postsim) & model$postsim
   set_extract <- model[model$type == "Set",]

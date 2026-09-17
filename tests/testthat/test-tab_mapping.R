@@ -384,7 +384,8 @@ test_that("a mapped-index equation solves to the pinned total (e2e)", {
   nest_temp("map_e2e_eq", write_dir)
   skip_if_no_mapping_e2e()
   # vtot = sum{r,REG, vbloc(REGTOBLOC(r))} with vbloc shocked 10
-  # uniformly: 3 aggregated regions pick up 10 each
+  # uniformly: 3 aggregated regions pick up 10 each under the linear
+  # Johansen solution (a multi-step solution compounds them to 33.1)
   d <- map_data(consistent_mblc)
   model <- ems_model(tab_file, closure_file)
   cmf_path <- ems_deploy(
@@ -393,7 +394,7 @@ test_that("a mapped-index equation solves to the pinned total (e2e)", {
     shock = ems_uniform_shock(var = "vbloc", value = 10),
     swap_in = "vbloc"
   )
-  out <- suppressMessages(ems_solve(cmf_path))
+  out <- suppressMessages(ems_solve(cmf_path, solution_method = "Johansen"))
   vtot <- out[out$name == "vtot", ]
   expect_identical(nrow(vtot), 1L)
   expect_equal(
@@ -418,7 +419,7 @@ test_that("a mapped-index equation solves under a bordered method (e2e)", {
     swap_in = "vbloc"
   )
   out <- suppressMessages(
-    ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2)
+    ems_solve(cmf_path, solution_method = "Johansen", matrix_method = "DBBD", n_tasks = 2)
   )
   vtot <- out[out$name == "vtot", ]
   expect_identical(nrow(vtot), 1L)

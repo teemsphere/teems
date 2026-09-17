@@ -13,11 +13,6 @@
 #'   closure file with .cls extension. See
 #'   \href{https://github.com/teemsphere/teems-models}{teems-models}
 #'   for closure file formatting.
-#' @param omit Character vector of variable length (default is
-#'   `NULL`), variable names to omit from the condensed system.
-#'   Omitted variables must be exogenous in the closure and
-#'   unshocked; their references are replaced with `0` in the
-#'   model and their entries removed from the closure.
 #' @param backsolve Character vector of variable length (default
 #'   is `NULL`), variable names to substitute out of the system
 #'   by backsolving. Unnamed entries resolve their defining
@@ -27,17 +22,13 @@
 #'   in solve outputs. Nominations are validated against the
 #'   GEMPACK substitution requirements (GEMPACK manual, section
 #'   14.1.10).
-#' @param auto_omit Logical length 1 (default is `FALSE`). When
-#'   `TRUE`, [`ems_deploy()`] omits variables that are exogenous in
-#'   every element and carry no shock. Their change is zero, so
-#'   dropping them shrinks the shock vector without altering the
-#'   solved system. Omitted variables are reported at deploy time
-#'   and are absent from solve outputs.
 #' @param ignore_condense Logical length 1 (default is `FALSE`).
-#'   If `TRUE`, `Omit`, `Substitute`, and `Backsolve` statements
-#'   found in the model file are ignored (the equivalent of the
-#'   GEMPACK `ICT` option). In-TAB `Substitute` statements are
-#'   always executed as backsolves.
+#'   If `TRUE`, `Substitute` and `Backsolve` statements found in the
+#'   model file are ignored (the equivalent of the GEMPACK `ICT`
+#'   option). In-TAB `Substitute` statements are always executed as
+#'   backsolves. In-TAB `Omit` statements are always ignored: omission
+#'   does not decrease memory usage or change the solved system in
+#'   TEEMS.
 #' @param ... A named pairlist assigning values to model
 #'   coefficients. Name must match a coefficient declared in the
 #'   model file. Value may be a length-1 numeric, a data frame or
@@ -73,22 +64,18 @@
 #' SUBPAR$Value <- runif(nrow(SUBPAR))
 #'
 #' # Model load with:
-#' # 1) variable omission
-#' # 2) uniform numeric value applied to KAPPA coefficient
-#' # 3) heterogeneous values allocated to SUBPAR via data frame
+#' # 1) uniform numeric value applied to KAPPA coefficient
+#' # 2) heterogeneous values allocated to SUBPAR via data frame
 #'
 #' ems_model(model_file = GTAP_RE[["model_file"]],
 #'           closure_file = GTAP_RE[["closure_file"]],
-#'           omit = c("atall", "avaall", "tfe", "tfm", "tgd", "tgm", "tid", "tim"),
 #'           KAPPA = 0.03,
 #'           SUBPAR = SUBPAR)
 #' }
 ems_model <- function(
     model_file,
     closure_file,
-    omit = NULL,
     backsolve = NULL,
-    auto_omit = FALSE,
     ignore_condense = FALSE,
     ...
 ) {

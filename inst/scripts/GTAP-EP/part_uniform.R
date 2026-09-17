@@ -36,11 +36,12 @@ cmf_path <- ems_deploy(
 outputs <- ems_solve(
   cmf_path = cmf_path,
   matrix_method = "LU",
-  solution_method = "Johansen"
+  solution_method = "Gragg"
 )
 
 # checks
-shk <- outputs$dat$aoall[REGr == "chn" & ACTSa == "coal"]$Value == -1
-null <- outputs$dat$aoall[!(REGr == "chn" & ACTSa == "coal")]$Value == 0
+# multi-step solutions carry rounding, so values are compared within a tolerance
+shk <- abs(outputs$dat$aoall[REGr == "chn" & ACTSa == "coal"]$Value + 1) < 1e-6
+null <- abs(outputs$dat$aoall[!(REGr == "chn" & ACTSa == "coal")]$Value) < 1e-6
 len_check <- (length(shk) + length(null)) == nrow(outputs$dat$aoall)
 checks <- c(shk, null, len_check)

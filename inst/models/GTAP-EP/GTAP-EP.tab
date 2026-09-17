@@ -98,8 +98,8 @@
               qpriv(r), and government demand, qgov(r), in Sections 5-1 and 5-2.
     Sep 2026: TEEMS compatible version: sluggish and fixed endowments declared
               explicitly (ENDWS, ENDWF) in place of the ENDOWFLAG parameter;
-              VERNUM/DVER version stamp dropped; the gtapv7-ep.sti condensation
-              appended as Omit/Backsolve statements (see end of file).
+              VERNUM/DVER version stamp dropped; the gtapv7-ep.sti backsolves
+              appended as Backsolve statements (see end of file).
 
 
     --------------------
@@ -7403,10 +7403,10 @@ postsim (end);
 
 
 !<
-    TEEMS: the gtapv7-ep.sti condensation, written as statements.
+    TEEMS: the gtapv7-ep.sti backsolves, written as statements (its Omit
+    statement is not carried: omission does not decrease memory usage or
+    change the solved system in TEEMS).
 >!
-Omit atall tfe tfd tfm tgd tgm tid tim tpdall tpmall;
-
 Backsolve pfactreal using E_pfactreal;
 Backsolve CNTqpm using E_CNTqpm;
 Backsolve CNTqfd using E_CNTqfd;

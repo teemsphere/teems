@@ -99,7 +99,7 @@
     Sep 2026: TEEMS compatible version: sluggish and fixed endowments declared
               explicitly (ENDWS = AEZS, ENDWF) in place of the ENDOWFLAG
               parameter; VERNUM/DVER version stamp dropped; the
-              gtapv7-aez.sti condensation appended as Omit/Backsolve
+              gtapv7-aez.sti backsolves appended as Backsolve
               statements (see end of file).
 
     ----------------------------------
@@ -6300,21 +6300,18 @@ Equation E_cnt_areareg
     ------------
 
     The standard GTAP-AEZ condensation (gtapv7-aez.sti) is reproduced here
-    as Omit and Backsolve statements so that the model condenses
-    automatically when loaded by TEEMS (GEMPACK manual, section 10.16).
-    Omitted variables are exogenous and unshocked; they are set to zero and
-    removed from the system.  Every backsolved variable is substituted out
-    of the solved system and recovered from its defining equation after the
+    as Backsolve statements so that the model condenses automatically when
+    loaded by TEEMS (GEMPACK manual, section 10.16).  Its Omit statement is
+    not carried: omission does not decrease memory usage or change the
+    solved system in TEEMS.  Every backsolved variable is substituted out of
+    the solved system and recovered from its defining equation after the
     solve, so values remain available in outputs; a variable whose defining
     equation TEEMS partitions over set elements (qfe, E_qfe) stays in the
     solved system.  The Backsolve order below is that of gtapv7-aez.sti and
     is order-dependent.
 
-    To shock an omitted variable, or to solve the full system, set
-    ems_model(ignore_condense = TRUE).
+    To solve the full system, set ems_model(ignore_condense = TRUE).
 >!
-
-Omit atall avaall tfe tfd tfm tgd tgm tpdall tpmall tid tim;
 
 Backsolve pfactreal using E_pfactreal;
 Backsolve CNTqpm using E_CNTqpm;

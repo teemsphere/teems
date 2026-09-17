@@ -6,7 +6,6 @@
 #' @note This will become a method for "process_model"
 #' @noRd
 .process_tablo <- function(tab_file,
-                           omit = NULL,
                            backsolve = NULL,
                            ignore_condense = FALSE,
                            type = NULL,
@@ -49,7 +48,6 @@
 
   condensed <- .condense_model(
     tab = tab,
-    omit = omit,
     backsolve = backsolve,
     ignore_condense = ignore_condense,
     quiet = quiet,
@@ -147,10 +145,9 @@
       "Formulas" = n_form,
       "Sets" = n_sets
     )
-    if (condensed$n_omit + condensed$n_backsolve > 0L) {
+    if (condensed$n_backsolve > 0L) {
       summary_items <- c(
         summary_items,
-        "Omitted" = condensed$n_omit,
         "Backsolved" = condensed$n_backsolve
       )
     }

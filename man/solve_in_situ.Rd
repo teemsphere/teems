@@ -11,7 +11,7 @@ solve_in_situ(
   closure_file,
   shock_file,
   ignore_condense = FALSE,
-  solution_method = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32",
+  solution_method = c("Gragg", "Johansen", "Euler", "RK2", "Heun", "RK4", "BoSha32",
     "DoPri54"),
   matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
@@ -69,12 +69,8 @@ found in the model file are ignored, as for
 that produced the closure and shock files.}
 
 \item{solution_method}{The solution method to be used, default
-is the one-step \code{"Johansen"}. Choices:
+is \code{"Gragg"} with \code{steps = c(2L, 4L, 8L)}. Choices:
 \itemize{
-\item \code{"Johansen"}: The Johansen method is fast however it should
-only be used as a rough approximation due to handling of
-nonlinear equations. See:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
 of linearized steps — an Euler first step, midpoint
@@ -86,6 +82,10 @@ plus an accuracy estimate from the agreement between levels.
 Recommended whenever accuracy matters. See also:
 \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
 solution methods}
+\item \code{"Johansen"}: The one-step Johansen method is fast however it
+should only be used as a rough approximation due to handling of
+nonlinear equations. See:
+\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
 \item \code{"Euler"}: The forward Euler method, computed for each of
 the three step counts in \code{steps} and combined by Richardson
 extrapolation. Converges more slowly than \code{"Gragg"} (its

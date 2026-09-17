@@ -16,12 +16,9 @@ dat <- ems_data(
   ENDW = "labor_agg"
 )
 
-# atall is omitted by the model file's condensation statements; ignore
-# them so that it can be shocked
 model <- ems_model(
   model_file = model_file,
-  closure_file = closure_file,
-  ignore_condense = TRUE
+  closure_file = closure_file
 )
 
 REG <- c("chn", "usa", "row")
@@ -57,7 +54,7 @@ cmf_path <- ems_deploy(
 outputs <- ems_solve(
   cmf_path = cmf_path,
   matrix_method = "LU",
-  solution_method = "Johansen"
+  solution_method = "Gragg"
 )
 
 # checks

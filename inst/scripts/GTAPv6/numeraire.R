@@ -31,10 +31,11 @@ cmf_path <- ems_deploy(
 outputs <- ems_solve(
   cmf_path = cmf_path,
   matrix_method = "LU",
-  solution_method = "Johansen"
+  solution_method = "Gragg"
 )
 
 # checks
-shk <- outputs$dat$pfactwld$Value == 1
+# multi-step solutions carry rounding, so values are compared within a tolerance
+shk <- abs(outputs$dat$pfactwld$Value - 1) < 1e-6
 len_check <- length(shk) == nrow(outputs$dat$pfactwld)
 checks <- c(shk, len_check)

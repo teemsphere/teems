@@ -73,7 +73,6 @@
     condensed = condensed,
     n_backsolve = stats$nbacksolve %|||% (nominated$n_backsolve %|||% 0L),
     n_backsolve_ele = n_backsolve_ele,
-    n_omit = nominated$n_omit %|||% NA_integer_,
     elimination_share = if (isTRUE(uncondensed > 0)) {
       n_backsolve_ele / uncondensed
     } else {

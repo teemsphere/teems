@@ -680,12 +680,11 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
     "qint", "qva", "pva", "pint", "qfa", "pca", "ps", "qfe", "afe",
     "pfd", "pfm"
   )
-  om <- c("tfd", "tfm")
   # ps exercises the combined coefficient pivot (its defining equation
   # retains the variable on both sides after rearrangement)
   cond_model <- suppressWarnings(
     ems_model(static_model_file, static_closure_file,
-      omit = om, backsolve = bs, ignore_condense = TRUE
+      backsolve = bs, ignore_condense = TRUE
     )
   )
 
@@ -694,10 +693,8 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
   cond_cmf <- ems_deploy(static_data, cond_model, real_shock)
   cond <- ems_solve(cond_cmf, solution_method = "Gragg", matrix_method = "LU")
 
-  # backsolved variables are recovered by the solver and reported;
-  # omitted variables are gone from the deployed model entirely
+  # backsolved variables are recovered by the solver and reported
   expect_all_true(bs %in% cond$name)
-  expect_false(any(om %in% cond$name))
 
   # recovered values and surviving core variables match the uncondensed run
   core <- c(bs, "qo", "pds", "pms", "qxs")
@@ -716,14 +713,12 @@ test_that("deploy metadata records the condensation state", {
   nest_temp("solve_condense_meta", write_dir)
   cond_model <- suppressWarnings(
     ems_model(static_model_file, static_closure_file,
-      omit = c("tfd", "tfm"),
       backsolve = c("qint", "qva"),
       ignore_condense = TRUE
     )
   )
   cmf_path <- ems_deploy(static_data, cond_model)
   condense <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))$condense
-  expect_identical(condense$n_omit, 2L)
   expect_identical(condense$n_backsolve, 2L)
   expect_true(condense$n_backsolve_ele > 0)
   expect_true(condense$elimination_share > 0 && condense$elimination_share < 1)
@@ -757,18 +752,6 @@ test_that("condensed deployments are advised against bordered methods (roadmap 6
     ems_solve(cmf_path, matrix_method = "LU", terminal_run = TRUE)
   )
   expect_false(any(grepl("bordered method", lu_msg)))
-
-  # omission alone does not densify anything
-  om_model <- suppressWarnings(
-    ems_model(static_model_file, static_closure_file,
-      omit = c("tfd", "tfm"), ignore_condense = TRUE
-    )
-  )
-  om_cmf <- ems_deploy(static_data, om_model)
-  om_msg <- testthat::capture_messages(
-    ems_solve(om_cmf, matrix_method = "DBBD", n_tasks = 2L, terminal_run = TRUE)
-  )
-  expect_false(any(grepl("bordered method", om_msg)))
 })
 
 test_that("condensed intertemporal deployments are advised against (roadmap 6.2)", {
@@ -913,15 +896,13 @@ test_that("GTAPv6 in-TAB condensation solves equivalently to the full system", {
   cond <- solve_v6(cond_model)
 
   cond_flags <- cond_model[cond_model$type == "Variable", ]
-  omitted <- cond_flags$name[cond_flags$condense %in% "omit"]
   backsolved <- cond_flags$name[cond_flags$condense %in% "backsolve"]
-  expect_false(any(omitted %in% cond$name))
   expect_all_true(backsolved %in% cond$name)
 
   # every surviving variable agrees to roundoff, backsolved ones included
   # (relative to the variable's scale, absolute for the identically-zero
   # slacks such as walraslack)
-  common <- setdiff(intersect(plain$name, cond$name), omitted)
+  common <- intersect(plain$name, cond$name)
   common <- common[common %in% plain_model$name[plain_model$type == "Variable"]]
   expect_gt(length(common), 150L)
   for (v in common) {
@@ -952,10 +933,7 @@ test_that("GTAPv7 in-TAB condensation solves equivalently and the PostSim report
   plain <- solve_v7(plain_model)
   cond <- solve_v7(cond_model)
 
-  cond_flags <- cond_model[cond_model$type == "Variable", ]
-  omitted <- cond_flags$name[cond_flags$condense %in% "omit"]
-  expect_false(any(omitted %in% cond$name))
-  common <- setdiff(intersect(plain$name, cond$name), omitted)
+  common <- intersect(plain$name, cond$name)
   common <- common[common %in% plain_model$name[plain_model$type == "Variable"]]
   expect_gt(length(common), 200L)
   # 68 substitutions through synthesized pivots: agreement to 1e-7 of

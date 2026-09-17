@@ -9,7 +9,7 @@ dat <- ems_data(
 )
 
 # parse the model Tablo file and load the closure
-# tfd is omitted by the model file's condensation statements; ignore
+# qfd is backsolved by the model file's condensation statements; ignore
 # them so that it can be swapped into the closure
 model <- ems_model(
   model_file = model_file,
@@ -52,14 +52,15 @@ cmf_path <- ems_deploy(
 outputs <- ems_solve(
   cmf_path = cmf_path,
   matrix_method = "LU",
-  solution_method = "Johansen"
+  solution_method = "Gragg"
 )
 
 # checks
-exo_shk <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
+# multi-step solutions carry rounding, so values are compared within a tolerance
+exo_shk <- abs(outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value + 1) < 1e-6
 endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
 endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
+exo_null <- abs(outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value) < 1e-6
 qfd_len_check <- (length(exo_shk) + length(endo1)) == nrow(outputs$dat$qfd)
 tfd_len_check <- (length(endo2) + length(exo_null)) == nrow(outputs$dat$tfd)
 checks <- c(exo_shk, endo1, endo2, exo_null, qfd_len_check, tfd_len_check)

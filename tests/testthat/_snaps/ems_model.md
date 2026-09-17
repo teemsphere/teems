@@ -30,14 +30,6 @@
 
     x Cannot open file 'not_a_file': No such file.
 
-# ems_model rejects non-character omit
-
-    x `omit` must be a NULL or character, not a number.
-
-# ems_model rejects invalid variable names in omit
-
-    x "not_a_var" designated for omission not found in the model.
-
 # ems_model rejects invalid coefficient arguments
 
     x `NOT_A_COEFF` is not declared in the model.
@@ -213,6 +205,14 @@
     ! Backsolving qgdp using E_qgdp divides by the coefficient expression GDP(r,t).
     i Ensure this expression can never be zero; a zero value will surface as a solver error.
 
+# in-TAB Omit statements are ignored
+
+    Code
+      model <- ems_model(omit_model, closure_file)
+    Message
+      i In-TAB Omit statements ignored for "atall" and "avaall".
+      i Omission does not decrease memory usage or change the solved system in TEEMS, so these variables stay in the model.
+
 # in-TAB Substitute executes as backsolve with a message
 
     Code
@@ -245,7 +245,7 @@
 
 # ems_model rejects conflicting condensation actions
 
-    x Variable "tva" appears in more than one condensation action (omit/backsolve).
+    x Variable "tva" is nominated for more than one backsolve.
 
 # ems_model rejects a reused backsolve equation
 
@@ -304,22 +304,13 @@
     x Backsolved "pop" is exogenous in the closure.
     i Substituted-out variables must be endogenous; swap out of the closure or drop the backsolve.
 
-# omitted variables must be exogenous in the closure
-
-    x Omitted "qgdp" is not exogenous in the closure.
-    i Omitted variables must be exogenous and unshocked (GEMPACK manual, section 14.1).
-
 # swaps and shocks on condensed variables abort
 
-    x Swap variable "atall" was condensed out of the model (omit).
-    i Condensed variables cannot enter the closure; drop the condensation action in `teems::ems_model()` to swap this variable.
+    x Swap variable "tva" was condensed out of the model (backsolve).
+    i Backsolved variables cannot enter the closure; drop the backsolve in `teems::ems_model()` (or load with `ignore_condense = TRUE`) to swap this variable.
 
 ---
 
-    x Shock variable "atall" was condensed out of the model (omit).
-    i Omitted variables must stay unshocked and backsolved variables are endogenous; drop the condensation action in `teems::ems_model()` to shock this variable.
-
-# ems_model rejects a non-logical auto_omit
-
-    x `auto_omit` must be "TRUE" or "FALSE".
+    x Shock variable "tva" was condensed out of the model (backsolve).
+    i Backsolved variables are endogenous; drop the backsolve in `teems::ems_model()` (or load with `ignore_condense = TRUE`) to shock this variable.
 

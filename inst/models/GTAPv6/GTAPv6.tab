@@ -4051,20 +4051,17 @@ Equation TOT2eq
     Condensation
     ------------
 
-    The standard GTAP condensation (gtap.sti) is reproduced here as Omit
-    and Backsolve statements so that the model condenses automatically
-    when loaded by TEEMS (GEMPACK manual, section 10.16).  Omitted
-    variables are exogenous and unshocked; they are set to zero and
-    removed from the system.  Every backsolved variable is substituted
-    out of the solved system and recovered from its defining equation
-    after the solve, so values remain available in outputs.  The
-    Backsolve order below is that of gtap.sti and is order-dependent.
+    The standard GTAP condensation (gtap.sti) is reproduced here as
+    Backsolve statements so that the model condenses automatically when
+    loaded by TEEMS (GEMPACK manual, section 10.16).  Its Omit statement is
+    not carried: omission does not decrease memory usage or change the
+    solved system in TEEMS.  Every backsolved variable is substituted out of
+    the solved system and recovered from its defining equation after the
+    solve, so values remain available in outputs.  The Backsolve order below
+    is that of gtap.sti and is order-dependent.
 
-    To shock an omitted variable, or to solve the full system, set
-    ems_model(ignore_condense = TRUE).
+    To solve the full system, set ems_model(ignore_condense = TRUE).
 >!
-
-Omit atall avaall tf tfd tfm tgd tgm tpd tpm;
 
 Backsolve pgov using GPRICEINDEX;
 Backsolve qg using GOVDMNDS;

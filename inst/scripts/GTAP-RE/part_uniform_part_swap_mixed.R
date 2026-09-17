@@ -11,12 +11,9 @@ dat <- ems_data(
 )
 
 # parse the model Tablo file and load the closure
-# tfd is omitted by the model file's condensation statements; ignore
-# them so that it can be swapped into the closure
 model <- ems_model(
   model_file = model_file,
-  closure_file = closure_file,
-  ignore_condense = TRUE
+  closure_file = closure_file
 )
 
 # define a uniform shock on a subset of qfd elements
@@ -59,15 +56,17 @@ cmf_path <- ems_deploy(
 # run the Docker-based solver and parse results
 outputs <- ems_solve(
   cmf_path = cmf_path,
-  matrix_method = "LU",
-  solution_method = "Johansen"
+  matrix_method = "SBBD",
+  n_tasks = 2L,
+  solution_method = "Gragg"
 )
 
 # checks
-exo_shk1 <- outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value == -1
+# multi-step solutions carry rounding, so values are compared within a tolerance
+exo_shk1 <- abs(outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value + 1) < 1e-6
 endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
 endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
-exo_null <- outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value == 0
+exo_null <- abs(outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value) < 1e-6
 endo3 <- outputs$dat$dppriv$Value != 0
 exo_shk2 <- abs(outputs$dat$yp$Value - 0.1) < .Machine$double.eps^0.5
 qfd_len_check <- (length(exo_shk1) + length(endo1)) == nrow(outputs$dat$qfd)

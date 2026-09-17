@@ -10,7 +10,7 @@
   solution_method <- a$solution_method
   a$solution_method <- rlang::arg_match(
     arg = solution_method,
-    values = c("Johansen", "Gragg", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
+    values = c("Gragg", "Johansen", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
     error_call = call
   )
   is_rk <- a$solution_method %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")

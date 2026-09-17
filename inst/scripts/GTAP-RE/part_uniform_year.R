@@ -35,12 +35,14 @@ cmf_path <- ems_deploy(
 # run the Docker-based solver and parse results
 outputs <- ems_solve(
   cmf_path = cmf_path,
-  matrix_method = "LU",
-  solution_method = "Johansen"
+  matrix_method = "SBBD",
+  n_tasks = 2L,
+  solution_method = "Gragg"
 )
 
 # checks
-exo_shk <- outputs$dat$aoall[REGr == "chn" & ACTSa == "crops" & Year == year]$Value == -1
-exo_null <- outputs$dat$aoall[!(REGr == "chn" & ACTSa == "crops" & Year == year)]$Value == 0
+# multi-step solutions carry rounding, so values are compared within a tolerance
+exo_shk <- abs(outputs$dat$aoall[REGr == "chn" & ACTSa == "crops" & Year == year]$Value + 1) < 1e-6
+exo_null <- abs(outputs$dat$aoall[!(REGr == "chn" & ACTSa == "crops" & Year == year)]$Value) < 1e-6
 len_check <- (length(exo_shk) + length(exo_null)) == nrow(outputs$dat$aoall)
 checks <- c(exo_shk, exo_null, len_check)

@@ -48,14 +48,12 @@
 # backsolving scales with the share of the uncondensed system that was
 # substituted out (teems-solver ROADMAP 6.2), so the solve-time and
 # probe-time advisories need the share, not just the nomination counts.
-# Omission is recorded too but carries no densification cost.
 #' @keywords internal
 #' @noRd
 .compute_condense_metadata <- function(model,
                                        sets,
                                        system_size) {
   vars <- model[model$type == "Variable" & !is.na(model$condense), ]
-  omitted <- vars[vars$condense %in% "omit", ]
   backsolved <- vars[vars$condense %in% "backsolve", ]
 
   n_backsolve_ele <- .count_var_elements(
@@ -65,12 +63,7 @@
   uncondensed <- system_size + n_backsolve_ele
 
   list(
-    n_omit = nrow(omitted),
     n_backsolve = nrow(backsolved),
-    n_omit_ele = .count_var_elements(
-      var_extract = omitted,
-      sets = sets
-    ),
     n_backsolve_ele = n_backsolve_ele,
     elimination_share = if (uncondensed > 0) n_backsolve_ele / uncondensed else 0
   )

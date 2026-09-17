@@ -88,8 +88,7 @@
 #' real constant; the name is limited to 10 characters; the quantifier
 #' count equals the argument count of the variable and of each
 #' non-constant bound; and the 11.14.1 condensation guards (the
-#' complementarity variable must not be omitted or backsolved, bound
-#' variables must not be omitted). Set matching (equal or same-ordered
+#' complementarity variable must not be backsolved). Set matching (equal or same-ordered
 #' subset) stays solver-side: it needs resolved set elements.
 #'
 #' @keywords internal
@@ -180,10 +179,9 @@
         typ == "variable")[1]
       if (is.na(v_row)) next
       cond <- model$condense[v_row]
-      if (cond %in% "omit" ||
-        (comp_refs$no_backsolve[r] && cond %in% "backsolve")) {
+      if (comp_refs$no_backsolve[r] && cond %in% "backsolve") {
         bad_var <- model$name[v_row]
-        bad_action <- ifelse(cond %in% "omit", "omitted", "backsolved")
+        bad_action <- "backsolved"
         comp_role <- comp_refs$role[r]
         .cli_action(model_err$comp_condense,
           action = c("abort", "inform"),

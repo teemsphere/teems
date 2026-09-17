@@ -110,9 +110,10 @@
               present-value rational expectations mechanism (pval, ror_act,
               REDELTA/RESEDELTA/REEXODELTA switches, ROREXPECTED in place of
               E_rore). TEEMS conventions: sluggish and fixed endowments declared
-              explicitly (ENDWS, ENDWF); no VERNUM; the gtapv7.sti omissions
-              appended as an Omit statement (no backsolves: substitution densifies
-              the block structure the intertemporal methods rely on).
+              explicitly (ENDWS, ENDWF); no VERNUM; no condensation (the
+              gtapv7.sti omissions do not decrease memory usage or change the
+              solved system in TEEMS, and backsolving densifies the block
+              structure the intertemporal methods rely on).
                  	
     ----------------------------------
     Overview of the GTAP.TAB Structure
@@ -5603,12 +5604,6 @@ Formula (initial) (all,r,REG)(all,t,ALLTIME)
 Update (change)(all,r,REG)(all,t,ALLTIME)
     vrore(r,t) = rore(r,t);
 
-!<
-    Omissions (gtapv7.sti): exogenous, unshocked technical-change and tax
-    shifters removed from the solved system. To shock one of them, load the
-    model with ems_model(ignore_condense = TRUE).
->!
-Omit atall avaall tfe tfd tfm tgd tgm tpdall tpmall tid tim;
 
 !<
     =====================

@@ -95,8 +95,8 @@
               qpriv(r), and government demand, qgov(r), in Sections 5-1 and 5-2.
     Sep 2026: TEEMS compatible version: sluggish and fixed endowments declared
               explicitly (ENDWS, ENDWF) in place of the ENDOWFLAG parameter;
-              VERNUM/DVER version stamp dropped; the gtapv7.sti condensation
-              appended as Omit/Backsolve statements (see end of file).
+              VERNUM/DVER version stamp dropped; the gtapv7.sti backsolves
+              appended as Backsolve statements (see end of file).
                  	
     ----------------------------------
     Overview of the GTAP.TAB Structure
@@ -5409,20 +5409,17 @@ postsim (end);
     Condensation
     ------------
 
-    The standard GTAP condensation (gtapv7.sti) is reproduced here as Omit
-    and Backsolve statements so that the model condenses automatically
-    when loaded by TEEMS (GEMPACK manual, section 10.16).  Omitted
-    variables are exogenous and unshocked; they are set to zero and
-    removed from the system.  Every backsolved variable is substituted
-    out of the solved system and recovered from its defining equation
-    after the solve, so values remain available in outputs.  The
-    Backsolve order below is that of gtapv7.sti and is order-dependent.
+    The standard GTAP condensation (gtapv7.sti) is reproduced here as
+    Backsolve statements so that the model condenses automatically when
+    loaded by TEEMS (GEMPACK manual, section 10.16).  Its Omit statement is
+    not carried: omission does not decrease memory usage or change the
+    solved system in TEEMS.  Every backsolved variable is substituted out of
+    the solved system and recovered from its defining equation after the
+    solve, so values remain available in outputs.  The Backsolve order below
+    is that of gtapv7.sti and is order-dependent.
 
-    To shock an omitted variable, or to solve the full system, set
-    ems_model(ignore_condense = TRUE).
+    To solve the full system, set ems_model(ignore_condense = TRUE).
 >!
-
-Omit atall avaall tfe tfd tfm tgd tgm tpdall tpmall tid tim;
 
 Backsolve pfactreal using E_pfactreal;
 Backsolve CNTqpm using E_CNTqpm;

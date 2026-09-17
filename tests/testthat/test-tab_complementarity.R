@@ -163,8 +163,8 @@ test_that("quantifier count mismatch aborts", {
 test_that("condensed complementarity variable aborts", {
   expect_snapshot_error(
     .process_tablo(
-      tab_file = mutate_tab(comp_block),
-      omit = "CX",
+      tab_file = mutate_tab(paste(comp_block, "Equation E_CX CX = CY;", sep = "\n")),
+      backsolve = "CX",
       quiet = TRUE,
       call = NULL
     )

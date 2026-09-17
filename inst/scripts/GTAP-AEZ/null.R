@@ -23,20 +23,19 @@ cmf_path <- ems_deploy(
 outputs <- ems_solve(
   cmf_path = cmf_path,
   matrix_method = "LU",
-  solution_method = "Johansen"
+  solution_method = "Gragg"
 )
 
 # checks
+# multi-step solutions carry rounding, so values are compared within a tolerance
 check <- all(unlist(lapply(
   outputs[outputs$type == "variable", ]$dat,
   \(d) {
-    all(d$Value == 0)
+    all(abs(d$Value) < 1e-6)
   }
 )))
 
-# variables omitted by the model file's condensation statements leave the
-# system and do not appear in the outputs
-n_var <- nrow(model[which(model$type == "Variable" & !model$condense %in% "omit"), ])
+n_var <- nrow(model[which(model$type == "Variable"), ])
 n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
 
 var_check <- isTRUE(all.equal(n_var, nrow(outputs[which(outputs$type == "variable"), ])))

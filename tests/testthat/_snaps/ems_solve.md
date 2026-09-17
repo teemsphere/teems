@@ -107,7 +107,7 @@
       ems_solve(cmf_path, terminal_run = TRUE)
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is
@@ -136,9 +136,9 @@
     Message
       i This deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system) and "DBBD" is a bordered method.
       i Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.
-      i Condensation pays under "LU"; deploy without `backsolve` for bordered runs (`omit` is unaffected -- omission does not densify).
+      i Condensation pays under "LU"; deploy without `backsolve` for bordered runs.
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2    -nsubints 1 -solmed Johansen -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. If errors are present in the terminal output during an ongoing run, it is
@@ -159,7 +159,7 @@
     Message
       i This intertemporal deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system).
       i Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed "LU" run is slower still than plain "SBBD".
-      i Deploy without `backsolve` and solve with "SBBD" (`omit` is unaffected -- omission does not densify).
+      i Deploy without `backsolve` and solve with "SBBD".
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 1 -range_test_updated 1 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       

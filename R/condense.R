@@ -1,5 +1,7 @@
 # Condensation engine (GEMPACK manual 10.16 / 14.1.10):
-# variable omission and backsolving at the TAB level. Backsolved
+# backsolving at the TAB level. In-TAB Omit statements are read and
+# ignored: omission neither decreases memory usage nor changes the
+# solved system in TEEMS (measured 2026-09-17), so it is not offered. Backsolved
 # variables are symbolically substituted out of every other equation;
 # the nominated (defining) equation is retained and a Backsolve
 # statement is emitted at write-out so the solver can recover values
@@ -12,7 +14,6 @@
 #' @keywords internal
 #' @noRd
 .condense_model <- function(tab,
-                            omit,
                             backsolve,
                             ignore_condense,
                             quiet,
@@ -20,7 +21,6 @@
   none <- list(
     tab = tab,
     flags = NULL,
-    n_omit = 0L,
     n_backsolve = 0L
   )
 
@@ -51,16 +51,21 @@
     }
   }
 
-  intab_omit <- purrr::map_chr(
+  omit_var <- purrr::map_chr(
     intab$actions[purrr::map_chr(intab$actions, "action") == "omit"],
     "var"
   )
+  if (length(omit_var) > 0L && !quiet) {
+    .cli_action(model_info$omit_ignored,
+      action = c("inform", "inform"),
+      call = call
+    )
+  }
   intab_backsolve <- intab$actions[
     purrr::map_chr(intab$actions, "action") == "backsolve"
   ]
 
-  if (length(intab_omit) == 0L && length(intab_backsolve) == 0L &&
-    is.null(omit) && is.null(backsolve)) {
+  if (length(intab_backsolve) == 0L && is.null(backsolve)) {
     none$tab <- tab
     return(none)
   }
@@ -82,13 +87,6 @@
   )
   eq_names <- math_extract$name[math_extract$type %in% "Equation"]
 
-  omit_vars <- unique(.canonical_vars(
-    input = c(intab_omit, omit),
-    var_extract = var_extract,
-    err = model_err$invalid_omit,
-    call = call
-  ))
-
   pairs <- .resolve_backsolves(
     intab_backsolve = intab_backsolve,
     backsolve = backsolve,
@@ -101,7 +99,7 @@
     paste(tolower(p$var), tolower(p$eq))
   }))]
 
-  all_vars <- c(omit_vars, purrr::map_chr(pairs, "var"))
+  all_vars <- purrr::map_chr(pairs, "var")
   if (anyDuplicated(tolower(all_vars))) {
     conflict_var <- unique(all_vars[duplicated(tolower(all_vars))])
     .cli_action(model_err$condense_conflict,
@@ -121,25 +119,7 @@
     }
   }
 
-  statement_type <- tolower(purrr::map_chr(strsplit(tab, " "), 1))
-
-  for (var in omit_vars) {
-    has_args <- var_extract$ls_upper_idx[[var]] %!=% NA
-    tab <- .zero_var_refs(
-      var = var,
-      tab = tab,
-      statement_type = statement_type,
-      has_args = has_args
-    )
-  }
-
-  flags <- data.frame(
-    name = omit_vars,
-    type = rep("Variable", length(omit_vars)),
-    condense = rep("omit", length(omit_vars)),
-    condense_eq = rep(NA_character_, length(omit_vars))
-  )
-
+  flags <- NULL
   if (length(pairs) > 0L) {
     tab <- .backsolve_all(
       tab = tab,
@@ -151,7 +131,6 @@
     )
 
     flags <- rbind(
-      flags,
       data.frame(
         name = purrr::map_chr(pairs, "var"),
         type = "Variable",
@@ -170,7 +149,6 @@
   list(
     tab = tab,
     flags = flags,
-    n_omit = length(omit_vars),
     n_backsolve = length(pairs)
   )
 }
@@ -341,25 +319,6 @@
   pairs
 }
 
-# Omission: references become 0 in Equation and Update statements; the
-# declaration statement is retained (write-out filters on the tibble
-# condense flag).
-#' @keywords internal
-#' @noRd
-.zero_var_refs <- function(var,
-                           tab,
-                           statement_type,
-                           has_args) {
-  target <- statement_type %in% c("equation", "update")
-  if (has_args) {
-    pattern <- paste0("(?<![[:alnum:]_])", var, "\\([^\\)]*\\)")
-  } else {
-    pattern <- paste0("(?<![[:alnum:]_])", var, "(?![[:alnum:]_(])")
-  }
-  tab[target] <- gsub(pattern, "0", tab[target], perl = TRUE, ignore.case = TRUE)
-  return(tab)
-}
-
 # ---------------------------------------------------------------------
 # Backsolve engine
 # ---------------------------------------------------------------------
@@ -372,7 +331,6 @@
                            coeff_extract,
                            eq_names,
                            call) {
-  # re-extract: omission zeroing above edited equation texts
   extract <- .generate_extracts(tab = tab, call = call)
   math_extract <- .parse_tab_maths(
     extract = extract$model,

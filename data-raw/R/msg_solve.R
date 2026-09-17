@@ -4,7 +4,7 @@ build_solve_err <- function() {
     wont_fit = c(
       "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} exceeds the container's {mem_gb} GB.",
       "The estimate is {kb_per_eq} kB per equation over {plain_size} plain-equivalent equations (measured 2026-09 on whole containers; conservative by up to a quarter), so the run would be killed by the memory limit, not fail cleanly.",
-      "Remedies: a coarser aggregation, condensation ({.arg backsolve}/{.arg omit} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+      "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
     ),
     no_insitu_inputs = "No input files loaded; all files must be passed as named arguments via {.arg ...}.",
     missing_insitu_inputs = "Required files {.val {req_inputs}} not all provided; missing: {.val {missing_files}}.",
@@ -195,7 +195,7 @@ build_solve_wrn <- function() {
     # test-auto_method.R: "the memory fit check warns inside the model's error band"
     memory_tight = c(
       "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit.",
-      "Remedies: a coarser aggregation, condensation ({.arg backsolve}/{.arg omit} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+      "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
     ),
     accuracy = c(
       "Only {.emph {accuracy}} of variables accurate to at least 4 digits, below the {a_threshold} threshold.",
@@ -211,13 +211,13 @@ build_solve_info <- function() {
     condense_bordered = c(
       "This deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system) and {.val {matrix_method}} is a bordered method.",
       "Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.",
-      "Condensation pays under {.val LU}; deploy without {.arg backsolve} for bordered runs ({.arg omit} is unaffected -- omission does not densify)."
+      "Condensation pays under {.val LU}; deploy without {.arg backsolve} for bordered runs."
     ),
     # test-ems_solve.R: "condensed intertemporal deployments are advised against"
     condense_intertemporal = c(
       "This intertemporal deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system).",
       "Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed {.val LU} run is slower still than plain {.val SBBD}.",
-      "Deploy without {.arg backsolve} and solve with {.val SBBD} ({.arg omit} is unaffected -- omission does not densify)."
+      "Deploy without {.arg backsolve} and solve with {.val SBBD}."
     ),
     # test-ems_solve.R: "docker tag auto-selection"
     docker_tag_auto = "Using image {.field teems:{tag}} (matches host CPU capability {.val {level}}). Set {.arg docker_tag} via {.fn ems_option_set} to override.",

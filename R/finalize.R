@@ -8,7 +8,7 @@
   attr(metadata, "file") <- "metadata.rds"
   data_call <- attr(args_list$.data, "call")
   model_call <- attr(args_list$model, "call")
-  # condensed (omitted/backsolved) variables are out of the solve system:
+  # backsolved variables are out of the solve system:
   # closure, shock, and system-size handling see live variables only
   var_extract <- args_list$model[
     args_list$model$type == "Variable" & is.na(args_list$model$condense),
@@ -46,27 +46,6 @@
     call = call,
     model_call = model_call
   )
-  # opt-in at ems_model(): unshocked wholly-exogenous variables leave the
-  # deployed model, which the post-swap closure and finalized shocks are
-  # the first point able to establish
-  n_auto_omit <- 0L
-  if (isTRUE(attr(args_list$model, "auto_omit"))) {
-    auto <- .auto_omit(
-      model = v$model,
-      closure = closure,
-      sets = sets,
-      shock = v$shock,
-      call = call
-    )
-    if (!is.null(auto)) {
-      v$model <- auto$model
-      closure <- auto$closure
-      n_auto_omit <- length(auto$omitted)
-      var_extract <- v$model[
-        v$model$type == "Variable" & is.na(v$model$condense),
-      ]
-    }
-  }
   # C2: components whose complementarity variable stays endogenous in
   # the post-swap closure are ACTIVE (solved by the solver's
   # approximate-run state machinery) and each contributes one E_$comp
@@ -109,7 +88,6 @@
     sets = sets,
     system_size = size_metadata$system_size
   )
-  metadata$condense$n_auto_omit <- n_auto_omit
   shocks <- .finalize_shocks(
     shock = v$shock,
     closure = closure,

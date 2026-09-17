@@ -247,12 +247,9 @@ build_model_err <- function() {
     comp_condense = c(
       "{.val {bad_var}} cannot be {bad_action}: it is the {comp_role}
       of {.field Complementarity} {.val {comp_name}}.",
-      "The complementarity variable must not be omitted, substituted
-      out or backsolved; bound variables must not be omitted or
-      substituted out (GEMPACK manual 11.14.1)."
+      "The complementarity variable must not be substituted out or
+      backsolved (GEMPACK manual 11.14.1)."
     ),
-    # test-ems_model.R: "ems_model rejects invalid variable names in omit"
-    invalid_omit = "{.val {invalid_var}} designated for omission not found in the model.",
     # test-ems_model.R: "ems_model rejects invalid variable names in backsolve"
     invalid_backsolve_var = "{.val {invalid_var}} designated for backsolving not found in the model.",
     # test-ems_model.R: "ems_model rejects invalid equation names in backsolve"
@@ -264,7 +261,7 @@ build_model_err <- function() {
       "Name the defining equation explicitly: {.code backsolve = c({bs_var} = \"<equation>\")}."
     ),
     # test-ems_model.R: "ems_model rejects conflicting condensation actions"
-    condense_conflict = "Variable{?s} {.val {conflict_var}} appear{?s/} in more than one condensation action (omit/backsolve).",
+    condense_conflict = "Variable{?s} {.val {conflict_var}} {?is/are} nominated for more than one backsolve.",
     # test-ems_model.R: "ems_model rejects a reused backsolve equation"
     condense_eq_reused = "Equation{?s} {.val {reused_eq}} nominated for more than one backsolve.",
     # test-ems_model.R: "backsolve rule violations" (GEMPACK manual 14.1.10)
@@ -287,11 +284,6 @@ build_model_err <- function() {
     condense_endo = c(
       "Backsolved {.val {bs_exo}} {cli::qty(length(bs_exo))}{?is/are} exogenous in the closure.",
       "Substituted-out variables must be endogenous; swap out of the closure or drop the backsolve."
-    ),
-    # test-ems_model.R: "omitted variables must be exogenous in the closure"
-    condense_exo = c(
-      "Omitted {.val {omit_endo}} {cli::qty(length(omit_endo))}{?is/are} not exogenous in the closure.",
-      "Omitted variables must be exogenous and unshocked (GEMPACK manual, section 14.1)."
     ),
     # test-ems_model.R: "ems_model rejects invalid coefficient arguments"
     invalid_coeff = "{.arg {nme}} is not declared in the model.",
@@ -474,6 +466,11 @@ build_model_info <- function() {
     substitute_as_backsolve = c(
       "In-TAB {.field Substitute} statement{?s} for {.val {sub_var}} executed as backsolve{?s}.",
       "Backsolved values remain available in solve outputs; plain substitution is not implemented."
+    ),
+    # test-ems_model.R: "in-TAB Omit statements are ignored"
+    omit_ignored = c(
+      "In-TAB {.field Omit} statement{?s} ignored for {.val {omit_var}}.",
+      "Omission does not decrease memory usage or change the solved system in TEEMS, so these variables stay in the model."
     ),
     # test-ems_model.R: "ignore_condense disables in-TAB condensation"
     condense_ignored = "{n_ignored} in-TAB condensation statement{?s} ignored ({.code ignore_condense = TRUE}).",

@@ -1,5 +1,5 @@
-#' @importFrom data.table data.table fsetdiff funion fintersect
-#' @importFrom purrr pmap map map_lgl pluck map2
+#' @importFrom data.table data.table
+#' @importFrom purrr pmap map map_lgl map2
 #' @importFrom stats na.omit
 #' @importFrom tibble tibble
 #' 
@@ -57,7 +57,7 @@
         set_extract$definition,
         set_extract$name
       ),
-      function(q, d, nm) {
+      \(q, d, nm) {
         if (q %=% "(non_intertemporal)") {
           NULL
         } else {
@@ -86,7 +86,7 @@
   set_extract$mapping <- purrr::map2(
     set_extract$definition,
     set_extract$mapping,
-    function(d, m) {
+    \(d, m) {
       if (is.null(m) && !isTRUE(grepl(set_op_pattern, d, ignore.case = TRUE))) {
         m <- data.table::data.table(
           origin = d,
@@ -116,7 +116,7 @@
         set_extract$definition,
         set_extract$name
       ),
-      function(m, d, nm) {
+      \(m, d, nm) {
         if (is.null(m) && .is_set_builder(d)) {
           # data-dependent selection from the deployed coefficient
           # values (mirror of the solver's tab_setbuilder_transform)
@@ -143,7 +143,7 @@
     )
   }
   
-  set_extract$ele <- purrr::map(set_extract$mapping, function(s) {
+  set_extract$ele <- purrr::map(set_extract$mapping, \(s) {
     unique(s$mapping)
   })
 

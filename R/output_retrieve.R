@@ -1,4 +1,3 @@
-#' @importFrom purrr pluck
 #' 
 #' @keywords internal
 #' @noRd

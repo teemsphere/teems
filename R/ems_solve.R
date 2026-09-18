@@ -269,7 +269,9 @@ dots <- list(...)
 unknown_args <- setdiff(names(dots), c(names(rk_args), names(xtr_args)))
 if (length(dots) &&
   (is.null(names(dots)) || !all(nzchar(names(dots))) || length(unknown_args))) {
-  if (!length(unknown_args)) unknown_args <- "<unnamed>"
+  if (!length(unknown_args)) {
+    unknown_args <- "<unnamed>"
+  }
   .cli_action(solve_err$solver_dots,
     action = c("abort", "inform"),
     call = call
@@ -287,5 +289,9 @@ output <- .implement_solve(
   args_list = args_list,
   call = call
 )
-if (is.null(output)) invisible(output) else output
+if (is.null(output)) {
+  invisible(output)
+} else {
+  output
+}
 }

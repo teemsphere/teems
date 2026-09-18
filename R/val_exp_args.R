@@ -1,4 +1,3 @@
-#' @importFrom tools R_user_dir
 #' @importFrom rlang arg_match
 #'
 #' @keywords internal

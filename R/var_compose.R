@@ -16,7 +16,7 @@
   vars$column_id <- purrr::map2(
     vars$setid,
     vars$size,
-    function(x, y) {
+    \(x, y) {
       if (y != 0) {
         dim <- x[1:y]
       } else {
@@ -31,13 +31,13 @@
     sets = sets
   )
 
-  vars$set <- purrr::map(vars$column_id, function(c_id) {
+  vars$set <- purrr::map(vars$column_id, \(c_id) {
     c_idx <- match(c_id, sets$id)
     set_col <- sets$sets[c_idx]
     return(set_col)
   })
 
-  vars$dt <- lapply(vars$set, function(ele) {
+  vars$dt <- lapply(vars$set, \(ele) {
     if (is.null(unlist(ele))) {
       data.table::data.table(null_set = NA)
     } else {
@@ -95,8 +95,16 @@
             "variable"
           )
         ),
-        ls_upper_idx = list(if (scalar) NA_character_ else dt_cols),
-        ls_mixed_idx = list(if (scalar) NA_character_ else dt_cols)
+        ls_upper_idx = list(if (scalar) {
+          NA_character_
+        } else {
+          dt_cols
+        }),
+        ls_mixed_idx = list(if (scalar) {
+          NA_character_
+        } else {
+          dt_cols
+        })
       )
     }
     # the solver's variable order (post-drop) drives the alignment; a
@@ -107,7 +115,7 @@
     }
   }
 
-  data_dt <- purrr::map(vars$cofname, function(nm) {
+  data_dt <- purrr::map(vars$cofname, \(nm) {
     sets <- vars$dt[[nm]]
     dt_data <- data_dt[data_dt$var == nm, ]
     dt <- cbind(sets, dt_data[, -c("r_idx", "var")])
@@ -124,7 +132,7 @@
   lax_check <- all(unlist(purrr::map2(
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
-    function(check, parsed) {
+    \(check, parsed) {
       all(is.element(tolower(check), tolower(parsed[!parsed %in% c("Value", "error_estimate")])))
     }
   )))
@@ -139,7 +147,7 @@
   strict_check <- all(unlist(purrr::map2(
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
-    function(check, parsed) {
+    \(check, parsed) {
       all(tolower(check) == tolower(parsed[!parsed %in% c("Value", "error_estimate")]))
     }
   )))
@@ -161,10 +169,12 @@
   purrr::map2(
     data_dt,
     var_extract$ls_mixed_idx,
-    function(dt, mixed_col) {
+    \(dt, mixed_col) {
       if (mixed_col %!=% NA_character_) {
         new_names <- c(mixed_col, "Value")
-        if (has_acc) new_names <- c(new_names, "error_estimate")
+        if (has_acc) {
+          new_names <- c(new_names, "error_estimate")
+        }
         data.table::setnames(dt, new = new_names)
         data.table::setkeyv(dt, cols = mixed_col)
       } else {

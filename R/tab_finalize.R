@@ -48,21 +48,25 @@
 
   # coefficient values reach teems-R through the solver's binary dump
   # (<sol>.cof/.cbin); the per-coefficient CSV Write pairs are opt-in
-  coeff_writeout <- if (write_coefficients) paste(
-    "File",
-    "(new)",
-    coeff_extract$name,
-    "#",
-    coeff_extract$name,
-    "output file #;\nWrite",
-    coeff_extract$name,
-    "to file",
-    coeff_extract$name,
-    "header",
-    paste0('"', coeff_extract$name, '"'),
-    "longname",
-    paste0('"', trimws(gsub("#", "", coeff_extract$label)), '"', ";")
-  ) else NULL
+  coeff_writeout <- if (write_coefficients) {
+    paste(
+      "File",
+      "(new)",
+      coeff_extract$name,
+      "#",
+      coeff_extract$name,
+      "output file #;\nWrite",
+      coeff_extract$name,
+      "to file",
+      coeff_extract$name,
+      "header",
+      paste0('"', coeff_extract$name, '"'),
+      "longname",
+      paste0('"', trimws(gsub("#", "", coeff_extract$label)), '"', ";")
+    )
+  } else {
+    NULL
+  }
 
   # PostSim statements re-wrap in a single trailing section (sections
   # are conceptually concatenated at end of file, manual 12.2):

@@ -131,7 +131,7 @@ ems_RK <- function(cmf_path,
       "no"
     }
   }
-  return(ems_solve(
+  sol <- ems_solve(
     cmf_path = cmf_path,
     solution_method = solution_method,
     steps = steps,
@@ -146,5 +146,6 @@ ems_RK <- function(cmf_path,
     rk_h0 = h_init,
     rk_guard = guard,
     ...
-  ))
+  )
+  return(sol)
 }

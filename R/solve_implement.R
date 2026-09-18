@@ -78,7 +78,9 @@
     elapsed_time <- system.time(
       captured <- suppressWarnings(system(cmds$solve, intern = TRUE))
     )
-    if (.o_verbose()) cat(captured, sep = "\n")
+    if (.o_verbose()) {
+      cat(captured, sep = "\n")
+    }
     status <- attr(captured, "status") %|||% 0L
   } else if (.o_verbose()) {
     elapsed_time <- system.time(status <- system(cmds$solve))

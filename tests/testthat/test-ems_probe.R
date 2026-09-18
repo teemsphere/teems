@@ -159,7 +159,7 @@ test_that("probe prints each condensation verdict", {
       list(nbacksolve = 68, nbselems = 2000),
       list(vecsize = 1.35e6)
     )) {
-      .probe_print_condense(do.call(probe_stats_variant, v))
+      .probe_print_cndns(do.call(probe_stats_variant, v))
     }
   })
 })

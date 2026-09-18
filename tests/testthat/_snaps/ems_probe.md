@@ -63,7 +63,7 @@
       for (v in list(list(nbacksolve = 68, nbselems = 2000, bordered = TRUE, ndblock = 35,
         netcut = 400, partition_set = "REG"), list(nbacksolve = 68, nbselems = 2000),
       list(vecsize = 1350000))) {
-        .probe_print_condense(do.call(probe_stats_variant, v))
+        .probe_print_cndns(do.call(probe_stats_variant, v))
       }
     Message
       condensation: 68 backsolved variables (16% of the uncondensed system), but the

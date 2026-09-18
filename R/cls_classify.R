@@ -7,7 +7,7 @@
                           call) {
 
   set_pattern <- paste(sets$name, collapse = "|")
-  closure <- purrr::map(closure, function(c) {
+  closure <- purrr::map(closure, \(c) {
     var_name <- strsplit(c, "\\(")[[1]][1]
     
     new_class <- if (!grepl("\\(|\"", c)) {

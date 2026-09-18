@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .convert_data <- function(i_data) {
-  UseMethod(".convert_data")
+  return(UseMethod(".convert_data"))
 }
 
 #' @method .convert_data GTAPv6
@@ -18,7 +18,7 @@
   ]
 
   missing_par <- c(missing_par, "ESBI")
-  missing_par <- purrr::map(missing_par, function(p) {
+  missing_par <- purrr::map(missing_par, \(p) {
     class(p) <- c(p, class(p))
     return(p)
   })
@@ -33,7 +33,7 @@
   )
 
   new_v7 <- purrr::list_flatten(purrr::compact(new_v7))
-  names(new_v7) <- purrr::map_chr(new_v7, function(p) {
+  names(new_v7) <- purrr::map_chr(new_v7, \(p) {
     class(p)[1]
   })
   i_data <- lapply(i_data,
@@ -46,7 +46,7 @@
   drop_set <- stats::na.omit(set_conversion[is.na(set_conversion$GTAPv7name), "GTAPv6header"])
   i_data <- i_data[!names(i_data) %in% drop_set]
 
-  names(i_data) <- purrr::map_chr(i_data, function(h) {
+  names(i_data) <- purrr::map_chr(i_data, \(h) {
     header <- class(h)[1]
   })
   
@@ -119,7 +119,7 @@
   
   keep_set <- c(set_conversion[!is.na(set_conversion$GTAPv6header), "GTAPv6header"], "TARS")
 
-  i_data <- i_data[purrr::map_lgl(i_data, function(h) {
+  i_data <- i_data[purrr::map_lgl(i_data, \(h) {
     if (inherits(h, "set")) {
       inherits(h, keep_set)
     } else {
@@ -127,7 +127,7 @@
     }
   })]
   
-  names(i_data) <- purrr::map_chr(i_data, function(h) {
+  names(i_data) <- purrr::map_chr(i_data, \(h) {
     header <- class(h)[1]
   })
 

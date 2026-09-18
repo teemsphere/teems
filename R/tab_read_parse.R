@@ -19,14 +19,14 @@
   }
   reads$type <- "Read"
   reads$name <- purrr::map_chr(strsplit(reads$remainder, " "), 1)
-  reads$header <- purrr::map_chr(strsplit(reads$remainder, " "), function(r) {
+  reads$header <- purrr::map_chr(strsplit(reads$remainder, " "), \(r) {
     tail(r, 1)
   })
 
   reads$remainder <- purrr::map2_chr(
     reads$name,
     reads$remainder,
-    function(n, r) {
+    \(n, r) {
       sub(n, "", r)
     }
   )
@@ -34,7 +34,7 @@
   reads$remainder <- purrr::map2_chr(
     reads$header,
     reads$remainder,
-    function(h, r) {
+    \(h, r) {
       gsub(h, "", r)
     }
   )
@@ -83,11 +83,12 @@
   out <- rep(NA_character_, length(remainder))
   hit <- grepl("^\\s*\\(\\s*(by_elements|ifheaderexists)\\s*\\)", remainder, ignore.case = TRUE)
   out[hit] <- paste0("(", tolower(gsub("[\\s()]", "", m, perl = TRUE)), ")")
-  out
+  return(out)
 }
 
 #' @keywords internal
 #' @noRd
 .strip_read_qualifier <- function(remainder) {
-  sub("^\\s*\\(\\s*(by_elements|ifheaderexists)\\s*\\)\\s*", "", remainder, ignore.case = TRUE)
+  stripped <- sub("^\\s*\\(\\s*(by_elements|ifheaderexists)\\s*\\)\\s*", "", remainder, ignore.case = TRUE)
+  return(stripped)
 }

@@ -5,7 +5,7 @@
 .match_year <- function(data,
                         sets,
                         time_steps) {
-  int_sets <- sets[purrr::map_lgl(sets, function(s) {
+  int_sets <- sets[purrr::map_lgl(sets, \(s) {
     isTRUE(attr(s, "intertemporal"))
   })]
   stnd_names <- .dock_tail(colnames(data))
@@ -14,8 +14,6 @@
     TIMEt <- colnames(data)[which(stnd_names %in% names(int_sets))]
     r_idx <- match(data[[TIMEt]], time_steps$all_time)
     data[, let(Year = time_steps$CYRS[r_idx])]
-    return(data)
-  } else {
-    return(data)
   }
+  return(data)
 }

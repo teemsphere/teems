@@ -54,7 +54,7 @@ if (missing(input)) {
 }
 args_list <- mget(names(formals()))
 call <- match.call()
-shock <- .implement_shock(
+shock <- .implement_shk(
   args_list = args_list,
   class = "custom",
   call = call

@@ -4,7 +4,7 @@
                         var_extract,
                         sets,
                         call) {
-    UseMethod(".check_swap")
+    return(UseMethod(".check_swap"))
 }
 
 #' @noRd
@@ -42,7 +42,7 @@
     )
   }
 
-  .abort_condensed(
+  .abort_cndnsd(
     var_name = swap$var,
     var_extract = var_extract,
     err = swap_err$condensed_var,
@@ -70,7 +70,7 @@
     )
   }
 
-  .abort_condensed(
+  .abort_cndnsd(
     var_name = swap$var,
     var_extract = var_extract,
     err = swap_err$condensed_var,
@@ -100,7 +100,7 @@
     )
   }
 
-  .abort_condensed(
+  .abort_cndnsd(
     var_name = swap$var,
     var_extract = var_extract,
     err = swap_err$condensed_var,
@@ -168,7 +168,7 @@
       swap$subset,
       ls_upper
     ),
-    function(nm, c, u) {
+    \(nm, c, u) {
       if (nm %=% c) {
         u
       } else if (attr(c, "type") %=% "ele") {

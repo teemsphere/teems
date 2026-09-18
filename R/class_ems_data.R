@@ -7,5 +7,5 @@
   result <- NextMethod()
   attrs$names <- names(result)
   attributes(result) <- attrs
-  result
+  return(result)
 }

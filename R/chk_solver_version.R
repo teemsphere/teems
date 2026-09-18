@@ -21,45 +21,6 @@
 #' @noRd
 .solver_version_cache <- new.env(parent = emptyenv())
 
-#' Ask an image for its solver version. `NA_character_` when the binary
-#' gives no `teems-solver <version>` line (an image that predates the
-#' flag runs the solver proper instead: PETSc's own `-version` banner,
-#' then `Error: cannot open ./reg.cmf`).
-#'
-#' @keywords internal
-#' @noRd
-.solver_version_query <- function(image) {
-  out <- tryCatch(
-    suppressWarnings(system2("docker",
-      c(
-        "run", "--rm", "--entrypoint", "/opt/teems-solver/solver/teems-solver",
-        image, "-version"
-      ),
-      stdout = TRUE, stderr = TRUE
-    )),
-    error = function(e) character(0)
-  )
-  hit <- regmatches(out, regexpr("^teems-solver [0-9]+\\.[0-9]+\\.[0-9]+\\S*", out))
-  if (!length(hit)) {
-    return(NA_character_)
-  }
-  return(sub("^teems-solver ", "", hit[1]))
-}
-
-#' `MAJOR.MINOR.PATCH` of a version string, pre-release suffix
-#' (`-dev.4`) and R's development component (`.9000`) dropped: a dev
-#' build of 1.1.0 carries the 1.1.0 interface.
-#'
-#' @keywords internal
-#' @noRd
-.solver_version_core <- function(x) {
-  core <- regmatches(x, regexpr("^[0-9]+\\.[0-9]+\\.[0-9]+", x))
-  if (!length(core)) {
-    return(NA)
-  }
-  return(numeric_version(core))
-}
-
 #' @keywords internal
 #' @noRd
 .check_solver_version <- function(image,
@@ -72,7 +33,11 @@
   if (!is.null(cached)) {
     return(invisible(cached))
   }
-  action <- c(if (mode %=% "abort") "abort" else "warn", "inform")
+  action <- c(if (mode %=% "abort") {
+    "abort"
+  } else {
+    "warn"
+  }, "inform")
   pkg_version <- as.character(utils::packageVersion("teems"))
   pkg_core <- .solver_version_core(pkg_version)
   pkg_major <- as.integer(pkg_core[[1, 1]])

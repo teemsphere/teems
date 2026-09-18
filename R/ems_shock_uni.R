@@ -49,7 +49,7 @@ if (missing(value)) {
 args_list <- mget(names(formals()))
 args_list$subset <- list(...)
 call <- match.call()
-shock <- .implement_shock(
+shock <- .implement_shk(
   args_list = args_list,
   class = "uniform",
   call = call

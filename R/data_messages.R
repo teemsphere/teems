@@ -12,6 +12,7 @@
       action = rep("inform", 3)
     )
   }
+  return(invisible(NULL))
 }
 
 #' @importFrom utils packageVersion
@@ -28,4 +29,5 @@
                 call = call
     )
   }
+  return(invisible(NULL))
 }

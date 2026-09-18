@@ -35,9 +35,13 @@
     )
   }
 
-  maps$qualifier_list <- purrr::map_chr(parsed, function(p) {
+  maps$qualifier_list <- purrr::map_chr(parsed, \(p) {
     q <- tolower(gsub("\\s", "", p[2]))
-    if (nzchar(q)) q else NA_character_
+    if (nzchar(q)) {
+      q
+    } else {
+      NA_character_
+    }
   })
   maps$name <- purrr::map_chr(parsed, 3)
   maps$comp1 <- purrr::map_chr(parsed, 4)
@@ -45,7 +49,8 @@
 
   canonical <- function(s) {
     r_idx <- match(tolower(s), tolower(set_names))
-    ifelse(is.na(r_idx), s, set_names[r_idx])
+    canon <- ifelse(is.na(r_idx), s, set_names[r_idx])
+    return(canon)
   }
   maps$comp1 <- canonical(maps$comp1)
   maps$comp2 <- canonical(maps$comp2)

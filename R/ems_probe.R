@@ -86,7 +86,9 @@ ems_probe <- function(cmf_path,
   unknown_args <- setdiff(names(dots), names(xtr_args))
   if (length(dots) &&
     (is.null(names(dots)) || !all(nzchar(names(dots))) || length(unknown_args))) {
-    if (!length(unknown_args)) unknown_args <- "<unnamed>"
+    if (!length(unknown_args)) {
+      unknown_args <- "<unnamed>"
+    }
     .cli_action(probe_err$probe_dots,
       action = c("abort", "inform"),
       call = call
@@ -148,10 +150,10 @@ ems_probe <- function(cmf_path,
   }
   # the recommendation: for this container unless a machine is given
   host <- if (is.null(cores) && is.null(memory)) {
-    .container_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+    .cntnr_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
   } else {
     inspected <- if (is.null(cores) || is.null(memory)) {
-      .container_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+      .cntnr_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
     } else {
       NULL
     }
@@ -168,96 +170,3 @@ ems_probe <- function(cmf_path,
   )
   return(probe)
 }
-
-#' @description The probe run is always sequential (`-n 1`): the
-#'   MC79 diagnosis is serial solver-side and skips itself on more
-#'   ranks. The matrix method is irrelevant to the diagnosis, and the
-#'   solver's probe measures the system structure (chain dimension,
-#'   partition candidates) regardless of the `-matsol` passed.
-#' @keywords internal
-#' @noRd
-.construct_probe_cmd <- function(paths,
-                                 timeID,
-                                 fine,
-                                 extra = NULL) {
-  docker_preamble <- paste(
-    "docker run --rm --mount",
-    # quoted for the platform's shell: an unquoted --mount value split on
-    # the first space in the user's path, and the failure surfaced as a
-    # bare connection error naming neither the path nor docker
-    .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
-    paste0("teems", ":", .resolve_docker_tag()),
-    "/bin/bash -c"
-  )
-  exec_preamble <- paste(
-    docker_preamble,
-    '"/opt/teems-solver/lib/mpi/bin/mpiexec',
-    "-n", 1L,
-    "/opt/teems-solver/solver/teems-solver",
-    "-cmdfile", paths$docker_cmf
-  )
-  docker_diagnostic_out <- file.path(
-    paths$docker_run, "out",
-    paste0("solver_out", "_", timeID, ".txt")
-  )
-  solver_param <- paste(
-    "-matsol", 0L,
-    "-nsubints", 1L,
-    "-solmed", "probe",
-    "-probefine", as.integer(fine),
-    "-maxthreads", 1L,
-    "-nox"
-  )
-  if (!is.null(extra)) {
-    # the la* guesses ride explicitly (the probe factorizes the same
-    # condensed system); the remaining flags render as in ems_solve
-    la_flags <- paste(c(
-      if (!is.null(extra$laA)) paste("-laA", as.integer(extra$laA)),
-      if (!is.null(extra$laD)) paste("-laD", as.integer(extra$laD)),
-      if (!is.null(extra$laDi)) paste("-laDi", as.integer(extra$laDi))
-    ), collapse = " ")
-    extra_flags <- .extra_cli_flags(extra)
-    for (flags in c(la_flags, extra_flags)) {
-      if (!is.null(flags) && nzchar(flags)) {
-        solver_param <- paste(solver_param, flags)
-      }
-    }
-  }
-  solver_out <- paste("2>&1 | tee", paste0(docker_diagnostic_out, "\""))
-  paste(exec_preamble, solver_param, solver_out)
-}
-
-#' @keywords internal
-#' @noRd
-.run_solver_cmd <- function(cmd) {
-  if (Sys.info()[["sysname"]] %=% "Windows") {
-    captured <- character(0)
-    captured <- system(cmd, intern = TRUE)
-    if (.o_verbose()) cat(captured, sep = "\n")
-  } else if (.o_verbose()) {
-    system(cmd)
-  } else {
-    system(cmd,
-      ignore.stdout = TRUE,
-      ignore.stderr = TRUE
-    )
-  }
-  return(invisible(NULL))
-}
-
-#' @keywords internal
-#' @noRd
-.collect_probe <- function(paths,
-                           call) {
-  # same fixed convention as ems_compose (val_compose_args)
-  sol_prefix <- file.path(dirname(paths$cmf), "out", "variables", "bin", "sol")
-  diag_out <- normalizePath(paths$diag_out, "/", mustWork = FALSE)
-  .probe_object(
-    probe_path = paste0(sol_prefix, ".probe.json"),
-    stats_path = paste0(sol_prefix, ".stats.json"),
-    diag_out = diag_out,
-    cmf_path = paths$cmf,
-    call = call
-  )
-}
-

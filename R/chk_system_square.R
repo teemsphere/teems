@@ -32,7 +32,7 @@
     eqs$tab,
     gregexpr("\\(\\s*all\\s*,[^,()]+,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)", eqs$tab, ignore.case = TRUE)
   )
-  eq_sets <- lapply(eq_sets, function(m) {
+  eq_sets <- lapply(eq_sets, \(m) {
     toupper(sub(".*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)$", "\\1", m))
   })
   set_sizes <- lengths(sets$ele)
@@ -43,7 +43,7 @@
   }
   n_eq_ele <- sum(vapply(
     eq_sets,
-    function(s) prod(set_sizes[s]),
+    \(s) prod(set_sizes[s]),
     numeric(1)
   ))
   # C2: one E_$comp equation element per ACTIVE (endogenous)
@@ -71,72 +71,9 @@
     sets = sets,
     closure = closure
   )
-  .cli_action(cls_err$not_square,
+  msg <- .cli_action(cls_err$not_square,
     action = c("abort", "inform", "inform", "inform"),
     call = call
   )
-}
-
-#' Candidate variables whose element counts could close the squaring
-#' gap: exact matches first, nearest counts otherwise
-#'
-#' @keywords internal
-#' @noRd
-.square_candidates <- function(gap,
-                               var_extract,
-                               sets,
-                               closure) {
-  nelem <- vapply(
-    var_extract$ls_upper_idx,
-    function(var_sets) {
-      if (var_sets %=% NA) {
-        return(1)
-      }
-      prod(lengths(with(sets$ele, mget(var_sets, ifnotfound = ""))))
-    },
-    numeric(1)
-  )
-  names(nelem) <- var_extract$name
-
-  exo_count <- rep(0, length(nelem))
-  names(exo_count) <- tolower(var_extract$name)
-  for (entry in closure) {
-    vn <- tolower(attr(entry, "var_name"))
-    ele <- attr(entry, "ele")
-    n <- if (ele %=% NA) 1 else nrow(ele)
-    if (vn %in% names(exo_count)) {
-      exo_count[vn] <- exo_count[vn] + n
-    }
-  }
-
-  if (gap > 0) {
-    # need more exogenous elements: how many endogenous elements each
-    # variable still has
-    avail <- nelem - exo_count[tolower(names(nelem))]
-    verb <- "exogenizing"
-  } else {
-    # too many exogenous: what each variable currently contributes
-    avail <- exo_count[tolower(names(nelem))]
-    names(avail) <- names(nelem)
-    verb <- "endogenizing"
-  }
-  avail <- avail[avail > 0]
-  if (length(avail) == 0L) {
-    return("No single-variable candidate closes the gap.")
-  }
-  exact <- avail[avail == abs(gap)]
-  if (length(exact) > 0L) {
-    picks <- utils::head(names(exact), 5L)
-    return(paste0(
-      "Candidates: ", verb, " ", abs(gap),
-      " element", if (abs(gap) != 1) "s", " of one of ",
-      paste(picks, collapse = ", "), " closes the gap exactly."
-    ))
-  }
-  near <- utils::head(names(avail)[order(abs(avail - abs(gap)))], 5L)
-  paste0(
-    "No single variable matches the gap exactly; nearest by element ",
-    "count: ",
-    paste(paste0(near, " (", avail[near], ")"), collapse = ", "), "."
-  )
+  return(msg)
 }

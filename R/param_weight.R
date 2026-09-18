@@ -75,7 +75,7 @@
   # and the by-set sum below does the collapsing. The weight headers are
   # shared with the Armington parameters, which still read them over
   # COMM, so map a copy rather than renaming in place.
-  is_topp <- vapply(i_data, function(h) {
+  is_topp <- vapply(i_data, \(h) {
     is.data.frame(h) && "TOPP" %in% colnames(h)
   }, logical(1))
   topp_par <- intersect(names(i_data)[is_topp], names(weight_map))
@@ -99,12 +99,12 @@
   # reduce each (weight, kept-sets) combination only once
   reduce_cache <- new.env(parent = emptyenv())
 
-  i_data <- lapply(i_data, function(h) {
+  i_data <- lapply(i_data, \(h) {
     if (inherits(h, names(weight_map))) {
       w_headers <- weight_map[[class(h)[1]]]
       ls_w <- weights[w_headers]
       sets <- colnames(h)[!colnames(h) %in% "Value"]
-      w <- data.table::rbindlist(lapply(ls_w, function(weight) {
+      w <- data.table::rbindlist(lapply(ls_w, \(weight) {
         flip <- inherits(weight, flip_headers)
         if (!is.data.frame(weight)) {
           cache_key <- paste(c(class(weight)[1], sort(sets)), collapse = "|")

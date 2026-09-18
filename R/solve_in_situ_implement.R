@@ -37,7 +37,7 @@
   )
   
   # splice the named solver extras into the ems_solve dots
-  return(do.call(ems_solve, c(
+  sol <- do.call(ems_solve, c(
     list(
       cmf_path = cmf_path,
       solution_method = solution_method,
@@ -60,5 +60,6 @@
       complementarity = complementarity
     ),
     solver_args
-  )))
+  ))
+  return(sol)
 }

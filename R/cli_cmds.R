@@ -1,5 +1,5 @@
 #' @importFrom stats setNames
-#' @importFrom rlang caller_env fn_env trace_back
+#' @importFrom rlang caller_env trace_back
 #' @importFrom purrr map2
 #' @importFrom utils URLencode
 #' @importFrom cli cli_abort cli_inform cli_warn
@@ -17,7 +17,7 @@
   formatted_msg <- purrr::map2(
     msg,
     action,
-    function(m, a) {
+    \(m, a) {
       cli_sym <- switch(a,
         "abort" = "x",
         "inform" = "i",
@@ -57,14 +57,16 @@
   } else {
     stop("invalid .cli_action action")
   }
+  return(invisible(NULL))
 }
 
 .cli_missing <- function(arg) {
   arg <- deparse(substitute(arg))
 
   call <- rlang::trace_back()$call[[1]]
-  .cli_action("argument {.arg {arg}} is missing, with no default",
+  msg <- .cli_action("argument {.arg {arg}} is missing, with no default",
     action = "abort",
     call = call
   )
+  return(msg)
 }

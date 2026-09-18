@@ -23,7 +23,7 @@
     .data <- purrr::map2(
       .data,
       l_idx,
-      function(dt, id) {
+      \(dt, id) {
         full_sets <- model$ls_upper_idx[[id]]
         if (any(duplicated(full_sets))) {
           full_sets[duplicated(full_sets)] <- attr(dt, "sorted")[which(duplicated(full_sets))]
@@ -54,7 +54,7 @@
     data.table::setnames(timesteps, c(t_header_set, "Value"))
     data.table::setkeyv(timesteps, cols = t_header_set)
     append <- list(n_timestep, timesteps)
-    names(append) <- purrr::map_chr(append, function(c) {
+    names(append) <- purrr::map_chr(append, \(c) {
       class(c)[[1]]
     })
     .data <- c(.data, append)
@@ -68,12 +68,12 @@
       call = model_call
     )
 
-    names(.data) <- purrr::map_chr(.data, function(d) {
+    names(.data) <- purrr::map_chr(.data, \(d) {
       class(d)[[1]]
     })
   }
 
-  .data <- lapply(.data, function(dt) {
+  .data <- lapply(.data, \(dt) {
     if (colnames(dt) %!=% "Value") {
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
@@ -101,7 +101,7 @@
   .data <- purrr::map2(
     .data,
     r_idx,
-    function(dt, id) {
+    \(dt, id) {
       data.table::setattr(dt, "file", model$file[id])
       if (!isTRUE(grepl("integer", model$qualifier_list[id]))) {
         type <- "Real"
@@ -135,7 +135,7 @@
   sets <- purrr::map2(
     sets,
     r_idx,
-    function(s, id) {
+    \(s, id) {
       lead <- paste(
         length(s),
         "Strings Length",

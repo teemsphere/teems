@@ -1,7 +1,3 @@
-#' @importFrom tibble tibble as_tibble
-#' @importFrom purrr map_chr pluck
-#' @importFrom cli cli_h1 cli_dl cli_fmt
-#'
 #' @keywords internal
 #' @note This will become a method for "process_model"
 #' @noRd
@@ -11,7 +7,6 @@
                            type = NULL,
                            quiet = FALSE,
                            call) {
-
   tab <- .check_tab_file(
     tab_file = tab_file,
     call = call
@@ -19,22 +14,7 @@
 
   .chk_raw_statements(tab, call = call)
 
-  # PostSim declarations captured by name from the raw statements: the
-  # extraction merge can shift marker rows by one, so declaration rows
-  # are tagged by name while executables use the region flag below
-  ps_region <- cumsum(grepl("^\\s*postsim\\s*\\(\\s*begin", tab, ignore.case = TRUE)) -
-    cumsum(grepl("^\\s*postsim\\s*\\(\\s*end", tab, ignore.case = TRUE))
-  ps_raw <- tab[ps_region > 0 & !grepl("^\\s*postsim", tab, ignore.case = TRUE)]
-  ps_decl_names <- toupper(unlist(lapply(
-    ps_raw[grepl("^\\s*(coefficient|set|subset|file)\\b", ps_raw, ignore.case = TRUE)],
-    function(x) {
-      x <- sub("^\\s*(coefficient|set|subset|file)\\s*", "", x, ignore.case = TRUE)
-      x <- gsub("\\(all\\s*,[^)]*\\)", "", x, ignore.case = TRUE)
-      x <- gsub("\\([^)]*\\)", "", x)
-      x <- trimws(sub("[#(].*$", "", x))
-      strsplit(trimws(x), "\\s+")[[1]][1]
-    }
-  )))
+  ps_decl_names <- .postsim_decl_names(tab)
 
   tab <- .rewrite_tab_if(
     tab = tab,
@@ -46,7 +26,7 @@
     call = call
   )
 
-  condensed <- .condense_model(
+  condensed <- .cndns_model(
     tab = tab,
     backsolve = backsolve,
     ignore_condense = ignore_condense,
@@ -59,40 +39,14 @@
     tab = tab,
     call = call
   )
-  
-  ele_names <- extract$set[with(extract$set,
-    expr = {is.na(header) &
-            qualifier_list == "(non_intertemporal)" &
-            is.na(comp1) &
-            is.na(comp2)}
-    ), ]$definition
 
-  if (any(purrr::map_lgl(
-    ele_names,
-    function(e) {
-      any(tolower(e) != e)
-    }
-  ))) {
-    upper_ele <- unlist(ele_names[tolower(ele_names) != ele_names])
-
-    for (nme in unique(upper_ele)) {
-      pattern <- paste0("\\b", nme, "\\b")
-      tab <- gsub(pattern, tolower(nme), tab)
-    }
-
-    extract <- .generate_extracts(
-      tab = tab,
-      call = call
-    )
-  }
-
-  if (any(grepl("\"CGDS\"", tab, ignore.case = TRUE))) {
-    tab <- gsub("\"CGDS\"", "\"cgds\"", tab, ignore.case = TRUE)
-    extract <- .generate_extracts(
-      tab = tab,
-      call = call
-    )
-  }
+  lowered <- .lower_tab_elements(
+    tab = tab,
+    extract = extract,
+    call = call
+  )
+  tab <- lowered$tab
+  extract <- lowered$extract
 
   var_extract <- .parse_tab_obj(
     extract = extract$model,
@@ -132,32 +86,15 @@
   )
 
   if (.o_verbose() && !quiet) {
-    n_var <- nrow(var_extract)
-    n_eq <- nrow(math_extract[math_extract$type %in% "Equation",])
-    n_form <- nrow(math_extract[math_extract$type %in% "Formula",])
-    n_coeff <- nrow(coeff_extract)
-    n_sets <- nrow(extract$set)
-
-    summary_items <- c(
-      "Variables" = n_var,
-      "Equations" = n_eq,
-      "Coefficients" = n_coeff,
-      "Formulas" = n_form,
-      "Sets" = n_sets
+    model_summary <- .model_summary(
+      var_extract = var_extract,
+      coeff_extract = coeff_extract,
+      math_extract = math_extract,
+      extract = extract,
+      condensed = condensed
     )
-    if (condensed$n_backsolve > 0L) {
-      summary_items <- c(
-        summary_items,
-        "Backsolved" = condensed$n_backsolve
-      )
-    }
-
-    model_summary <- cli::cli_fmt({
-      cli::cli_h1("Model summary:")
-      cli::cli_dl(summary_items)
-    })
   }
-  
+
   read_extract <- .parse_tab_read(
     extract = extract$model,
     call = call
@@ -169,92 +106,28 @@
     call = call
   )
 
-  tab <- paste0(tab, ";")
-
-  tab <- tibble::tibble(
+  tab <- .assemble_tab(
     tab = tab,
-    row_id = seq_along(tab)
+    extract = extract,
+    var_extract = var_extract,
+    coeff_extract = coeff_extract,
+    math_extract = math_extract,
+    read_extract = read_extract,
+    mapping_extract = mapping_extract
   )
 
-  tab_parsed <- rbind(var_extract, coeff_extract, extract$set, math_extract, read_extract, mapping_extract)
-  tab <- tibble::as_tibble(merge(tab_parsed, tab, by = "row_id", all = TRUE))
-  tab <- tab[order(tab$row_id), ]
-
-  tab$type <- ifelse(is.na(tab$type),
-    purrr::pluck(extract, "model", "type"),
-    tab$type
+  tab <- .flag_tab_postsim(
+    tab = tab,
+    ps_decl_names = ps_decl_names,
+    call = call
   )
 
-  tab$row_id <- NULL
-  tab$type <- tools::toTitleCase(tolower(tab$type))
-  tab <- tab[tolower(tab$type) != "write",]
-  # drop File used for output, need a separate fun arg for this
-  tab <- tab[!(tolower(tab$type) == "file" & grepl("(new)", tab$tab, ignore.case = TRUE)),]
+  tab <- .drop_excluded_headers(tab, call = call)
 
-  # PostSim sections (GEMPACK ch.12): tag the region, validate its
-  # contents, drop the markers. Declarations stay in place (the solver
-  # separates PostSim by execution order, not by namespace);
-  # .finalize_tab() re-wraps the executables in a trailing section.
-  is_marker <- tolower(tab$type) %in% "postsim"
-  if (any(is_marker)) {
-    ps_begin <- is_marker & grepl("begin", tab$tab, ignore.case = TRUE)
-    ps_end <- is_marker & grepl("end", tab$tab, ignore.case = TRUE)
-    tab$postsim <- (cumsum(ps_begin) - cumsum(ps_end)) > 0 & !ps_begin
-    ps_allowed <- c(
-      "set", "subset", "coefficient", "file", "mapping",
-      "read", "formula", "assertion", "zerodivide"
-    )
-    ps_bad <- tab$postsim & !is_marker &
-      !tolower(tab$type) %in% ps_allowed
-    if (any(ps_bad)) {
-      ps_bad_types <- unique(tab$type[ps_bad])
-      .cli_action(model_err$postsim_invalid,
-        action = c("abort", "inform"),
-        call = call
-      )
-    }
-    tab <- tab[!is_marker, ]
-  } else {
-    tab$postsim <- FALSE
-  }
-  if (length(ps_decl_names) > 0) {
-    ps_decl <- tolower(tab$type) %in% c("coefficient", "set", "subset", "file") &
-      toupper(tab$name) %in% ps_decl_names
-    tab$postsim <- tab$postsim | ps_decl
-  }
-
-  if (any(tab$header %in% .o_full_exclude())) {
-    x_header <- intersect(tab$header, .o_full_exclude())
-    for (h in unique(x_header)) {
-      x_coeff <- tab$name[match(h, tab$header)]
-      hit <- grepl(paste0("\\b", x_coeff, "\\b"), tab$tab, ignore.case = TRUE)
-      # a Set built from an excluded coefficient (upstream GTAPv7
-      # ENDWM/ENDWS from ENDOWFLAG "EFLG") cannot be evaluated: abort
-      # rather than silently dropping the declaration
-      dep <- hit & tolower(tab$type) %in% c("set", "subset")
-      if (any(dep)) {
-        bad_set <- tab$name[dep][1]
-        excl_coeff <- x_coeff
-        excl_header <- h
-        .cli_action(model_err$exclude_set_dep,
-          action = c("abort", "inform"),
-          call = call
-        )
-      }
-      tab <- tab[!hit, ]
-    }
-  }
-
-  tab$condense <- NA_character_
-  tab$condense_eq <- NA_character_
-  if (!is.null(condensed$flags) && nrow(condensed$flags) > 0L) {
-    flag_key <- paste(condensed$flags$type, tolower(condensed$flags$name))
-    tab_key <- paste(tab$type, tolower(tab$name))
-    r_idx <- match(tab_key, flag_key)
-    tab$condense <- condensed$flags$condense[r_idx]
-    tab$condense_eq <- condensed$flags$condense_eq[r_idx]
-  }
-
+  tab <- .flag_tab_cndns(
+    tab = tab,
+    condensed = condensed
+  )
 
   .check_tab_preflight(tab, call = call)
 

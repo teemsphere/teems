@@ -1,5 +1,3 @@
-#' @importFrom tools R_user_dir
-#' 
 #' @keywords internal
 #' @noRd
 .validate_deploy_args <- function(a,
@@ -26,7 +24,7 @@
     a$shock <- .expand_ele(input = a$shock)
     a$shock <- lapply(
       a$shock,
-      .check_shock,
+      .check_shk,
       var_extract = a$model[a$model$type == "Variable", ],
       sets = sets
     )

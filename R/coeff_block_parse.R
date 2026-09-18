@@ -26,10 +26,10 @@
       flat_vec <- as.numeric(unlist(strsplit(num_ls, split = ",")))
       arr <- t(array(flat_vec, rev(dimen)))
     } else {
-      rows  <- lapply(num_ls, function(r) as.numeric(unlist(strsplit(r, ","))))
-      blank <- vapply(rows, function(r) length(r) %=% 0L, logical(1))
+      rows  <- lapply(num_ls, \(r) as.numeric(unlist(strsplit(r, ","))))
+      blank <- vapply(rows, \(r) length(r) %=% 0L, logical(1))
       slices <- split(rows[!blank], cumsum(blank)[!blank])
-      ls_mat <- lapply(slices, function(g) t(array(unlist(g), rev(dimen[c(1, 2)]))))
+      ls_mat <- lapply(slices, \(g) t(array(unlist(g), rev(dimen[c(1, 2)]))))
       arr <- array(unlist(ls_mat), dimen)
     }
     dimnames(arr) <- setele

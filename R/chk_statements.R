@@ -143,5 +143,6 @@
     paste("Formula (initial)", m[4]),
     trimws(paste("Equation (levels)", m[2], m[3], m[4]))
   )
-  gsub("\\s{2,}", " ", out)
+  statements <- gsub("\\s{2,}", " ", out)
+  return(statements)
 }

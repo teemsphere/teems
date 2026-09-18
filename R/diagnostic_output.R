@@ -1,0 +1,89 @@
+#' @importFrom cli cli_fmt cli_h1 cli_h2 cli_dl cli_text cli_verbatim cli_alert_warning ansi_strip
+#' @importFrom purrr pmap map_chr
+#'
+#' @keywords internal
+#' @noRd
+.diagnostic_output <- function(tab_path,
+                               cmf_path,
+                               closure_path,
+                               shock_path,
+                               data_path,
+                               sets,
+                               closure,
+                               shocks,
+                               metadata) {
+  if (!is.null(shocks) && !is.character(shocks)) {
+    shocks <- purrr::map_chr(shocks, "var")
+    shock_var <- paste0(unique(shocks), collapse = ", ")
+  } else if (is.character(shocks)) {
+    shocks <- NULL
+    shock_var <- "user-defined; undetermined"
+  } else {
+    shocks <- NULL
+    shock_var <- NULL
+    null_shk <- cli::cli_fmt({
+      cli::cli_alert_warning("No shock has been provided so a
+      {.val NULL} shock will be used. A null shock will return all model
+      coefficients as they are read and/or calculated in the model file.
+      Any significant deviation under these conditions would indicate an error
+      in the loading of input files or parsing of model outputs.",
+        wrap = TRUE
+      )
+    })
+  }
+
+  if (any(grepl("\\(intertemporal\\)", sets$qualifier_list))) {
+    temporal_dynamics <- "intertemporal"
+  } else {
+    temporal_dynamics <- "static"
+  }
+
+  data_path <- toString(normalizePath(unlist(data_path), "/"))
+  diagnostic_file <- file.path(dirname(tab_path), "model_diagnostics.txt")
+  diag_output <- cli::cli_fmt({
+    cli::cli_h1("Diagnostic outputs follow")
+    cli::cli_h2("General model specifications")
+    cli::cli_dl(c(
+      "Modeled Tablo file" = normalizePath(tab_path, "/"),
+      "Input files" = data_path,
+      "Temporal dynamics" = temporal_dynamics,
+      "GTAP database version" = metadata$full_database_version,
+      "Reference year" = metadata$reference_year,
+      "Data format" = metadata$data_format
+    ))
+    cli::cli_h2(text = "Set elements")
+    purrr::pmap(
+      .l = list(sets$name, sets$ele, sets$label),
+      .f = \(nme, ele, info) {
+        nme <- toupper(nme)
+        info <- trimws(gsub("#", "", info))
+        cli::cli_text("{nme} ({info}): {.val {paste(ele, collapse = ', ')}}")
+      }
+    )
+    cli::cli_h2("Closure and shock specifications")
+    cli::cli_dl(c(
+      "Exogenous components" = toString(closure),
+      "Number of shocks" = length(shocks),
+      "Variables shocked" = shock_var
+    ))
+  })
+
+  if (.o_verbose()) {
+    if (exists("null_shk")) {
+      cli::cli_verbatim(diag_output, null_shk)
+    } else {
+      cli::cli_verbatim(diag_output)
+    }
+  }
+
+  .ems_write(metadata, write_dir = dirname(tab_path))
+  writeLines(
+    c(
+      sprintf("Run timestamp: %s", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
+      "",
+      cli::ansi_strip(diag_output)
+    ),
+    diagnostic_file
+  )
+  return(invisible(NULL))
+}

@@ -152,7 +152,7 @@ if (length(ignore_condense) != 1L || is.na(ignore_condense)) {
   )
 }
 input_files <- list(...)
-return(.implement_solve_in_situ(
+sol <- .implement_solve_in_situ(
   model_dir = model_dir,
   model_file = model_file,
   closure_file = closure_file,
@@ -179,5 +179,6 @@ return(.implement_solve_in_situ(
   complementarity = complementarity,
   solver_args = solver_args,
   call = call
-))
+)
+return(sol)
 }

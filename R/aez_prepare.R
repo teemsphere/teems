@@ -26,10 +26,9 @@
 #' @noRd
 .is_aez_input <- function(i_data) {
   nm <- toupper(names(i_data))
-  all(c("AEZS", "CROP", "LUSA") %in% nm) && any(c("AREA", "TONS", "LCOV") %in% nm)
+  return(all(c("AEZS", "CROP", "LUSA") %in% nm) && any(c("AREA", "TONS", "LCOV") %in% nm))
 }
 
-#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .prepare_aez <- function(i_data, call) {
@@ -60,15 +59,16 @@
 
   # the CROP and COVS sets carry the model's set names so dimensions
   # renamed onto them keep aggregating
-  rename_set <- function(header, name) {
+  rename_set <- function(i_data, header, name) {
     i <- match(header, nm)
     s <- i_data[[i]]
     class(s)[2] <- name
-    i_data[[i]] <<- s
+    i_data[[i]] <- s
+    return(i_data)
   }
-  rename_set("CROP", "CROPACTS")
-  rename_set("COVS", "LCOV")
-  rename_dim <- function(header, from, to) {
+  i_data <- rename_set(i_data, "CROP", "CROPACTS")
+  i_data <- rename_set(i_data, "COVS", "LCOV")
+  rename_dim <- function(i_data, header, from, to) {
     i <- match(header, nm)
     a <- i_data[[i]]
     dn <- names(dimnames(a))
@@ -76,11 +76,12 @@
       dn[toupper(dn) == from] <- to
       names(dimnames(a)) <- dn
     }
-    i_data[[i]] <<- a
+    i_data[[i]] <- a
+    return(i_data)
   }
-  rename_dim("AREA", "CROP", "CROPACTS")
-  rename_dim("TONS", "CROP", "CROPACTS")
-  rename_dim("LCOV", "COVS", "LCOV")
+  i_data <- rename_dim(i_data, "AREA", "CROP", "CROPACTS")
+  i_data <- rename_dim(i_data, "TONS", "CROP", "CROPACTS")
+  i_data <- rename_dim(i_data, "LCOV", "COVS", "LCOV")
 
   reg <- .layer_elements(i_data, "REG")
   aezs <- .layer_elements(i_data, "AEZS")
@@ -91,7 +92,7 @@
       arr <- array(value, dim = lengths(dims), dimnames = dims)
     }
     class(arr) <- c(header, "par", fmt, class(arr))
-    arr
+    return(arr)
   }
   new_par <- list(
     EAEZ = mk_par("EAEZ", list(ACTS = acts, REG = reg), ifelse(acts %in% lusa, 20, 0)),
@@ -102,5 +103,6 @@
   )
   new_par <- new_par[!names(new_par) %in% nm]
 
-  .layer_finish(i_data, new_sets, new_par, attrs = attrs, flag = "aez")
+  prepared <- .layer_finish(i_data, new_sets, new_par, attrs = attrs, flag = "aez")
+  return(prepared)
 }

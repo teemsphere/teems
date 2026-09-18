@@ -27,13 +27,13 @@
     return(invisible(NULL))
   }
 
-  lagged_refs <- purrr::map(eqs$definition, function(def) {
+  lagged_refs <- purrr::map(eqs$definition, \(def) {
     refs <- regmatches(
       def,
       gregexpr("[a-zA-Z][a-zA-Z0-9_]*\\s*\\([^()]*\\)", def)
     )[[1]]
 
-    keep <- purrr::map_lgl(refs, function(ref) {
+    keep <- purrr::map_lgl(refs, \(ref) {
       args <- sub("^[^(]*\\(", "", sub("\\)$", "", ref))
       args <- trimws(strsplit(args, ",")[[1]])
       any(grepl("^[a-zA-Z][a-zA-Z0-9_]*\\s*[+-]\\s*[0-9]+$", args))
@@ -52,7 +52,7 @@
     tolower(var_extract$name[!proxies])
   )
 
-  offending <- purrr::map_lgl(lagged_vars, function(v) {
+  offending <- purrr::map_lgl(lagged_vars, \(v) {
     var_sets <- var_extract$ls_upper_idx[[match(v, tolower(var_extract$name))]]
     sum(!toupper(var_sets) %in% int_sets) >= 2
   })
@@ -61,14 +61,14 @@
     return(invisible(NULL))
   }
 
-  offenders <- purrr::map_chr(lagged_vars[offending], function(v) {
+  offenders <- purrr::map_chr(lagged_vars[offending], \(v) {
     var_sets <- var_extract$ls_upper_idx[[match(v, tolower(var_extract$name))]]
     paste0(v, "(", paste(var_sets, collapse = ","), ")")
   })
 
   lag_eqs <- names(lagged_refs)[purrr::map_lgl(
     lagged_refs,
-    function(refs) any(lagged_vars[offending] %in% refs)
+    \(refs) any(lagged_vars[offending] %in% refs)
   )]
 
   .cli_action(model_wrn$netcut_inflation,

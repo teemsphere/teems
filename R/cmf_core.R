@@ -25,7 +25,7 @@
   if (uni_dir %!=% 1L) {
     files <- purrr::map(
       files,
-      function(f) {
+      \(f) {
         nme <- basename(f)
         new_path <- file.path(write_dir, nme)
         file.copy(f, new_path)
@@ -59,7 +59,7 @@
     var_output
   )
   
-  cmf <- purrr::map_chr(cmf, function(c) {
+  cmf <- purrr::map_chr(cmf, \(c) {
     gsub(write_dir, "/opt/teems", c, fixed = TRUE)
   })
 

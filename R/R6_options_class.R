@@ -260,7 +260,7 @@ options_new <- function(verbose = NULL,
                         full_exclude = NULL,
                         docker_tag = NULL,
                         version_check = NULL) {
-  options_class$new(
+  return(options_class$new(
     verbose = verbose,
     tempdir = tempdir,
     ndigits = ndigits,
@@ -271,7 +271,7 @@ options_new <- function(verbose = NULL,
     full_exclude = full_exclude,
     docker_tag = docker_tag,
     version_check = version_check
-  )
+  ))
 }
 
 ems_options <- options_new()

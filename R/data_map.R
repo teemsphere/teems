@@ -41,5 +41,5 @@
       action = "abort"
     )
   }
-  invisible(NULL)
+  return(invisible(NULL))
 }

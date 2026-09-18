@@ -68,7 +68,7 @@
     writeout <- coeff_writeout
   }
   
-  writeout <- purrr::map_chr(writeout, function(c) {
+  writeout <- purrr::map_chr(writeout, \(c) {
     gsub(write_dir, "/opt/teems", c, fixed = TRUE)
   })
 

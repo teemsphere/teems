@@ -13,7 +13,7 @@
 
   list_coeff <- lapply(
     ls_data,
-    FUN = function(dat) {
+    FUN = \(dat) {
       lead <- dat[1]
       dat  <- dat[-length(dat)]
       dat  <- dat[-1]
@@ -54,7 +54,7 @@
       col_nmes = coeff_tib$set_nmes,
       num_ls   = coeff_tib$ls_data
     ),
-    .f = function(dimen, col_nmes, num_ls) {
+    .f = \(dimen, col_nmes, num_ls) {
       dt <- .parse_coeff_block(dimen, col_nmes, num_ls, sets, call)
       return(dt)
     }

@@ -34,5 +34,5 @@
     tab <- iconv(tab, from = "latin1", to = "UTF-8", sub = "")
   }
   Encoding(tab) <- "UTF-8"
-  tab
+  return(tab)
 }

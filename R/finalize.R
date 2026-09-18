@@ -81,14 +81,18 @@
   # the ems_probe() recommendation): one per time step, as the solver's
   # probe counts them (ntime)
   time_steps <- attr(args_list$.data, "time_steps")
-  metadata$n_time <- if (is.null(time_steps)) 0L else length(time_steps)
+  metadata$n_time <- if (is.null(time_steps)) {
+    0L
+  } else {
+    length(time_steps)
+  }
   # read back at solve/probe time by the condensation advisory
-  metadata$condense <- .compute_condense_metadata(
+  metadata$condense <- .compute_cndns_metadata(
     model = v$model,
     sets = sets,
     system_size = size_metadata$system_size
   )
-  shocks <- .finalize_shocks(
+  shocks <- .finalize_shks(
     shock = v$shock,
     closure = closure,
     sets = sets,

@@ -22,7 +22,8 @@
       manual[i] <- solver_error_map$manual[hit[1]]
     }
   }
-  data.frame(class = class, manual = manual, stringsAsFactors = FALSE)
+  errors <- data.frame(class = class, manual = manual, stringsAsFactors = FALSE)
+  return(errors)
 }
 
 #' @keywords internal

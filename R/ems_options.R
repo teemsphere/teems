@@ -70,16 +70,36 @@ ems_option_set <- function(verbose = NULL,
                            docker_tag = NULL,
                            version_check = NULL) {
   call <- match.call()
-  if (!is.null(verbose)) ems_options$set_verbose(verbose, call = call)
-  if (!is.null(tempdir)) ems_options$set_tempdir(tempdir, call = call)
-  if (!is.null(ndigits)) ems_options$set_ndigits(ndigits, call = call)
-  if (!is.null(accuracy_threshold)) ems_options$set_accuracy_threshold(accuracy_threshold, call = call)
-  if (!is.null(check_shock_status)) ems_options$set_check_shock_status(check_shock_status, call = call)
-  if (!is.null(timestep_header)) ems_options$set_timestep_header(timestep_header, call = call)
-  if (!is.null(n_timestep_header)) ems_options$set_n_timestep_header(n_timestep_header, call = call)
-  if (!is.null(full_exclude)) ems_options$set_full_exclude(full_exclude, call = call)
-  if (!is.null(docker_tag)) ems_options$set_docker_tag(docker_tag, call = call)
-  if (!is.null(version_check)) ems_options$set_version_check(version_check, call = call)
+  if (!is.null(verbose)) {
+    ems_options$set_verbose(verbose, call = call)
+  }
+  if (!is.null(tempdir)) {
+    ems_options$set_tempdir(tempdir, call = call)
+  }
+  if (!is.null(ndigits)) {
+    ems_options$set_ndigits(ndigits, call = call)
+  }
+  if (!is.null(accuracy_threshold)) {
+    ems_options$set_accuracy_threshold(accuracy_threshold, call = call)
+  }
+  if (!is.null(check_shock_status)) {
+    ems_options$set_check_shock_status(check_shock_status, call = call)
+  }
+  if (!is.null(timestep_header)) {
+    ems_options$set_timestep_header(timestep_header, call = call)
+  }
+  if (!is.null(n_timestep_header)) {
+    ems_options$set_n_timestep_header(n_timestep_header, call = call)
+  }
+  if (!is.null(full_exclude)) {
+    ems_options$set_full_exclude(full_exclude, call = call)
+  }
+  if (!is.null(docker_tag)) {
+    ems_options$set_docker_tag(docker_tag, call = call)
+  }
+  if (!is.null(version_check)) {
+    ems_options$set_version_check(version_check, call = call)
+  }
   invisible(NULL)
 }
 

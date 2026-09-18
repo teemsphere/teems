@@ -8,7 +8,7 @@
   remainder <- unlist(purrr::map2(
     pattern,
     remainder,
-    function(p, rem) {
+    \(p, rem) {
       # an empty pattern (e.g. the empty label "# #") advances nothing
       if (!is.na(p) && nzchar(p)) {
         trimws(sub(p, "", rem, fixed = fixed))

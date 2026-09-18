@@ -6,12 +6,12 @@
                         nested = FALSE) {
 
   if (any(purrr::map_lgl(input, inherits, "multi"))) {
-    multi_ele <- lapply(input, function(m) {
+    multi_ele <- lapply(input, \(m) {
       if (inherits(m, "multi")) {
         ele_comb <- expand.grid(m$subset, stringsAsFactors = FALSE)
         purrr::map(
           .x = seq_len(nrow(ele_comb)),
-          .f = function(c) {
+          .f = \(c) {
             new_list <- m
             for (set_name in names(m$subset)) {
               new_list[["subset"]][[set_name]] <- ele_comb[[set_name]][c]

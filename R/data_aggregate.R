@@ -7,7 +7,7 @@
 .aggregate_data <- function(dt,
                             sets,
                             ...) {
-  UseMethod(".aggregate_data")
+  return(UseMethod(".aggregate_data"))
 }
 
 #' @keywords internal

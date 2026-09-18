@@ -5,7 +5,12 @@
 #' @keywords internal
 #' @noRd
 .shell_quote <- function(x, os = .Platform$OS.type) {
-  shQuote(x, type = if (os %=% "windows") "cmd" else "sh")
+  quoted <- shQuote(x, type = if (os %=% "windows") {
+    "cmd"
+  } else {
+    "sh"
+  })
+  return(quoted)
 }
 
 #' @importFrom cli cli_verbatim cli_ol
@@ -95,7 +100,8 @@
   # (the R defaults are the solver's; effective values also land in
   # sol.stats.json and model_diagnostics.txt)
   mode_flag <- function(flag, x) {
-    paste(flag, c(off = 0L, warn = 1L, fatal = 2L)[[x]])
+    flag <- paste(flag, c(off = 0L, warn = 1L, fatal = 2L)[[x]])
+    return(flag)
   }
   solver_param <- paste(c(
     solver_param,

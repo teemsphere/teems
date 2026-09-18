@@ -1,4 +1,3 @@
-#' @importFrom cli cli_warn
 #' @importFrom purrr map_lgl
 #' @importFrom tools file_path_sans_ext
 #'
@@ -103,7 +102,7 @@
   timesteps <- NULL
   metadata <- !is.null(paths$metadata)
 
-  if (any(purrr::map_lgl(sets, function(s) {
+  if (any(purrr::map_lgl(sets, \(s) {
     isTRUE(attr(s, "intertemporal"))
   })) && metadata) {
     timesteps <- .get_timesteps(

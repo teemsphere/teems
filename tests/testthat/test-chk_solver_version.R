@@ -47,14 +47,15 @@ test_that("a solver below the package floor aborts by name", {
 test_that("a conforming image passes, is cached, and is asked once", {
   reset_cache()
   ems_option_reset()
-  calls <- 0L
+  rec <- new.env(parent = emptyenv())
+  rec$calls <- 0L
   local_mocked_bindings(.solver_version_query = function(image) {
-    calls <<- calls + 1L
+    rec$calls <- rec$calls + 1L
     "1.1.0-dev.4"
   })
   expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0-dev.4")
   expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0-dev.4")
-  expect_identical(calls, 1L)
+  expect_identical(rec$calls, 1L)
   expect_identical(get("teems:ok", envir = .solver_version_cache), "1.1.0-dev.4")
 })
 

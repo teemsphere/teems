@@ -6,7 +6,7 @@
 #' @noRd
 .abind <- function(..., along = N) {
   arg.list <- list(...)
-  N <- max(1, sapply(list(...), function(x) length(dim(x))))
+  N <- max(1, sapply(list(...), \(x) length(dim(x))))
   have.list.arg <- FALSE
 
   pre <- seq(from = 1, length.out = along - 1)

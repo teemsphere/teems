@@ -1,4 +1,4 @@
-#' @importFrom purrr map2 pmap map map_chr pluck
+#' @importFrom purrr map2 pmap map_chr pluck
 #' 
 #' @keywords internal
 #' @note Replace all sapply with purrr::map
@@ -25,7 +25,7 @@
   maths$name <- unlist(purrr::map2(
     maths$type,
     maths$remainder,
-    function(t, r) {
+    \(t, r) {
       if (t %=% "Equation") {
         lapply(strsplit(r, " "), "[[", 1)
       } else {
@@ -37,9 +37,10 @@
   maths$remainder <- unlist(purrr::map2(
     maths$remainder,
     maths$name,
-    function(r, n) {
+    \(r, n) {
       if (!is.na(n)) {
-        return(trimws(sub(n, "", r, fixed = TRUE)))
+        maths <- trimws(sub(n, "", r, fixed = TRUE))
+        return(maths)
       } else {
         return(r)
       }
@@ -61,7 +62,7 @@
       maths$label,
       maths$type
     ),
-    function(rem, info, t) {
+    \(rem, info, t) {
       if (t %=% "Equation") {
         if (grepl(pattern = "#", rem)) {
           rem <- strsplit(rem, "#")[[1]][3]
@@ -106,7 +107,7 @@
     pattern = maths$qualifier_list
   )
 
-  maths$full_set <- purrr::map_chr(maths$remainder, function(r) {
+  maths$full_set <- purrr::map_chr(maths$remainder, \(r) {
     return_comp <- regmatches(
       r,
       regexec(
@@ -123,7 +124,7 @@
     return(return_comp)
   })
 
-  maths$definition <- purrr::map_chr(maths$remainder, function(r) {
+  maths$definition <- purrr::map_chr(maths$remainder, \(r) {
     return_comp <- regmatches(
       r,
       regexec(
@@ -146,7 +147,7 @@
   # (sum{r,REG: MAP(r)=b, ...}, manual 11.4.11) put "=" inside the RHS
   def_split <- strsplit(maths$definition, split = "=")
   maths$comp1 <- trimws(purrr::map_chr(def_split, 1))
-  maths$comp2 <- trimws(purrr::map_chr(def_split, function(s) {
+  maths$comp2 <- trimws(purrr::map_chr(def_split, \(s) {
     if (length(s) < 2L) {
       return(NA_character_)
     }

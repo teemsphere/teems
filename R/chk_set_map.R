@@ -5,7 +5,7 @@
                            database_version,
                            call,
                            ...) {
-  UseMethod(".check_set_map")
+  return(UseMethod(".check_set_map"))
 }
 
 #' @importFrom purrr pluck
@@ -80,15 +80,19 @@
 #' @noRd
 .match_set_data <- function(set_data,
                             map_name) {
-  hit <- purrr::map_lgl(set_data, function(s) {
+  hit <- purrr::map_lgl(set_data, \(s) {
     if (inherits(s, map_name)) {
       return(TRUE)
     }
-    fmt <- if (inherits(s, "GTAPv7")) "GTAPv7" else "GTAPv6"
+    fmt <- if (inherits(s, "GTAPv7")) {
+      "GTAPv7"
+    } else {
+      "GTAPv6"
+    }
     id <- match(class(s)[1], set_conversion[[paste0(fmt, "header")]])
     !is.na(id) && identical(set_conversion[[paste0(fmt, "name")]][id], map_name)
   })
-  set_data[hit]
+  return(set_data[hit])
 }
 
 #' Every element the data carries for a set must have a row in its
@@ -109,10 +113,10 @@
       call = call
     )
   }
-  invisible(NULL)
+  return(invisible(NULL))
 }
 
-#' @importFrom data.table fread is.data.table as.data.table copy fsetequal
+#' @importFrom data.table fread is.data.table as.data.table copy
 #' @importFrom purrr pluck map_lgl
 #' 
 #' @keywords internal

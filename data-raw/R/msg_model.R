@@ -91,6 +91,12 @@ build_model_err <- function() {
     number nor a declared coefficient: {.val {bad_stmt}}",
     qual_unbalanced = "Unbalanced parentheses in the qualifier list of:
     {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "unbalanced parentheses abort"
+    stmt_unbalanced = c(
+      "Unbalanced parentheses in: {.val {bad_stmt}}",
+      "Every {.code (} needs a matching {.code )}; an unclosed
+      {.code sum(} is the common case."
+    ),
     # test-chk_tab_preflight.R: "duplicate bounds abort"
     bound_dup = c(
       "Duplicate {bound_dir} bound in declaration: {.val {bad_stmt}}",

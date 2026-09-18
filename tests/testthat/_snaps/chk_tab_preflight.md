@@ -209,3 +209,13 @@
     x Statement "Equation E_long (all,r,REG) qgdp(r) = 0+qgdp(r)+qgdp(r)+qgdp..." needs about 21061 characters in the solver, over its 20000-character statement limit.
     i Split it into shorter statements, for example through intermediate coefficients or variables. Equation and Update statements count 2 extra characters per variable reference.
 
+# unbalanced parentheses abort
+
+    x Unbalanced parentheses in: "Formula (all,r,REG) CUNB(r) = sum(c,COMM, VDFP(c,\"food\",r)"
+    i Every `(` needs a matching `)`; an unclosed `sum(` is the common case.
+
+---
+
+    x Unbalanced parentheses in: "Formula (all,r,REG) CUNB2(r) = (VGDP(r)+1))"
+    i Every `(` needs a matching `)`; an unclosed `sum(` is the common case.
+

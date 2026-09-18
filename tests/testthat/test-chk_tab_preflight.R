@@ -287,3 +287,12 @@ test_that("statements over the solver statement buffer abort", {
     "Equation E_long (all,r,REG) qgdp(r) = 0", strrep("+qgdp(r)", 2100), ";"
   ))
 })
+
+test_that("unbalanced parentheses abort", {
+  expect_preflight_error(
+    "Coefficient (all,r,REG) CUNB(r);\nFormula (all,r,REG) CUNB(r) = sum(c,COMM, VDFP(c,\"food\",r);"
+  )
+  expect_preflight_error(
+    "Coefficient (all,r,REG) CUNB2(r);\nFormula (all,r,REG) CUNB2(r) = (VGDP(r)+1));"
+  )
+})

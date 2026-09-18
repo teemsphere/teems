@@ -62,7 +62,7 @@ test_that("complementarity statements classify and pass through", {
   )
 })
 
-test_that("GMig2-shaped complementarity parses (3-dim, bounds forms)", {
+test_that("three-dimensional complementarity parses (bounds forms)", {
   model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (change,levels) (all,i,COMM)(all,r,REG)(all,s,REG) NM(i,r,s);",

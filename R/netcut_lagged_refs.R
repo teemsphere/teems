@@ -1,7 +1,4 @@
-#' Lead/lag variable references within one equation statement that fix
-#' at least one dimension to a quoted element. Returns a table with the
-#' character span of each reference and its parsed arguments.
-#'
+#' @importFrom tibble as_tibble
 #' @keywords internal
 #' @noRd
 .netcut_lagged_refs <- function(stmt, vars) {

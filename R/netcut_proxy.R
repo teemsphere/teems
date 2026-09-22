@@ -1,8 +1,3 @@
-#' The proxy (cached by variable and fixed-element pattern) for one
-#' lead/lag reference: list(pre, after, ref) — the statements to insert
-#' (possibly none when cached), the statement index to insert after,
-#' and the replacement reference text.
-#'
 #' @keywords internal
 #' @noRd
 .netcut_proxy <- function(ref,

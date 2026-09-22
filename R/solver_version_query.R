@@ -1,8 +1,3 @@
-#' Ask an image for its solver version. `NA_character_` when the binary
-#' gives no `teems-solver <version>` line (an image that predates the
-#' flag runs the solver proper instead: PETSc's own `-version` banner,
-#' then `Error: cannot open ./reg.cmf`).
-#'
 #' @keywords internal
 #' @noRd
 .solver_version_query <- function(image) {

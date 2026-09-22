@@ -1,6 +1,5 @@
 #' @importFrom tibble tibble
 #' @importFrom purrr map_chr
-#'
 #' @keywords internal
 #' @noRd
 .retrieve_tab_comp <- function(tab_path,

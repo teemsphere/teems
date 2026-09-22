@@ -1,5 +1,4 @@
-#' @importFrom purrr map
-#'
+#' @importFrom purrr map map_chr
 #' @keywords internal
 #' @noRd
 .cmf_core <- function(input_files,

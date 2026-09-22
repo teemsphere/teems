@@ -1,7 +1,4 @@
 #' @importFrom rlang arg_match
-#'
-# the enum-valued arguments, normalized to their canonical spelling,
-# plus the per-method step default
 #' @keywords internal
 #' @noRd
 .validate_solver_methods <- function(a,
@@ -15,10 +12,6 @@
   is_rk <- a$solution_method %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")
   is_rk_embedded <- a$solution_method %in% c("BoSha32", "DoPri54")
 
-  # the step count the method expects, when the user named none: the
-  # extrapolating methods take the triple, the Runge-Kutta methods one
-  # count (as ems_RK defaults it). A single shared default could not
-  # serve both, and the triple reached the RK branch as a user error.
   if (is.null(a$steps)) {
     a$steps <- if (is_rk) {
       4L

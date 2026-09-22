@@ -1,6 +1,5 @@
 #' @importFrom purrr pluck
 #' @importFrom data.table setcolorder copy
-#'
 #' @noRd
 #' @keywords internal
 .check_cst_scen <- function(shock,

@@ -9,7 +9,6 @@
     return(isa_levels)
   }
 
-  # the CPU does not change within a session; probe the container once
   if (is.null(.isa_cache$levels)) {
     levels <- .cntnr_isa_levels()
     if (!length(levels)) {

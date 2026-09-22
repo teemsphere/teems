@@ -1,6 +1,3 @@
-#' Is this term exactly one IF call? Returns its condition and value
-#' (split at the first top-level comma) or NULL.
-#'
 #' @keywords internal
 #' @noRd
 .parse_if_term <- function(body) {

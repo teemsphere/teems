@@ -1,6 +1,5 @@
 #' @importFrom data.table dcast fwrite setorder setorderv .SD
 #' @importFrom utils head
-#'
 #' @keywords internal
 #' @noRd
 .shk_ragged_write <- function(input,

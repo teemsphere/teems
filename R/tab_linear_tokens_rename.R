@@ -1,6 +1,3 @@
-# Rename identifier tokens per `map` (named character: old -> new),
-# leaving quoted elements untouched. Single simultaneous pass, so
-# swap-type maps are safe.
 #' @keywords internal
 #' @noRd
 .rename_expr_tokens <- function(text, map) {

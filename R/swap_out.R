@@ -10,11 +10,10 @@
   return(UseMethod(".swap_out"))
 }
 
-#' @importFrom purrr map
+#' @importFrom purrr map pluck
 #' @importFrom data.table rbindlist fsetdiff fintersect setnames copy
 #' @importFrom utils capture.output head
 #' @importFrom cli cli_format
-#' 
 #' @keywords internal
 #' @noRd
 #' @method .swap_out default
@@ -78,7 +77,6 @@
 
 #' @importFrom purrr pluck map_lgl map
 #' @importFrom data.table CJ rbindlist fsetdiff setnames
-#'
 #' @keywords internal
 #' @noRd
 #' @method .swap_out full

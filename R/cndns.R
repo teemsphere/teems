@@ -1,16 +1,4 @@
-# Condensation engine (GEMPACK manual 10.16 / 14.1.10):
-# backsolving at the TAB level. In-TAB Omit statements are read and
-# ignored: omission neither decreases memory usage nor changes the
-# solved system in TEEMS (measured 2026-09-17), so it is not offered. Backsolved
-# variables are symbolically substituted out of every other equation;
-# the nominated (defining) equation is retained and a Backsolve
-# statement is emitted at write-out so the solver can recover values
-# post-solve. Substitutions are applied to previously retained defining
-# equations too, so every retained equation references surviving
-# variables only.
-
 #' @importFrom purrr map_chr map_lgl
-#'
 #' @keywords internal
 #' @noRd
 .cndns_model <- function(tab,
@@ -154,10 +142,7 @@
   return(condensed)
 }
 
-# ---------------------------------------------------------------------
-# Backsolve engine
-# ---------------------------------------------------------------------
-
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .prune_zero_terms <- function(terms) {
@@ -166,6 +151,7 @@
   })])
 }
 
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .quant_binding <- function(quants) {

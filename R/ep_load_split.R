@@ -1,7 +1,3 @@
-#' The base-load and peak-load technologies of an electricity activity
-#' list, split on the name suffix. Returns NULL when the suffix does not
-#' partition the list, the caller aborting by name.
-#'
 #' @keywords internal
 #' @noRd
 .ep_load_split <- function(techs) {

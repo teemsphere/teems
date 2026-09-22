@@ -1,6 +1,5 @@
 #' @importFrom purrr map_lgl
 #' @importFrom tools file_path_sans_ext
-#'
 #' @keywords internal
 #' @noRd
 .implement_compose <- function(args_list,
@@ -15,9 +14,6 @@
   avail_vars <- meta$var_union$cofname
   paths <- .get_output_paths(cmf_path = v$cmf_path)
 
-  # coefficient transport: the solver's binary dump (<sol>.cof/.cbin,
-  # every coefficient, selected on read) when present, else the
-  # per-coefficient CSVs written for TAB Write statements
   cof_dump <- .has_coefficient_dump(v$sol_prefix)
   if (cof_dump) {
     cof_meta <- .parse_coefficient_bins(

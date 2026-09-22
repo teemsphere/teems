@@ -1,4 +1,3 @@
-# All identifier tokens in an expression text, quoted elements excluded.
 #' @keywords internal
 #' @noRd
 .expr_idents <- function(text) {

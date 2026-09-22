@@ -1,6 +1,3 @@
-#' Character-level bracket depth before each character; '(' '[' '{' are
-#' interchangeable (manual 11.4.6). Quoted element literals are opaque.
-#'
 #' @keywords internal
 #' @noRd
 .tab_scan <- function(s) {

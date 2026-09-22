@@ -10,10 +10,8 @@
 #' @importFrom purrr pluck
 #' @importFrom data.table setnames
 #' @importFrom utils capture.output
-#' 
 #' @noRd
 #' @keywords internal
-#' 
 #' @method .year2time_set default
 #' @export
 .year2time_set.default <- function(shk,
@@ -47,7 +45,6 @@
 #' @importFrom purrr pluck
 #' @noRd
 #' @keywords internal
-#' 
 #' @method .year2time_set uniform
 #' @export
 .year2time_set.uniform <- function(shk,

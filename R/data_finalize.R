@@ -1,7 +1,6 @@
 #' @importFrom rlang is_integerish
 #' @importFrom data.table data.table setnames setkeyv setattr is.data.table
 #' @importFrom purrr map2 map_chr map_lgl map_int pluck
-#'
 #' @keywords internal
 #' @noRd
 .finalize_data <- function(.data,
@@ -9,10 +8,8 @@
                            model,
                            call,
                            model_call) {
-  # NSE
   Value <- NULL
 
-  # file-Read coefficients and (levels) variables alike
   model_coeff <- model[model$type %in% c("Coefficient", "Variable") & !is.na(model$file), "header"][[1]]
   .data <- .data[names(.data) %in% model_coeff]
 

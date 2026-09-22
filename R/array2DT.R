@@ -1,5 +1,4 @@
 #' @importFrom data.table as.data.table setnames
-#' 
 #' @keywords internal
 #' @noRd
 .array2DT <- function(i_data) {

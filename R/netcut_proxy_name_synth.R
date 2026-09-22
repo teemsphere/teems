@@ -1,5 +1,3 @@
-#' A fresh proxy variable name unused anywhere in the model.
-#'
 #' @keywords internal
 #' @noRd
 .synth_proxy_name <- function(synth) {

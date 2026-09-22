@@ -1,3 +1,4 @@
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .eq_idents <- function(entry) {

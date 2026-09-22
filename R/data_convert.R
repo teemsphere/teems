@@ -6,6 +6,7 @@
 
 #' @method .convert_data GTAPv6
 #' @importFrom purrr map compact list_flatten map_lgl map_chr
+#' @importFrom stats na.omit
 #' @keywords internal
 #' @noRd
 #' @export

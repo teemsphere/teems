@@ -1,17 +1,4 @@
-#' Active complementarity components in the final closure (C2)
-#'
-#' Mirrors the solver's comp_closure_check rebalance (teems-solver C2,
-#' design doc section 8) on the FINAL (post-swap) closure: each
-#' complementarity contributes one E_$comp equation of quantifier size;
-#' components whose variable stays ENDOGENOUS are ACTIVE (the solver
-#' exogenizes their dummy and runs the approximate-run state
-#' machinery), components exogenized by the closure are inert (the
-#' endogenous dummy absorbs the row, net zero). For count-squaring the
-#' system therefore gains one equation element per ACTIVE component --
-#' this function returns that total; .check_system_square adds it.
-#'
 #' @importFrom purrr map_chr map_dbl
-#'
 #' @keywords internal
 #' @noRd
 .comp_active_count <- function(model,

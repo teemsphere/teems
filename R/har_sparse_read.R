@@ -1,11 +1,8 @@
-# REFULL and RESPSE: real arrays that carry their own dimension names,
-# stored dense or sparse
 #' @keywords internal
 #' @noRd
 .read_har_sparse <- function(headers) {
   for (h in names(headers)) {
     if (headers[[h]]$type %in% c("REFULL", "RESPSE")) {
-      # Get used dimensions and their names from record 3
       headers[[h]]$definedDimensions <- readBin(headers[[h]]$records[[3]][5:8], "integer",
         size =
           4
@@ -41,7 +38,6 @@
 
             for (dd in which(dnames == uniqueDimNames[d])) {
               dimNames[[dd]] <- ele_names
-              # Add dimension name
               names(dimNames)[dd] <- trimws(uniqueDimNames[d])
             }
           }

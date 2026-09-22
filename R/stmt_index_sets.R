@@ -1,7 +1,3 @@
-# "(all,i,SET[:cond])" quantifiers plus "sum{i,SET[:cond], ...}" /
-# "sum(i,SET, ...)" scopes of one statement text: named character
-# vector idx (lower case) -> set (as written). An index bound to two
-# different sets in the same statement is dropped (unreadable scope).
 #' @keywords internal
 #' @noRd
 .stmt_index_sets <- function(text) {

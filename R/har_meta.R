@@ -1,5 +1,4 @@
 #' @importFrom purrr pluck
-#' 
 #' @keywords internal
 #' @noRd
 .har_meta <- function(DREL,
@@ -18,7 +17,6 @@
     metadata$database_version <- paste0("GTAP", DREL[1])
     metadata$reference_year <- as.numeric(sub("[A-Za-z]", "", DREL[2]))
   }
-
 
   if (data_type %=% "dat") {
     metadata$data_format <- switch(as.character(DVER),

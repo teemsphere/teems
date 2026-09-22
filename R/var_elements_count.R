@@ -1,5 +1,4 @@
 #' @importFrom purrr map_dbl
-#'
 #' @keywords internal
 #' @noRd
 .count_var_elements <- function(var_extract,

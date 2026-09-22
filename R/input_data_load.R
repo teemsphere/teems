@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#'
 #' @noRd
 #' @keywords internal
 .load_input_data <- function(dat_input,

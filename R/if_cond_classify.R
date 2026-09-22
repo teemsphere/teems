@@ -1,5 +1,3 @@
-#' Classify an IF condition into the supported shapes.
-#'
 #' @keywords internal
 #' @noRd
 .classify_if_cond <- function(cond) {
@@ -40,10 +38,6 @@
     )
     return(cond)
   }
-  # general comparison of two arithmetic expressions (manual 11.4.5:
-  # "conditions must be logical expressions ... typically comparison
-  # operators"): carried by a synthesized helper coefficient, see
-  # .if_expr_helper
   sp <- .split_comparison(cond)
   if (!is.null(sp)) {
     cond <- list(kind = "expr", lhs = sp$lhs, op = sp$op, rhs = sp$rhs)

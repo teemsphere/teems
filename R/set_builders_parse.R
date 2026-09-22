@@ -1,9 +1,3 @@
-# conditional set builders `Set X = (all,i,SRC: <cond>);` (manual
-# 10.1.2): the solver evaluates the data-dependent condition from the
-# deployed input files ahead of set resolution
-# (tab_setbuilder_transform); R mirrors it at deploy from the same
-# aggregated tables (.eval_set_builder) so closure/shock validation and
-# compose see the elements. Parsed here for shape only.
 #' @keywords internal
 #' @noRd
 .parse_set_builders <- function(sets,
@@ -41,8 +35,6 @@
         call = call
       )
     }
-    # canonical spelling of the source set for the downstream exact
-    # matches; the deployed statement is the author's text
     sets$definition[i] <- sprintf(
       "= (all,%s,%s: %s)", b$idx, sets$name[src_idx], b$cond
     )

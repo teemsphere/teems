@@ -1,6 +1,5 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom purrr map_chr
-#'
 #' @noRd
 #' @keywords internal
 .infer_set_mappings <- function(set_mappings, set_data) {

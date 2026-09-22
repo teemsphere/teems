@@ -1,7 +1,6 @@
 #' @importFrom tibble as_tibble
 #' @importFrom data.table data.table
 #' @useDynLib teems, .registration = TRUE
-#'
 #' @keywords internal
 #' @noRd
 .parse_solution_meta <- function(sol_prefix) {

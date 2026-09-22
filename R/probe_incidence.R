@@ -1,6 +1,5 @@
-#' @description Statement-level equation-system incidence in long form:
-#'   one row per (equation statement, referenced variable) with the
-#'   element-level incidence weight.
+#' @importFrom tibble as_tibble tibble
+#' @importFrom data.table data.table rbindlist
 #' @keywords internal
 #' @noRd
 .probe_incidence <- function(s) {

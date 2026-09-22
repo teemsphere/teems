@@ -23,7 +23,6 @@
   obj$comp2 <- NA
   obj$subsets <- NA
   
-  # some permutations not yet utilized
   obj <- obj[, c("type",
                  "name",
                  "label",

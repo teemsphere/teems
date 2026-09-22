@@ -1,7 +1,3 @@
-#' Structural facts about an expression used for the manual's implied-
-#' SUBSET rules: every named term, whether all operators are UNION/'+'
-#' (or all INTERSECT), and the last top-level operator and term.
-#'
 #' @keywords internal
 #' @noRd
 .set_expr_info <- function(d) {
@@ -25,8 +21,6 @@
       last_term <- after
     }
   }
-  # complement of any shape (manual 11.7): a named first term followed
-  # only by top-level '-' operators makes the result a subset of it
   top_ops <- toks[is_op & depth == 0]
   complement_of <- NA_character_
   if (length(top_ops) > 0L && all(top_ops %=% "-") && length(toks) > 0L &&

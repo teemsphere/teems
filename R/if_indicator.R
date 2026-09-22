@@ -1,9 +1,4 @@
-#' A 0/1 indicator coefficient for a data-comparison IF condition in an
-#' Equation (the shipped MAKESUNIT/E_qca adaptation shape). Cached by
-#' the condition with index names canonicalized to their sets, so the
-#' same condition in another equation reuses one indicator. Returns
-#' list(pre, ref) where ref uses the current statement's index names.
-#'
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .if_indicator <- function(cond_info,
@@ -21,7 +16,6 @@
   is_idx <- !grepl('^"', args)
   at <- match(tolower(args[is_idx]), tolower(q_idx))
   if (length(args[is_idx]) %=% 0L || anyNA(at)) {
-    # scalar conditions have no quantifier to carry the comparison
     .cli_action(model_err$invalid_if_cond,
       action = c("abort", "inform"),
       call = call

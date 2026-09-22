@@ -13,7 +13,6 @@
     error = \(e) character(0)
   )
   out <- out[nzchar(out) & !grepl("<none>", out, fixed = TRUE)]
-  # the fallback image is the one every install has; probe it first
   images <- unique(c(intersect("teems:latest", out), out))
   return(images)
 }

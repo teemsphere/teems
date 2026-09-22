@@ -1,6 +1,4 @@
-# marginal sum of a numeric array over the dims named in `keep`,
-# returned as a data.table with lowercased level columns; used to build
-# parameter weights without expanding the source array
+#' @importFrom data.table setDT
 #' @keywords internal
 #' @noRd
 .reduce_array <- function(arr,

@@ -1,5 +1,6 @@
 #' @importFrom utils capture.output
-#' 
+#' @importFrom purrr map_chr
+#' @importFrom data.table rbindlist
 #' @keywords internal
 #' @noRd
 .validate_closure <- function(closure,

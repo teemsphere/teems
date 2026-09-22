@@ -1,6 +1,3 @@
-# the data behind a declaration: every coefficient must be read from a
-# file, while a variable is only bound when a Read targets it (the
-# GTAP-AEZ levels variables AREA/TONS/LCOV)
 #' @keywords internal
 #' @noRd
 .bind_tab_obj_read <- function(obj,

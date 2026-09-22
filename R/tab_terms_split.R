@@ -1,5 +1,3 @@
-#' Split an expression into its top-level additive terms.
-#'
 #' @keywords internal
 #' @noRd
 .split_tab_terms <- function(s) {
@@ -8,7 +6,6 @@
   n <- length(chs)
   is_pm <- chs %in% c("+", "-") & scan$depth_before == 0L & !scan$in_quote
   idx <- which(is_pm)
-  # a +/- directly after an exponent marker continues a numeric literal
   expo <- idx > 2L & chs[pmax(idx - 1L, 1L)] %in% c("e", "E") &
     grepl("[0-9.]", chs[pmax(idx - 2L, 1L)])
   idx <- idx[!expo]

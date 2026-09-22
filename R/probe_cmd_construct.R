@@ -1,8 +1,3 @@
-#' @description The probe run is always sequential (`-n 1`): the
-#'   MC79 diagnosis is serial solver-side and skips itself on more
-#'   ranks. The matrix method is irrelevant to the diagnosis, and the
-#'   solver's probe measures the system structure (chain dimension,
-#'   partition candidates) regardless of the `-matsol` passed.
 #' @keywords internal
 #' @noRd
 .construct_probe_cmd <- function(paths,
@@ -11,9 +6,6 @@
                                  extra = NULL) {
   docker_preamble <- paste(
     "docker run --rm --mount",
-    # quoted for the platform's shell: an unquoted --mount value split on
-    # the first space in the user's path, and the failure surfaced as a
-    # bare connection error naming neither the path nor docker
     .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
     paste0("teems", ":", .resolve_docker_tag()),
     "/bin/bash -c"
@@ -38,8 +30,6 @@
     "-nox"
   )
   if (!is.null(extra)) {
-    # the la* guesses ride explicitly (the probe factorizes the same
-    # condensed system); the remaining flags render as in ems_solve
     la_flags <- paste(c(
       if (!is.null(extra$laA)) {
         paste("-laA", as.integer(extra$laA))

@@ -1,4 +1,3 @@
-# Case-insensitive canonicalization of user/TAB variable names.
 #' @keywords internal
 #' @noRd
 .canonical_vars <- function(input,

@@ -127,11 +127,8 @@
   VFM_arr_dimnames <- dimnames(VFM_arr)
   VFM_arr_total <- apply(VFM_arr, c(1, 3), sum)
 
-  # calculate percentage along REG,ENDW and use share with EVOA
-  # divide each [i, , k] slice by VFM_arr_total[i, k]
   phi_arr <- sweep(VFM_arr, c(1, 3), VFM_arr_total, FUN = "/")
   
-  # multiply each [i, , k] slice by input[i, k]
   new_arr <- sweep(phi_arr, c(1, 3), input, FUN = "*")
 
   input <- new_arr

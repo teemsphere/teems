@@ -5,7 +5,6 @@
 .reduce_shk <- function(raw_shock,
                         sets) {
   
-  # NSE
   Value <- NULL
   n <- NULL
   val <- NULL

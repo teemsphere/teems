@@ -1,4 +1,3 @@
-#' 
 #' @keywords internal
 #' @noRd
 .retrieve_output <- function(var_tbl,
@@ -27,8 +26,6 @@
     )
   }
   
-  # binary coefficient dump: ordinary and PostSim coefficients in one
-  # tibble, typed per row
   if (compose_coefficient && !is.null(cof_tbl)) {
     output$coefficient <- .compose_coeff_bin(
       data_dt = cof_data,
@@ -48,9 +45,6 @@
     )
   }
 
-  # PostSim coefficients (computed after the solve, dumped by the
-  # solver into out/postsim/) compose like ordinary coefficients but
-  # carry their own type
   if (compose_coefficient && is.null(cof_tbl) && !is.null(paths$postsim)) {
     output$postsim <- .compose_coeff(
       paths = paths$postsim,

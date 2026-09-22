@@ -1,4 +1,3 @@
-# 2RFULL: dense real arrays
 #' @keywords internal
 #' @noRd
 .read_har_real <- function(headers) {

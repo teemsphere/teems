@@ -1,3 +1,4 @@
+#' @importFrom rlang is_integerish is_logical
 #' @title Structural probe of a deployed model
 #' @export
 #' @description Runs the solver's structural probe (`-solmed probe`) on

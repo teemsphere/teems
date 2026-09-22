@@ -1,6 +1,4 @@
 #' @importFrom cli cli_h1 cli_dl cli_fmt
-#'
-# the counts printed after a model loads
 #' @keywords internal
 #' @noRd
 .model_summary <- function(var_extract,

@@ -1,3 +1,4 @@
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .serialize_eq_statement <- function(entry) {
@@ -10,8 +11,6 @@
 
   parts <- c(
     "Equation",
-    # qualifiers precede the name in GEMPACK (manual 10.9); always NA
-    # for the linear equations this serializer sees today
     if (!is.na(entry$qualifier_list)) {
       entry$qualifier_list
     },

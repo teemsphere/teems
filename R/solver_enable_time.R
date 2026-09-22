@@ -1,5 +1,3 @@
-# intertemporal models declare themselves in the TAB; the flag decides
-# which matrix methods are admissible and how the run is recorded
 #' @keywords internal
 #' @noRd
 .solver_enable_time <- function(paths) {

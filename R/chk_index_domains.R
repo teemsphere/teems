@@ -1,22 +1,3 @@
-# Argument-domain check for quantified references (GEMPACK manual
-# 10.1.2): an index that ranges over set S may stand at an argument
-# position of a coefficient or variable declared over set D only when
-# S is D itself or a declared (or implied) subset of D. TABLO refuses
-# the TAB otherwise; the solver used to bind the index by its position
-# within S and silently address the wrong elements of D (GTAP-AEZ
-# scoping, 2026-09: a hand-listed LANDACTS without "Subset LANDACTS is
-# subset of ACTS" made the split factor-demand rows write into the
-# wrong activities and left the system structurally singular).
-#
-# Lexical pass over the raw statement extracts: declarations give each
-# argument position its set from the declaration's own quantifiers;
-# statement quantifiers and SUM indices give idx -> set for the
-# executable statements; every `name(args)` reference to a declared
-# coefficient/variable with bare-index arguments is checked. Non-bare
-# arguments (quoted elements, mapped indices, lead/lag offsets) and
-# unknown names are skipped, so the check never rejects a form it
-# cannot read.
-
 #' @keywords internal
 #' @noRd
 .strip_tab_labels <- function(text) {

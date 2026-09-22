@@ -1,5 +1,4 @@
 #' @importFrom cli cli_verbatim
-#' 
 #' @keywords internal
 #' @noRd
 .implement_model <- function(args_list,

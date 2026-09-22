@@ -2,7 +2,6 @@
 #' @importFrom purrr pmap map map_lgl map2
 #' @importFrom stats na.omit
 #' @importFrom tibble tibble
-#' 
 #' @keywords internal
 #' @noRd
 .finalize_sets <- function(sets,
@@ -80,7 +79,6 @@
     r_idx <- match(set_extract$header, names(sets))
     set_extract$mapping <- sets[r_idx]
   }
-  # check for correct sets
   names(set_extract$mapping) <- set_extract$name
   set_op_pattern <- 'union|intersect|[=+^&*()"\\\\-]|\\s[xX]\\s'
   set_extract$mapping <- purrr::map2(
@@ -118,8 +116,6 @@
       ),
       \(m, d, nm) {
         if (is.null(m) && .is_set_builder(d)) {
-          # data-dependent selection from the deployed coefficient
-          # values (mirror of the solver's tab_setbuilder_transform)
           m <- .eval_set_builder(
             b = .parse_set_builder(d),
             owner = nm,

@@ -10,10 +10,8 @@
 #' @importFrom data.table setnames fsetdiff rbindlist
 #' @importFrom utils capture.output
 #' @importFrom purrr map_lgl map
-#'
 #' @noRd
 #' @keywords internal
-#'
 #' @method .construct_shk custom
 #' @export
 .construct_shk.custom <- function(raw_shock,
@@ -71,7 +69,6 @@
 }
 
 #' @importFrom data.table CJ setnames
-#'
 #' @noRd
 #' @keywords internal
 #' @method .construct_shk scenario
@@ -80,7 +77,6 @@
                                       closure,
                                       sets,
                                       ...) {
-  # NSE
   Value <- NULL
 
   set_ele <- with(sets$ele, mget(raw_shock$ls_upper))
@@ -96,7 +92,6 @@
     shock = TRUE
   )
 
-  # some grep should be which
   int_set_names <- sets[sets$qualifier_list == "(intertemporal)", "name"][[1]]
   int_col <- which(colnames(value) %in% int_set_names)
   data.table::setnames(value, raw_shock$ls_upper, raw_shock$ls_mixed)
@@ -107,7 +102,6 @@
     baseline <- Value[get(int_col) == 0]
     (Value - baseline) / baseline * 100
   }), by = non_int_col]
-
 
   raw_shock$input <- value
   class(raw_shock)[[1]] <- "custom"
@@ -120,8 +114,8 @@
 }
 
 #' @importFrom utils capture.output
-#' @importFrom purrr map_chr map_lgl
-#'
+#' @importFrom purrr map_chr map_lgl map
+#' @importFrom data.table fsetdiff rbindlist setnames
 #' @noRd
 #' @keywords internal
 #' @method .construct_shk uniform

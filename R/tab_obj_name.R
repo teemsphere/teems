@@ -1,7 +1,4 @@
 #' @importFrom purrr pluck map_chr map2_chr
-#'
-# the leading qualifier list and the declared name, consumed off the
-# front of the remainder in that order
 #' @keywords internal
 #' @noRd
 .name_tab_obj <- function(obj) {

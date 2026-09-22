@@ -1,5 +1,4 @@
 #' @importFrom rlang arg_match
-#' 
 #' @keywords internal
 #' @noRd
 .validate_convert_args <- function(a,

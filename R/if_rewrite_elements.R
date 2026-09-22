@@ -1,11 +1,3 @@
-#' Elements of a set the IF rewrite synthesized for an element-equality
-#' condition (`Set IFSn # ... # = "coa" & DCOMM;`). Such a set is a
-#' quoted element intersected with the quantifier's range, so its
-#' elements are read straight off the declaration; the caller narrows
-#' them to the operand's own elements, which also covers an element
-#' that is not in the range at all. The rewrite's other synthesized
-#' form, a set-algebra remainder, is left unresolved.
-#'
 #' @keywords internal
 #' @noRd
 .if_rewrite_elements <- function(model, nm) {

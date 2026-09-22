@@ -1,4 +1,3 @@
-# Substitute the solution for `var_name` into one equation.
 #' @keywords internal
 #' @noRd
 .substitute_into_eq <- function(entry_name,

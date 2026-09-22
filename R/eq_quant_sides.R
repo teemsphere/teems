@@ -1,7 +1,4 @@
 #' @importFrom purrr map_chr
-#'
-# the quantifiers as objects, the index each one binds, and the two
-# sides of the equation split at its top-level "="
 #' @keywords internal
 #' @noRd
 .eq_quant_sides <- function(groups,

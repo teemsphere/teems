@@ -2,20 +2,10 @@
 #' @importFrom data.table data.table
 #' @importFrom tools file_ext
 #' @importFrom cli cli_h1 cli_text
-#'
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Mapping-tree buckets a database's model layers contribute, searched
-#' before the data-format bucket so a layer overrides the core mappings
-#' for the sets whose elements it redefines: GTAP-AEZ replaces the
-#' endowments with the agro-ecological zones, GTAP-EP replaces the
-#' electricity activity with the generation technologies. A layer that
-#' leaves every element list alone (GTAP-E) contributes no bucket and
-#' reads the core mappings unchanged. More than one may apply, a
-#' database carrying two layers being prepared by both hooks.
-#'
 #' @noRd
 #' @keywords internal
 .map_layers <- function(metadata) {
@@ -30,6 +20,10 @@ NULL
   return(layers)
 }
 
+#' @importFrom purrr map_lgl map2 walk2
+#' @importFrom tools file_ext
+#' @importFrom data.table data.table
+#' @importFrom cli cli_h1 cli_text
 #' @noRd
 #' @keywords internal
 .load_mappings <- function(set_mappings,

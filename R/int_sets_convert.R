@@ -1,5 +1,4 @@
 #' @importFrom data.table data.table
-#'
 #' @keywords internal
 #' @noRd
 .convert_int_sets <- function(expr,
@@ -29,8 +28,6 @@
       set_name = set_name,
       call = call
     )
-    # S8: the range must be non-empty and ascending (the solver
-    # aborts; R's start:end would silently count DOWN)
     if (end < start) {
       range_defect <- "an empty or inverted"
       resolved_txt <- paste0("p[", start, "] - p[", end, "]")
@@ -50,8 +47,6 @@
     )
   }
 
-  # S8: indices must exist among the model's time steps (CYRS spans
-  # p[0] .. p[n_timestep - 1])
   if (any(num_vec < 0 | num_vec > n_timestep - 1)) {
     range_defect <- "an out-of-range"
     resolved_txt <- paste0(

@@ -9,7 +9,6 @@
 
 #' @importFrom data.table CJ setkey setnames
 #' @importFrom purrr pluck
-#' 
 #' @method .exp_cls_entry full
 #' @export
 .exp_cls_entry.full <- function(cls_entry,
@@ -41,7 +40,6 @@
 #' @importFrom purrr pluck map
 #' @importFrom utils type.convert
 #' @importFrom data.table CJ setkey setnames fintersect
-#' 
 #' @method .exp_cls_entry ele
 #' @export
 .exp_cls_entry.ele <- function(cls_entry,
@@ -87,8 +85,7 @@
 
 #' @importFrom purrr pluck map
 #' @importFrom data.table CJ setkey setnames fsetdiff
-#' @importFrom utils type.convert
-#' 
+#' @importFrom utils type.convert capture.output
 #' @method .exp_cls_entry mixed
 #' @export
 .exp_cls_entry.mixed <- function(cls_entry,
@@ -109,7 +106,6 @@
 
   entry_mixed <- purrr::map(entry_mixed, \(e) {
     if (!grepl("\"", e)) {
-      # name search of sets more robust?
       with(sets, get(e))
     } else {
       utils::type.convert(gsub("\"", "", e), as.is = TRUE)
@@ -150,7 +146,6 @@
 
 #' @importFrom purrr pluck
 #' @importFrom data.table CJ setkey setnames fsetdiff
-#' 
 #' @method .exp_cls_entry subset
 #' @export
 .exp_cls_entry.subset <- function(cls_entry,

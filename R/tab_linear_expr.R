@@ -1,4 +1,4 @@
-# expr := ['+'|'-'] term (('+'|'-') term)*
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .pe_expr <- function(st, var_lookup) {

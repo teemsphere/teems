@@ -1,5 +1,4 @@
 #' @importFrom purrr list_flatten map_lgl map
-#' 
 #' @noRd
 #' @keywords internal
 .expand_ele <- function(input,

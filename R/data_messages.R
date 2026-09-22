@@ -1,5 +1,4 @@
 #' @importFrom rlang current_env
-#'
 #' @keywords internal
 #' @noRd
 .inform_metadata <- function(metadata) {
@@ -16,7 +15,6 @@
 }
 
 #' @importFrom utils packageVersion
-#' 
 #' @noRd
 #' @keywords internal
 .check_database_version <- function(vetted,

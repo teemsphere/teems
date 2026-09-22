@@ -1,5 +1,4 @@
-# file and header of every Read statement, keyed by the name it reads
-# into
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .parse_read_targets <- function(r) {

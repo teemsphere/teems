@@ -1,7 +1,6 @@
-#' @importFrom purrr map_chr map map_lgl
-#' @importFrom data.table rbindlist fintersect
+#' @importFrom purrr map_chr map map_lgl pluck
+#' @importFrom data.table rbindlist fintersect setnames copy
 #' @importFrom utils capture.output
-#'
 #' @keywords internal
 #' @noRd
 .finalize_closure <- function(closure,

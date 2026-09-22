@@ -1,5 +1,3 @@
-#' A fresh coefficient name unused anywhere in the model.
-#'
 #' @keywords internal
 #' @noRd
 .synth_coeff_name <- function(synth) {

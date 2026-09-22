@@ -1,3 +1,4 @@
+#' @importFrom stats setNames
 #' @keywords internal
 #' @noRd
 .backsolve_all <- function(tab,
@@ -55,7 +56,6 @@
       call = call
     )
 
-    # substitute into every other equation currently referencing the var
     ref_pattern <- paste0("(?<![[:alnum:]_])", pair$var, "(?![[:alnum:]_])")
     for (e in seq_len(nrow(math_extract))) {
       eq_name <- math_extract$name[[e]]

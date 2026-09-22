@@ -1,7 +1,6 @@
 #' @importFrom data.table setkey setkeyv setnames .SD
 #' @importFrom purrr pluck
 #' @importFrom rlang is_integerish
-#' 
 #' @keywords internal
 #' @noRd
 .aggregate_data <- function(dt,
@@ -10,6 +9,7 @@
   return(UseMethod(".aggregate_data"))
 }
 
+#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 #' @method .aggregate_data dat
@@ -19,7 +19,6 @@
                                 shock = FALSE,
                                 ndigits,
                                 ...) {
-  # NSE
   Value <- NULL
   
   xval_col <- colnames(dt)[!colnames(dt) %in% "Value"]
@@ -45,7 +44,6 @@
                                 sets,
                                 ndigits,
                                 ...) {
-  # NSE
   Value <- NULL
   
   xval_col <- colnames(dt)[!colnames(dt) %in% c("Value", "omega", "sigma")]
@@ -58,14 +56,13 @@
   if (all(c("sigma", "omega") %in% colnames(dt))) {
     dt <- dt[, lapply(.SD, FUN = sum), .SDcols = c("Value", "omega", "sigma"), by = xval_col]
     dt$Value <- dt$sigma / dt$omega
-    dt[is.nan(Value), let(Value = 1)] # for CGDS, return here - make this a header-specific method
+    dt[is.nan(Value), let(Value = 1)]
     dt[, let(sigma = NULL, omega = NULL)]
   } else {
     sets <- setdiff(colnames(dt), "Value")
     if (sets %!=% character(0)) {
       dt <- dt[, list(Value = mean(Value)), by = sets]
     }
-    # perhaps a message here to inform mean used
   }
   if (!rlang::is_integerish(dt$Value)) {
     dt[, let(Value = round(Value, ndigits))]
@@ -86,7 +83,6 @@
                                 sets,
                                 ...) {
   
-  # NSE
   mapping <- NULL
   origin <- NULL
 
@@ -98,5 +94,3 @@
     return(dt)
   }
 }
-
-# introduce header-specific methods

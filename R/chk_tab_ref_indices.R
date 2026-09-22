@@ -1,17 +1,11 @@
 #' @keywords internal
 #' @noRd
-# NAME(<index>, ...) references in the math statements: an empty index
-# (x( ), x(c,,t)) reached the solver's operand binder as a NULL token
-# (fuzz batch 13: SEGV; now a named solver abort). Depth-aware split of
-# each argument list at its top-level commas; sum(...) has its own check
-# above and (all,...) quantifiers never carry an empty piece.
 .chk_tab_ref_indices <- function(statements,
                                  call) {
   no_label <- gsub("#[^#]*#", "", statements)
   kw <- tolower(sub("^\\s*([A-Za-z_]+).*$", "\\1", no_label))
   math <- kw %in% c("equation", "formula", "update", "assertion")
   for (i in which(math)) {
-    # quoted element literals are opaque
     txt <- gsub("\"[^\"]*\"", "\"\"", no_label[i])
     starts <- gregexpr("[A-Za-z_][A-Za-z0-9_]*\\s*\\(", txt)[[1]]
     if (starts[1] == -1L) {

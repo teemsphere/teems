@@ -1,5 +1,4 @@
 #' @importFrom purrr map map_lgl
-#' 
 #' @keywords internal
 #' @noRd
 .classify_cls <- function(closure,

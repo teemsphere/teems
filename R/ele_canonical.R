@@ -1,7 +1,3 @@
-#' Canonical form of user-named set components: an element folds to the
-#' lowercase every set carries, a subset name to its declared case, and
-#' anything unrecognised is returned as given for the caller's check
-#'
 #' @keywords internal
 #' @noRd
 .canonical_ele <- function(x,

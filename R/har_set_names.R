@@ -1,5 +1,3 @@
-# manually pull out set names for pre v11
-# no telling how robust this is
 #' @keywords internal
 #' @noRd
 .har_set_names <- function(headers,
@@ -10,7 +8,7 @@
     )
     
     switch(metadata$database_version,
-      "GTAPv9" = , # falls through to GTAPv10
+      "GTAPv9" = ,
       "GTAPv10" = {
         for (key in names(ranges)) {
           headers[[key]]$name <- trimws(rawToChar(headers[[key]]$records[[2]][14:ranges[key]]))

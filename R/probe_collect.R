@@ -2,7 +2,6 @@
 #' @noRd
 .collect_probe <- function(paths,
                            call) {
-  # same fixed convention as ems_compose (val_compose_args)
   sol_prefix <- file.path(dirname(paths$cmf), "out", "variables", "bin", "sol")
   diag_out <- normalizePath(paths$diag_out, "/", mustWork = FALSE)
   probe <- .probe_object(

@@ -6,7 +6,6 @@
     write_order <- seq_along(free_idx)
     return(write_order)
   }
-  # GEMPACK-standard ordering: first subscript varies fastest
   antidim <- numeric(n)
   antidim[1L] <- 1L
   for (k in seq_len(n - 1L) + 1L) {

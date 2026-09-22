@@ -1,7 +1,3 @@
-#' @note This function is a stripped down version of abind::abind
-#'   and has been adopted and modified as such to avoid importing
-#'   the abind package for a single function.
-#'
 #' @keywords internal
 #' @noRd
 .abind <- function(..., along = N) {

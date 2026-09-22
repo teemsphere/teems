@@ -1,5 +1,4 @@
 #' @importFrom data.table as.data.table
-#' 
 #' @keywords internal
 #' @noRd
 .slice_array <- function(arr, dim_sizes) {

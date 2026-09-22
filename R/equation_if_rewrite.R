@@ -1,20 +1,3 @@
-#' Rewrite one Equation statement. Data-comparison IF terms become 0/1
-#' indicator coefficients distributed over the value's top-level terms
-#' (the value must already be valid over the full domain, as in
-#' GEMPACK, where only IN conditions relax index checking). Set-
-#' membership or element IF terms split the equation into
-#' complementary-domain equations (manual 11.4.7 rule 2: inside the
-#' value the index is deemed to range over the condition's set, so the
-#' value may reference arrays declared only there and must not be
-#' evaluated elsewhere): one equation per membership term over
-#' operand & range (that term kept, the other membership terms
-#' dropped) plus one over range - (S1 + S2 + ...) with every membership
-#' term dropped. All membership terms must condition the same index;
-#' the '+' union is disjointness-checked by the solver (manual 10.1.1),
-#' so overlapping conditions (the GTAPv7 partitions "domestic"/
-#' "imported", ACTS/"hhld"/"govt"/"invt" never overlap) fail loudly
-#' rather than dropping a term. Returns the replacement statements.
-#'
 #' @keywords internal
 #' @noRd
 .rewrite_equation_if <- function(stmt,
@@ -78,8 +61,6 @@
     )
     eq_k <- .assemble_eq(chunks_k, q_k, eq_names[k], qual, label)
     if (grepl(if_pattern, membership[[k]]$value)) {
-      # nested IF terms (membership on another index, or comparisons)
-      # partition or gate the split equation in turn
       eq_k <- .rewrite_equation_if(eq_k, synth, call)
     }
     out <- c(out, eq_k)

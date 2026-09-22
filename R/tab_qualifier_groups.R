@@ -1,9 +1,3 @@
-#' Leading parenthetical qualifier groups of a declaration statement
-#'
-#' Mirrors the solver's tab_qualifiers_parse region rule: qualifier
-#' groups are the leading (...) groups; the first (all,...) quantifier
-#' ends the region.
-#'
 #' @keywords internal
 #' @noRd
 .tab_qualifier_groups <- function(text) {

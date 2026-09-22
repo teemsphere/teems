@@ -1,4 +1,3 @@
-# 2IFULL: dense integer matrices
 #' @keywords internal
 #' @noRd
 .read_har_int <- function(headers) {

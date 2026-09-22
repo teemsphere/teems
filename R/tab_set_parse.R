@@ -7,8 +7,6 @@
 
   sets <- .parse_set_fields(sets, call = call)
 
-  # S5/S9 on raw explicit element lists (before the cleanup below can
-  # silently swallow empty elements or fold a range into one "element")
   .chk_set_ele_lists(sets, call = call)
 
   sets$remainder <- .advance_remainder(
@@ -82,8 +80,5 @@
                    "comp2",
                    "row_id")]
   
-  # other checks should include
-  # le/ge/lt/gt in the RHS of formula
-  # summation in formula headers
   return(sets)
 }

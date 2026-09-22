@@ -1,7 +1,3 @@
-# Condensation record for the deployed model. The measured cost of
-# backsolving scales with the share of the uncondensed system that was
-# substituted out (teems-solver ROADMAP 6.2), so the solve-time and
-# probe-time advisories need the share, not just the nomination counts.
 #' @keywords internal
 #' @noRd
 .compute_cndns_metadata <- function(model,

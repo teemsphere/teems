@@ -1,9 +1,8 @@
+#' @importFrom tools toTitleCase
 #' @keywords internal
 #' @noRd
 .chk_tab_defaults <- function(statements,
                               call) {
-  # "# label #" text is free-form and may contain "(default ...)"
-  # (gtapv7-mrio): scan the label-stripped statement only
   no_label <- gsub("#[^#]*#", "", statements)
   idx <- grep("\\(\\s*default", no_label, ignore.case = TRUE)
   for (i in idx) {
@@ -19,8 +18,6 @@
       )
     }
     if (bad_val %in% tab_default_values[[kw]]) {
-      # valid for the solver, but the teems pipeline cannot carry the
-      # positional Default semantics through deploy yet
       .cli_action(model_err$default_unsupported,
         action = c("abort", "inform"),
         call = call

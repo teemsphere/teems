@@ -1,6 +1,3 @@
-# PostSim declarations captured by name from the raw statements: the
-# extraction merge can shift marker rows by one, so declaration rows
-# are tagged by name while executables use the region flag
 #' @keywords internal
 #' @noRd
 .postsim_decl_names <- function(tab) {

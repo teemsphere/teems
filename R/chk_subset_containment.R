@@ -1,13 +1,3 @@
-#' Subset containment against realized elements (S11)
-#'
-#' Explicit Subset statements assert containment the TAB cannot prove:
-#' after aggregation both sides hold realized elements, and a wrong
-#' mapping (or a wrong Subset claim) leaves subset elements missing
-#' from the superset. Implied subsets from set expressions hold by
-#' construction and pass through. The solver enforces the same
-#' invariant (superset search in the set builders); aborting here
-#' names the offending pair before the deploy round-trip.
-#'
 #' @keywords internal
 #' @noRd
 .check_subset_containment <- function(sets,

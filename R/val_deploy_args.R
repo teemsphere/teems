@@ -77,17 +77,11 @@
     c(.o_n_timestep_header(), .o_timestep_header())
   )
 
-  # (by_elements) mapping headers are character data validated against
-  # the raw input headers at the data build (.finalize_map_data), not
-  # against the aggregated coefficient tables
   byele <- a$model$type == "Read" &
     !is.na(a$model$qualifier_list) &
     grepl("by_elements", a$model$qualifier_list, ignore.case = TRUE)
   non_int_req <- setdiff(non_int_req, a$model$header[byele])
 
-  # (IfHeaderExists) reads are optional by definition (manual 10.6):
-  # an absent header is skipped by the solver and the coefficient keeps
-  # its formula/default value
   optional <- a$model$type == "Read" &
     !is.na(a$model$qualifier_list) &
     grepl("ifheaderexists", a$model$qualifier_list, ignore.case = TRUE)

@@ -1,23 +1,3 @@
-#' Build deployed (by_elements) mapping headers
-#'
-#' Re-derives each mapping's by_elements header under the active
-#' aggregation (GEMPACK manual 11.9.3). The raw character header pairs
-#' positionally with the domain set's source elements; both legs are
-#' pushed through their sets' aggregation mappings and the composition
-#' must be consistent: every source element merged into an aggregated
-#' domain element has to land on the same aggregated codomain element,
-#' otherwise the aggregation is rejected naming the offender. `(onto)`
-#' coverage is re-checked on the aggregated sets, ahead of the solver's
-#' own fatal.
-#'
-#' @param model model tibble (Mapping + Read rows)
-#' @param sets finalized set extract (`.finalize_sets`)
-#' @param set_raw named list of character headers in input-file order,
-#'   pre-aggregation (`.process_data`)
-#'
-#' @return named list of "set"-classed character vectors ready for
-#'   `.ems_write.set`, keyed by header
-#'
 #' @keywords internal
 #' @noRd
 .finalize_map_data <- function(model,
@@ -45,8 +25,6 @@
     onto <- isTRUE(grepl("onto", map_rows$qualifier_list[i], ignore.case = TRUE))
     rd <- reads[tolower(reads$name) == tolower(map_name), ]
     if (nrow(rd) == 0L) {
-      # no by_elements Read: the solver values the mapping itself, from a
-      # Formula (manual 10.13.1) or a (project) qualifier (10.13.2)
       next
     }
     rd <- rd[1, ]
@@ -66,11 +44,6 @@
     dom_map <- sets$mapping[[dom_idx]]
     cod_map <- sets$mapping[[cod_idx]]
 
-    # INTERSECT-built sets are evaluated permissively (element-level,
-    # manual 10.1.1) and carry an origin_conflict stamp when their
-    # operands disagreed about an element's source composition; the
-    # compose below is the one consumer that reads origin rows, so the
-    # ambiguity becomes fatal exactly here
     for (side in c("domain", "codomain")) {
       side_map <- if (side == "domain") {
         dom_map
@@ -92,9 +65,6 @@
       }
     }
 
-    # source-order domain elements: file-read sets pair positionally
-    # with their own raw header; TAB-defined sets carry their
-    # construction order in the origin column
     dom_header <- sets$header[dom_idx]
     dom_raw_idx <- match(toupper(dom_header), toupper(names(set_raw)))
     dom_orig <- if (!is.na(dom_header) && !is.na(dom_raw_idx)) {

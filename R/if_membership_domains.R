@@ -1,6 +1,3 @@
-# pass 2: the domains the membership conditions cut the equation into
-# -- one intersection set per condition and the complement that carries
-# the remainder
 #' @keywords internal
 #' @noRd
 .if_membership_domains <- function(membership,
@@ -25,8 +22,6 @@
       )
     }
     if (!is.na(at) && at_m != at) {
-      # membership terms on different indices would need a nested
-      # (product) split; no measured model demand
       if_statement <- stmt
       .cli_action(model_err$invalid_if_multi,
         action = c("abort", "inform"),
@@ -47,8 +42,6 @@
   idx_name <- membership[[1]]$cond_info$idx
   range_set <- quant[[at]]$set
 
-  # remainder domain: range - S1 (one term) or range - (S1 + S2 + ...);
-  # the '+' is disjointness-checked at set resolution
   union_expr <- if (length(inter_names) %=% 1L) {
     inter_names
   } else {

@@ -1,7 +1,4 @@
-#' Coefficient values keyed by lowercase element of a 1-D operand:
-#' the deployed table when `coef` is file-Read, else its indicator
-#' formulas. NULL while the elements are unresolved.
-#'
+#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 .sb_operand_values <- function(coef, over, mappings, coeff_data, coeff_extract, model, bad_set, call) {

@@ -1,5 +1,3 @@
-#' A fresh copy-coefficient name unused anywhere in the model.
-#'
 #' @keywords internal
 #' @noRd
 .synth_copy_name <- function(synth) {

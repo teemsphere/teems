@@ -1,7 +1,3 @@
-#' Conditional set builders: the condition operands must be file-Read
-#' or indicators assigned only constants (solver
-#' tab_setbuilder_transform fatal; GEMPACK manual 10.1.2)
-#'
 #' @keywords internal
 #' @noRd
 .chk_tab_setbuilders <- function(model,

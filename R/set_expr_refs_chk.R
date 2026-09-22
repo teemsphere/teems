@@ -1,7 +1,3 @@
-# S1/S2: expression operands must be declared sets (quoted single
-# elements aside) and never the set being defined; a spelling that
-# differs only by case is canonicalized to the declared form so the
-# downstream exact matches (implied subsets, .eval_set_expr) hold
 #' @keywords internal
 #' @noRd
 .chk_set_expr_refs <- function(sets,

@@ -7,7 +7,6 @@
 }
 
 #' @importFrom data.table fread
-#' 
 #' @keywords internal
 #' @noRd
 #' @method .shk_preload character
@@ -31,7 +30,6 @@
 }
 
 #' @importFrom data.table is.data.table as.data.table copy
-#' 
 #' @keywords internal
 #' @noRd
 #' @method .shk_preload data.frame

@@ -1,4 +1,3 @@
-#'
 #' @keywords internal
 #' @noRd
 .arr_codes <- function(dn, sets) {

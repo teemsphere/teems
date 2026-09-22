@@ -1,5 +1,3 @@
-# transitive closure over direct subset relations; visited-set based
-# because set equality creates mutual (cyclic) subset pairs
 #' @keywords internal
 #' @noRd
 .close_set_subsets <- function(sets) {

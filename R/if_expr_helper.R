@@ -1,18 +1,4 @@
-#' Helper coefficient for an expression-valued IF condition
-#'
-#' `IF[<lhs> <op> <rhs>, value]` where a side is an arithmetic
-#' expression (the LULC family's `THETAi(j,r)*YDONOFF(j,r) <= 0`) is
-#' carried by a synthesized coefficient IFX<n>, quantified over the
-#' host indices the expression uses, assigned `<lhs>` (numeric-
-#' constant rhs) or `<lhs> - <rhs>` right before the host statement,
-#' inheriting the host Formula's (initial)/(always) qualifier (an
-#' Equation host gets the ALWAYS default, re-evaluated every step like
-#' the equation itself). The condition then takes the existing
-#' `<coefref> <op> <constant>` route. Zerodivide defaults active at
-#' the host apply to the helper alike. Cached by expression and
-#' index-set signature. Returns list(pre, cond_info) with cond_info of
-#' kind "cmp".
-#'
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .if_expr_helper <- function(cond_info,
@@ -30,13 +16,8 @@
     num <- "0"
     paste0("[", cond_info$lhs, "] - [", cond_info$rhs, "]")
   }
-  # linear variables cannot enter a condition (11.4.5/11.4.8); levels
-  # variables can, and reach the solver as their paired value
-  # coefficient. The helper is a Formula.
   var_names <- .tab_linear_variable_names(synth$tab)
   toks <- toupper(unique(regmatches(expr, gregexpr("[A-Za-z_][A-Za-z0-9_]*", expr))[[1]]))
-  # a quantifier index shadows any variable of the same name inside
-  # the statement (GTAP-RE's utility u against an index u)
   toks <- setdiff(toks, toupper(q_idx[!is.na(q_idx)]))
   if (any(toks %in% var_names)) {
     if_statement <- stmt

@@ -1,6 +1,6 @@
-#' @importFrom purrr pluck
-#' @importFrom data.table CJ setnames fsetequal
-#' 
+#' @importFrom purrr pluck map_lgl
+#' @importFrom data.table is.data.table CJ setnames setkey fsetequal fsetdiff
+#' @importFrom utils capture.output
 #' @keywords internal
 #' @noRd
 .inject_agg_input <- function(.data,

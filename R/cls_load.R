@@ -23,9 +23,6 @@
 
   closure <- trimws(closure)
   closure <- closure[closure != ""]
-  # element names are case-insensitive on input, lowercase inside TEEMS:
-  # a quoted element folds here, once, so the entry text the closure
-  # file receives at deploy already carries the canonical case
   closure <- gsub('"([^"]*)"', '"\\L\\1"', closure, perl = TRUE)
   attr(closure, "file") <- closure_file
   return(closure)

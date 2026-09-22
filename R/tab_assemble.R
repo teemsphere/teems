@@ -1,9 +1,6 @@
 #' @importFrom tibble tibble as_tibble
 #' @importFrom purrr pluck
-#'
-# the parsed declarations merged back onto the statement they came
-# from, in TAB order, with the statements the solver never sees (Write,
-# output File) dropped
+#' @importFrom tools toTitleCase
 #' @keywords internal
 #' @noRd
 .assemble_tab <- function(tab,
@@ -32,7 +29,6 @@
   tab$row_id <- NULL
   tab$type <- tools::toTitleCase(tolower(tab$type))
   tab <- tab[tolower(tab$type) != "write",]
-  # drop File used for output, need a separate fun arg for this
   tab <- tab[!(tolower(tab$type) == "file" & grepl("(new)", tab$tab, ignore.case = TRUE)),]
   return(tab)
 }

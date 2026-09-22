@@ -1,7 +1,4 @@
 #' @importFrom purrr map2 map_chr
-#'
-# the operator and the (up to two) named operands of a set expression,
-# recorded on the declaration; a builder's source set is its operand
 #' @keywords internal
 #' @noRd
 .set_expr_components <- function(sets,
@@ -29,7 +26,6 @@
       NA_character_
     }
   })
-  # a builder's source set is its (implied) superset
   for (i in which(is_builder)) {
     sets$comp1[i] <- .parse_set_builder(sets$definition[[i]])$src
   }

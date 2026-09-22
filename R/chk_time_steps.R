@@ -1,3 +1,4 @@
+#' @importFrom cli cli_dl cli_h1
 #' @keywords internal
 #' @noRd
 .check_time_steps <- function(t0,

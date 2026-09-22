@@ -1,12 +1,10 @@
 #' @importFrom purrr pwalk
 #' @importFrom rlang cnd_signal
-#' 
 #' @keywords internal
 #' @noRd
 .check_arg_class <- function(args_list,
                              checklist,
                              call) {
-
   checked <- withCallingHandlers(
     purrr::pwalk(
       list(

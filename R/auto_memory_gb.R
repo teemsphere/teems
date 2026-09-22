@@ -1,6 +1,3 @@
-#' @description Peak-memory estimate in decimal GB for `method` at
-#'   `n_tasks` on a system of `plain_size` plain-equivalent equations
-#'   (`NA` when the size is unknown).
 #' @keywords internal
 #' @noRd
 .auto_memory_gb <- function(method,

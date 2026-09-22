@@ -1,10 +1,3 @@
-#' @description The partition the solver would apply at `n_tasks`,
-#'   replayed from the probe's candidate table with the solver's own
-#'   rule (viable + at least `n_tasks` blocks; smallest border; near
-#'   ties within 2% broken by block balance). `border_share` is the
-#'   larger of border variables (netcut) and border equations
-#'   (`border_neq`, known for the probe's chosen set only) over the
-#'   system size. `NULL` when no candidate qualifies.
 #' @keywords internal
 #' @noRd
 .auto_partition <- function(structure,

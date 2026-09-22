@@ -1,7 +1,6 @@
 #' @importFrom purrr map map2 map2_lgl pmap
 #' @importFrom data.table data.table CJ setnames setkeyv set
 #' @importFrom tibble tibble
-#'
 #' @keywords internal
 #' @noRd
 .compose_coeff_bin <- function(data_dt,
@@ -11,8 +10,6 @@
                                time_steps,
                                call) {
 
-  # ordinary coefficients first, PostSim after, each alphabetical (the
-  # order the CSV path's list.files() produced)
   cofs <- cofs[order(cofs$postsim, cofs$cofname), ]
 
   cofs$setid <- strsplit(cofs$setid, split = ",")
@@ -54,9 +51,6 @@
     )
   }
 
-  # the dump holds every solver coefficient, including ones the solver
-  # synthesizes from the TAB (levels variables' level coefficients, which
-  # carry the variable's name); only TAB-declared coefficients compose
   ce_idx <- match(cofs$cofname, tolower(coeff_extract$name))
   cofs <- cofs[!is.na(ce_idx), ]
   ce_idx <- ce_idx[!is.na(ce_idx)]
@@ -66,7 +60,6 @@
     seq.int(b + 1L, length.out = m)
   })
 
-  # declared index sets must be the sets the solver dumped
   set_names <- names(sets)
   strict_check <- all(purrr::map2_lgl(
     coeff_extract$ls_mixed_idx,

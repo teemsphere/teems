@@ -1,6 +1,5 @@
-#' @importFrom data.table fwrite setorder as.data.table
+#' @importFrom data.table fwrite setorder as.data.table set
 #' @importFrom utils head
-#'
 #' @keywords internal
 #' @noRd
 .ragged_write <- function(input,
@@ -46,16 +45,8 @@
     d1 <- dim_sizes[1]
     d2 <- dim_sizes[2]
     n_slices <- prod(dim_sizes[-c(1, 2)])
-    # stack the 2D slices row-wise and write the whole header with a
-    # single fwrite: the blank line the solver expects after each slice
-    # is embedded as "\n" on slice-final values, which requires the
-    # final column as text with quoting off; fwrite formats that column
-    # via a scratch file so the bytes match what it would have written
     arr <- input[[idx]]
-    # == not %=%: dim_sizes arrives double, not integer
     if (d1 == 1L && d2 > 1L) {
-      # 1xd2 slices lose their dim under the legacy path's drop = TRUE
-      # subsetting and are written transposed: d2 lines of one value
       dim(arr) <- c(d2 * n_slices, 1L)
       d1 <- d2
       d2 <- 1L

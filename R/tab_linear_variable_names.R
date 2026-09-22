@@ -1,6 +1,3 @@
-#' Names of the declared LINEAR variables (every Variable statement
-#' whose qualifiers do not say levels), upper-cased.
-#'
 #' @keywords internal
 #' @noRd
 .tab_linear_variable_names <- function(tab) {

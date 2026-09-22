@@ -13,12 +13,8 @@
   coef_ps <- tolower(model$name[ps & typ == "coefficient"])
   var_names <- tolower(model$name[typ == "variable"])
 
-  # scope isolation (12.2.1): ordinary executables must not reference
-  # PostSim-declared names
   if (length(ps_names) > 0L) {
     exec_ord <- which(!ps & typ %in% c("formula", "equation", "update", "assertion", "read"))
-    # labels and quoted element literals are not names (a PostSim
-    # coefficient INVESTMENT vs the element "Investment" of GDPEX)
     scan <- tolower(gsub('"[^"]*"', "", gsub("#[^#]*#", "", model$tab[exec_ord])))
     hits <- vapply(
       ps_names,
@@ -34,7 +30,6 @@
     }
   }
 
-  # same-file rule (12.2.3)
   rd <- typ == "read"
   files_ord <- unique(tolower(model$file[rd & !ps]))
   files_ps <- unique(tolower(model$file[rd & ps]))
@@ -46,7 +41,6 @@
     )
   }
 
-  # PostSim Read targets (12.2.3)
   tgt <- tolower(model$name[rd & ps])
   tgt <- tgt[!is.na(tgt) & nzchar(tgt)]
   bad_targets <- unique(tgt[tgt %in% var_names])
@@ -71,7 +65,6 @@
     )
   }
 
-  # PostSim Formula LHS (12.2.2)
   psf <- which(ps & typ == "formula" & !is.na(model$comp1))
   if (length(psf) > 0L) {
     lhs <- .formula_lhs_name(model$comp1[psf])

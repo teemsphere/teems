@@ -1,7 +1,3 @@
-# PostSim sections (GEMPACK ch.12): tag the region, validate its
-# contents, drop the markers. Declarations stay in place (the solver
-# separates PostSim by execution order, not by namespace);
-# .finalize_tab() re-wraps the executables in a trailing section.
 #' @keywords internal
 #' @noRd
 .flag_tab_postsim <- function(tab,

@@ -1,5 +1,4 @@
 #' @importFrom purrr map_chr
-#'
 #' @keywords internal
 #' @noRd
 .finalize_cmf <- function(model,

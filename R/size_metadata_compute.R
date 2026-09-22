@@ -1,3 +1,4 @@
+#' @importFrom purrr map_dbl
 #' @keywords internal
 #' @noRd
 .compute_size_metadata <- function(var_extract,

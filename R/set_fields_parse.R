@@ -1,7 +1,4 @@
-# every field a Set declaration carries in front of its definition:
-# the intertemporal qualifier, the name, the label, a declared maximum
-# size, the file/header a fully read set comes from, and the size and
-# definition text that follow
+#' @importFrom purrr map map_chr
 #' @keywords internal
 #' @noRd
 .parse_set_fields <- function(sets,
@@ -128,7 +125,6 @@
 
   sets$header <- gsub(pattern = "\"", replacement = "", x = sets$header)
 
-  # S10: the solver's header buffer holds HEADERSIZE (4) characters
   hdr_long <- !is.na(sets$header) & nchar(trimws(sets$header)) > 4L
   if (any(hdr_long)) {
     bad_set <- sets$name[hdr_long][1]

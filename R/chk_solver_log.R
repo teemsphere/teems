@@ -1,9 +1,3 @@
-#' Classify solver "Error:" lines against solver_error_map
-#'
-#' Each line (prefix already stripped) is matched case-insensitively
-#' against the map patterns in table order; the first hit assigns the
-#' class and manual section, no hit leaves NA.
-#'
 #' @keywords internal
 #' @noRd
 .map_solver_errors <- function(err_lines) {
@@ -26,6 +20,7 @@
   return(errors)
 }
 
+#' @importFrom utils head
 #' @keywords internal
 #' @noRd
 .check_solver_log <- function(elapsed_time,
@@ -38,17 +33,9 @@
   diag_out <- normalizePath(paths$diag_out, "/")
   paths$diag_out <- diag_out
 
-  # `condest:` lines are structured solve-quality diagnostics whose
-  # vocabulary ("backward error", "near-singular") would trip the
-  # generic scans below; they are excluded from scanning, and the
-  # solver's near-singularity verdict is surfaced as an R-side warning
-  # (the run itself completed -- the results are the modeller's call)
   condest_warn <- grep("condest: WARNING", model_log,
     value = TRUE, fixed = TRUE
   )
-  # `memory:` lines are the solver's per-phase resident-memory record
-  # (6.16(a)); structured diagnostics, excluded from scanning like
-  # `condest:` so their vocabulary can never trip the generic scans
   scan_log <- model_log[
     !startsWith(model_log, "condest:") & !startsWith(model_log, "memory:")
   ]
@@ -71,7 +58,6 @@
     if (n_err > 10L) {
       preview <- c(preview, paste0("... and ", n_err - 10L, " more"))
     }
-    # escape cli/glue braces in verbatim solver output
     err_preview <- paste(gsub("([{}])", "\\1\\1", preview), collapse = "\f")
 
     if (length(sel) > 0L) {
@@ -114,8 +100,6 @@
       call = call
     )
   }
-  # the log carried no recognisable error but the process still failed
-  # (crash, kill, container failure): the exit status is the only signal
   if (!identical(as.integer(status), 0L)) {
     .cli_action(solve_err$solver_exit,
       action = "abort",
@@ -130,9 +114,6 @@
     run_dir = paths$run,
     call = call
   )
-  # posterity record of the run's EFFECTIVE configuration (defaults,
-  # validation and forced changes applied), rendered from the
-  # solver-written sol.stats.json options object
   .solve_record_append(
     run_dir = paths$run,
     resources_record = resources_record

@@ -1,6 +1,3 @@
-# the solver's own spellings: -matsol for the matrix method and -solmed
-# for the solution method, with the method/model-type check that has to
-# pass before either is meaningful
 #' @keywords internal
 #' @noRd
 .solver_method_codes <- function(a,

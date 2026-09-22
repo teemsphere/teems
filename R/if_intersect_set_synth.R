@@ -1,10 +1,3 @@
-#' The set a membership condition narrows a quantifier to: the operand
-#' itself when it is the range set or a declared subset of it (no
-#' synthesized set, and the narrowed statement keeps the declared
-#' set relations the solver needs), otherwise a synthesized
-#' intersection set (cached by operand and range). Returns
-#' list(pre, name).
-#'
 #' @keywords internal
 #' @noRd
 .synth_intersect_set <- function(operand, range_set, synth) {

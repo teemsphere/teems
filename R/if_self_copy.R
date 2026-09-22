@@ -1,9 +1,4 @@
-#' The copy coefficient a self-referencing Formula reads from:
-#' declared like its target (the target's Coefficient statement, else
-#' the host's quantifiers), assigned the target's values right before
-#' the host under the host's (initial)/(always) qualifier. Returns
-#' list(pre, name).
-#'
+#' @importFrom purrr map_chr map_lgl
 #' @keywords internal
 #' @noRd
 .if_self_copy <- function(lhs, sym, quant, qual_groups, synth) {

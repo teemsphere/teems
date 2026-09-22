@@ -32,7 +32,6 @@
     depth <- "single"
   }
 
-  # might be able to reduce depth to an attribute
   shock <- structure(shock,
     call = call,
     class = c(depth, class(shock))
@@ -42,6 +41,7 @@
   return(shock)
 }
 
+#' @importFrom data.table set
 #' @method .validate_shk default
 #' @export
 .validate_shk.default <- function(shock,
@@ -64,7 +64,6 @@
   )
 
   shock$set <- colnames(shock$input)[!colnames(shock$input) %in% "Value"]
-  # element names are case-insensitive on input, lowercase inside TEEMS
   for (col in shock$set) {
     if (is.character(shock$input[[col]])) {
       data.table::set(shock$input, j = col, value = tolower(shock$input[[col]]))

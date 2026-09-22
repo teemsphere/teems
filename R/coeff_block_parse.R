@@ -1,5 +1,4 @@
 #' @importFrom data.table setDT
-#'
 #' @keywords internal
 #' @noRd
 .parse_coeff_block <- function(dimen, col_nmes, num_ls, sets, call) {

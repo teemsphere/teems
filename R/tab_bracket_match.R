@@ -1,5 +1,3 @@
-#' Position of the bracket matching the opener at position i.
-#'
 #' @keywords internal
 #' @noRd
 .match_bracket <- function(s, i) {

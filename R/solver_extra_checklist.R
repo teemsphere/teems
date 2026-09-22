@@ -1,7 +1,3 @@
-#' Positional checklist entries for the extras, in
-#' `.solver_extra_args()` order (`.check_arg_class` pairs by
-#' position).
-#'
 #' @keywords internal
 #' @noRd
 .solver_extra_checklist <- function() {

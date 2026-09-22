@@ -1,16 +1,8 @@
-#' Raw-statement checks that must run before any object parsing
-#'
-#' Formula & Equation, Default statements, malformed qualifier lists,
-#' and headerless/terminal Reads crash or corrupt the downstream
-#' extract parsers, so they are diagnosed on the cleaned statement
-#' vector straight after .check_statements().
-#'
+#' @importFrom tools toTitleCase
 #' @keywords internal
 #' @noRd
 .chk_raw_statements <- function(statements,
                                 call) {
-  # Formula&Equation is expanded into its two 10.9.1 halves by
-  # .check_statements before this runs (C0 levels support)
   ps_begin <- sum(grepl("^\\s*postsim\\s*\\(\\s*begin", statements, ignore.case = TRUE))
   ps_end <- sum(grepl("^\\s*postsim\\s*\\(\\s*end", statements, ignore.case = TRUE))
   if (ps_begin != ps_end) {
@@ -19,11 +11,6 @@
       call = call
     )
   }
-  # Formula/Equation/Update need an "=": a statement whose leading
-  # token is no recognized keyword is folded into the preceding
-  # statement as an implicit continuation (.check_statements), so an
-  # unknown keyword surfaces here as a math statement without "=" --
-  # the raw form crashes the downstream extract parsers
   kw_stmt <- tolower(sub("^\\s*([A-Za-z_]+).*$", "\\1", statements))
   math_stmt <- kw_stmt %in% c("formula", "equation", "update")
   no_eq <- math_stmt & !grepl("=", gsub("#[^#]*#", "", statements), fixed = TRUE)

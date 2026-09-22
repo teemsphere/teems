@@ -1,6 +1,3 @@
-#' @description Pure parser of the three inspection lines, unit tested
-#'   on canned output. cgroup v2 reports `max` when unlimited, v1 a
-#'   huge number (2^63-ish); both are read as "no limit".
 #' @keywords internal
 #' @noRd
 .parse_cntnr_resources <- function(out) {

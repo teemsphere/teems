@@ -1,5 +1,3 @@
-# the Runge-Kutta family, named once: the step rules, the adaptive
-# controls and the solmed mapping all branch on it
 #' @keywords internal
 #' @noRd
 .solver_is_rk <- function(method) {

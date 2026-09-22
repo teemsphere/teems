@@ -1,5 +1,4 @@
 #' @importFrom tools file_ext
-#'
 #' @keywords internal
 #' @noRd
 .check_input <- function(file = NULL,

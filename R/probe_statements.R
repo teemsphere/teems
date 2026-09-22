@@ -1,3 +1,4 @@
+#' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
 .probe_statements <- function(s) {

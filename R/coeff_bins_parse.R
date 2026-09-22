@@ -1,6 +1,5 @@
 #' @importFrom tibble as_tibble
 #' @importFrom data.table data.table
-#'
 #' @keywords internal
 #' @noRd
 .has_coefficient_dump <- function(sol_prefix) {
@@ -8,11 +7,8 @@
     file.exists(paste0(sol_prefix, "cbin")))
 }
 
-#' Read the solver's coefficient dump (`<sol>.cof` + `<sol>.cbin`), the
-#' coefficient twin of the variable binaries. `coeff_names` are solver
-#' (lowercase) names; empty reads all. `read_values = FALSE` returns the
-#' declarations only.
-#'
+#' @importFrom tibble as_tibble
+#' @importFrom data.table data.table
 #' @keywords internal
 #' @noRd
 .parse_coefficient_bins <- function(sol_prefix,
@@ -32,8 +28,6 @@
     parameter = raw$cof$parameter,
     stringsAsFactors = FALSE
   ))
-  # values are packed contiguously in the returned declaration order
-  # (a name filter drops blocks, so begadd is not the position)
   cof_union$pack_begadd <- c(0, cumsum(cof_union$matsize))[seq_len(nrow(cof_union))]
 
   xc <- if (read_values) {

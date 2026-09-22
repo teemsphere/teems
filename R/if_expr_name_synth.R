@@ -1,5 +1,3 @@
-#' A fresh helper-coefficient name unused anywhere in the model.
-#'
 #' @keywords internal
 #' @noRd
 .synth_expr_name <- function(synth) {

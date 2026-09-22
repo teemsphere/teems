@@ -1,5 +1,3 @@
-# expand the dense kernel result into columns for the kept dims;
-# strides follow the full out_sizes vector (collapsed dims are size 1)
 #' @keywords internal
 #' @noRd
 .arr_expand_cols <- function(ulevs, out_sizes, keep, n_out) {

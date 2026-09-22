@@ -1,7 +1,3 @@
-#' Names declared by statements of one type in the raw statement
-#' vector (Variable/Coefficient ...): leading qualifier and quantifier
-#' groups stripped, first identifier taken.
-#'
 #' @keywords internal
 #' @noRd
 .tab_declared_names <- function(tab, type) {

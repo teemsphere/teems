@@ -1,4 +1,3 @@
-# the condensation record, carried on the statements it acted on
 #' @keywords internal
 #' @noRd
 .flag_tab_cndns <- function(tab,

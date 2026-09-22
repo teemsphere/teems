@@ -1,4 +1,4 @@
-# In-TAB OMIT / SUBSTITUTE / BACKSOLVE statements (GEMPACK manual 10.16).
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .parse_intab_cndns <- function(tab) {

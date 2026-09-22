@@ -1,36 +1,7 @@
-#' Conditional set builders (GEMPACK manual 10.1.2)
-#'
-#' `Set NAME = (all,i,SRC: <cond>);` selects the elements of SRC for
-#' which the DATA-dependent condition holds. The solver evaluates it
-#' from the deployed input files ahead of set resolution
-#' (teems-solver cmf_io.c tab_setbuilder_transform) and rewrites the
-#' statement into an explicit list plus `Subset NAME is subset of
-#' SRC`. teems keeps the statement verbatim in the deployed TAB and
-#' mirrors the evaluation at deploy from the same aggregated tables,
-#' so closure/shock validation, system squareness and compose see the
-#' elements. Accepted condition shapes (the solver's):
-#'   COEF(i) <op> <const>                        GDYN/gtapep SLUG
-#'   COEF(i,"ele") / COEF("ele",i) <op> <const>  GTAPv7 ENDOWFLAG
-#'   sum{j,S2: MAP(j) = i, COEF2(j)} <op> <const> GTAP-E UNITD* flags
-#' with <op> one of = <> < > <= >= or eq ne lt gt le ge and <const> a
-#' numeric literal. The condition operand must be a file-Read
-#' coefficient or an indicator assigned only constants (the GTAP-AEZ
-#' `UNITD*(a) = 0 + IF[a in DSUB, 1]` flags, reaching the solver as a
-#' constant base formula plus constant accumulates over declared
-#' subsets: .indicator_formulas); any other formula-computed operand
-#' cannot drive set resolution (solver fatal, mirrored in
-#' .chk_tab_setbuilders).
-#'
 #' @keywords internal
 #' @noRd
 NULL
 
-#' Parse a builder definition ("= (all,i,SRC: cond)" or the raw
-#' statement remainder). Returns NULL when the shape is not a builder
-#' the solver accepts, else a list with idx, src, cond, form
-#' ("coef"/"mapsum"), op, const, and per-form fields: coef + args
-#' (coef form); sum_idx, sum_set, map, coef (mapsum form).
-#'
 #' @keywords internal
 #' @noRd
 .parse_set_builder <- function(d) {
@@ -54,7 +25,6 @@ NULL
   src <- m[3]
   cond <- trimws(m[4])
 
-  # comparison at bracket depth 0; symbol ops or the word spellings
   scan <- .tab_scan(cond)
   chs <- scan$chs
   top <- scan$depth_before == 0L & !scan$in_quote
@@ -117,7 +87,6 @@ NULL
   )
 
   if (grepl("^[Ss][Uu][Mm]\\s*[][({]", operand)) {
-    # sum{j,S2: MAP(j) = i, COEF2(j)}
     open <- regexpr("[][({]", operand)
     cl <- .match_bracket(operand, open)
     if (is.na(cl) || nzchar(trimws(substring(operand, cl + 1L)))) {
@@ -146,7 +115,6 @@ NULL
     return(out)
   }
 
-  # COEF(args): the loop index once, quoted elements elsewhere
   cm <- regmatches(operand, regexec(
     "^([A-Za-z_][A-Za-z0-9_]*)\\s*[[({](.*)[])}]\\s*$",
     operand
@@ -170,8 +138,6 @@ NULL
   return(out)
 }
 
-#' Is this parsed set definition a builder?
-#'
 #' @keywords internal
 #' @noRd
 .is_set_builder <- function(d) {

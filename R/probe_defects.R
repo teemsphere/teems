@@ -1,3 +1,5 @@
+#' @importFrom tibble as_tibble tibble
+#' @importFrom data.table rbindlist
 #' @keywords internal
 #' @noRd
 .probe_defects <- function(probe) {

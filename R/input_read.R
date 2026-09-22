@@ -26,11 +26,6 @@
   return(input)
 }
 
-
-#' @details Function modified from
-#'   https://rdrr.io/github/USDA-ERS/MTED-HARr/src/R/read_har.r
-#'
-#' @importFrom purrr pluck
 #' @method .read_input har
 #' @export
 #' @keywords internal
@@ -72,10 +67,6 @@
   return(headers)
 }
 
-
-#' Lowercase the strings of a character header and the dimension labels
-#' of a numeric one, keeping every other attribute
-#'
 #' @keywords internal
 #' @noRd
 .fold_elements <- function(x) {

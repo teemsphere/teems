@@ -1,17 +1,4 @@
-#' Netcut enforcement, stage E2 (roadmap 6.5). The solver places every
-#' element of a variable referenced with a lead or lag into the dense
-#' border of the bordered matrix methods, so an inter-period link on an
-#' element slice of a large variable (e.g. qo("capital",r,t+1)) borders
-#' the whole variable. When a lead/lag reference fixes one or more
-#' dimensions to quoted elements, the border contribution is reducible
-#' mechanically: synthesize a proxy variable over the remaining
-#' dimensions (NCV*), tie it to the slice with a linking equation
-#' (E_NCV*), and move the lead/lag onto the proxy. References that run
-#' over full sets are not reducible and are left to the .check_netcut
-#' warning.
-#'
 #' @importFrom purrr map_chr
-#'
 #' @keywords internal
 #' @noRd
 .rewrite_tab_netcut <- function(tab,

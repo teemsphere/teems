@@ -1,3 +1,4 @@
+#' @importFrom tibble as_tibble
 #' @keywords internal
 #' @noRd
 .probe_stats <- function(stats) {
@@ -11,17 +12,10 @@
     "ntime", "nreg", "ndblock", "netcut", "nintraeq", "border_neq"
   )
   out <- stats[intersect(keep, names(stats))]
-  # nonzero count of the Jacobian pattern: the "realized" pass counts
-  # entries nonzero at base data, which is exactly what the sequential
-  # LU path stages (solve_drivers.c lu_grow_solve filters a[i] != 0),
-  # so it sizes the MA48 workspace the factorization will ask for
   nnz <- stats$realized$entries %|||% stats$structural$entries
   if (!is.null(nnz)) {
     out$nnz <- as.numeric(nnz)
   }
-  # the candidate table the solver's partition detection scored (one
-  # row per eligible set) and the set it selected at the probe's rank
-  # count; the recommendation replays the selection at the solve's
   pa <- stats$partition_auto
   if (!is.null(pa)) {
     cand <- if (is.data.frame(pa)) {

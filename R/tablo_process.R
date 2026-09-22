@@ -1,5 +1,5 @@
+#' @importFrom purrr pluck
 #' @keywords internal
-#' @note This will become a method for "process_model"
 #' @noRd
 .process_tablo <- function(tab_file,
                            backsolve = NULL,

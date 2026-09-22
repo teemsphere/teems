@@ -1,5 +1,4 @@
-# the step counts: one per stage for the Runge-Kutta methods, the
-# extrapolation triple otherwise (manual 25.2)
+#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 .validate_solver_steps <- function(a,

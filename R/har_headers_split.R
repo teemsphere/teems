@@ -1,5 +1,3 @@
-# the file's records grouped per header: the 0xfd files are scanned
-# byte by byte, the rest are split by the C++ record reader
 #' @keywords internal
 #' @noRd
 .split_har_headers <- function(cf) {
@@ -8,7 +6,6 @@
     headers <- list()
     i <- 2
     while (i < length(cf)) {
-      # read the first byte
       fb <- cf[i]
       i <- i + 1
       bitsLength <- as.integer(rawToBits(fb))[3:8]

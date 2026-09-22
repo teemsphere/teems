@@ -1,5 +1,3 @@
-# Replace a term's coefficient factor product with one synthesized
-# coefficient when it has at least `min_fac` factors.
 #' @keywords internal
 #' @noRd
 .hoist_term <- function(term,

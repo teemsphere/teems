@@ -1,6 +1,3 @@
-# the definition text reduced to what each kind of definition needs:
-# an expression keeps its operators, an equality and a builder keep
-# their "=", and an explicit list becomes a character vector
 #' @keywords internal
 #' @noRd
 .normalize_set_defs <- function(sets,

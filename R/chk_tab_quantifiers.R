@@ -1,9 +1,3 @@
-#' Quantifier, dimension, sum-index and Zerodivide-default shape checks
-#' (fuzz batch 13: the solver's equation_order_read/linvar_dim_read
-#' faulted on (all,i) or (all,SET), variables_read wrote past
-#' MAXVARDIM, sum_dedup_indices spun on an empty sum index, and
-#' formula_subst_scalar returned 0 for an unknown Zerodivide name)
-#'
 #' @keywords internal
 #' @noRd
 .chk_tab_quantifiers <- function(statements,
@@ -43,7 +37,6 @@
       )
     }
   }
-  # sum(<index>,<set>...) / sum{<index>,<set>...}: the index must be there
   sums <- regmatches(no_label, gregexpr("\\bsum\\s*[({]\\s*[^,({}]*,", no_label, ignore.case = TRUE))
   for (i in seq_along(sums)) {
     for (h in sums[[i]]) {
@@ -57,8 +50,6 @@
       }
     }
   }
-  # Zerodivide (...) default <value>: a number or a declared coefficient
-  # (the solver's scalar lookup silently yields 0 for an unknown name)
   coef_rows <- which(kw == "coefficient")
   coef_names <- vapply(coef_rows, \(i) {
     x <- sub("^\\s*coefficient\\s*", "", no_label[i], ignore.case = TRUE)

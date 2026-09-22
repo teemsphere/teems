@@ -14,7 +14,6 @@
   target <- ifelse(inherits(input, "GTAPv7"), "GTAPv6", "GTAPv7")
   id <- match(class(input)[1], coeff_conversion[[paste0(origin, "header")]])
 
-
   if (!is.na(id)) {
     new_header_name <- coeff_conversion[id, paste0(target, "header")]
     class(input)[1] <- new_header_name
@@ -66,7 +65,3 @@
   class(input)[4] <- target
   return(input)
 }
-
-
-
-

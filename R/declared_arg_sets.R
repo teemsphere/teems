@@ -1,5 +1,3 @@
-# declared set per argument position of every Coefficient/Variable
-# declaration: named list, tolower(name) -> character vector of sets
 #' @keywords internal
 #' @noRd
 .declared_arg_sets <- function(extract) {
@@ -8,7 +6,6 @@
   for (n in decl_rows) {
     text <- .strip_tab_labels(extract$remainder[[n]])
     idx_sets <- .stmt_index_sets(text)
-    # the declared reference: last "name(args)" outside the quantifier groups
     body <- gsub("\\(\\s*all\\s*,[^)]*\\)", " ", text, ignore.case = TRUE)
     body <- gsub("\\([^()]*=[^()]*\\)|\\(\\s*(parameter|integer|real|levels|linear|change|percent_change|non_parameter|initial|always|ge|gt|le|lt)\\b[^()]*\\)", " ", body, ignore.case = TRUE)
     m <- regmatches(body, regexec("([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)", body))[[1]]

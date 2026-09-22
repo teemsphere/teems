@@ -1,7 +1,4 @@
-#' Values of an indicator operand over the elements of `over` (named
-#' by lowercase element): the steps applied in order, elements outside
-#' `over` ignored. NULL while a step's set is unresolved.
-#'
+#' @importFrom stats setNames
 #' @keywords internal
 #' @noRd
 .eval_indicator <- function(steps, over, mappings, model = NULL) {

@@ -1,7 +1,3 @@
-#' Render a teems_complementarity spec into the solver's -comp_*
-#' command-line flags; NULL fields are omitted so the solver defaults
-#' apply (the effective values land in sol.stats.json either way)
-#'
 #' @keywords internal
 #' @noRd
 .comp_cli_flags <- function(spec) {

@@ -1,4 +1,3 @@
-# Deploy-time guard: swaps and shocks must not touch condensed variables.
 #' @keywords internal
 #' @noRd
 .abort_cndnsd <- function(var_name,

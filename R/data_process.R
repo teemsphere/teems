@@ -1,5 +1,4 @@
 #' @importFrom purrr compact map_lgl
-#'
 #' @keywords internal
 #' @noRd
 .process_data <- function(i_data,
@@ -7,18 +6,11 @@
                           call) {
 
   metadata <- attr(i_data, "metadata")
-  # character headers in input-file order, pre-aggregation: mapping
-  # (by_elements) data and the positional pairing with its domain
-  # set's source elements are recovered from these at deploy
-  # (.finalize_map_data)
   set_raw <- lapply(
     i_data[purrr::map_lgl(i_data, is.character)],
     \(h) tolower(trimws(unclass(h)))
   )
   nm_order <- names(i_data)
-  # dat arrays with named dimnames aggregate directly via the C++
-  # scatter-add kernel; everything else (par, set, unnamed/scalar
-  # headers) keeps the data.table path
   is_arr <- purrr::map_lgl(i_data, \(x) {
     inherits(x, "dat") && is.numeric(x) &&
       !is.null(dimnames(x)) && !is.null(names(dimnames(x)))

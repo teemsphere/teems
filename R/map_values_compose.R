@@ -1,14 +1,4 @@
-#' Compose a by_elements mapping under the active aggregation: the raw
-#' values `vals` pair positionally with the domain's source elements
-#' `dom_orig`; both legs are pushed through their sets' mappings and
-#' every source element merged into one aggregated domain element
-#' must land on one aggregated codomain element. Returns the composed
-#' codomain element per `agg_ele` (the aggregated domain elements).
-#' `dom`, `cod` and `header` are the domain and codomain SET names and
-#' the mapping's data header, needed by the
-#' aborts here: .cli_action interpolates in its immediate caller's
-#' frame, so a message naming them cannot reach the loop that composes.
-#'
+#' @importFrom utils head
 #' @keywords internal
 #' @noRd
 .compose_map_values <- function(vals,
@@ -21,8 +11,6 @@
                                 cod,
                                 header,
                                 call) {
-  # source elements the pipeline dropped (e.g. cgds) have no
-  # aggregated counterpart; their mapping values drop with them
   keep <- dom_orig %in% dom_map$origin
   dom_orig <- dom_orig[keep]
   vals <- vals[keep]

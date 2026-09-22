@@ -7,8 +7,6 @@
     model$postsim <- FALSE
   }
 
-  # backsolved declarations stay in the deployed TAB (the solver
-  # recovers their values from the retained defining equations)
   backsolved <- model$type == "Variable" & model$condense %in% "backsolve"
   backsolve_writeout <- paste(
     "Backsolve",
@@ -23,9 +21,6 @@
 
   is_ps <- !is.na(model$postsim) & model$postsim
   set_extract <- model[model$type == "Set",]
-  # PostSim coefficients are PostSim-only names (manual 12.2.1): they are
-  # declared inside the trailing section below and reach R through the
-  # solver's coefficient dump, never through ordinary Write pairs
   coeff_extract <- model[model$type == "Coefficient" & !is_ps,]
 
   set_extract$name <- toupper(set_extract$name)
@@ -46,8 +41,6 @@
     paste0('"', trimws(gsub("#", "", set_extract$label)), '"', ";")
   )
 
-  # coefficient values reach teems-R through the solver's binary dump
-  # (<sol>.cof/.cbin); the per-coefficient CSV Write pairs are opt-in
   coeff_writeout <- if (write_coefficients) {
     paste(
       "File",
@@ -68,10 +61,6 @@
     NULL
   }
 
-  # PostSim statements re-wrap in a single trailing section (sections
-  # are conceptually concatenated at end of file, manual 12.2):
-  # coefficient declarations and executables alike, in model order --
-  # the solver classifies PostSim coefficients by where they are declared
   ps_exec <- is_ps &
     tolower(model$type) %in% c("coefficient", "formula", "assertion", "zerodivide")
   postsim_block <- NULL

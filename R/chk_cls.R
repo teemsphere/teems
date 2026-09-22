@@ -1,5 +1,4 @@
 #' @importFrom purrr map2 map_chr
-#'
 #' @noRd
 #' @keywords internal
 .check_closure <- function(closure,
@@ -24,7 +23,6 @@
 
   backsolve_vars <- var_extract$name[var_extract$condense %in% "backsolve"]
 
-  # substituted-out variables must be endogenous (GEMPACK manual 14.1.1)
   if (any(tolower(backsolve_vars) %in% tolower(cls_var))) {
     bs_exo <- backsolve_vars[tolower(backsolve_vars) %in% tolower(cls_var)]
     .cli_action(model_err$condense_endo,
@@ -50,11 +48,7 @@
   return(closure)
 }
 
-#' Nearest declared names for typo suggestions (generalized edit
-#' distance, case-insensitive), closest first, capped
-#'
-#' @importFrom utils adist
-#'
+#' @importFrom utils adist head
 #' @keywords internal
 #' @noRd
 .nearest_names <- function(unknown,

@@ -1,5 +1,4 @@
-# Rewrite sum{u,S, c(u)*y(i)} as [sum{u,S, c(u)}]*y(i) when y does not
-# carry u, then hoist the resulting coefficient sum.
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .invert_idle_sums <- function(term,

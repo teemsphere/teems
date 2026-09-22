@@ -1,7 +1,4 @@
-# One occurrence c*x(args) expands into the mapped solution terms.
-# Sum indices of the solution are freshened against the target
-# equation; sums whose index the surviving variable does not carry are
-# inverted onto the coefficient product and hoisted (GEMPACK 14.1.12).
+#' @importFrom stats setNames
 #' @keywords internal
 #' @noRd
 .expand_occurrence <- function(t,

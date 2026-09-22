@@ -1,9 +1,4 @@
-#' Indicator-formula operand: the Formula statements assigning `coef`,
-#' when every one of them is `coef(i) = <num>` or `coef(i) = coef(i)
-#' +/- [<num>]` over a single unconditioned quantifier. Returns a list
-#' of steps (set, idx, mode "set"/"add", value) in file order, or NULL
-#' when `coef` has no formulas or any formula has another shape.
-#'
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .indicator_formulas <- function(model, coef) {

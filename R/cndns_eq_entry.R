@@ -1,4 +1,3 @@
-# Load (or fetch) the flattened form of an equation.
 #' @keywords internal
 #' @noRd
 .eq_entry <- function(eq_name,

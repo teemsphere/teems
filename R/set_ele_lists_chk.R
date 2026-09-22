@@ -1,6 +1,3 @@
-# explicit element lists, checked on the raw text: a range (a-b), an
-# empty element or one carrying whitespace would otherwise be swallowed
-# by the cleanup that follows
 #' @keywords internal
 #' @noRd
 .chk_set_ele_lists <- function(sets,

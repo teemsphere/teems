@@ -1,6 +1,5 @@
-# aggregate a classed numeric array directly to the keyed data.table that
-# .aggregate_data.dat would produce from its array2DF expansion; the set
-# mapping is applied to dimension levels, never to the expanded cells
+#' @importFrom data.table setDT setkeyv
+#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 .aggregate_array <- function(arr,

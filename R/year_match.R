@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#'
 #' @keywords internal
 #' @noRd
 .match_year <- function(data,

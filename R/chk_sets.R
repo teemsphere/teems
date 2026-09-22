@@ -1,6 +1,5 @@
 #' @importFrom purrr map2
 #' @importFrom utils tail head
-#' 
 #' @keywords internal
 #' @noRd
 .check_sets <- function(sets,

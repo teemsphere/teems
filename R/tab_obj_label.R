@@ -1,7 +1,4 @@
 #' @importFrom purrr map_chr
-#'
-# the # label # of a declaration, split off the statement remainder
-# (declarations without one carry NA)
 #' @keywords internal
 #' @noRd
 .label_tab_obj <- function(obj) {

@@ -1,5 +1,3 @@
-#' A fresh set name unused anywhere in the model.
-#'
 #' @keywords internal
 #' @noRd
 .synth_set_name <- function(synth) {

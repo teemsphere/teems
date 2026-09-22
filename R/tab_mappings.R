@@ -1,5 +1,3 @@
-#' Declared set mappings: NAME -> c(domain, codomain), upper-cased.
-#'
 #' @keywords internal
 #' @noRd
 .tab_mappings <- function(tab) {

@@ -1,7 +1,5 @@
-#' Variable declarations as a table: name, statement index, per-dim
-#' index letters and set names (in argument order), and the qualifier
-#' groups to inherit on a synthesized proxy.
-#'
+#' @importFrom purrr map_chr map_lgl
+#' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
 .netcut_var_table <- function(tab) {

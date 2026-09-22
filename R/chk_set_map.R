@@ -9,7 +9,6 @@
 }
 
 #' @importFrom purrr pluck
-#' 
 #' @keywords internal
 #' @noRd
 #' @export
@@ -24,10 +23,6 @@
                                     ...) {
 
   map_name <- attr(set_map, "name")
-  # a model layer redefines the elements of some sets and leaves the
-  # rest to the core mappings, so take the first bucket carrying this
-  # set rather than merging them: the two element lists differ and
-  # could not share one table
   available_mappings <- NULL
   for (bucket in c(map_layers, data_format)) {
     candidate <- purrr::pluck(mappings, database_version, bucket)
@@ -56,9 +51,6 @@
 
   available_mappings <- available_mappings[[map_name]]
   set_mapping <- available_mappings[, c(1, which(names(available_mappings) == set_map)), with = FALSE]
-  # an element the table does not know would otherwise map to NA and
-  # its data would drop out silently (GDYN 11c spells NatRes in the
-  # ENDW header where every mapping says natlres)
   matched_data <- .match_set_data(set_data, map_name)
   if (length(matched_data) > 0L) {
     .check_map_coverage(
@@ -72,10 +64,7 @@
   return(set_mapping)
 }
 
-#' The set headers a mapping applies to: those classed by the set's
-#' name, or carrying the header the set conversion table lists for it
-#' (a v6-format GTAPv11 database names its set headers H1 to H9)
-#'
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .match_set_data <- function(set_data,
@@ -95,9 +84,6 @@
   return(set_data[hit])
 }
 
-#' Every element the data carries for a set must have a row in its
-#' mapping; both sides compare in lowercase
-#'
 #' @keywords internal
 #' @noRd
 .check_map_coverage <- function(set_mapping,
@@ -118,7 +104,6 @@
 
 #' @importFrom data.table fread is.data.table as.data.table copy
 #' @importFrom purrr pluck map_lgl
-#' 
 #' @keywords internal
 #' @noRd
 #' @export
@@ -166,8 +151,6 @@
                 call = call)
   }
 
-  # element names are case-insensitive on input and lowercase inside
-  # TEEMS, so a mapping is folded before it is compared with the data
   set_mapping[, names(set_mapping) := lapply(.SD, .fold_elements)]
   .check_map_coverage(
     set_mapping = set_mapping,

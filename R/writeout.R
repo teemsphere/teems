@@ -1,3 +1,4 @@
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .writeout <- function(model,
@@ -33,8 +34,6 @@
     } else {
       !is.na(model$postsim) & model$postsim
     }
-    # PostSim coefficients have no CSV route (their names are PostSim-only,
-    # manual 12.2.1); they reach R through the solver's coefficient dump
     coeff_names <- model[model$type == "Coefficient" & !is_ps, "name"][[1]]
     coeff_writeout <- paste(
       "outdata",

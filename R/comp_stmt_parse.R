@@ -1,12 +1,3 @@
-#' Parse one Complementarity statement into its components
-#'
-#' Mirrors the solver's cp_parse_stmt (teems-solver
-#' tab_complementarity_transform, design doc section 7): qualifier
-#' group entries (variable/lower_bound/upper_bound), the statement
-#' name, the quantifier count and the expression remainder. Structural
-#' defects abort; reference-level validation happens in
-#' .chk_tab_comp().
-#'
 #' @keywords internal
 #' @noRd
 .parse_comp_stmt <- function(statement,

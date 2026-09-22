@@ -1,6 +1,5 @@
 #' @importFrom purrr map_lgl
 #' @importFrom tools file_path_sans_ext
-#'
 #' @keywords internal
 #' @noRd
 .in_situ_cmf <- function(input_files,

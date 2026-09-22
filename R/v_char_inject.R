@@ -1,5 +1,4 @@
 #' @importFrom data.table fread
-#' 
 #' @keywords internal
 #' @noRd
 .inject_v_char <- function(input,

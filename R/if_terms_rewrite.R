@@ -1,6 +1,4 @@
-# pass 1 over both sides: data comparisons become 0/1 indicator
-# factors, set-membership conditions are collected for the domain
-# split that follows
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .rewrite_if_terms <- function(sides,
@@ -36,7 +34,6 @@
       }
       cond_info <- .if_index_cond(cond_info, quant, q_idx, synth, if_cond, call)
       if (cond_info$kind %=% "expr") {
-        # an Equation host: the helper is an ordinary (always) Formula
         hx <- .if_expr_helper(cond_info, quant, q_idx, character(0), synth, if_cond, stmt, call)
         pre <- c(pre, hx$pre)
         cond_info <- hx$cond_info

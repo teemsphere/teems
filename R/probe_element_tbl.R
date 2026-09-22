@@ -1,6 +1,4 @@
-#' @description Parse solver-side element labels ("qo(svcs,reu)") into
-#'   name plus element tuple. String split only: the names originate
-#'   solver-side, so no TAB interpretation happens here.
+#' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
 .probe_element_tbl <- function(x) {

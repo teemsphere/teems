@@ -1,5 +1,4 @@
 #' @importFrom jsonlite fromJSON
-#'
 #' @keywords internal
 #' @noRd
 .probe_object <- function(probe_path,
@@ -14,8 +13,6 @@
       call = call
     )
   }
-  # simplifyMatrix = FALSE keeps per-statement dims as character
-  # vectors even when every statement happens to share a dimension count
   probe <- jsonlite::fromJSON(probe_path, simplifyMatrix = FALSE)
 
   stats <- NULL

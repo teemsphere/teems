@@ -1,6 +1,5 @@
 #' @importFrom tibble as_tibble
 #' @importFrom data.table data.table
-#'
 #' @keywords internal
 #' @noRd
 .parse_solution_bins <- function(sol_prefix, var_names = character(0)) {
@@ -26,9 +25,6 @@
     r_idx = seq_along(raw$bin) - 1L,
     Value = raw$bin
   )
-  # embedded-RK runs write per-element estimated error metrics (.est):
-  # the accumulated per-step embedded estimate -- an indicator of the
-  # least-settled elements, not a bound
   if (!is.null(raw$acc)) {
     xc$error_estimate <- raw$acc
   }

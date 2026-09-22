@@ -1,10 +1,5 @@
 #' @importFrom purrr map map_chr map_lgl
-#'
 #' @keywords internal
-#' @note Roadmap 6.5 E1: the solver places every element of a variable
-#'   referenced with a lead or lag into the dense border of the bordered
-#'   matrix methods (SBBD/DBBD/NDBBD), so non-time dimensions on such
-#'   variables multiply the interface problem (netcut).
 #' @noRd
 .check_netcut <- function(var_extract,
                           math_extract,
@@ -44,7 +39,6 @@
 
   names(lagged_refs) <- eqs$name
 
-  # E2-synthesized proxies are already reduced as far as statically possible
   proxies <- grepl("^netcut proxy for ", var_extract$label)
 
   lagged_vars <- intersect(

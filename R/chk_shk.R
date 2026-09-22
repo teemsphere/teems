@@ -28,7 +28,6 @@
 }
 
 #' @importFrom purrr pluck
-#'
 #' @keywords internal
 #' @noRd
 #' @method .check_shk uniform
@@ -80,7 +79,6 @@
       ele_set <- .dock_tail(shock_subsets[[i]])
       recognized_ele <- purrr::pluck(sets, "ele", ele_set)
       recognized_ss <- purrr::pluck(sets, "subsets", ele_set)
-      # element names are case-insensitive on input
       ele <- .canonical_ele(ele, recognized_ele, recognized_ss)
       shock$subset[[i]] <- ele
       
@@ -98,7 +96,6 @@
         attr(shock$subset[[i]], "subset") <- TRUE
       }
       
-      
     }
     
     attr(shock, "full_var") <- FALSE
@@ -111,7 +108,6 @@
 
 #' @importFrom data.table CJ setnames fsetdiff fsetequal
 #' @importFrom utils capture.output
-#'
 #' @keywords internal
 #' @noRd
 #' @method .check_shk custom
@@ -170,7 +166,6 @@
 
 #' @importFrom data.table CJ setnames fsetdiff fsetequal
 #' @importFrom utils capture.output
-#'
 #' @keywords internal
 #' @noRd
 #' @method .check_shk scenario

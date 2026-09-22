@@ -1,5 +1,3 @@
-# the statement's own fields: a leading qualifier, the equation name,
-# its # label # and the quantifier groups that follow
 #' @keywords internal
 #' @noRd
 .parse_eq_header <- function(stmt) {

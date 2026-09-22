@@ -1,6 +1,5 @@
 #' @importFrom purrr map_chr
 #' @importFrom utils capture.output
-#' 
 #' @keywords internal
 #' @noRd
 .format_closure <- function(closure,
@@ -15,8 +14,6 @@
     sep = "\n"
   ))
 
-  # the TABREADLINE definition (ha_cge_global.h) limits lines to 20000 characters
-  # inject new lines if closure passes this limit with 500 buffer
   if (sum(nchar(x = final_closure)) > tab_readline) {
     modified_vector <- character(0)
     current_length <- 0

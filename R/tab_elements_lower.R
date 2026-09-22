@@ -1,6 +1,4 @@
-# element names are lowercase canonical: an upper- or mixed-case
-# element in a Set definition (and the upstream "CGDS" spelling) is
-# lowered in the TAB text, which means re-extracting from it
+#' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
 .lower_tab_elements <- function(tab,

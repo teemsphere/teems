@@ -17,15 +17,6 @@
   return(statements)
 }
 
-#' Normalise TAB text to valid UTF-8
-#'
-#' TAB files from older toolchains are frequently Latin-1 (accented
-#' characters inside comments/labels) and CRLF-terminated; a byte-read
-#' string with invalid UTF-8 crashes the perl regex splits downstream.
-#' A UTF-8 BOM is dropped; text that is not valid UTF-8 is re-encoded
-#' from Latin-1 (every byte sequence is valid Latin-1, so this cannot
-#' fail; unmappable bytes are dropped).
-#'
 #' @keywords internal
 #' @noRd
 .tab_to_utf8 <- function(tab) {

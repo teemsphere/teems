@@ -1,6 +1,4 @@
-# Synthesize (or reuse) a coefficient CSUB<n> with a defining formula.
-# Statements are appended at the end of the TAB: only equations
-# reference them, and equation evaluation is order-free.
+#' @importFrom stats setNames
 #' @keywords internal
 #' @noRd
 .csub_new <- function(expr,

@@ -4,8 +4,6 @@
   if (length(reads) == 0L) {
     return(invisible(NULL))
   }
-  # specific defects first: terminal source, partial (indexed) reads,
-  # missing file clause; only then the generic header requirement
   term <- grepl("from\\s+terminal", reads, ignore.case = TRUE)
   if (any(term)) {
     bad_stmt <- trimws(reads[term][1])
@@ -14,9 +12,6 @@
       call = call
     )
   }
-  # (by_elements) mapping reads (manual 11.9.3) and (IfHeaderExists)
-  # optional reads (manual 10.6) are legal; any other parenthesized
-  # form is a partial (indexed) read
   reads_nq <- sub("^(\\s*read)\\s*\\(\\s*(by_elements|ifheaderexists)\\s*\\)", "\\1",
     reads,
     ignore.case = TRUE

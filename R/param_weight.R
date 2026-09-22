@@ -1,16 +1,8 @@
-#' Recast a COMM-dimensioned weight onto TOPP
-#'
-#' TOPP holds the commodities that are not energy plus a single node
-#' standing for the energy composite, so the correspondence is read off
-#' the two element lists: a commodity that is itself a TOPP element maps
-#' to itself, and the rest carry the one TOPP element that is not a
-#' commodity. The caller sums by TOPP, which performs the collapse.
-#'
+#' @importFrom data.table copy setnames
 #' @keywords internal
 #' @noRd
 .weight_over_topp <- function(w, topp, e_header) {
 
-  # NSE
   TOPP <- NULL
 
   if (is.null(w)) {
@@ -37,14 +29,12 @@
 }
 
 #' @importFrom data.table copy rbindlist let setnames
-#'
 #' @keywords internal
 #' @noRd
 .weight_param <- function(i_data,
                           weights,
                           data_format) {
 
-  # NSE
   omega <- Value <- TOPP <- NULL
 
   weight_map <- switch(data_format,
@@ -67,14 +57,6 @@
   flip_headers <- sub("-", "", grep("-", unlist(weight_map), value = TRUE))
   weight_map <- lapply(weight_map, gsub, pattern = "-", replacement = "")
 
-  # GTAP-E redefines INCPAR/SUBPAR from COMM to TOPP (= the energy
-  # composite eny plus the non-energy commodities), so their weights
-  # cannot be reduced to the parameter's own sets. Weight them with the
-  # same private consumption mapped through that correspondence: the
-  # energy commodities carry the eny node, everything else is identity
-  # and the by-set sum below does the collapsing. The weight headers are
-  # shared with the Armington parameters, which still read them over
-  # COMM, so map a copy rather than renaming in place.
   is_topp <- vapply(i_data, \(h) {
     is.data.frame(h) && "TOPP" %in% colnames(h)
   }, logical(1))
@@ -95,8 +77,6 @@
     }
   }
 
-  # several parameter headers share weight headers and set signatures;
-  # reduce each (weight, kept-sets) combination only once
   reduce_cache <- new.env(parent = emptyenv())
 
   i_data <- lapply(i_data, \(h) {

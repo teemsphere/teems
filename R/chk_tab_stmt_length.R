@@ -1,12 +1,5 @@
 #' @keywords internal
 #' @noRd
-# Statement length against the solver's 20000-character statement
-# buffer (TABREADLINE): the solver preprocess compacts whitespace and
-# drops # labels #, then prefixes every variable reference in Equation
-# and Update statements with p_ (2 characters each). Past the buffer
-# both overflowed it (fuzz batch 13; now named solver aborts). A
-# reference plus its delimiter is at least 2 characters, so only a
-# statement over half the buffer can outgrow it by prefixing.
 .chk_tab_stmt_length <- function(statements,
                                  call) {
   max_len <- 20000L

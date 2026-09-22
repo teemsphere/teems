@@ -1,7 +1,3 @@
-#' Quantifiers and argument list of a Coefficient declaration, from
-#' the raw statements: list(quants, args) or NULL when `sym` is not a
-#' declared coefficient.
-#'
 #' @keywords internal
 #' @noRd
 .tab_coeff_decl <- function(tab, sym) {

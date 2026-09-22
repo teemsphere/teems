@@ -1,15 +1,11 @@
 #' @importFrom purrr map2 pmap map_chr pluck
-#' 
 #' @keywords internal
-#' @note Replace all sapply with purrr::map
 #' @noRd
 .parse_tab_maths <- function(extract,
                              call) {
 
   maths <- extract[tolower(extract$type) %in% c("equation", "formula"),]
 
-  # Equation qualifiers ((levels)/(linear), manual 10.9) sit BEFORE the
-  # name; extract them first or the group is taken AS the name (C0)
   eq_qual <- rep(NA_character_, nrow(maths))
   lead_grp <- tolower(maths$type) == "equation" &
     grepl("^\\s*\\((?!\\s*all\\b)", maths$remainder, perl = TRUE, ignore.case = TRUE)
@@ -98,8 +94,6 @@
     NA
   )
 
-  # pre-extracted Equation qualifiers win (the block above only sees
-  # formula-style qualifiers on the post-name remainder)
   maths$qualifier_list[!is.na(eq_qual)] <- eq_qual[!is.na(eq_qual)]
 
   maths$remainder <- .advance_remainder(
@@ -142,9 +136,6 @@
     return(return_comp)
   })
 
-
-  # split on the FIRST "=" only: mapping-equality sum conditions
-  # (sum{r,REG: MAP(r)=b, ...}, manual 11.4.11) put "=" inside the RHS
   def_split <- strsplit(maths$definition, split = "=")
   maths$comp1 <- trimws(purrr::map_chr(def_split, 1))
   maths$comp2 <- trimws(purrr::map_chr(def_split, \(s) {

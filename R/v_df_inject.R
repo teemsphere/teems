@@ -1,6 +1,5 @@
 #' @importFrom purrr pluck
 #' @importFrom data.table setcolorder as.data.table setkeyv
-#'
 #' @keywords internal
 #' @noRd
 .inject_v_df <- function(input,

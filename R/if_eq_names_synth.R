@@ -1,5 +1,4 @@
-#' Fresh equation names for a domain split (A, B, C, ... suffixes).
-#'
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .synth_eq_names <- function(name, synth, n = 2L) {

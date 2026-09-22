@@ -1,4 +1,4 @@
-# term := factor (('*'|'/') factor)*
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .pe_term <- function(st, var_lookup) {
@@ -22,12 +22,12 @@
   }
 
   if (length(linear_at) > 1L) {
-    stop("product of two variable-bearing expressions (nonlinear)",
+    stop(model_err$linear_reason$product,
          call. = FALSE)
   }
 
   if (ops[[linear_at]] %=% "/") {
-    stop("division by a variable-bearing expression (nonlinear)",
+    stop(model_err$linear_reason$division,
          call. = FALSE)
   }
 

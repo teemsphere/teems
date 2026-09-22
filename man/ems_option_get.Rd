@@ -38,6 +38,15 @@ tag when the option is unset (see \code{\link[=ems_option_set]{ems_option_set()}
 \item \code{"version_check"} Character. \code{"abort"} (the default),
 \code{"warn"} or \code{"off"}: what the solve pre-flight does with the
 image's solver version (see \code{\link[=ems_option_set]{ems_option_set()}}).
+\item \code{"assertions"} Character. \code{"fatal"} (the default), \code{"warn"}
+or \code{"off"}: severity of TAB \code{Assertion} failures in
+\code{\link[=ems_solve]{ems_solve()}}.
+\item \code{"range_test_initial"} Character. \code{"warn"} (the default),
+\code{"fatal"} or \code{"off"}: severity of declared-range violations on
+initial values.
+\item \code{"range_test_updated"} Character. \code{"warn"} (the default),
+\code{"fatal"} or \code{"off"}: as \code{"range_test_initial"}, for updated
+values.
 }}
 }
 \value{

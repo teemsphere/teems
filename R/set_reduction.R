@@ -7,7 +7,6 @@
 }
 
 #' @importFrom data.table fsetequal
-#' 
 #' @noRd
 #' @keywords internal
 #' @method .reduce2sets ele
@@ -16,7 +15,7 @@
                              swap,
                              ...) {
   if (!data.table::fsetequal(attr(preswap, "ele"), attr(swap, "ele"))) {
-    .cli_action("Internal error on an ele to ele swap-out.",
+    .cli_action(gen_err$ele_swap_internal,
       action = "abort",
       .internal = TRUE
     )
@@ -24,10 +23,20 @@
   return(NULL)
 }
 
+#' @keywords internal
+#' @noRd
+.rename_split_col <- function(subset, set_name) {
+  if (!all(is.na(subset))) {
+    val <- unlist(unique(subset[, set_name, with = FALSE]))
+    replacement <- paste0("\"", val, "\"")
+    colnames(subset)[colnames(subset) == set_name] <- replacement
+  }
+  return(subset)
+}
+
 #' @importFrom data.table fsetdiff copy fsetequal `:=`
 #' @importFrom purrr list_flatten map2_lgl compact map_chr
 #' @importFrom stats setNames
-#'
 #' @method .reduce2sets default
 #' @export
 .reduce2sets.default <- function(preswap,
@@ -96,17 +105,8 @@
 
     complete <- purrr::map2_lgl(full_dt, diff_dt, data.table::fsetequal)
 
-    rename_split_col <- function(subset) {
-      if (!all(is.na(subset))) {
-        val <- unlist(unique(subset[, set_name, with = FALSE]))
-        replacement <- paste0("\"", val, "\"")
-        colnames(subset)[colnames(subset) == set_name] <- replacement
-      }
-      return(subset)
-    }
-
-    diff_dt <- lapply(diff_dt, rename_split_col)
-    full_dt <- lapply(full_dt, rename_split_col)
+    diff_dt <- lapply(diff_dt, .rename_split_col, set_name = set_name)
+    full_dt <- lapply(full_dt, .rename_split_col, set_name = set_name)
 
     if (any(complete)) {
       ls_reduced <- diff_dt[complete]

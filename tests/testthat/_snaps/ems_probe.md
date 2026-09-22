@@ -39,6 +39,10 @@
       ×225", "e_pfd ×225", and "e_pfm ×225"
       249 equation statements, 858 statement-variable incidences
 
+# incidence plot errors on a probe without incidence data
+
+    x This probe carries no statement incidence data (report version 2); rerun against a solver image with probe report version 2.
+
 # dm plot errors on a structurally valid probe
 
     x No Dulmage-Mendelsohn localization to plot: the system has full structural rank on both patterns.
@@ -128,4 +132,11 @@
 ---
 
     x `memory` must be a positive number of length 1 or "NULL".
+
+# ems_probe announces a structurally singular system
+
+    Code
+      res <- ems_probe(cmf_path, cores = 4, memory = 8)
+    Message
+      i The system is structurally singular; see `print()` and `plot(x, type = "dm")` for the diagnosis.
 

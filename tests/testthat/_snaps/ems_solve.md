@@ -77,7 +77,7 @@
 # ems_solve errors when solution errors detected
 
     Code
-      ems_solve(cmf_path, range_test_updated = "fatal")
+      ems_solve(cmf_path)
     Condition
       Error in `ems_solve()`:
       x The solver stopped on 1 runtime error while evaluating model values:

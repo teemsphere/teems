@@ -1,5 +1,3 @@
-#' @description Render the probe's condensation verdict. Kept beside the
-#'   solve-time advisory so both sides of the 6.2 guidance read together.
 #' @importFrom cli cli_text
 #' @keywords internal
 #' @noRd
@@ -14,29 +12,14 @@
   n_backsolve <- condense$n_backsolve
   switch(condense$verdict,
     "hurts" = {
-      cli::cli_text(
-        "condensation: {n_backsolve} backsolved variable{?s} ({share} of
-        the uncondensed system), but the probe finds a {blocks}-block
-        partition on {.val {set}} (border {border})"
-      )
-      cli::cli_text(
-        "  substitution densifies those blocks -- redeploy without
-        {.arg backsolve} and solve with a bordered method"
-      )
+      cli::cli_text(probe_info$cndns$hurts)
+      cli::cli_text(probe_info$cndns$hurts_advice)
     },
     "helps" = {
-      cli::cli_text(
-        "condensation: {n_backsolve} backsolved variable{?s} ({share} of
-        the uncondensed system); no usable block partition, so this
-        system is {.val LU}-bound -- the case condensation pays for"
-      )
+      cli::cli_text(probe_info$cndns$helps)
     },
     "candidate" = {
-      cli::cli_text(
-        "condensation: none, and no usable block partition -- this
-        {.val LU}-bound system is a candidate for
-        {.fn ems_model} {.arg backsolve}"
-      )
+      cli::cli_text(probe_info$cndns$candidate)
     }
   )
   return(invisible(NULL))

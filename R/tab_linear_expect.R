@@ -3,9 +3,13 @@
 .expect <- function(st, tok) {
   got <- .adv(st)
   if (is.na(got) || got != tok) {
-    stop(paste0("expected `", tok, "` but found `",
-                ifelse(is.na(got), "end of expression", got), "`"),
-         call. = FALSE)
+    stop(
+      sprintf(
+        model_err$linear_reason$expected, tok,
+        ifelse(is.na(got), "end of expression", got)
+      ),
+      call. = FALSE
+    )
   }
   return(invisible(got))
 }

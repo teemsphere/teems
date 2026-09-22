@@ -21,3 +21,10 @@
     i No single variable matches the gap exactly; nearest by element count: y (3).
     i If the counts look right but the partition is structurally deficient, run `teems::ems_probe()` on the deployed model for a named diagnosis.
 
+# an over-exogenized count with nothing exogenous to release names no candidate
+
+    x The closure does not square the system: 2 endogenous variable elements against 3 equation elements.
+    i Arithmetic: 6 variable elements - 4 exogenous elements (closure after swaps) = 2 endogenous; the equation system determines exactly 3, so 1 element too many are exogenous (endogenize via swaps).
+    i No single-variable candidate closes the gap.
+    i If the counts look right but the partition is structurally deficient, run `teems::ems_probe()` on the deployed model for a named diagnosis.
+

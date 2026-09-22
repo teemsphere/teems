@@ -130,6 +130,34 @@ test_that("ems_option_set sets version_check and rejects other values", {
   ems_option_reset()
 })
 
+test_that("ems_option_set rejects invalid values", {
+  withr::defer(ems_option_reset())
+  expect_snapshot_error(ems_option_set(verbose = "yes"))
+  expect_snapshot_error(ems_option_set(ndigits = 2.5))
+  expect_snapshot_error(ems_option_set(accuracy_threshold = 1.5))
+  expect_snapshot_error(ems_option_set(check_shock_status = NA))
+  expect_snapshot_error(ems_option_set(timestep_header = "year"))
+  expect_snapshot_error(ems_option_set(n_timestep_header = "nyear"))
+  expect_snapshot_error(ems_option_set(full_exclude = 1))
+  expect_snapshot_error(ems_option_set(docker_tag = 1))
+})
+
+test_that("ems_option_set sets the solver run modes and rejects other values", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("assertions"), "fatal")
+  expect_identical(ems_option_get("range_test_initial"), "warn")
+  expect_identical(ems_option_get("range_test_updated"), "warn")
+  ems_option_set(assertions = "warn", range_test_initial = "fatal", range_test_updated = "off")
+  expect_identical(ems_option_get("assertions"), "warn")
+  expect_identical(ems_option_get("range_test_initial"), "fatal")
+  expect_identical(ems_option_get("range_test_updated"), "off")
+  expect_snapshot_error(ems_option_set(assertions = "maybe"))
+  expect_snapshot_error(ems_option_set(range_test_initial = 2))
+  expect_snapshot_error(ems_option_set(range_test_updated = c("warn", "off")))
+  ems_option_reset()
+  expect_identical(ems_option_get("assertions"), "fatal")
+})
+
 test_that("ems_option_reset restores default version_check", {
   ems_option_set(version_check = "off")
   ems_option_reset()

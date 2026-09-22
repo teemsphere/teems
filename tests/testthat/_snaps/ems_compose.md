@@ -14,6 +14,11 @@
 
     x Cannot open file 'not_a_path': No such file.
 
+# a run without a coefficient dump or CSVs warns and returns variables only
+
+    ! No coefficient outputs found for this run; only variables are returned.
+    i The solver image predates the binary coefficient dump ('sol.cof'). Update the image, or deploy with `write_coefficients = TRUE` for the per-coefficient CSVs.
+
 # ems_compose errors when model run has not taken place
 
     Code

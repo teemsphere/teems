@@ -1,9 +1,4 @@
 #' @importFrom purrr pluck list_flatten map map_chr map2 map2_lgl
-#'
-# the declaration's indices: the lower-case index letters from the
-# name, the sets they range over from the quantifiers, and the mixed
-# spelling the downstream writers use. The quantifier order need not
-# match the name's, so the sets are permuted onto the name's order.
 #' @keywords internal
 #' @noRd
 .index_tab_obj <- function(obj) {
@@ -21,7 +16,6 @@
       strsplit(gsub("\\(|\\)", "", i), ",")
     }
   ))
-
 
   obj$name <- purrr::map_chr(
     obj$name,
@@ -60,7 +54,7 @@
     obj$ls_lower_idx,
     .f = \(up, low) {
       if (up %!=% NA && low %!=% NA) {
-        paste(map2(up, low, \(up2, low2) {
+        paste(purrr::map2(up, low, \(up2, low2) {
           paste0(up2, low2)
         }), collapse = ",")
       } else {

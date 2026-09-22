@@ -1,14 +1,11 @@
+#' @importFrom purrr map_chr map2_chr
+#' @importFrom utils tail
 #' @keywords internal
 #' @noRd
 .parse_tab_read <- function(extract,
                             call) {
 
   reads <- extract[tolower(extract$type) %in% "read", ]
-  # (by_elements) assigns mapping values (GEMPACK manual 11.9.3);
-  # (IfHeaderExists) makes the read optional (manual 10.6: an absent
-  # header is skipped, the coefficient keeps its formula/default value
-  # -- solver-side semantics); any other parenthesized form is a
-  # partial (indexed) read
   qual <- .read_qualifier(reads$remainder)
   reads$remainder <- .strip_read_qualifier(reads$remainder)
   if (any(grepl("\\(", reads$remainder))) {
@@ -20,7 +17,7 @@
   reads$type <- "Read"
   reads$name <- purrr::map_chr(strsplit(reads$remainder, " "), 1)
   reads$header <- purrr::map_chr(strsplit(reads$remainder, " "), \(r) {
-    tail(r, 1)
+    utils::tail(r, 1)
   })
 
   reads$remainder <- purrr::map2_chr(
@@ -70,9 +67,6 @@
   )]
   return(reads)
 }
-#' Recognised Read qualifiers: the leading (by_elements) / (IfHeaderExists)
-#' group, normalised to a lowercase "(qualifier)" tag (NA when absent)
-#'
 #' @keywords internal
 #' @noRd
 .read_qualifier <- function(remainder) {

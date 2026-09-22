@@ -72,6 +72,10 @@
 
     x Default statements apply only to Coefficient, Variable, Formula, and Equation declarations (GEMPACK manual 10.19): "Update (default=always)"
 
+---
+
+    x Equation `(default=add_homotopy)` is not supported (GEMPACK manual 10.19): "Equation (default=add_homotopy)"
+
 # solver-valid Default statements abort as unsupported
 
     x Default statements are not supported by the teems pipeline: "Variable (default=change)"
@@ -158,6 +162,10 @@
 
     x PostSim Read into variable "psave"; simulation results cannot be changed (GEMPACK manual 12.2.3).
 
+# PostSim reads into undeclared names abort
+
+    x PostSim Read target "notdecl" not declared (GEMPACK manual 12.2.3).
+
 # PostSim formulas assigning variables abort
 
     x PostSim Formula assigns variable "psave"; simulation results cannot be changed (GEMPACK manual 12.2.2).
@@ -218,4 +226,27 @@
 
     x Unbalanced parentheses in: "Formula (all,r,REG) CUNB2(r) = (VGDP(r)+1))"
     i Every `(` needs a matching `)`; an unclosed `sum(` is the common case.
+
+# subsets by numbers abort
+
+    x Subset '(by numbers)' argument not supported.
+
+# a qualifier list that never closes aborts
+
+    x Unbalanced parentheses in the qualifier list of: "Coefficient (parameter QUNB"
+
+# intertemporal set builders abort
+
+    x Set builder "BIGR" is intertemporal; builders are supported for static sets only.
+
+# a mapping-sum set builder over a non-mapping aborts
+
+    x Set builder "COMMZ" sums over "NOMAP", which is not a Mapping with a `(by_elements)` Read.
+    i The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.2).
+
+# a binary switch in a set definition aborts
+
+    x Unsupported binary switch detected in a Set definition.
+    i A set selected by a condition takes the builder form (GEMPACK manual 10.1.2), e.g. Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,"mobile") ne 0);.
+    i Otherwise declare its elements explicitly, e.g. Set ENDWM # mobile endowments # (capital,unsklab,sklab);.
 

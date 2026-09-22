@@ -251,6 +251,16 @@
 
     x Equation "E_tva" nominated for more than one backsolve.
 
+# a backsolve equation the condensation parser cannot read aborts with the reason
+
+    x Failed to parse E_tn into linear terms while condensing: product of two variable-bearing expressions (nonlinear).
+    i Statement: Equation E_tn (all,r,REG)(all,t,ALLTIME) tvn(r,t) = pop(r,t) * pop(r,t).
+
+---
+
+    x Failed to parse E_tq into linear terms while condensing: unsupported equation quantifier form.
+    i Statement: Equation E_tq (all,r,REG: POP(r) > 0)(all,t,ALLTIME) tvq(r,t) = pop(r,t).
+
 # backsolve rule violations abort (GEMPACK 14.1.10)
 
     x Equation E_tr1 cannot be used to backsolve tvr.

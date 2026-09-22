@@ -5,25 +5,36 @@ skip_on_cran()
 # statements are gone -- the CMF is a file manifest). Effective values
 # are recorded in sol.stats.json and model_diagnostics.txt.
 
+# the validators run after the cmf_path existence check and before
+# anything reads the deployment, so an empty file is enough to reach them
+stub_cmf <- function(env = parent.frame()) {
+  cmf_path <- withr::local_tempfile(fileext = ".cmf", .local_envir = env)
+  file.create(cmf_path)
+  cmf_path
+}
+
 test_that("numeric-knob validation aborts", {
-  expect_snapshot_error(ems_solve("nope.cmf", n_threads = 0))
-  expect_snapshot_error(ems_solve("nope.cmf", max_retries = 0))
-  expect_snapshot_error(ems_solve("nope.cmf", retry_adjust = 1))
+  cmf_path <- stub_cmf()
+  expect_snapshot_error(ems_solve(cmf_path, n_threads = 0))
+  expect_snapshot_error(ems_solve(cmf_path, max_retries = 0))
+  expect_snapshot_error(ems_solve(cmf_path, retry_adjust = 1))
+  expect_snapshot_error(ems_solve(cmf_path, n_tasks = c(1, 2)))
 })
 
 test_that("mode-switch validation aborts", {
+  cmf_path <- stub_cmf()
   expect_snapshot_error(
-    ems_solve("nope.cmf", assertions = "maybe"),
+    ems_solve(cmf_path, assertions = "warn"),
     class = "rlang_error"
   )
   expect_snapshot_error(
-    ems_solve("nope.cmf", range_test_initial = 2),
+    ems_solve(cmf_path, postsim = "yes"),
     class = "rlang_error"
   )
-  expect_snapshot_error(
-    ems_solve("nope.cmf", postsim = "yes"),
-    class = "rlang_error"
-  )
+})
+
+test_that("a cmf_path that does not exist aborts", {
+  expect_snapshot_error(ems_solve("nope.cmf"))
 })
 
 # --- e2e: switches reach the solver and the run records them --------
@@ -141,12 +152,9 @@ test_that("switches reach the solver and the run records them (e2e)", {
   )
   model <- ems_model(tab, model_files[["closure_file"]])
   cmf_path <- ems_deploy(d, model)
-  out <- suppressMessages(ems_solve(
-    cmf_path,
-    assertions = "warn",
-    range_test_initial = "off",
-    postsim = FALSE
-  ))
+  ems_option_set(assertions = "warn", range_test_initial = "off")
+  out <- suppressMessages(ems_solve(cmf_path, postsim = FALSE))
+  ems_option_set(assertions = "fatal", range_test_initial = "warn")
   expect_s3_class(out, "data.frame")
   run_dir <- dirname(cmf_path)
   stats <- jsonlite::read_json(

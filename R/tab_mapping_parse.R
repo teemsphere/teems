@@ -1,13 +1,12 @@
-#' Parse Mapping declarations (GEMPACK manual 11.9.1)
-#'
-#' `Mapping [(onto)] [(project)] NAME from S1 to S2;` rows are carried through the
-#' model tibble so the statement reaches the solver verbatim while the
-#' name joins the 11.2.1 namespace checks and the domain/codomain sets
-#' are validated against the declared sets. Set references differing
-#' from a declaration only by case are canonicalized to the declared
-#' spelling (GEMPACK names are case-insensitive; downstream matching
-#' is exact).
-#'
+#' @keywords internal
+#' @noRd
+.canonical <- function(s, set_names) {
+  r_idx <- match(tolower(s), tolower(set_names))
+  canon <- ifelse(is.na(r_idx), s, set_names[r_idx])
+  return(canon)
+}
+
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .parse_tab_mapping <- function(extract,
@@ -47,13 +46,8 @@
   maps$comp1 <- purrr::map_chr(parsed, 4)
   maps$comp2 <- purrr::map_chr(parsed, 5)
 
-  canonical <- function(s) {
-    r_idx <- match(tolower(s), tolower(set_names))
-    canon <- ifelse(is.na(r_idx), s, set_names[r_idx])
-    return(canon)
-  }
-  maps$comp1 <- canonical(maps$comp1)
-  maps$comp2 <- canonical(maps$comp2)
+  maps$comp1 <- .canonical(maps$comp1, set_names)
+  maps$comp2 <- .canonical(maps$comp2, set_names)
 
   undecl <- !tolower(maps$comp1) %in% tolower(set_names) |
     !tolower(maps$comp2) %in% tolower(set_names)

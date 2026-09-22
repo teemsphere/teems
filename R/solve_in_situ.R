@@ -29,9 +29,9 @@
 #'   file. No checks or modifications are carried out on this
 #'   file.
 #' @param ignore_condense Logical length 1 (default is `FALSE`).
-#'   If `TRUE`, `Omit`, `Substitute`, and `Backsolve` statements
-#'   found in the model file are ignored, as for
-#'   [ems_model()]. Set this to match the `ems_model()` call
+#'   If `TRUE`, `Substitute` and `Backsolve` statements found in
+#'   the model file are ignored, as for [ems_model()] (in-TAB
+#'   `Omit` statements are always ignored). Set this to match the `ems_model()` call
 #'   that produced the closure and shock files.
 #' @param adaptive Character length 1, adaptive step-size control
 #'   for the embedded Runge-Kutta methods (`"BoSha32"`,
@@ -95,9 +95,6 @@ solve_in_situ <- function(...,
                           verbosity = 1L,
                           suppress_outputs = FALSE,
                           terminal_run = FALSE,
-                          assertions = c("fatal", "warn", "off"),
-                          range_test_initial = c("warn", "fatal", "off"),
-                          range_test_updated = c("warn", "fatal", "off"),
                           complementarity = NULL,
                           solver_args = NULL
 ) {
@@ -146,7 +143,7 @@ if (missing(...)) {
 )
 if (length(ignore_condense) != 1L || is.na(ignore_condense)) {
   bad_arg <- "ignore_condense"
-  .cli_action("{.arg {bad_arg}} must be {.val TRUE} or {.val FALSE}.",
+  .cli_action(gen_err$logical_flag,
     action = "abort",
     call = call
   )
@@ -173,12 +170,12 @@ sol <- .implement_solve_in_situ(
   verbosity = verbosity,
   suppress_outputs = suppress_outputs,
   terminal_run = terminal_run,
-  assertions = assertions,
-  range_test_initial = range_test_initial,
-  range_test_updated = range_test_updated,
   complementarity = complementarity,
   solver_args = solver_args,
   call = call
 )
+if (is.null(sol)) {
+  return(invisible(NULL))
+}
 return(sol)
 }

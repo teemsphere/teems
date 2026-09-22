@@ -18,3 +18,15 @@
 
     x Input files provided to `...` must be named as the appear within the `model_file`.
 
+# solve_in_situ errors when an input file does not exist
+
+    x Input file not found: not_a_file.txt.
+
+# solve_in_situ errors when no input files are given
+
+    x No input files loaded; all files must be passed as named arguments via `...`.
+
+# solve_in_situ errors when ignore_condense is not a single TRUE or FALSE
+
+    x `ignore_condense` must be "TRUE" or "FALSE".
+

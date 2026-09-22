@@ -1,15 +1,4 @@
-#' Closure count-squaring check (validation table row C4)
-#'
-#' The exogenous element count fixed by the closure (after swaps) must
-#' leave exactly as many endogenous variable elements as the equation
-#' system determines. The solver has no named check for this: a
-#' non-square system surfaces downstream as an unnamed MA48 failure.
-#' Equation element counts come from the (all,...) quantifier sets of
-#' each retained equation; equations nominated as condensation
-#' defining equations are out of the solve system. When a quantifier
-#' set cannot be resolved against the loaded set elements the check is
-#' skipped rather than risk a false abort.
-#'
+#' @importFrom stats na.omit
 #' @keywords internal
 #' @noRd
 .check_system_square <- function(model,
@@ -46,9 +35,6 @@
     \(s) prod(set_sizes[s]),
     numeric(1)
   ))
-  # C2: one E_$comp equation element per ACTIVE (endogenous)
-  # complementarity component (11.14 counting; inert components are
-  # absorbed solver-side by their endogenous dummy, net zero)
   n_eq_ele <- n_eq_ele + n_comp_active
 
   n_var_ele <- size_metadata$n_var_ele
@@ -61,9 +47,9 @@
   gap <- n_endo - n_eq_ele
   gap_abs <- abs(gap)
   gap_dir <- if (gap > 0) {
-    "must still be exogenized"
+    cls_err$square_under
   } else {
-    "too many are exogenous (endogenize via swaps)"
+    cls_err$square_over
   }
   candidate_txt <- .square_candidates(
     gap = gap,

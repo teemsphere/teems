@@ -48,6 +48,18 @@
 #'   silent or mismatched image, `"warn"` reports it and runs anyway
 #'   (bit-exact reproduction against a pinned old image), `"off"`
 #'   never asks.
+#' @param assertions Character length 1, `"fatal"` (default),
+#'   `"warn"` or `"off"`. Severity of TAB `Assertion` statement
+#'   failures in [`ems_solve()`] (GEMPACK manual 25.3): `"warn"`
+#'   reports and continues, `"off"` skips the checks.
+#' @param range_test_initial Character length 1, `"warn"` (default),
+#'   `"fatal"` or `"off"`. Severity of declared-range violations
+#'   (e.g. `(ge 0)`) on initial values in [`ems_solve()`] (GEMPACK
+#'   manual 25.4.4, `range test initial values`; GEMPACK's
+#'   `yes`/`warn`/`no` are `"fatal"`/`"warn"`/`"off"` here).
+#' @param range_test_updated Character length 1, `"warn"` (default),
+#'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
+#'   values (`range test updated values`).
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -68,7 +80,10 @@ ems_option_set <- function(verbose = NULL,
                            n_timestep_header = NULL,
                            full_exclude = NULL,
                            docker_tag = NULL,
-                           version_check = NULL) {
+                           version_check = NULL,
+                           assertions = NULL,
+                           range_test_initial = NULL,
+                           range_test_updated = NULL) {
   call <- match.call()
   if (!is.null(verbose)) {
     ems_options$set_verbose(verbose, call = call)
@@ -99,6 +114,15 @@ ems_option_set <- function(verbose = NULL,
   }
   if (!is.null(version_check)) {
     ems_options$set_version_check(version_check, call = call)
+  }
+  if (!is.null(assertions)) {
+    ems_options$set_assertions(assertions, call = call)
+  }
+  if (!is.null(range_test_initial)) {
+    ems_options$set_range_test_initial(range_test_initial, call = call)
+  }
+  if (!is.null(range_test_updated)) {
+    ems_options$set_range_test_updated(range_test_updated, call = call)
   }
   invisible(NULL)
 }
@@ -140,6 +164,15 @@ ems_option_set <- function(verbose = NULL,
 #'   * `"version_check"` Character. `"abort"` (the default),
 #'     `"warn"` or `"off"`: what the solve pre-flight does with the
 #'     image's solver version (see [`ems_option_set()`]).
+#'   * `"assertions"` Character. `"fatal"` (the default), `"warn"`
+#'     or `"off"`: severity of TAB `Assertion` failures in
+#'     [`ems_solve()`].
+#'   * `"range_test_initial"` Character. `"warn"` (the default),
+#'     `"fatal"` or `"off"`: severity of declared-range violations on
+#'     initial values.
+#'   * `"range_test_updated"` Character. `"warn"` (the default),
+#'     `"fatal"` or `"off"`: as `"range_test_initial"`, for updated
+#'     values.
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -156,7 +189,7 @@ ems_option_get <- function(name = NULL) {
   
   valid <- names(formals(ems_option_set))
   if (!name %in% valid) {
-    cli::cli_abort("{.arg name} must be one of {.val {valid}}, not {.val {name}}.")
+    cli::cli_abort(gen_err$opt_name)
   }
 
   switch(name,
@@ -169,7 +202,10 @@ ems_option_get <- function(name = NULL) {
          n_timestep_header  = ems_options$get_n_timestep_header(),
          full_exclude       = ems_options$get_full_exclude(),
          docker_tag         = ems_options$get_docker_tag(),
-         version_check      = ems_options$get_version_check()
+         version_check      = ems_options$get_version_check(),
+         assertions         = ems_options$get_assertions(),
+         range_test_initial = ems_options$get_range_test_initial(),
+         range_test_updated = ems_options$get_range_test_updated()
   )
 }
 

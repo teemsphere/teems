@@ -26,9 +26,6 @@ solve_in_situ(
   verbosity = 1L,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
-  assertions = c("fatal", "warn", "off"),
-  range_test_initial = c("warn", "fatal", "off"),
-  range_test_updated = c("warn", "fatal", "off"),
   complementarity = NULL,
   solver_args = NULL
 )
@@ -63,9 +60,9 @@ file. No checks or modifications are carried out on this
 file.}
 
 \item{ignore_condense}{Logical length 1 (default is \code{FALSE}).
-If \code{TRUE}, \code{Omit}, \code{Substitute}, and \code{Backsolve} statements
-found in the model file are ignored, as for
-\code{\link[=ems_model]{ems_model()}}. Set this to match the \code{ems_model()} call
+If \code{TRUE}, \code{Substitute} and \code{Backsolve} statements found in
+the model file are ignored, as for \code{\link[=ems_model]{ems_model()}} (in-TAB
+\code{Omit} statements are always ignored). Set this to match the \code{ems_model()} call
 that produced the closure and shock files.}
 
 \item{solution_method}{The solution method to be used, default
@@ -132,6 +129,20 @@ and scratch to run it with for a deployment and a machine, and
 prints the call to paste (see Details).
 }}
 
+\item{n_subintervals}{Integer length 1 (default is \code{1L}),
+number of subintervals for the applied shock. More
+subintervals may alleviate accuracy issues stemming from
+large shock magnitudes.}
+
+\item{steps}{Integer (default is \code{NULL}, resolved per method:
+\code{c(2L, 4L, 8L)} for the extrapolating methods, \code{4L} for the
+Runge-Kutta methods). \code{"Gragg"}, \code{"Johansen"} and \code{"Euler"}
+take a vector of length 3: the three counts must increase for
+\code{"Gragg"} and \code{"Euler"}, and must all be even for \code{"Gragg"}.
+\code{"RK2"}, \code{"Heun"}, \code{"RK4"}, \code{"BoSha32"} and \code{"DoPri54"} take a
+single count of 1 or more. A larger number of steps may
+improve accuracy for some model runs.}
+
 \item{adaptive}{Character length 1, adaptive step-size control
 for the embedded Runge-Kutta methods (\code{"BoSha32"},
 \code{"DoPri54"}); default is \code{"no"}. See \code{\link[=ems_RK]{ems_RK()}} for the
@@ -188,21 +199,6 @@ solver. This allows the user to close any R IDE or other
 programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
-
-\item{assertions}{Character length 1, \code{"fatal"} (default),
-\code{"warn"} or \code{"off"}. Severity of TAB \code{Assertion} statement
-failures (GEMPACK manual 25.3):
-\code{"warn"} reports and continues, \code{"off"} skips the checks.}
-
-\item{range_test_initial}{Character length 1, \code{"warn"} (default),
-\code{"fatal"} or \code{"off"}. Severity of declared-range violations
-(e.g. \verb{(ge 0)}) on initial values (GEMPACK manual 25.4.4,
-\verb{range test initial values}; GEMPACK's \code{yes}/\code{warn}/\code{no} are
-\code{"fatal"}/\code{"warn"}/\code{"off"} here).}
-
-\item{range_test_updated}{Character length 1, \code{"warn"} (default),
-\code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated
-values (\verb{range test updated values}).}
 
 \item{complementarity}{A \code{teems_complementarity} object built by
 \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for

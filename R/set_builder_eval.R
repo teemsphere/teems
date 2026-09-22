@@ -1,22 +1,5 @@
-#' Evaluate a builder against the aggregated coefficient tables.
-#'
-#' Mirrors tab_setbuilder_transform: the condition value is the
-#' coefficient's DEPLOYED value (rounded exactly as .finalize_data
-#' writes it), the loop index must range over the coefficient's
-#' dimension set exactly, and an empty selection is fatal. Returns
-#' the origin/mapping table of the selected SRC elements (SRC order),
-#' or NULL while SRC is not resolved yet.
-#'
-#' @param b parsed builder (.parse_set_builder)
-#' @param owner set being defined
-#' @param mappings named list of resolved set mappings (NULL = pending)
-#' @param coeff_data named list of aggregated coefficient tables (by
-#'   header)
-#' @param coeff_extract Coefficient rows of the model
-#' @param model the model (Formula rows for indicator operands, Mapping
-#'   and Read rows for the mapping-sum form)
-#' @param set_raw raw character headers (the by_elements mapping data)
-#'
+#' @importFrom data.table setattr
+#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 .eval_set_builder <- function(b,
@@ -56,7 +39,6 @@
   }
   cond_coef <- b$coef
   if (is.null(dt) && length(b$args) == 1L) {
-    # a 1-D indicator operand assigned only constants
     steps <- if (is.null(model)) {
       NULL
     } else {
@@ -72,7 +54,7 @@
         src_set <- b$src
         builder_cond <- b$cond
         .cli_action(deploy_err$set_builder_empty,
-          action = "abort",
+          action = c("abort", "inform"),
           call = call
         )
       }
@@ -97,8 +79,6 @@
     )
   }
 
-  # deployed value: .finalize_data rounds Reals to ndigits and casts
-  # (integer) coefficients
   val <- dt$Value
   is_int <- !is.na(coeff_extract$qualifier_list[ci]) &&
     grepl("integer", coeff_extract$qualifier_list[ci], ignore.case = TRUE)
@@ -139,7 +119,6 @@
 
   v <- val[keep_rows]
   e <- loop_vals[keep_rows]
-  # dense tables carry one row per element; a missing row is a zero
   sel <- vapply(tolower(src_ele), \(x) {
     hit <- which(e == x)
     vv <- if (length(hit) == 0L) {
@@ -154,7 +133,7 @@
     src_set <- b$src
     builder_cond <- b$cond
     .cli_action(deploy_err$set_builder_empty,
-      action = "abort",
+      action = c("abort", "inform"),
       call = call
     )
   }

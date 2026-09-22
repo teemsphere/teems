@@ -7,6 +7,7 @@
 }
 
 #' @importFrom purrr pluck
+#' @importFrom stats na.omit
 #' @keywords internal
 #' @noRd
 #' @method .tab_mod data.frame
@@ -27,11 +28,10 @@
   param <- grepl("parameter", model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
 
   if (param) {
-    # let's just take the most used file for parameters instead of complicating this
-    files <- na.omit(model[grepl("parameter", model$qualifier_list), ]$file)
+    files <- stats::na.omit(model[grepl("parameter", model$qualifier_list), ]$file)
     file <- names(which.max(table(files)))
   } else {
-    files <- na.omit(model[(!grepl("parameter", model$qualifier_list)) & (model$type == "Coefficient"), ]$file)
+    files <- stats::na.omit(model[(!grepl("parameter", model$qualifier_list)) & (model$type == "Coefficient"), ]$file)
     file <- names(which.max(table(files)))
   }
 
@@ -51,8 +51,7 @@
   return(model)
 }
 
-
-#' @importFrom purrr pluck map2_chr
+#' @importFrom purrr pluck map2_chr map_chr
 #' @keywords internal
 #' @noRd
 #' @method .tab_mod numeric_read

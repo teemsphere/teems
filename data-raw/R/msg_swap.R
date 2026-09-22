@@ -1,11 +1,11 @@
 build_swap_err <- function() {
   list(
-    # test-ems_swap.R: "ems_swap errors when invalid variable provided for swap-in"
+    # test-ems_deploy.R: "ems_deploy errors when invalid variable provided for swap-in", "ems_deploy errors when invalid variable provided for swap-out"
     no_var = c(
       "Swap variable {.val {var_name}} not found in the model.",
       "Call: {.code {deparse(call)}}"
     ),
-    # test-ems_model.R: "swaps on condensed variables abort"
+    # test-ems_model.R: "swaps and shocks on condensed variables abort"
     condensed_var = c(
       "Swap variable {.val {var_name}} was condensed out of the model ({condense_action}).",
       "Backsolved variables cannot enter the closure; drop the backsolve in {.fun teems::ems_model} (or load with {.code ignore_condense = TRUE}) to swap this variable."

@@ -1,3 +1,17 @@
+#' @keywords internal
+#' @noRd
+.chk_flag <- function(x, nme, call) {
+  if (!is.null(x) && (!is.logical(x) || length(x) != 1L || is.na(x))) {
+    bad_arg <- nme
+    requirement <- solve_err$requirement$logical_flag
+    .cli_action(solve_err$comp_arg_type,
+      action = "abort",
+      call = call
+    )
+  }
+  return(invisible(NULL))
+}
+
 #' @title Prepare complementarity run controls
 #' @export
 #' @description Prepares the run controls for a simulation whose
@@ -59,39 +73,28 @@ ems_complementarity <- function(steps_approx_run = NULL,
                                 do_acc_run = NULL,
                                 state_bound_error = NULL) {
   call <- match.call()
-  chk_flag <- function(x, nme) {
-    if (!is.null(x) && (!is.logical(x) || length(x) != 1L || is.na(x))) {
-      bad_arg <- nme
-      requirement <- "a non-missing logical of length 1"
-      .cli_action(solve_err$comp_arg_type,
-        action = "abort",
-        call = call
-      )
-    }
-    return(invisible(NULL))
-  }
   if (!is.null(steps_approx_run) &&
     (!is.numeric(steps_approx_run) || length(steps_approx_run) != 1L ||
       is.na(steps_approx_run) ||
       steps_approx_run != as.integer(steps_approx_run) ||
       steps_approx_run < 1)) {
     bad_arg <- "steps_approx_run"
-    requirement <- "a positive integer-like numeric of length 1"
+    requirement <- solve_err$requirement$positive_int
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call
     )
   }
-  chk_flag(redo_steps, "redo_steps")
-  chk_flag(do_approx_run, "do_approx_run")
-  chk_flag(do_acc_run, "do_acc_run")
+  .chk_flag(redo_steps, "redo_steps", call)
+  .chk_flag(do_approx_run, "do_approx_run", call)
+  .chk_flag(do_acc_run, "do_acc_run", call)
   if (!is.null(redo_step_min_fraction) &&
     (!is.numeric(redo_step_min_fraction) ||
       length(redo_step_min_fraction) != 1L ||
       is.na(redo_step_min_fraction) ||
       redo_step_min_fraction <= 0 || redo_step_min_fraction > 1)) {
     bad_arg <- "redo_step_min_fraction"
-    requirement <- "a numeric of length 1 in (0, 1]"
+    requirement <- solve_err$requirement$half_open_unit
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call
@@ -101,7 +104,7 @@ ems_complementarity <- function(steps_approx_run = NULL,
     (!is.character(state_bound_error) || length(state_bound_error) != 1L ||
       !state_bound_error %in% c("fatal", "warn"))) {
     bad_arg <- "state_bound_error"
-    requirement <- "either \"fatal\" or \"warn\""
+    requirement <- solve_err$requirement$fatal_or_warn
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call

@@ -1,5 +1,4 @@
 #' @importFrom purrr map_chr
-#' 
 #' @keywords internal
 #' @noRd
 .inject_script <- function(template,
@@ -34,14 +33,6 @@
   assignments <- sub("\"NULL\"", "NULL", assignments)
 
   if (file.exists(sub_path)) {
-    existing <- list.files(sub_path, all.files = TRUE, no.. = TRUE)
-    if (length(existing) > 0) {
-      .cli_action(gen_info$unlink,
-        action = "inform",
-        call = call
-      )
-      unlink(file.path(sub_path, "*"), expand = TRUE)
-    }
     unlink(sub_path)
   }
 

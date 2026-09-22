@@ -1,11 +1,3 @@
-#' Identifier for one solve, carried into the names of the files that
-#' solve writes (`out/solver_out_<id>.txt` above all). Minute
-#' resolution collided: two solves started in the same minute named the
-#' same log, `tee` truncated it, and the surviving file could belong to
-#' the other run while the abort message pointed at it. Seconds plus the
-#' process id are unique across concurrent processes, which is the case
-#' that actually collided.
-#'
 #' @keywords internal
 #' @noRd
 .run_id <- function() {
@@ -19,10 +11,10 @@
                               timeID,
                               call) {
   if (!file.exists(cmf_path)) {
-    .cli_action(action = "abort",
-                msg = "The {.arg cmf_path} provided {.path {cmf_path}} does not
-                exist.",
-                call = call)
+    .cli_action(solve_err$no_cmf,
+      action = "abort",
+      call = call
+    )
   }
   cmf_path <- normalizePath(cmf_path, "/")
   run_dir <- dirname(cmf_path)

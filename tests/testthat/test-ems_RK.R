@@ -143,3 +143,11 @@ test_that("Heun is accepted as a fixed-step Runge-Kutta flavor", {
   expect_no_match(cmd, "-adaptive", fixed = TRUE)
   expect_error(ems_solve(cmf, solution_method = "Heun", steps = 4L, adaptive = "yes"))
 })
+
+test_that("ems_RK returns invisibly when there are no outputs to return", {
+  d <- withr::local_tempdir()
+  cmf <- mk_cmf(d)
+  res <- suppressMessages(withVisible(ems_RK(cmf, terminal_run = TRUE)))
+  expect_null(res$value)
+  expect_false(res$visible)
+})

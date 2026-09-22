@@ -318,10 +318,10 @@ test_that("GTAP-AEZ preparation on a synthetic layer", {
   )
   attr(i_data, "metadata") <- list(data_format = fmt, database_version = "GTAPv12")
   class(i_data) <- c(fmt, "list")
-  expect_true(.is_aez_input(i_data))
+  expect_true(.layer_detect(i_data, "aez"))
   out <- .prepare_aez(i_data, call = NULL)
   expect_true(isTRUE(attr(out, "metadata")$aez))
-  expect_false(.is_aez_input(out) && !isTRUE(attr(out, "metadata")$aez))
+  expect_false(.layer_detect(out, "aez") && !isTRUE(attr(out, "metadata")$aez))
   # disaggregated sets at source resolution, never aggregated
   expect_equal(as.character(out$DACT), acts)
   expect_equal(as.character(out$MACT), acts)
@@ -380,6 +380,22 @@ test_that("GTAP_convert GTAP-AEZ target rejects the v6-format layer (v10a AEZ)",
     Sys.getenv("GTAP10AEZ_par"),
     Sys.getenv("GTAP10AEZ_set"),
     "GTAP-AEZ"
+  )))
+})
+
+test_that("GTAP_convert GTAP-E and GTAP-EP targets reject a v6-format database", {
+  skip_if(!nzchar(Sys.getenv("GTAP10A_dat")), "GTAP10A_* inputs not set")
+  expect_snapshot_error(suppressWarnings(GTAP_convert(
+    Sys.getenv("GTAP10A_dat"),
+    Sys.getenv("GTAP10A_par"),
+    Sys.getenv("GTAP10A_set"),
+    "GTAP-E"
+  )))
+  expect_snapshot_error(suppressWarnings(GTAP_convert(
+    Sys.getenv("GTAP10A_dat"),
+    Sys.getenv("GTAP10A_par"),
+    Sys.getenv("GTAP10A_set"),
+    "GTAP-EP"
   )))
 })
 

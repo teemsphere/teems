@@ -137,16 +137,17 @@ test_that("a failing assertion maps to a named runtime abort (Z3)", {
 
 test_that("a fatal range-test bound violation maps to a named runtime abort (B2)", {
   skip_if_no_e2e()
+  # range-test modes are package options passed to the solver CLI;
+  # the solver no longer parses CMF statements (CMF = file manifest only)
+  ems_option_set(range_test_initial = "fatal")
+  withr::defer(ems_option_set(range_test_initial = "warn"))
   msg <- solve_error_msg(
     "e2e_range",
     paste(
       "Coefficient (le 10) (all,r,REG) BNDP(r) # bound probe #;",
       "Formula (all,r,REG) BNDP(r) = 20;",
       sep = "\n"
-    ),
-    # range-test modes are CLI controls via the R API; the solver no
-    # longer parses CMF statements (CMF = file manifest only)
-    range_test_initial = "fatal"
+    )
   )
   expect_match(msg, "runtime error")
   expect_match(msg, "has a value above its declared upper bound", fixed = TRUE)

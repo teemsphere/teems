@@ -1,15 +1,12 @@
 #' @importFrom grDevices gray.colors
-#' @importFrom graphics mtext image
+#' @importFrom graphics mtext image par box axis
 #' @keywords internal
 #' @noRd
 .probe_plot_incidence <- function(x,
                                   max_labels = 60L) {
   inc <- x$incidence
   if (!NROW(inc)) {
-    .cli_action(
-      msg = "This probe carries no statement incidence data (report
-      version {x$version %|||% 1}); rerun against a solver image with
-      probe report version 2.",
+    .cli_action(probe_err$no_incidence,
       action = "abort"
     )
   }
@@ -47,7 +44,7 @@
   }
   graphics::mtext(
     sprintf(
-      "equation-system structure: %d statements x %d variables (%d incidences)",
+      probe_info$plot$incidence_main,
       length(eqs), length(vars), NROW(inc)
     ),
     side = 1, line = 1, cex = 0.8

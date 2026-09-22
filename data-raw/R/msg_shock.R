@@ -11,7 +11,7 @@ build_shk_err <- function() {
       "{.obj_type_friendly {input}} supplied as a scenario shock must have a {.field Year} column consistent with selected time steps.",
       "Call: {.code {deparse(call)}}"
     ),
-    # test-ems_uniform_shock.R: "ems_uniform_shock subsets are provided as named lists"
+    # test-ems_uniform_shock.R: "ems_uniform_shock errors dots passed without names"
     uni_named_lst = c(
       "Subset arguments in {.arg ...} must be named pairs: {.code SETi = \"component\"}.",
       "Note that set names consist of the concatenation of the set name and variable-specific lowercase index.",
@@ -89,7 +89,7 @@ build_shk_err <- function() {
       "Shock applied to non-exogenous tuples: {.field {x_exo_parts}}.",
       "Call: {.code {deparse(call)}}"
     ),
-    # leaving this as a failsafe (not possible to get this far)
+    # test-ems_scenario_shock.R: "ems_scenario_shock errors when used with a static model"
     scen_dynamic = c(
       "Scenario shocks can only be employed with a temporally dynamic model.",
       "Call: {.code {deparse(call)}}"

@@ -14,7 +14,10 @@ ems_option_set(
   n_timestep_header = NULL,
   full_exclude = NULL,
   docker_tag = NULL,
-  version_check = NULL
+  version_check = NULL,
+  assertions = NULL,
+  range_test_initial = NULL,
+  range_test_updated = NULL
 )
 }
 \arguments{
@@ -71,6 +74,21 @@ first solver that answers at all); \code{"abort"} stops on an old,
 silent or mismatched image, \code{"warn"} reports it and runs anyway
 (bit-exact reproduction against a pinned old image), \code{"off"}
 never asks.}
+
+\item{assertions}{Character length 1, \code{"fatal"} (default),
+\code{"warn"} or \code{"off"}. Severity of TAB \code{Assertion} statement
+failures in \code{\link[=ems_solve]{ems_solve()}} (GEMPACK manual 25.3): \code{"warn"}
+reports and continues, \code{"off"} skips the checks.}
+
+\item{range_test_initial}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. Severity of declared-range violations
+(e.g. \verb{(ge 0)}) on initial values in \code{\link[=ems_solve]{ems_solve()}} (GEMPACK
+manual 25.4.4, \verb{range test initial values}; GEMPACK's
+\code{yes}/\code{warn}/\code{no} are \code{"fatal"}/\code{"warn"}/\code{"off"} here).}
+
+\item{range_test_updated}{Character length 1, \code{"warn"} (default),
+\code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated
+values (\verb{range test updated values}).}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

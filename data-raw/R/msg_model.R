@@ -1,6 +1,6 @@
 build_model_err <- function() {
   list(
-    # test-ems_model.R: "postsim sections reject forbidden statements"
+    # test-postsim.R: "forbidden statements in a PostSim section abort"
     postsim_invalid = c(
       "Statement type{?s} {.val {ps_bad_types}} {?is/are} not allowed in
       a PostSim section.",
@@ -17,12 +17,14 @@ build_model_err <- function() {
       "TABLO names are case-insensitive and must be unique (GEMPACK
       manual 11.2.1)."
     ),
+    # test-chk_tab_preflight.R: "name collisions abort"
     name_coef_set = c(
       "{cli::qty(clash)}Name{?s} declared as both a coefficient and a
       set: {.val {clash}}.",
       "TABLO names are case-insensitive and must be unique (GEMPACK
       manual 11.2.1)."
     ),
+    # test-chk_tab_preflight.R: "name collisions abort"
     name_var_set = c(
       "{cli::qty(clash)}Name{?s} declared as both a variable and a
       set: {.val {clash}}.",
@@ -36,9 +38,11 @@ build_model_err <- function() {
     name_reserved = "{cli::qty(res_names)}Declaration name{?s}
     {.val {res_names}} {?is a reserved word/are reserved words} (GEMPACK
     manual 11.2.1).",
+    # test-chk_tab_preflight.R: "c_ prefixed coefficients abort"
     name_c_prefix = "{cli::qty(bad_names)}The {.code c_} prefix is
     reserved for change variables; rename coefficient{?s}
     {.val {bad_names}}.",
+    # test-chk_tab_preflight.R: "p_/c_ variable-pair clashes abort"
     name_prefix_clash = c(
       "{cli::qty(clash)}Variable pair{?s} sharing a base name:
       {.val {clash}}.",
@@ -47,6 +51,7 @@ build_model_err <- function() {
       pair (a coefficient X paired with a variable p_X is fine -- the
       hand-linearized pair idiom)."
     ),
+    # test-chk_tab_preflight.R: "over-length names abort"
     name_too_long = "{cli::qty(long_names)}Declaration name{?s} longer
     than {max_len} characters: {.val {long_names}}.",
     # test-chk_tab_preflight.R: "unknown qualifiers abort"
@@ -56,11 +61,14 @@ build_model_err <- function() {
       "See GEMPACK manual 10.3/10.4 for the recognized variable and
       coefficient qualifiers."
     ),
+    # test-chk_tab_preflight.R: "no_split and linear_name qualifiers abort"
     qual_no_split = "The variable qualifier {.code no_split} (full shock
     at every step) is not supported: {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "no_split and linear_name qualifiers abort"
     qual_linear_name = "The variable qualifiers {.code linear_name=} and
     {.code linear_var=} are not supported; use the default
     {.code p_}/{.code c_} linear name: {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "empty qualifiers abort"
     qual_empty = "Empty qualifier {.code ()} in declaration:
     {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
@@ -69,17 +77,21 @@ build_model_err <- function() {
       "A quantifier is {.code (all,<index>,<set>)}; the index and the set
       are both required (GEMPACK manual 10.7)."
     ),
+    # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
     dims_too_many = "{n_dims} dimensions in declaration (the solver holds
     at most {max_dims}): {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
     sum_index_empty = c(
       "Sum with an empty index in: {.val {bad_stmt}}",
       "Write {.code sum(<index>,<set>, <expression>)}."
     ),
+    # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
     ref_index_empty = c(
       "Reference {.val {bad_ref}} has an empty index in: {.val {bad_stmt}}",
       "A reference carries exactly the declared indices,
       {.code NAME(<index>, ...)} (GEMPACK manual 10.3, 11.4.10)."
     ),
+    # test-chk_tab_preflight.R: "statements over the solver statement buffer abort"
     stmt_too_long = c(
       "Statement {.val {bad_stmt}} needs about {stmt_len} characters in the
       solver, over its 20000-character statement limit.",
@@ -87,8 +99,10 @@ build_model_err <- function() {
       coefficients or variables. Equation and Update statements count 2
       extra characters per variable reference."
     ),
+    # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
     zerodivide_unknown = "Zerodivide default {.val {bad_val}} is neither a
     number nor a declared coefficient: {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "a qualifier list that never closes aborts"
     qual_unbalanced = "Unbalanced parentheses in the qualifier list of:
     {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "unbalanced parentheses abort"
@@ -108,15 +122,20 @@ build_model_err <- function() {
     default_levels = "Equation {.code (default=levels)} is not supported;
     the solver handles linearized equations only (GEMPACK manual 10.19):
     {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_homotopy = "Equation {.code (default=add_homotopy)} is not
     supported (GEMPACK manual 10.19): {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_bound = "Coefficient bound defaults are not supported
     (GEMPACK manual 10.19): {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_unknown = "Unknown {default_kw} default {.val {bad_val}}
     (GEMPACK manual 10.19): {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_keyword = "Default statements apply only to Coefficient,
     Variable, Formula, and Equation declarations (GEMPACK manual 10.19):
     {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "solver-valid Default statements abort as unsupported"
     default_unsupported = c(
       "Default statements are not supported by the teems pipeline:
       {.val {bad_stmt}}",
@@ -135,23 +154,29 @@ build_model_err <- function() {
       "PostSim declarations are only visible inside PostSim sections
       (GEMPACK manual 12.2.1)."
     ),
+    # test-chk_tab_preflight.R: "PostSim reads from ordinary files abort"
     postsim_same_file = c(
       "{cli::qty(bad_files)}File{?s} {.val {bad_files}} read in both the
       ordinary and PostSim parts.",
       "Split the data across two files (GEMPACK manual 12.2.3)."
     ),
+    # test-chk_tab_preflight.R: "PostSim reads into ordinary coefficients abort"
     postsim_read_ord = "{cli::qty(bad_targets)}PostSim Read{?s} into
     ordinary coefficient{?s} {.val {bad_targets}}; targets must be
     PostSim coefficients (GEMPACK manual 12.2.3).",
+    # test-chk_tab_preflight.R: "PostSim reads into variables abort"
     postsim_read_var = "{cli::qty(bad_targets)}PostSim Read{?s} into
     variable{?s} {.val {bad_targets}}; simulation results cannot be
     changed (GEMPACK manual 12.2.3).",
+    # test-chk_tab_preflight.R: "PostSim reads into undeclared names abort"
     postsim_read_undecl = "{cli::qty(bad_targets)}PostSim Read
     target{?s} {.val {bad_targets}} not declared (GEMPACK manual
     12.2.3).",
+    # test-chk_tab_preflight.R: "PostSim formulas assigning variables abort"
     postsim_lhs_var = "{cli::qty(bad_lhs)}PostSim Formula{?s}
     assign{?s/} variable{?s} {.val {bad_lhs}}; simulation results cannot
     be changed (GEMPACK manual 12.2.2).",
+    # test-chk_tab_preflight.R: "PostSim formulas assigning ordinary coefficients abort"
     postsim_lhs_ord = "{cli::qty(bad_lhs)}PostSim Formula{?s}
     assign{?s/} ordinary coefficient{?s} {.val {bad_lhs}}; the LHS must
     be a PostSim coefficient (GEMPACK manual 12.2.2).",
@@ -183,40 +208,43 @@ build_model_err <- function() {
       "A {.code # label #} outside any statement (usually a label placed
       after the terminating {.code ;}) is not valid TABLO."
     ),
+    # test-chk_tab_preflight.R: "read from terminal aborts"
     read_terminal = "Read from terminal is not supported; read from a
     file instead: {.val {bad_stmt}}",
+    # test-chk_tab_preflight.R: "headerless reads abort"
     read_no_header = "{cli::qty(bad_reads)}Read{?s} without a header
     {?is/are} not supported (GEMPACK manual 11.11.8): {.val {bad_reads}}",
+    # test-chk_tab_preflight.R: "reads into undeclared names abort"
     read_undeclared = "{cli::qty(bad_targets)}Read target{?s}
     {.val {bad_targets}} not declared as {?a coefficient/coefficients}.",
     # Mapping statements (GEMPACK manual 11.9); solver counterparts in
     # tab_parse.c mapping machinery (teems-solver M1-M3)
-    # test-chk_tab_preflight.R: "malformed mapping declarations abort"
+    # test-tab_mapping.R: "malformed mapping declarations abort"
     map_malformed = c(
       "Malformed {.field Mapping} statement: {.val {bad_stmt}}",
       "Expected {.code Mapping [(onto)] <name> from <set> to <set>;}
       (GEMPACK manual 11.9.1)."
     ),
-    # test-chk_tab_preflight.R: "mapping with undeclared sets aborts"
+    # test-tab_mapping.R: "mapping with undeclared sets aborts"
     map_undeclared_set = "{cli::qty(bad_sets)}Set{?s} {.val {bad_sets}}
     in the {.field Mapping} declaration of {.val {map_name}}
     {?is/are} not declared in the model.",
-    # test-chk_tab_preflight.R: "mapping name clashes abort"
+    # test-tab_mapping.R: "mapping name clashes abort"
     name_map_clash = c(
       "{cli::qty(clash)}Name{?s} declared as both a mapping and a
       {clash_kind}: {.val {clash}}.",
       "TABLO names are case-insensitive and must be unique (GEMPACK
       manual 11.2.1)."
     ),
-    # test-chk_tab_preflight.R: "by_elements read of a non-mapping aborts"
+    # test-tab_mapping.R: "by_elements read of a non-mapping aborts"
     byele_nonmap = "{cli::qty(bad_targets)}{.code Read (by_elements)}
     target{?s} {.val {bad_targets}} {?is/are} not {?a declared
     mapping/declared mappings} (GEMPACK manual 11.9.3).",
-    # test-chk_tab_preflight.R: "plain read of a mapping aborts"
+    # test-tab_mapping.R: "plain read of a mapping aborts"
     map_read_plain = "{cli::qty(bad_targets)}Mapping{?s}
     {.val {bad_targets}} must be read with the
     {.code (by_elements)} qualifier (GEMPACK manual 11.9.3).",
-    # test-chk_tab_preflight.R: "mapping without a read aborts"
+    # test-tab_mapping.R: "mapping without a read aborts"
     map_read_missing = "{cli::qty(bad_maps)}Mapping{?s}
     {.val {bad_maps}} {?has/have} no {.code Read (by_elements)}
     statement assigning {?its/their} values.",
@@ -283,12 +311,108 @@ build_model_err <- function() {
       "{rule_text}",
       "GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10."
     ),
-    # test-ems_model.R: "unrearrangeable backsolve equation"
-    condense_rearrange = c(
-      "Equation {.field {eq_name}} could not be rearranged into the form {.field {var_name} = ...}.",
-      "Occurrences of {.field {var_name}} must enter the equation as top-level additive terms, optionally multiplied by coefficient expressions or enclosed in sums over indices the variable does not carry."
+    # .rearrange_defining_eq() cancellation, injected into
+    # condense_rule's {rule_text} line
+    # see model_err$condense_rule
+    # test-ems_model.R: "backsolve rule violations abort (GEMPACK 14.1.10)"
+    condense_cancels = paste0(
+      "The occurrences of the variable cancel; no expression for it ",
+      "can be obtained from this equation."
     ),
-    # test-ems_model.R: "unparseable equation nominated for backsolve"
+    # {parse_reason} for condense_parse
+    # see model_err$condense_parse
+    # test-ems_model.R: "a backsolve equation the condensation parser cannot read aborts with the reason"
+    condense_parse_reason = list(
+      quantifier = "unsupported equation quantifier form"
+    ),
+    # the linear-expression parser's failure reasons. These are raised
+    # with stop() and caught in .cndns_eq_entry(), which passes
+    # conditionMessage() into condense_parse's {parse_reason} slot, so
+    # every one of them is user-facing. sprintf where parameterised
+    # see model_err$condense_parse
+    # test-tab_linear_parse.R: "the linear parser names each form it refuses", "a conditional sum carries its condition through parse, rename and serialize"
+    linear_reason = list(
+      product = "product of two variable-bearing expressions (nonlinear)",
+      division = "division by a variable-bearing expression (nonlinear)",
+      expected = "expected `%s` but found `%s`",
+      unbalanced = "unbalanced parentheses in a reference",
+      sum_cond_unterminated = "unterminated sum condition",
+      sum_cond_empty = "empty sum condition",
+      trailing = "trailing tokens starting at `%s`",
+      unexpected_end = "unexpected end of expression",
+      unexpected_token = "unexpected token `%s`",
+      sum_index = "malformed sum index",
+      sum_set = "malformed sum set",
+      var_in_args = "variable reference inside the arguments of `%s`",
+      unrecognized = "unrecognized characters {%s}"
+    ),
+    # .if_index_cond() rejections; sprintf templates, injected into
+    # invalid_if_index_cond's {if_reason} line
+    # see model_err$invalid_if_index_cond
+    # test-ems_model.R: "index, element and mapping IF comparisons take the $POS route (manual 11.4.11)"
+    if_index_reason = list(
+      mixed_operands = paste0(
+        "An index, quoted element or mapping expression can only be ",
+        "compared with another index, mapping expression or quoted ",
+        "element (GEMPACK manual 11.4.11); a data comparison takes a ",
+        "coefficient reference on both sides."
+      ),
+      both_elements = paste0(
+        "Two quoted elements compared with each other is a constant ",
+        "condition (GEMPACK manual 11.4.11)."
+      ),
+      unrelated_sets = paste0(
+        "The compared sets %s and %s are neither equal nor is one a ",
+        "declared subset of the other (GEMPACK manual 11.4.11.2)."
+      ),
+      not_intertemporal = paste0(
+        "Ordered comparisons (< <= > >=) of indices need an intertemporal ",
+        "set; %s is not one, so only EQ/NE apply (GEMPACK manual 11.4.11.2)."
+      )
+    ),
+    # the individual requirements, injected into condense_rule's
+    # {rule_text} line by .check_backsolve_rules(). These are sprintf
+    # templates, not cli ones: the text reaches cli already substituted,
+    # which is what lets `partial_range` carry literal braces
+    # see model_err$condense_rule
+    # test-ems_model.R: "backsolve rule violations abort (GEMPACK 14.1.10)"
+    condense_rule_text = list(
+      absent = "The variable does not occur in the equation.",
+      element_arg = paste0(
+        "Occurrence %s: an element occurs as an argument; every argument ",
+        "must be an index (requirement 1)."
+      ),
+      sum_index = paste0(
+        "Occurrence %s: a SUM index occurs as an argument; every index ",
+        "must be an equation ALL index (requirement 2)."
+      ),
+      unbound_arg = paste0(
+        "Occurrence %s: an argument is not bound by an equation ALL ",
+        "quantifier (requirement 2)."
+      ),
+      missing_index = paste0(
+        "Equation ALL index (%s) absent from occurrence %s; every equation ",
+        "ALL index must appear in each occurrence (requirement 3)."
+      ),
+      partial_range = paste0(
+        "Occurrence %s ranges over {%s} but the variable is declared over ",
+        "{%s}; every index must range over the full declared set ",
+        "(requirement 4)."
+      ),
+      repeated_index = paste0(
+        "Occurrence %s: a repeated index; all indices of one occurrence ",
+        "must be different (requirement 5)."
+      ),
+      offset_arg = paste0(
+        "Occurrence %s: an argument carries a lead/lag offset; offsets ",
+        "block substitution in intertemporal models (requirement 6)."
+      ),
+      mixed_patterns = paste0(
+        "Occurrences %s and %s have different index patterns; all ",
+        "occurrences must share one pattern (requirement 7)."
+      )
+    ),
+    # test-ems_model.R: "a backsolve equation the condensation parser cannot read aborts with the reason"
     condense_parse = c(
       "Failed to parse {.field {eq_name}} into linear terms while condensing: {parse_reason}.",
       "Statement: {.field {statement}}."
@@ -311,6 +435,7 @@ build_model_err <- function() {
     invalid_state = c("teems {version} does not support {.field {inv_state}} statements.",
                       "Supported statements include: {.field {supported_state}}."),
     # probably a redundant check but if a weird unrecognized statement is found then there needs to be a way of distinguishing between an implied statement and an unrecognized statement
+    # not in tests: unreachable failsafe
     unsupported_tab = "Unsupported Tablo declarations detected: {.field {unsupported}}.",
     # test-ems_model.R: "invalid intertemporal header"
     invalid_int_header = c(
@@ -319,10 +444,12 @@ build_model_err <- function() {
     ),
     # test-ems_model.R: "invalid read statement"
     missing_file = "Read statements missing \"from file\" detected.",
-    # test-ems_model.R: "invalid binary set switch statement"
-    binary_switch = c("Unsupported binary switch detected in a {.field Set} definition.",
-                      "Declare sets explicitly within the Tablo file or using {.arg ...} within {.fun teems::ems_model}.",
-                      "For example, {.field Set ENDWM # mobile endowment # (capital,unsklab,sklab);} {.emph not} {.field Set ENDWM # mobile endowments # = (all,e,ENDW:ENDOWFLAG(e,\"mobile\") ne 0);}."),
+    # test-chk_tab_preflight.R: "a binary switch in a set definition aborts"
+    binary_switch = c(
+      "Unsupported binary switch detected in a {.field Set} definition.",
+      "A set selected by a condition takes the builder form (GEMPACK manual 10.1.2), e.g. {.field Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,\"mobile\") ne 0);}.",
+      "Otherwise declare its elements explicitly, e.g. {.field Set ENDWM # mobile endowments # (capital,unsklab,sklab);}."
+    ),
     # conditional set builders (GEMPACK manual 10.1.2; solver
     # tab_setbuilder_transform); test-ems_model.R: "conditional set builders"
     set_builder_cond = c(
@@ -332,11 +459,14 @@ build_model_err <- function() {
       with {.code <op>} one of {.code = <> < > <= >=} or
       {.code eq ne lt gt le ge}; compound conditions are not supported."
     ),
+    # test-chk_tab_preflight.R: "intertemporal set builders abort"
     set_builder_int = "{.field Set} builder {.val {bad_set}} is intertemporal; builders are supported for static sets only.",
+    # test-ems_model.R: "a set builder on an undeclared/unread coefficient aborts"
     set_builder_noread = c(
       "{.field Set} builder {.val {bad_set}} conditions on {.val {cond_coef}}, which is neither Read from an input file nor an indicator assigned only constants.",
       "Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as {.code UNITD(a) = 0 + IF[a in DSUB, 1]}."
     ),
+    # test-chk_tab_preflight.R: "a mapping-sum set builder over a non-mapping aborts"
     set_builder_nomap = c(
       "{.field Set} builder {.val {bad_set}} sums over {.val {cond_map}}, which is not a {.field Mapping} with a {.code (by_elements)} Read.",
       "The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.2)."
@@ -369,7 +499,7 @@ build_model_err <- function() {
       "Sets must be declared before they are used in a definition or
       {.field Subset} statement (GEMPACK manual 10.1)."
     ),
-    # test-tab_fuzz_corpus.R: index_not_subset fixture
+    # test-tab_fuzz_corpus.R: "corpus fixtures abort with their named messages" (index_not_subset fixture)
     index_not_subset = c(
       "Index {.val {bad_idx}} of {.code {bad_ref}} in {.field {bad_stmt}}
       ranges over set {.val {bad_set}}, which is not {.val {decl_set}}
@@ -396,17 +526,17 @@ build_model_err <- function() {
     # test-chk_tab_preflight.R: "over-length set headers abort"
     set_header_len = "Header longer than 4 characters in the
     declaration of set {.field {bad_set}}: {.val {bad_header}}.",
-    # test-int_sets.R
+    # test-int_sets.R: "empty or inverted time ranges abort"
     set_int_range = c(
       "Intertemporal set {.field {bad_set}} has {range_defect} time
       range: {.val {bad_def}} resolves to {resolved_txt}.",
       "With {n_timestep} time step{?s} the valid indices are
       {.code p[0]} through {.code p[{n_timestep - 1}]}."
     ),
-    # test-int_sets.R
+    # test-int_sets.R: "malformed intertemporal terms abort"
     set_int_malformed = "Malformed intertemporal set definition for
     {.field {bad_set}}: {.val {bad_def}}.",
-    # test-chk_subset_containment.R
+    # test-chk_subset_containment.R: "subset containment violations abort", "intertemporal numeric elements are checked"
     subset_not_contained = c(
       "Subset {.field {bad_sub}} is not contained in
       {.field {bad_super}}: {cli::qty(missing_ele)}element{?s}
@@ -420,7 +550,7 @@ build_model_err <- function() {
       "Unsupported {.field IF} placement detected: {.field {if_statement}}.",
       "{.field IF} terms must enter {.field Formula} and {.field Equation} statements additively at the top level of an expression."
     ),
-    # test-ems_model.R: "unsupported IF condition"
+    # test-ems_model.R: "expression IF conditions (LULC shape, manual 11.4.5/11.4.6)"
     invalid_if_cond = c(
       "Unsupported {.field IF} condition detected: {.field {if_cond}}.",
       "Supported forms: {.field <index> in <set>}, {.field <index> = \"<element>\"}, and {.field <expression> <op> <expression>} over coefficients (no AND/OR/NOT compounds)."
@@ -442,16 +572,15 @@ build_model_err <- function() {
     ),
     # test-ems_model.R: "invalid set qualifier"
     invalid_set_qual = "Invalid set qualifier detected: {.field {invalid_qual}}.",
-    # not in tests
+    # not in tests: no test written
     set_parse_fail = "Remnant set label detected during Tablo parsing.",
     # test-ems_model.R: "data frame input missing a set"
     injection_missing_col = c(
       "Input for {.field {nme}} is missing required columns.",
       "Required: {.field {req_col}}."
     ),
-    # test-ems_model.R: "invalid var in closure"
-    no_var = "Closure contains variables not in the model: {.val {var_discrepancy}}.",
     # the following error should never be issued (full will be assigned)
+    # not in tests: unreachable failsafe
     entry_type = "The following closure entries have not been classified properly: {invalid_entry}.",
     # test-ems_model.R: "closure missing exo/endo spec"
     missing_specification = "The closure must contain both {.val Exogenous} and {.val Rest Endogenous} entries. The inverse approach is not supported.",
@@ -464,6 +593,7 @@ build_model_err <- function() {
     # test-ems_model.R: "ems_model errors when invalid closure subset entry present preswap"
     subset_invalid = c("Some subsets in {.field {cls_entry}} do not belong to {.field {var_name}}.",
                        "Parent sets include: {.field {var_sets}}."),
+    # test-ems_model.R: "ems_model errors dots passed without names"
     no_name_coeff = "Coefficients to modify must be passed as named pairs: {.code RDLT = 1}."
     )
 }
@@ -497,9 +627,7 @@ build_model_info <- function() {
 
 build_model_wrn <- function() {
   list(
-    # test-ems_model.R: "ignored tab statement"
-    ignored_state = "The following model statements are unsupported and will be ignored: {.field {ign_state}}.",
-    # test-ems_model.R: "backsolve pivot divide warning"
+    # test-ems_model.R: "backsolve through a coefficient pivot synthesizes a reciprocal and warns"
     condense_pivot_zero = c(
       "Backsolving {.field {var_name}} using {.field {eq_name}} divides by the coefficient expression {.field {pivot_expr}}.",
       "Ensure this expression can never be zero; a zero value will surface as a solver error."

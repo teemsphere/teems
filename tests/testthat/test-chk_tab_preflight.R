@@ -97,6 +97,7 @@ test_that("invalid Default statements abort", {
   expect_preflight_error("Coefficient (default=lower_bound ge 0);")
   expect_preflight_error("Variable (default=foo);")
   expect_preflight_error("Update (default=always);")
+  expect_preflight_error("Equation (default=add_homotopy);")
 })
 
 test_that("solver-valid Default statements abort as unsupported", {
@@ -229,6 +230,14 @@ test_that("PostSim reads into variables abort", {
   expect_preflight_error(txt)
 })
 
+test_that("PostSim reads into undeclared names abort", {
+  txt <- ps_wrap(
+    "File PSDATA;",
+    'Read NOTDECL from file PSDATA header "PSRD";'
+  )
+  expect_preflight_error(txt)
+})
+
 test_that("PostSim formulas assigning variables abort", {
   txt <- ps_wrap(
     "Formula (all,r,REG) psave(r) = 1;"
@@ -294,5 +303,39 @@ test_that("unbalanced parentheses abort", {
   )
   expect_preflight_error(
     "Coefficient (all,r,REG) CUNB2(r);\nFormula (all,r,REG) CUNB2(r) = (VGDP(r)+1));"
+  )
+})
+
+test_that("subsets by numbers abort", {
+  expect_snapshot_error(
+    ems_model(
+      mutate_tab("Subset (by numbers) MARG is subset of COMM;", "by_numbers.tab"),
+      model_files[["closure_file"]]
+    )
+  )
+})
+
+test_that("a qualifier list that never closes aborts", {
+  expect_preflight_error("Coefficient (parameter QUNB;")
+})
+
+# set builders (GEMPACK manual 10.1.2)
+
+test_that("intertemporal set builders abort", {
+  expect_preflight_error("Set (intertemporal) BIGR = (all,r,REG: SAVE(r) > 0);")
+})
+
+test_that("a mapping-sum set builder over a non-mapping aborts", {
+  expect_preflight_error(
+    "Set COMMZ = (all,c,COMM: sum{a,ACTS: NOMAP(a) = c, SAVE(a)} > 0);"
+  )
+})
+
+test_that("a binary switch in a set definition aborts", {
+  expect_snapshot_error(
+    ems_model(
+      mutate_tab("Set ENDWX = (ENDW: ENDOWFLAG);", "binary_switch.tab"),
+      model_files[["closure_file"]]
+    )
   )
 })

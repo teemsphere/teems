@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#'
 #' @keywords internal
 #' @noRd
 .implement_data <- function(args_list,
@@ -15,9 +14,7 @@
     set_input = v$set_input,
     data_call = call
   )
-  # a GTAP-AEZ database (v7 format with the AEZ layer) gets the
-  # converter's model-facing preparation applied in place
-  if (.is_aez_input(i_data) && !isTRUE(attr(i_data, "metadata")[["aez"]])) {
+  if (.layer_detect(i_data, "aez") && !isTRUE(attr(i_data, "metadata")[["aez"]])) {
     i_data <- .prepare_aez(i_data = i_data, call = call)
     if (.o_verbose()) {
       .cli_action(data_info$aez,
@@ -27,10 +24,7 @@
     }
   }
 
-  # a GTAP-E database (v7 format with the energy layer) gets the same
-  # preparation; kept independent of the AEZ branch so a database
-  # carrying both layers is prepared by both
-  if (.is_e_input(i_data) && !isTRUE(attr(i_data, "metadata")[["e"]])) {
+  if (.layer_detect(i_data, "e") && !isTRUE(attr(i_data, "metadata")[["e"]])) {
     i_data <- .prepare_e(i_data = i_data, call = call)
     if (.o_verbose()) {
       .cli_action(data_info$e,
@@ -40,10 +34,7 @@
     }
   }
 
-  # a GTAP-Power database gets the same preparation; kept independent of
-  # the other branches so a database carrying several layers is prepared
-  # by each of their hooks
-  if (.is_ep_input(i_data) && !isTRUE(attr(i_data, "metadata")[["ep"]])) {
+  if (.layer_detect(i_data, "ep") && !isTRUE(attr(i_data, "metadata")[["ep"]])) {
     i_data <- .prepare_ep(i_data = i_data, call = call)
     if (.o_verbose()) {
       .cli_action(data_info$ep,

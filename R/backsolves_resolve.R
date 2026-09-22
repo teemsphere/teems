@@ -1,7 +1,3 @@
-# Backsolve nominations: in-TAB pairs first (TAB order), then the
-# `backsolve` argument. Unnamed argument entries resolve their defining
-# equation by the E_<variable> convention; named entries give it
-# explicitly (GEMPACK manual 10.16).
 #' @keywords internal
 #' @noRd
 .resolve_backsolves <- function(intab_backsolve,
@@ -50,11 +46,9 @@
     } else {
       e_idx <- match(tolower(action$eq), tolower(eq_names))
       if (is.na(e_idx)) {
-        # an equation the IF rewrite split into element partitions
-        # (E_xA, E_xB, ...) cannot define a single backsolve: the
-        # variable stays in the system (upstream GTAPv7 CNTqfr shape)
         parts <- eq_names[grepl(
-          paste0("^", action$eq, "[A-Z]+$"), eq_names, ignore.case = TRUE
+          paste0("^", action$eq, "[A-Z]+$"), eq_names,
+          ignore.case = TRUE
         )]
         if (length(parts) > 0L) {
           if (!quiet) {

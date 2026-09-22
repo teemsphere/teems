@@ -1,5 +1,4 @@
-# Rearrange the defining equation into x = <solution terms>
-# (GEMPACK manual 14.1.1): combine the x terms, divide through, negate.
+#' @importFrom purrr map_chr map_int map_lgl
 #' @keywords internal
 #' @noRd
 .rearrange_defining <- function(entry,
@@ -33,10 +32,7 @@
   if (all(pieces == "1")) {
     pivot_num <- sum(signs)
     if (pivot_num == 0L) {
-      rule_text <- paste0(
-        "The occurrences of the variable cancel; no expression for it ",
-        "can be obtained from this equation."
-      )
+      rule_text <- model_err$condense_cancels
       .cli_action(model_err$condense_rule,
         action = c("abort", "inform", "inform"),
         call = call
@@ -85,8 +81,6 @@
     })
   }
 
-  # expression-swell control: hoist multi-factor coefficient products
-  # into synthesized coefficients (GEMPACK manual 14.1.12)
   solution <- lapply(solution, \(t) {
     .hoist_term(
       term = t,

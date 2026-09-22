@@ -71,6 +71,12 @@ test_that("probe plots render on a null device", {
   expect_invisible(plot(broken, type = "incidence"))
 })
 
+test_that("incidence plot errors on a probe without incidence data", {
+  bare <- healthy
+  bare$incidence <- NULL
+  expect_snapshot_error(plot(bare, type = "incidence"))
+})
+
 test_that("dm plot errors on a structurally valid probe", {
   grDevices::pdf(NULL)
   withr::defer(grDevices::dev.off())
@@ -217,4 +223,24 @@ test_that("the probe prints its recommendation", {
 test_that("ems_probe validates the cores and memory overrides", {
   expect_snapshot_error(ems_probe("x.cmf", cores = 0))
   expect_snapshot_error(ems_probe("x.cmf", memory = -1))
+})
+
+test_that("ems_probe announces a structurally singular system", {
+  # the solver run and its collected report are stood in for by the
+  # broken fixture; the announcement is gated on the verbose option
+  cmf_path <- withr::local_tempfile(fileext = ".cmf")
+  file.create(cmf_path)
+  local_mocked_bindings(
+    .check_docker = function(...) invisible(NULL),
+    .run_solver_cmd = function(...) invisible(NULL),
+    .collect_probe = function(...) broken,
+    .deploy_metadata = function(...) NULL,
+    .probe_recommend = function(...) NULL
+  )
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_reset())
+  expect_snapshot(res <- ems_probe(cmf_path, cores = 4, memory = 8))
+  expect_false(res$valid)
+  ems_option_set(verbose = FALSE)
+  expect_no_message(ems_probe(cmf_path, cores = 4, memory = 8))
 })

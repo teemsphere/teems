@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#' 
 #' @keywords internal
 #' @noRd
 .finalize <- function(args_list,
@@ -8,8 +7,6 @@
   attr(metadata, "file") <- "metadata.rds"
   data_call <- attr(args_list$.data, "call")
   model_call <- attr(args_list$model, "call")
-  # backsolved variables are out of the solve system:
-  # closure, shock, and system-size handling see live variables only
   var_extract <- args_list$model[
     args_list$model$type == "Variable" & is.na(args_list$model$condense),
   ]
@@ -46,12 +43,6 @@
     call = call,
     model_call = model_call
   )
-  # C2: components whose complementarity variable stays endogenous in
-  # the post-swap closure are ACTIVE (solved by the solver's
-  # approximate-run state machinery) and each contributes one E_$comp
-  # equation element to the count-squaring below; exogenized
-  # components are inert and net zero (teems-solver design doc
-  # section 8)
   n_comp_active <- .comp_active_count(
     model = v$model,
     closure = closure,
@@ -77,16 +68,13 @@
   metadata$n_var_ele <- size_metadata$n_var_ele
   metadata$n_exo_ele <- size_metadata$n_exo_ele
   metadata$n_reg <- size_metadata$n_reg
-  # chain blocks of an intertemporal deployment (the SBBD rank cap in
-  # the ems_probe() recommendation): one per time step, as the solver's
-  # probe counts them (ntime)
   time_steps <- attr(args_list$.data, "time_steps")
   metadata$n_time <- if (is.null(time_steps)) {
     0L
   } else {
     length(time_steps)
   }
-  # read back at solve/probe time by the condensation advisory
+  metadata$time_steps <- time_steps
   metadata$condense <- .compute_cndns_metadata(
     model = v$model,
     sets = sets,
@@ -112,9 +100,6 @@
     call = call,
     data_call = data_call
   ))
-  # record only: the bordered methods classify mapping-indexed
-  # references as border since the Part A slice, so every matrix
-  # method accepts mapped equations
   map_names <- v$model$name[v$model$type == "Mapping"]
   metadata$mapped_equations <- length(map_names) > 0L &&
     any(grepl(

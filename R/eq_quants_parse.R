@@ -3,8 +3,6 @@
 .parse_eq_quants <- function(eq_name,
                              statement,
                              call) {
-  # quantifiers precede the expression and `(all,` cannot occur inside
-  # one; labels are stripped so their free text cannot alias a quantifier
   bare <- gsub("#[^#]*#", "", statement)
   bare <- gsub("\\s", "", bare)
   m <- gregexpr("\\(all,([[:alnum:]_]+),([[:alnum:]_]+)\\)", bare)
@@ -14,7 +12,7 @@
     n_all <- 0L
   }
   if (n_all != length(hits)) {
-    parse_reason <- "unsupported equation quantifier form"
+    parse_reason <- model_err$condense_parse_reason$quantifier
     .cli_action(model_err$condense_parse,
       action = c("abort", "inform"),
       call = call

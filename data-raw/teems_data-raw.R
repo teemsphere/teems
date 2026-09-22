@@ -26,6 +26,13 @@ dir <- list.dirs(
 dir <- dir[basename(dir) != ".git"]
 file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
 
+# model layers (definitions in data-raw/R/layer_spec.R) ---------------
+# the .tab a layer targets is the authority for the headers the layer
+# must synthesise, so the spec is checked against the freshly copied
+# models before anything is written
+layer_spec <- build_layer_spec()
+check_layer_spec(layer_spec)
+
 tab_qual <- c(
   "nonzero_by_zero",
   "zero_by_zero",
@@ -75,8 +82,6 @@ tab_default_values <- list(
   formula = c("initial", "always"),
   equation = c("linear", "not_add_homotopy")
 )
-
-ignored_state <- character(0)
 
 invalid_state <- c(
   "Loop", "Display", "Break", "Cycle", "Transfer"
@@ -296,12 +301,15 @@ coeff_conversion <- data.frame(
 coeff_conversion$GTAPv6set <- strsplit(coeff_conversion$GTAPv6set, ", ")
 coeff_conversion$GTAPv7set <- strsplit(coeff_conversion$GTAPv7set, ", ")
 
+# auto-recommendation constants (definitions in data-raw/R/auto_thresholds.R)
+auto_thresholds <- build_auto_thresholds()
+
 # messages (definitions in data-raw/R/msg_*.R) -------------------------
 cls_err <- build_cls_err()
 compose_err <- build_compose_err()
 convert_wrn <- build_convert_wrn()
-data_err <- build_data_err()
-data_info <- build_data_info()
+data_err <- build_data_err(layer_spec)
+data_info <- build_data_info(layer_spec)
 data_wrn <- build_data_wrn()
 deploy_err <- build_deploy_err()
 deploy_info <- build_deploy_info()
@@ -325,7 +333,6 @@ usethis::use_data(
   mappings,
   tab_qual,
   supported_state,
-  ignored_state,
   invalid_state,
   tab_reserved_words,
   tab_var_qualifiers,
@@ -335,6 +342,8 @@ usethis::use_data(
   param_weights,
   set_conversion,
   coeff_conversion,
+  layer_spec,
+  auto_thresholds,
   cls_err,
   compose_err,
   convert_wrn,

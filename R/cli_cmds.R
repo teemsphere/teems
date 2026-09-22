@@ -3,7 +3,6 @@
 #' @importFrom purrr map2
 #' @importFrom utils URLencode
 #' @importFrom cli cli_abort cli_inform cli_warn
-#' 
 #' @keywords internal
 #' @noRd
 .cli_action <- function(msg,
@@ -33,10 +32,10 @@
     cli_env <- new.env(parent = caller_env)
     url <- utils::URLencode(URL = url)
     if (!is.null(hyperlink)) {
-      url_msg <- c("i" = "For additional information see: {.href [{hyperlink}]({url})}")
+      url_msg <- c("i" = gen_err$href_named)
       cli_env$hyperlink <- hyperlink
     } else {
-      url_msg <- c("i" = "For additional information see: {.href {url}}")
+      url_msg <- c("i" = gen_err$href_plain)
     }
     formatted_msg <- c(formatted_msg, url_msg)
     cli_env$url <- url
@@ -60,11 +59,14 @@
   return(invisible(NULL))
 }
 
+#' @importFrom rlang trace_back
+#' @keywords internal
+#' @noRd
 .cli_missing <- function(arg) {
   arg <- deparse(substitute(arg))
 
   call <- rlang::trace_back()$call[[1]]
-  msg <- .cli_action("argument {.arg {arg}} is missing, with no default",
+  msg <- .cli_action(gen_err$missing_arg,
     action = "abort",
     call = call
   )

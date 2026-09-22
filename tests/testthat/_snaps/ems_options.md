@@ -1,6 +1,6 @@
 # ems_option_get errors on invalid name
 
-    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", and "version_check", not "not_an_option".
+    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", and "range_test_updated", not "not_an_option".
 
 # ems_option errors when write_dir does not exist
 
@@ -17,6 +17,50 @@
 ---
 
     `version_check` must be one of "abort", "warn" or "off".
+
+# ems_option_set rejects invalid values
+
+    `verbose` must be TRUE or FALSE.
+
+---
+
+    `ndigits` must be an integer or coercible to one.
+
+---
+
+    `accuracy_threshold` must be a numeric between 0 and 1.
+
+---
+
+    `check_shock_status` must be TRUE or FALSE.
+
+---
+
+    `timestep_header` must be an upper case character vector.
+
+---
+
+    `n_timestep_header` must be an upper case character vector.
+
+---
+
+    `full_exclude` must be a character vector.
+
+---
+
+    `docker_tag` must be a character vector.
+
+# ems_option_set sets the solver run modes and rejects other values
+
+    `assertions` must be one of "fatal", "warn" or "off".
+
+---
+
+    `range_test_initial` must be one of "fatal", "warn" or "off".
+
+---
+
+    `range_test_updated` must be one of "fatal", "warn" or "off".
 
 # docker tag auto-selection
 

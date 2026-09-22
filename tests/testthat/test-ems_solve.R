@@ -218,7 +218,9 @@ test_that("ems_solve errors when solution errors detected", {
   cmf_path <- ems_deploy(static_data, static_model, shock)
   # the range test on updated values is a warning by default (manual
   # 25.4.4); make it fatal so the bound violations abort the run
-  expect_snapshot(ems_solve(cmf_path, range_test_updated = "fatal"),
+  ems_option_set(range_test_updated = "fatal")
+  withr::defer(ems_option_set(range_test_updated = "warn"))
+  expect_snapshot(ems_solve(cmf_path),
     error = TRUE,
     transform = scrub_paths
   )

@@ -1,6 +1,5 @@
 #' @importFrom cli cli_fmt cli_h1 cli_h2 cli_dl cli_text cli_verbatim cli_alert_warning ansi_strip
 #' @importFrom purrr pmap map_chr
-#'
 #' @keywords internal
 #' @noRd
 .diagnostic_output <- function(tab_path,
@@ -22,11 +21,7 @@
     shocks <- NULL
     shock_var <- NULL
     null_shk <- cli::cli_fmt({
-      cli::cli_alert_warning("No shock has been provided so a
-      {.val NULL} shock will be used. A null shock will return all model
-      coefficients as they are read and/or calculated in the model file.
-      Any significant deviation under these conditions would indicate an error
-      in the loading of input files or parsing of model outputs.",
+      cli::cli_alert_warning(solve_info$null_shock,
         wrap = TRUE
       )
     })

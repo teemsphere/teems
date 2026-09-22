@@ -1,4 +1,3 @@
-# Arguments of a reference: raw texts split on depth-1 commas.
 #' @keywords internal
 #' @noRd
 .pe_args <- function(st) {
@@ -8,7 +7,7 @@
   repeat {
     tok <- .adv(st)
     if (is.na(tok)) {
-      stop("unbalanced parentheses in a reference", call. = FALSE)
+      stop(model_err$linear_reason$unbalanced, call. = FALSE)
     }
     if (tok %in% c("(", "[", "{")) {
       depth <- depth + 1L

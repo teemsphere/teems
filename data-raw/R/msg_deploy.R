@@ -2,19 +2,24 @@ build_deploy_err <- function() {
   list(
     # test-ems_deploy.R: "ems_deploy errors when read-in headers not present in data"
     missing_header = "Read-in headers missing from loaded data: {.val {missing_headers}}.",
-    # not in tests
+    # test-set_expr.R: "set definitions that never resolve abort by name"
     while_loop = "Construction of dependent sets has failed on: {null_sets}.",
     # conditional set builders evaluated at deploy (.eval_set_builder,
     # mirror of the solver's tab_setbuilder_transform fatals);
-    # test-ems_deploy.R: "conditional set builders"
+    # test-set_builder_eval.R: "a builder whose coefficient has no loaded data aborts"
     set_builder_data = "{.field Set} builder {.val {bad_set}}: no loaded data for its condition coefficient {.val {cond_coef}}.",
-    set_builder_args = "{.field Set} builder {.val {bad_set}}: condition coefficient {.val {cond_coef}} has {n_dims} dimension{?s} but {n_args} argument{?s} were given.",
+    # test-set_builder_eval.R: "a builder with the wrong number of arguments aborts"
+    set_builder_args = "{.field Set} builder {.val {bad_set}}: condition coefficient {.val {cond_coef}} has {n_dims} dimension{?s} but {n_args} argument{?s} {?was/were} given.",
+    # test-set_builder_eval.R: "a builder naming an element outside the aggregation aborts"
     set_builder_ele = "{.field Set} builder {.val {bad_set}}: element {.val {bad_ele}} is not in the {.field {dim_set}} dimension of {.val {cond_coef}} under the current aggregation.",
+    # test-set_builder_eval.R: "a builder looping over the wrong dimension aborts"
     set_builder_dim = "{.field Set} builder {.val {bad_set}}: the loop index {.val {loop_idx}} must range over {.val {cond_coef}}'s dimension set {.field {dim_set}} exactly (source set {.field {src_set}} differs).",
+    # test-set_builder_eval.R: "a builder that selects nothing aborts"
     set_builder_empty = c(
       "{.field Set} builder {.val {bad_set}} selected no elements of {.field {src_set}} with {.code {builder_cond}}.",
       "An empty set cannot enter the model (GEMPACK manual 10.1.2); check the condition against the aggregated data."
     ),
+    # test-set_builder_eval.R: "a mapping-sum builder without its mapping aborts"
     set_builder_mapsum = c(
       "{.field Set} builder {.val {bad_set}}: the mapping-conditional sum over {.val {cond_map}} cannot be evaluated at deploy.",
       "The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a {.code (by_elements)} Read whose header is in the set data (GEMPACK manual 10.1.2)."
@@ -27,9 +32,9 @@ build_deploy_err <- function() {
     missing_tsteps = "{.arg time_steps} required for intertemporal models. See {.fun teems::ems_data}.",
     # test-ems_deploy.R: "ems_deploy errors when set-calculated number of entries does not match a finalized data header"
     data_set_mismatch = "{.field {class(dt)[1]}} has {.val {nrow(dt)}} entries; {.val {expected}} expected.",
-    # not in tests
+    # test-set_expr.R: "set union rejects element-level overlap with disjoint origins"
     invalid_plus = "Set operator {.code +} requires disjoint sets; overlapping elements: {.field {d}}.",
-    # test-ems_model.R: "set expression operator validity"
+    # test-set_expr.R: "set difference rejects elements absent from the minuend"
     invalid_minus = "Set operator {.code -} may only remove elements that are present; missing: {.field {d}}.",
     # test-tab_mapping.R: "a mapping over a conflicted intersection set aborts"
     # INTERSECT itself is permissive (element-level, manual 10.1.1);
@@ -49,22 +54,22 @@ build_deploy_err <- function() {
     agg_missing_tup = "{n} tuple{?s} in the provided input file for {.val {nme}} were missing: {.field {missing}}.",
     # Mapping data build (GEMPACK manual 11.9.3); mirrors the solver
     # by_elements read fatals ahead of the deploy round-trip
-    # test-ems_deploy.R: "mapping header missing from the data aborts"
+    # test-tab_mapping.R: "mapping header missing from the data aborts"
     map_data_missing = c(
       "No header {.val {header}} found in the input data for mapping
       {.val {map_name}}.",
       "{.code Read (by_elements)} data must be supplied as a character
       header in the {.fun teems::ems_data} inputs."
     ),
-    # test-ems_deploy.R: "mapping header count mismatch aborts"
+    # test-tab_mapping.R: "mapping header count mismatch aborts"
     map_data_count = "Mapping {.val {map_name}} header {.val {header}}
     holds {.val {n_vals}} value{?s}; the domain set {.field {dom}} has
     {.val {n_dom}} element{?s} in the input data.",
-    # test-ems_deploy.R: "mapping values outside the codomain abort"
+    # test-tab_mapping.R: "mapping values outside the codomain abort"
     map_data_ele = "{cli::qty(bad_vals)}Mapping {.val {map_name}}
     value{?s} {.val {bad_vals}} {?is/are} not {?an element/elements}
     of the codomain set {.field {cod}}.",
-    # test-ems_deploy.R: "split mapping under aggregation aborts"
+    # test-tab_mapping.R: "split mapping under aggregation aborts"
     map_agg_split = c(
       "Aggregated {.field {dom}} element {.val {agg_ele}} merges
       source elements with different {.field {cod}} values:
@@ -73,7 +78,7 @@ build_deploy_err <- function() {
       aggregation; revise the {.field {dom}} aggregation or the
       {.val {header}} data."
     ),
-    # test-ems_deploy.R: "onto violation after aggregation aborts"
+    # test-tab_mapping.R: "onto coverage is re-checked on the aggregated sets"
     map_onto = c(
       "{cli::qty(missing_cod)}Codomain element{?s} {.val {missing_cod}}
       of the {.code (onto)} mapping {.val {map_name}} {?is/are} not

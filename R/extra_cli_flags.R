@@ -1,26 +1,25 @@
-#' Render the expert flags onto the solver command line. Absent
-#' (NULL) values emit nothing: the solver applies its own defaults
-#' and records the effective values in sol.stats.json.
-#'
+#' @keywords internal
+#' @noRd
+.as01 <- function(x) {
+  flag <- as.integer(isTRUE(x))
+  return(flag)
+}
+
 #' @keywords internal
 #' @noRd
 .extra_cli_flags <- function(a) {
-  as01 <- function(x) {
-    flag <- as.integer(isTRUE(x))
-    return(flag)
-  }
   flags <- c(
     if (!is.null(a$postsim)) {
-      paste("-postsim", as01(a$postsim))
+      paste("-postsim", .as01(a$postsim))
     },
     if (!is.null(a$inmemory)) {
-      paste("-inmemory", as01(a$inmemory))
+      paste("-inmemory", .as01(a$inmemory))
     },
     if (!is.null(a$fastrefac)) {
-      paste("-fastrefac", as01(a$fastrefac))
+      paste("-fastrefac", .as01(a$fastrefac))
     },
     if (!is.null(a$gpzerodivide)) {
-      paste("-gpzerodivide", as01(a$gpzerodivide))
+      paste("-gpzerodivide", .as01(a$gpzerodivide))
     },
     if (!is.null(a$cntl_3)) {
       paste("-cntl_3", a$cntl_3)
@@ -32,7 +31,7 @@
       paste("-nsbbdblocks", as.integer(a$nsbbdblocks))
     },
     if (!is.null(a$withmc66)) {
-      paste("-withmc66", as01(a$withmc66))
+      paste("-withmc66", .as01(a$withmc66))
     },
     if (!is.null(a$smllthreads)) {
       paste("-smllthreads", as.integer(a$smllthreads))
@@ -41,10 +40,10 @@
       paste("-tempdir", a$tempdir)
     },
     if (!is.null(a$nowrites)) {
-      paste("-nowrites", as01(a$nowrites))
+      paste("-nowrites", .as01(a$nowrites))
     },
     if (!is.null(a$condest)) {
-      paste("-condest", as01(a$condest))
+      paste("-condest", .as01(a$condest))
     },
     if (!is.null(a$ma48u)) {
       paste("-ma48u", format(a$ma48u, digits = 15))

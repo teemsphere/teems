@@ -1,46 +1,41 @@
-#' @description The `ems_probe()` recommendation: method, tasks,
-#'   threads, in-memory switch and scratch directory for the probed
-#'   deployment on `host` (cores, mem_gb), with the evidence, the memory
-#'   estimates and the fits verdict. Pure over the probe object, the
-#'   deploy metadata and the host (unit tested on fixtures and synthetic
-#'   hosts). The recommendation targets the multi-step solution methods;
-#'   where the Johansen crossover differs the alternative is named.
 #' @keywords internal
 #' @noRd
 .probe_recommend <- function(probe,
                              metadata = NULL,
-                             host = NULL,
-                             th = .auto_thresholds()) {
+                             host = NULL) {
   structure <- probe$structure
   chain <- isTRUE(identical(structure$chain_source, "structural"))
   system_size <- probe$vecsize %|||% metadata$system_size
   condensed <- isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)
   n_backsolve_ele <- metadata$condense$n_backsolve_ele %|||% 0
   cores <- as.integer(host$cores %|||% 1L)
-  # the rank count the method decision is made at: the knee for a
-  # chain, two for a static partition; resolved for the method below
   provisional <- if (chain) {
-    min(th$ranks_sbbd_max, cores)
+    min(auto_thresholds$ranks_sbbd_max, cores)
   } else {
     min(2L, cores)
   }
-  decide <- function(multistep) {
-    decision <- .auto_decide(
-      enable_time = chain,
-      n_tasks = provisional,
-      system_size = system_size,
-      n_reg = metadata$n_reg,
-      structure = structure,
-      th = th,
-      condensed = condensed,
-      n_backsolve_ele = n_backsolve_ele,
-      multistep = multistep,
-      mem_limit_gb = host$mem_gb
-    )
-    return(decision)
-  }
-  d <- decide(TRUE)
-  d_johansen <- decide(FALSE)
+  d <- .auto_decide(
+    enable_time = chain,
+    n_tasks = provisional,
+    system_size = system_size,
+    n_reg = metadata$n_reg,
+    structure = structure,
+    condensed = condensed,
+    n_backsolve_ele = n_backsolve_ele,
+    multistep = TRUE,
+    mem_limit_gb = host$mem_gb
+  )
+  d_johansen <- .auto_decide(
+    enable_time = chain,
+    n_tasks = provisional,
+    system_size = system_size,
+    n_reg = metadata$n_reg,
+    structure = structure,
+    condensed = condensed,
+    n_backsolve_ele = n_backsolve_ele,
+    multistep = FALSE,
+    mem_limit_gb = host$mem_gb
+  )
   n_blocks <- if (chain) {
     d$n_time %|||% (if (isTRUE((metadata$n_time %|||% 0L) > 0L)) {
       metadata$n_time
@@ -55,8 +50,7 @@
     host = host,
     n_blocks = n_blocks,
     plain_size = d$plain_size,
-    condensed = d$condensed,
-    th = th
+    condensed = d$condensed
   )
   fit <- .memory_fit_check(
     method = d$method,
@@ -64,7 +58,6 @@
     plain_size = d$plain_size,
     condensed = d$condensed,
     host = host,
-    th = th,
     report_only = TRUE
   )
   tempdir <- if (identical(d$method, "NDBBD")) {

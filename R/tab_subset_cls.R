@@ -1,15 +1,16 @@
 #' @keywords internal
 #' @noRd
+.add <- function(acc, a, b) {
+  acc$rel[[length(acc$rel) + 1L]] <- c(toupper(a), toupper(b))
+  return(invisible(NULL))
+}
+
+#' @keywords internal
+#' @noRd
 .tab_subset_closure <- function(tab) {
   id <- "[A-Za-z_][A-Za-z0-9_]*"
-  # the subset pairs are collected in an explicit environment so the
-  # collector needs no super-assignment
   acc <- new.env(parent = emptyenv())
   acc$rel <- list()
-  add <- function(acc, a, b) {
-    acc$rel[[length(acc$rel) + 1L]] <- c(toupper(a), toupper(b))
-    return(invisible(NULL))
-  }
   op_re <- "\\+|-|&|(^|[^A-Za-z0-9_])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_]|$)"
   for (st in tab) {
     m <- regmatches(st, regexec(
@@ -17,7 +18,7 @@
       st
     ))[[1]]
     if (length(m) > 0L) {
-      add(acc, m[2], m[3])
+      .add(acc, m[2], m[3])
       next
     }
     if (!grepl("^\\s*[Ss][Ee][Tt]\\b", st)) {
@@ -36,7 +37,7 @@
       paste0("^\\(\\s*[Aa][Ll][Ll]\\s*,\\s*", id, "\\s*,\\s*(", id, ")"), rhs
     ))[[1]]
     if (length(sb) > 0L) {
-      add(acc, nm, sb[2])
+      .add(acc, nm, sb[2])
       next
     }
     if (grepl('[]["(){}]', rhs)) {
@@ -49,14 +50,14 @@
       next
     }
     if (length(ops) %=% 0L) {
-      add(acc, nm, parts[1])
-      add(acc, parts[1], nm)
+      .add(acc, nm, parts[1])
+      .add(acc, parts[1], nm)
     } else if (all(ops %in% c("+", "UNION"))) {
-      for (pt in parts) add(acc, pt, nm)
+      for (pt in parts) .add(acc, pt, nm)
     } else if (all(ops %in% c("&", "INTERSECT"))) {
-      for (pt in parts) add(acc, nm, pt)
+      for (pt in parts) .add(acc, nm, pt)
     } else if (all(ops %=% "-")) {
-      add(acc, nm, parts[1])
+      .add(acc, nm, parts[1])
     }
   }
   sup <- list()

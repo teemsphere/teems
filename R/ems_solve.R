@@ -102,6 +102,56 @@
 #' @param suppress_outputs Logical length 1 (default is `FALSE`).
 #'   When `TRUE` solver outputs are not automatically converted
 #'   into structured data with [`ems_compose()`].
+#' @param terminal_run Logical length 1 (default is `FALSE`).
+#'   When `TRUE`, the function is exited without running the
+#'   solver. This allows the user to close any R IDE or other
+#'   programs prior to running from the terminal. When `TRUE`
+#'   solver outputs are not automatically converted into
+#'   structured data with [`ems_compose()`].
+#' @param complementarity A `teems_complementarity` object built by
+#'   [`ems_complementarity()`] (default is `NULL`), run controls for
+#'   models with active `Complementarity` statements (GEMPACK manual
+#'   ch. 51). `NULL` applies the solver defaults; ignored by the
+#'   solver when the model has no active complementarity component.
+#' @param ... Additional named solver arguments; anything else is an
+#'   error, never a silently ignored flag. Three groups are accepted:
+#'   the Runge-Kutta step controls (`adaptive`, `eps_tolerance`,
+#'   `max_retries`, `retry_adjust`; see [`ems_RK()`] for their
+#'   documentation and RK-tuned defaults); the MA48 workspace initial
+#'   guesses `laA`, `laD` and `laDi` (integer percents of the system
+#'   nonzeros — `laA` for `"LU"`/`"SBBD"` and the diagonal blocks,
+#'   `laD` for the `"DBBD"`/`"NDBBD"` interface systems, `laDi` for
+#'   `"NDBBD"` intermediate interfaces; when omitted, a previous run
+#'   of the same deployment warm-starts them from its recorded
+#'   `la_used` in `sol.stats.json`, else package defaults apply, and
+#'   the solver grows the workspace itself if any guess proves too
+#'   small); and the expert solver flags `postsim` (logical; `FALSE`
+#'   skips the TAB's `PostSim` sections, a TEEMS-only switch with no
+#'   GEMPACK counterpart), `inmemory` (logical: keep
+#'   value arrays and block factors resident in memory rather than
+#'   in scratch files; absent, the solver applies its per-method
+#'   default, in-memory for every method except `"NDBBD"`, and falls
+#'   back to scratch with a warning when the estimated need exceeds
+#'   the memory available), `fastrefac` (persistent-pivot
+#'   refactorization, logical), `gpzerodivide` (GEMPACK dual-class
+#'   ZERODIVIDE semantics, logical), `cntl_3`/`cntl_6` (HSL
+#'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
+#'   block-count override, integer), `withmc66` (MC66 row ordering
+#'   for SBBD, logical), `smllthreads` (OpenMP threads for small
+#'   sections, integer), `tempdir` (container-side scratch directory,
+#'   character), `nowrites` (skip the solver-side output-file
+#'   dumps, logical; coefficient composition then has nothing to read
+#'   — distinct from `suppress_outputs`, which only skips the R-side
+#'   composition) and `condest` (per-solve quality diagnostics on the
+#'   `"LU"` matrix method, logical: componentwise backward error and
+#'   scaled condition numbers via HSL MA60/MC71, logged per linear
+#'   solve with run maxima recorded under `condest` in
+#'   `sol.stats.json`; diagnostic-only — solutions are unchanged —
+#'   and informative only for nonzero shocks), and `ma48u` (MA48/HSL_MP48
+#'   pivot threshold `CNTL(2)`, numeric in (0, 1]; absent = each
+#'   library's default, MA48 0.1 and MP48 0.01 — a calibration knob,
+#'   not a tuning recommendation). Effective values of recorded flags
+#'   land in `sol.stats.json` regardless of how they were passed.
 #' @details Nothing is chosen for you here: the run is exactly the
 #'   arguments given, so it is reproducible from its record on any
 #'   machine. [`ems_probe()`] makes the choice explicit instead: it
@@ -152,72 +202,13 @@
 #'   effective sizes as `la_used` in `sol.stats.json`, which later
 #'   runs of the same deployment reuse as their starting point. Pass
 #'   them through `...` only to pin a specific starting size.
-#' @param terminal_run Logical length 1 (default is `FALSE`).
-#'   When `TRUE`, the function is exited without running the
-#'   solver. This allows the user to close any R IDE or other
-#'   programs prior to running from the terminal. When `TRUE`
-#'   solver outputs are not automatically converted into
-#'   structured data with [`ems_compose()`].
-#' @param assertions Character length 1, `"fatal"` (default),
-#'   `"warn"` or `"off"`. Severity of TAB `Assertion` statement
-#'   failures (GEMPACK manual 25.3):
-#'   `"warn"` reports and continues, `"off"` skips the checks.
-#' @param range_test_initial Character length 1, `"warn"` (default),
-#'   `"fatal"` or `"off"`. Severity of declared-range violations
-#'   (e.g. `(ge 0)`) on initial values (GEMPACK manual 25.4.4,
-#'   `range test initial values`; GEMPACK's `yes`/`warn`/`no` are
-#'   `"fatal"`/`"warn"`/`"off"` here).
-#' @param range_test_updated Character length 1, `"warn"` (default),
-#'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
-#'   values (`range test updated values`).
-#' @param complementarity A `teems_complementarity` object built by
-#'   [`ems_complementarity()`] (default is `NULL`), run controls for
-#'   models with active `Complementarity` statements (GEMPACK manual
-#'   ch. 51). `NULL` applies the solver defaults; ignored by the
-#'   solver when the model has no active complementarity component.
-#' @param ... Additional named solver arguments; anything else is an
-#'   error, never a silently ignored flag. Three groups are accepted:
-#'   the Runge-Kutta step controls (`adaptive`, `eps_tolerance`,
-#'   `max_retries`, `retry_adjust`; see [`ems_RK()`] for their
-#'   documentation and RK-tuned defaults); the MA48 workspace initial
-#'   guesses `laA`, `laD` and `laDi` (integer percents of the system
-#'   nonzeros — `laA` for `"LU"`/`"SBBD"` and the diagonal blocks,
-#'   `laD` for the `"DBBD"`/`"NDBBD"` interface systems, `laDi` for
-#'   `"NDBBD"` intermediate interfaces; when omitted, a previous run
-#'   of the same deployment warm-starts them from its recorded
-#'   `la_used` in `sol.stats.json`, else package defaults apply, and
-#'   the solver grows the workspace itself if any guess proves too
-#'   small); and the expert solver flags `postsim` (logical; `FALSE`
-#'   skips the TAB's `PostSim` sections, a TEEMS-only switch with no
-#'   GEMPACK counterpart), `inmemory` (logical: keep
-#'   value arrays and block factors resident in memory rather than
-#'   in scratch files; absent, the solver applies its per-method
-#'   default, in-memory for every method except `"NDBBD"`, and falls
-#'   back to scratch with a warning when the estimated need exceeds
-#'   the memory available), `fastrefac` (persistent-pivot
-#'   refactorization, logical), `gpzerodivide` (GEMPACK dual-class
-#'   ZERODIVIDE semantics, logical), `cntl_3`/`cntl_6` (HSL
-#'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
-#'   block-count override, integer), `withmc66` (MC66 row ordering
-#'   for SBBD, logical), `smllthreads` (OpenMP threads for small
-#'   sections, integer), `tempdir` (container-side scratch directory,
-#'   character), `nowrites` (skip the solver-side output-file
-#'   dumps, logical; coefficient composition then has nothing to read
-#'   — distinct from `suppress_outputs`, which only skips the R-side
-#'   composition) and `condest` (per-solve quality diagnostics on the
-#'   `"LU"` matrix method, logical: componentwise backward error and
-#'   scaled condition numbers via HSL MA60/MC71, logged per linear
-#'   solve with run maxima recorded under `condest` in
-#'   `sol.stats.json`; diagnostic-only — solutions are unchanged —
-#'   and informative only for nonzero shocks), and `ma48u` (MA48/HSL_MP48
-#'   pivot threshold `CNTL(2)`, numeric in (0, 1]; absent = each
-#'   library's default, MA48 0.1 and MP48 0.01 — a calibration knob,
-#'   not a tuning recommendation). Effective values of recorded flags
-#'   land in `sol.stats.json` regardless of how they were passed.
 #' @seealso [`ems_deploy()`] for generating `"cmf_path"`.
 #'   [`solve_in_situ()`] for calling the solver on existing input
 #'   files. [`ems_compose()`] for structuring data when
 #'   `"suppress_outputs"` or `"terminal_run"` is `TRUE`.
+#'   [`ems_option_set()`] for the severities of TAB `Assertion`
+#'   failures and declared-range violations (`assertions`,
+#'   `range_test_initial`, `range_test_updated`).
 #' @return A tibble of model output variables and coefficients.
 #'   `invisible(NULL)` if `suppress_outputs = TRUE`. Instructions
 #'   for terminal execution if `terminal_run = TRUE`.
@@ -225,9 +216,6 @@
 #'   Models Accurately via a Linear Representation", Impact
 #'   Project Preliminary Working Paper No. IP-55, Monash
 #'   University (revised June 2002).
-#'
-#'   Schiffmann, F. (2022), "Runge Kutta integrators for fast and
-#'   accurate solutions in GEMPACK".
 #' @examples
 #' \dontrun{
 #' # The following examples require the teems solver to be built. 
@@ -256,9 +244,6 @@ ems_solve <- function(cmf_path,
                       verbosity = 1L,
                       suppress_outputs = FALSE,
                       terminal_run = FALSE,
-                      assertions = c("fatal", "warn", "off"),
-                      range_test_initial = c("warn", "fatal", "off"),
-                      range_test_updated = c("warn", "fatal", "off"),
                       complementarity = NULL,
                       ...
 ) {

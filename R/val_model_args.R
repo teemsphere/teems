@@ -30,7 +30,7 @@
   for (nme in "ignore_condense") {
     if (length(a[[nme]]) != 1L || is.na(a[[nme]])) {
       bad_arg <- nme
-      .cli_action("{.arg {bad_arg}} must be {.val TRUE} or {.val FALSE}.",
+      .cli_action(gen_err$logical_flag,
         action = "abort",
         call = call
       )

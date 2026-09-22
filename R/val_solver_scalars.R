@@ -1,7 +1,4 @@
-#' @importFrom rlang is_integerish
-#'
-# class, length and range of every scalar argument, in the order the
-# solver front end states them
+#' @importFrom rlang is_integerish arg_match
 #' @keywords internal
 #' @noRd
 .validate_solver_scalars <- function(a,
@@ -17,7 +14,7 @@
   if (!rlang::is_integerish(a$n_threads) || length(a$n_threads) != 1L ||
     a$n_threads < 1) {
     bad_arg <- "n_threads"
-    requirement <- "a positive integer-like numeric of length 1"
+    requirement <- solve_err$requirement$positive_int
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call
@@ -26,7 +23,7 @@
   if (!rlang::is_integerish(a$max_retries) || length(a$max_retries) != 1L ||
     a$max_retries < 1) {
     bad_arg <- "max_retries"
-    requirement <- "a positive integer-like numeric of length 1"
+    requirement <- solve_err$requirement$positive_int
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call
@@ -36,28 +33,10 @@
     is.na(a$retry_adjust) ||
     a$retry_adjust <= 0 || a$retry_adjust >= 1) {
     bad_arg <- "retry_adjust"
-    requirement <- "a numeric of length 1 in (0, 1)"
+    requirement <- solve_err$requirement$open_unit
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call
-    )
-  }
-  # the run-mode switches: the first value of each formal is the
-  # solver's own default, so the signature states what runs
-  for (nme in c("assertions", "range_test_initial", "range_test_updated")) {
-    x <- a[[nme]]
-    if (!is.character(x) || !length(x) || anyNA(x) ||
-      !all(x %in% c("fatal", "warn", "off"))) {
-      bad_arg <- nme
-      .cli_action(solve_err$switch_mode,
-        action = "abort",
-        call = call
-      )
-    }
-    a[[nme]] <- rlang::arg_match(
-      arg = x,
-      values = c("fatal", "warn", "off"),
-      error_call = call
     )
   }
   .validate_solver_extras(a = a, call = call)
@@ -99,8 +78,6 @@
       call = call
     )
   }
-
-
 
   {
     if (!rlang::is_integerish(a$verbosity)) {

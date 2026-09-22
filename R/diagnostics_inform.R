@@ -1,5 +1,4 @@
 #' @importFrom purrr map_chr
-#' 
 #' @keywords internal
 #' @noRd
 .inform_diagnostics <- function(elapsed_time,
@@ -70,16 +69,14 @@
 
   return(invisible(NULL))
 }
-#' Append the run's effective-configuration record to
-#' model_diagnostics.txt (posterity/reproducibility; the CMF stays a
-#' file manifest by design). Rendered from the `options` object the
-#' solver writes into sol.stats.json -- RESOLVED values after
-#' defaults, validation and forced changes, not what the caller
-#' passed. Silently skipped against solver images that predate the
-#' options record.
-#'
+#' @keywords internal
+#' @noRd
+.onoff <- function(x) {
+  txt <- ifelse(isTRUE(x), "on", "off")
+  return(txt)
+}
+
 #' @importFrom jsonlite read_json
-#'
 #' @keywords internal
 #' @noRd
 .solve_record_append <- function(run_dir,
@@ -97,51 +94,41 @@
   if (is.null(opt)) {
     return(invisible(NULL))
   }
-  onoff <- function(x) {
-    txt <- ifelse(isTRUE(x), "on", "off")
-    return(txt)
-  }
   lines <- c(
     "",
     sprintf("-- Solve record (%s) --", format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")),
     "",
     if (!is.null(stats$solver_version)) {
-      sprintf("Solver version: %s", stats$solver_version)
+      sprintf(solve_info$record$solver_version, stats$solver_version)
     },
-    # BLAS kernel family the run actually dispatched (solver >= the
-    # OpenBLAS pin): the images pin it to the family matching their ISA
-    # level, so this is what makes a solve reproducible off this machine
     if (!is.null(opt$blas_core)) {
-      sprintf("BLAS kernels: %s", opt$blas_core)
+      sprintf(solve_info$record$blas, opt$blas_core)
     },
     sprintf(
-      "Solution method: %s%s (subintervals %s)",
+      solve_info$record$method,
       stats$solution_method,
       if (!is.null(opt$steps)) {
-        sprintf(" (steps %s)", paste(opt$steps, collapse = ", "))
+        sprintf(solve_info$record$method_steps, paste(opt$steps, collapse = ", "))
       } else {
         ""
       },
       opt$subintervals
     ),
     if (!is.null(opt$adaptive)) {
-      sprintf("Adaptive stepping: %s (eps tolerance %s)", opt$adaptive, opt$eps_tolerance)
+      sprintf(solve_info$record$adaptive, opt$adaptive, opt$eps_tolerance)
     },
-    # Runge-Kutta run controls and record (solver >= the 2026-09 RK
-    # slice): chart / norm / controller, then the stage-solve economy
-    # and the retry census
     if (!is.null(opt$rk_chart)) {
       sprintf(
-        "Runge-Kutta chart: %s (error norm %s over %s, controller %s%s)",
+        solve_info$record$rk_chart,
         opt$rk_chart, opt$rk_norm,
         if (identical(opt$rk_scope, "all")) {
-          "all elements"
+          solve_info$record$rk_scope_all
         } else {
-          "percent-change elements"
+          solve_info$record$rk_scope_pc
         },
         opt$rk_controller,
         if (!is.null(opt$rk_h0) && opt$rk_h0 > 0) {
-          sprintf(", initial step %s", opt$rk_h0)
+          sprintf(solve_info$record$rk_h0, opt$rk_h0)
         } else {
           ""
         }
@@ -151,7 +138,7 @@
       rk <- stats$runge_kutta
       c(
         sprintf(
-          "Runge-Kutta run: %s step(s), %s stage solve(s) (%s reused); rejected %s accuracy, %s crossing, %s range test, %s assertion, %s guard, %s singular; step length %s to %s",
+          solve_info$record$rk_run,
           rk$steps, rk$stage_solves, rk$stage_solves_reused,
           rk$rejects_accuracy, rk$rejects_crossed, rk$rejects_range,
           rk$rejects_assertion, rk$rejects_guard,
@@ -164,36 +151,31 @@
         ),
         if (!is.null(rk$worst_estimated_metric)) {
           sprintf(
-            "Runge-Kutta estimated error: worst element metric %s (the embedded pair's accumulated estimate: an indicator of the least-settled elements, not a bound)",
+            solve_info$record$rk_error,
             format(rk$worst_estimated_metric, digits = 3)
           )
         }
       )
     },
     sprintf(
-      "Matrix method: %s (laA %s, laDi %s, laD %s; fastrefac %s; ma48u %s)",
-      stats$matrix_method, opt$laA, opt$laDi, opt$laD, onoff(opt$fastrefac),
+      solve_info$record$matrix_method,
+      stats$matrix_method, opt$laA, opt$laDi, opt$laD, .onoff(opt$fastrefac),
       if (is.null(opt$ma48u)) {
-        "default"
+        solve_info$record$ma48u_default
       } else {
         opt$ma48u
       }
     ),
-    # tasks/threads/scratch as run, the container inspected and the
-    # pre-solve memory check
     .resources_record_lines(resources_record),
-    # effective MA48 workspace sizes after any in-solver growth
-    # (solver >= la auto-sizing); the next run warm-starts from these
     if (!is.null(stats$la_used)) {
       sprintf(
-        "Workspace used (equivalent percents): laA %s, laDi %s, laD %s",
+        solve_info$record$la_used,
         stats$la_used$laA, stats$la_used$laDi, stats$la_used$laD
       )
     },
-    # -condest solve-quality record (run maxima; solver >= condest slice)
     if (!is.null(stats$condest)) {
       sprintf(
-        "Solve quality (condest): kappa_w1 max %s, kappa_w2 max %s, omega max %s (%s solve(s) measured, %s zero-rhs skip(s))",
+        solve_info$record$condest,
         format(stats$condest$kappa_w1_max, digits = 3),
         format(stats$condest$kappa_w2_max, digits = 3),
         format(stats$condest$omega_max, digits = 3),
@@ -201,37 +183,29 @@
       )
     },
     sprintf(
-      "Parallelism: %s MPI task(s), %s OpenMP thread(s)",
+      solve_info$record$parallelism,
       stats$mpi_size, opt$max_threads
     ),
-    # per-phase resident memory (solver >= the 6.16(a) phase-RSS slice):
-    # max over ranks / sum over ranks in GB, then the run's high-water
-    # mark; the max column is what a single host must hold per rank,
-    # the sum what the job holds in total
     .memory_record_lines(stats$rss_gb),
     if (!is.null(opt$store_precision)) {
-      sprintf("Coefficient storage: %s precision", opt$store_precision)
+      sprintf(solve_info$record$storage, opt$store_precision)
     },
     sprintf(
-      "System: %s equations, %s exogenous elements",
+      solve_info$record$system,
       stats$vecsize, stats$nexo
     ),
     sprintf(
-      "Modes: assertions %s; range test initial %s, updated %s; postsim %s; gpzerodivide %s",
+      solve_info$record$modes,
       opt$assertions, opt$range_test_initial, opt$range_test_updated,
-      onoff(opt$postsim), onoff(opt$gpzerodivide)
+      .onoff(opt$postsim), .onoff(opt$gpzerodivide)
     ),
     if (!is.null(opt$complementarity)) {
       cp <- opt$complementarity
       sprintf(
-        paste0(
-          "Complementarity: %s active component(s); approximate run %s ",
-          "Euler steps (%s; redo %s, min fraction %s); accurate run %s; ",
-          "state/bound errors %s"
-        ),
+        solve_info$record$complementarity,
         cp$active_components, cp$steps_approx_run,
-        onoff(cp$do_approx_run), onoff(cp$redo_steps),
-        cp$redo_step_min_fraction, onoff(cp$do_acc_run),
+        .onoff(cp$do_approx_run), .onoff(cp$redo_steps),
+        cp$redo_step_min_fraction, .onoff(cp$do_acc_run),
         cp$state_bound_error
       )
     }
@@ -243,11 +217,13 @@
   return(invisible(NULL))
 }
 
-#' Render the solver's per-phase resident-memory record (the `rss_gb`
-#' object of sol.stats.json) as diagnostics lines: one line naming the
-#' phases with max-over-ranks / sum-over-ranks GB, one line with the
-#' run's high-water mark. NULL against images without the record.
-#'
+#' @keywords internal
+#' @noRd
+.gb <- function(x) {
+  txt <- format(round(as.numeric(x), 2), nsmall = 2)
+  return(txt)
+}
+
 #' @keywords internal
 #' @noRd
 .memory_record_lines <- function(rss) {
@@ -256,28 +232,24 @@
   }
   peak <- rss$peak
   phases <- rss[setdiff(names(rss), "peak")]
-  gb <- function(x) {
-    txt <- format(round(as.numeric(x), 2), nsmall = 2)
-    return(txt)
-  }
   phase_txt <- vapply(
     names(phases),
     \(nm) {
-      sprintf("%s %s/%s", gsub("_", " ", nm, fixed = TRUE), gb(phases[[nm]]$max), gb(phases[[nm]]$sum))
+      sprintf(solve_info$record$memory_phase, gsub("_", " ", nm, fixed = TRUE), .gb(phases[[nm]]$max), .gb(phases[[nm]]$sum))
     },
     character(1)
   )
   lines <- c(
     if (length(phase_txt) > 0L) {
       sprintf(
-        "Memory (resident GB, max per rank / sum over ranks): %s",
+        solve_info$record$memory_phases,
         paste(phase_txt, collapse = "; ")
       )
     },
     if (!is.null(peak)) {
       sprintf(
-        "Memory high-water mark: %s GB max per rank, %s GB sum over ranks",
-        gb(peak$max), gb(peak$sum)
+        solve_info$record$memory_peak,
+        .gb(peak$max), .gb(peak$sum)
       )
     }
   )

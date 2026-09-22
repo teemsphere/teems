@@ -1,11 +1,4 @@
-#' The mapping-sum builder `(all,i,SRC: sum{j,DOM: MAP(j) = i,
-#' COEF(j)} <op> c)`: SRC must be the mapping's codomain and DOM its
-#' domain (the solver's contract); the mapping values are composed
-#' under the active aggregation exactly as the deployed by_elements
-#' header is (.compose_map_values), the operand is file-Read or an
-#' indicator. NULL while the domain, codomain or an operand set is
-#' unresolved.
-#'
+#' @importFrom data.table setattr
 #' @keywords internal
 #' @noRd
 .eval_set_builder_mapsum <- function(b,
@@ -101,7 +94,7 @@
     src_set <- b$src
     builder_cond <- b$cond
     .cli_action(deploy_err$set_builder_empty,
-      action = "abort",
+      action = c("abort", "inform"),
       call = call
     )
   }

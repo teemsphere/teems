@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#'
 #' @keywords internal
 #' @noRd
 .implement_convert <- function(args_list,
@@ -18,8 +17,6 @@
   )
 
   if (!is.null(v$target) && v$target %=% "GTAP-EP") {
-    # the GTAP-Power layer on the GTAPv7 format: a v6-format database
-    # (GTAP 10a Power) carries different headers and is not prepared
     if (isTRUE(attr(i_data, "metadata")[["ep"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
@@ -29,7 +26,7 @@
     } else {
       if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
         .cli_action(data_err$ep_v6_format,
-          action = "abort",
+          action = c("abort", "inform"),
           call = call
         )
       }
@@ -37,8 +34,6 @@
     }
     v$target <- NULL
   } else if (!is.null(v$target) && v$target %=% "GTAP-E") {
-    # the GTAP-E layer on the GTAPv7 format: a v6-format database
-    # (GTAP 10a E) carries different headers and is not prepared
     if (isTRUE(attr(i_data, "metadata")[["e"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
@@ -48,7 +43,7 @@
     } else {
       if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
         .cli_action(data_err$e_v6_format,
-          action = "abort",
+          action = c("abort", "inform"),
           call = call
         )
       }
@@ -56,8 +51,6 @@
     }
     v$target <- NULL
   } else if (!is.null(v$target) && v$target %=% "GTAP-AEZ") {
-    # the GTAP-AEZ layer on the GTAPv7 format: a v6-format database
-    # (GTAPv10a AEZ) carries different headers and is not prepared
     if (isTRUE(attr(i_data, "metadata")[["aez"]])) {
       target <- v$target
       .cli_action(convert_wrn$format,
@@ -66,11 +59,8 @@
       )
     } else {
       if (attr(i_data, "metadata")$data_format %=% "GTAPv6") {
-        # the v6-era AEZ layer (GTAP 10a: ESBL/ETL*/ETA/YD01/YDEL over
-        # LAND_COMM/ENDWL_COMM/PROD_COMM, no LUSA) carries different
-        # headers from the v7-format layer this target prepares
         .cli_action(data_err$aez_v6_format,
-          action = "abort",
+          action = c("abort", "inform"),
           call = call
         )
       }

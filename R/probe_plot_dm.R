@@ -1,4 +1,4 @@
-#' @importFrom graphics rect box axis text
+#' @importFrom graphics rect box axis text par plot title
 #' @keywords internal
 #' @noRd
 .probe_plot_dm <- function(x) {
@@ -24,11 +24,6 @@
   graphics::axis(1)
   graphics::axis(2)
   graphics::box()
-  # DM order: under-determined columns first, unmatched rows last;
-  # rows are counted from the top (y flipped). Degenerate blocks (a few
-  # rows/columns in a 10^4+ system) get a minimum visible marker size,
-  # anchored at their true corner, with the label set beside them; the
-  # well block is drawn first so the markers stay on top.
   min_px <- n / 50
   blocks <- list(
     list(
@@ -59,7 +54,7 @@
     }
     y1 <- b$y1
     y0 <- max(y1 - h_d, 0)
-    y1 <- min(y0 + h_d, n) # keep the marker its minimum size at the edges
+    y1 <- min(y0 + h_d, n)
     graphics::rect(x0, y0, x1, y1, col = b$col, border = "gray30")
     lab <- sprintf("%s %d x %d", b$lab, b$h, b$w)
     if (b$w > n / 8 && b$h > n / 8) {
@@ -72,11 +67,11 @@
   }
   graphics::title(
     main = sprintf(
-      "Dulmage-Mendelsohn localization (%s pattern): rank %d of %d",
+      probe_info$plot$dm_main,
       if (identical(p, x$structural)) {
-        "structural"
+        probe_info$plot$dm_structural
       } else {
-        "realized"
+        probe_info$plot$dm_realized
       },
       p$rank, p$n
     ),

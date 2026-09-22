@@ -50,3 +50,23 @@ test_that("a reference written with square brackets keeps them", {
   round <- .parse_linear_side("ID01(VXW(c,r)) * qxw(c,r)", vl)
   expect_match(.serialize_linear(round), "ID01(VXW(c,r))", fixed = TRUE)
 })
+
+# every refusal reaches the user through condense_parse's {parse_reason},
+# so each reason is pinned to the input that raises it
+test_that("the linear parser names each form it refuses", {
+  vl <- list(x = "x", y = "y")
+  refuse <- function(side, reason) {
+    expect_error(.parse_linear_side(side, vl), reason, fixed = TRUE)
+  }
+  refuse("x(r)*y(r)", "product of two variable-bearing expressions (nonlinear)")
+  refuse("A(r)/x(r)", "division by a variable-bearing expression (nonlinear)")
+  refuse("sum{r,REG A(r)*x(r)}", "expected `,` but found `A`")
+  refuse("x(r", "unbalanced parentheses in a reference")
+  refuse("x(r) y(r)", "trailing tokens starting at `y`")
+  refuse("A(r)*", "unexpected end of expression")
+  refuse("* x(r)", "unexpected token `*`")
+  refuse("sum{1,REG, x(r)}", "malformed sum index")
+  refuse("sum{r,, x(r)}", "malformed sum set")
+  refuse("ABS(x(r))", "variable reference inside the arguments of `ABS`")
+  refuse("x(r) @ y(r)", "unrecognized characters {@}")
+})

@@ -1,6 +1,4 @@
-#' Candidate variables whose element counts could close the squaring
-#' gap: exact matches first, nearest counts otherwise
-#'
+#' @importFrom utils head
 #' @keywords internal
 #' @noRd
 .square_candidates <- function(gap,
@@ -35,19 +33,16 @@
   }
 
   if (gap > 0) {
-    # need more exogenous elements: how many endogenous elements each
-    # variable still has
     avail <- nelem - exo_count[tolower(names(nelem))]
-    verb <- "exogenizing"
+    verb <- cls_err$square_exogenizing
   } else {
-    # too many exogenous: what each variable currently contributes
     avail <- exo_count[tolower(names(nelem))]
     names(avail) <- names(nelem)
-    verb <- "endogenizing"
+    verb <- cls_err$square_endogenizing
   }
   avail <- avail[avail > 0]
   if (length(avail) == 0L) {
-    return("No single-variable candidate closes the gap.")
+    return(cls_err$square_no_candidate)
   }
   exact <- avail[avail == abs(gap)]
   if (length(exact) > 0L) {
@@ -62,10 +57,9 @@
     return(msg)
   }
   near <- utils::head(names(avail)[order(abs(avail - abs(gap)))], 5L)
-  msg <- paste0(
-    "No single variable matches the gap exactly; nearest by element ",
-    "count: ",
-    paste(paste0(near, " (", avail[near], ")"), collapse = ", "), "."
+  msg <- sprintf(
+    cls_err$square_nearest,
+    paste(paste0(near, " (", avail[near], ")"), collapse = ", ")
   )
   return(msg)
 }

@@ -1,8 +1,10 @@
-#' @description The pre-solve memory check (all modes): the chosen
-#'   method's estimate against the container's memory. Aborts by name
-#'   past the model's error band, warns inside it, records otherwise.
-#'   Returns the record (`NULL` verdict fields when the size or the
-#'   limit is unknown).
+#' @keywords internal
+#' @noRd
+.memory_fit_gb <- function(x) {
+  txt <- format(round(x, 1), nsmall = 1, trim = TRUE)
+  return(txt)
+}
+
 #' @keywords internal
 #' @noRd
 .memory_fit_check <- function(method,
@@ -29,17 +31,13 @@
     return(rec)
   }
   rec$share <- est_gb / limit
-  fmt_gb <- function(x) {
-    txt <- format(round(x, 1), nsmall = 1, trim = TRUE)
-    return(txt)
-  }
   if (rec$share > th$mem_abort_ratio) {
     rec$verdict <- "exceeds"
     if (isTRUE(report_only)) {
       return(rec)
     }
-    est_gb <- fmt_gb(est_gb)
-    mem_gb <- fmt_gb(limit)
+    est_gb <- .memory_fit_gb(est_gb)
+    mem_gb <- .memory_fit_gb(limit)
     kb_per_eq <- format(round(1e6 * rec$est_gb / plain_size, 2), nsmall = 2, trim = TRUE)
     plain_size <- format(round(plain_size), big.mark = ",", scientific = FALSE, trim = TRUE)
     .cli_action(solve_err$wont_fit,
@@ -52,8 +50,8 @@
     if (isTRUE(report_only)) {
       return(rec)
     }
-    est_gb <- fmt_gb(est_gb)
-    mem_gb <- fmt_gb(limit)
+    est_gb <- .memory_fit_gb(est_gb)
+    mem_gb <- .memory_fit_gb(limit)
     share <- paste0(round(100 * rec$share), "%")
     .cli_action(solve_wrn$memory_tight,
       action = c("warn", "inform"),

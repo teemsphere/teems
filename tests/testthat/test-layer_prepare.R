@@ -41,14 +41,14 @@ synthetic_e <- function() {
 
 test_that("GTAP-E preparation on a synthetic layer", {
   i_data <- synthetic_e()
-  expect_true(.is_e_input(i_data))
-  expect_false(.is_ep_input(i_data))
+  expect_true(.layer_detect(i_data, "e"))
+  expect_false(.layer_detect(i_data, "ep"))
   out <- .prepare_e(i_data, call = NULL)
 
   # the flag is exact: `$e` on a list would partial-match `ep`
   expect_true(isTRUE(attr(out, "metadata")[["e"]]))
   expect_null(attr(out, "metadata")[["ep"]])
-  expect_false(.is_e_input(out))
+  expect_false(.layer_detect(out, "e"))
   expect_identical(class(out), c(fmt, "list"))
 
   # the disaggregated lists at source, the energy sets over COME, TOPP
@@ -121,12 +121,12 @@ test_that("GTAP-EP preparation on a synthetic layer", {
   )
   attr(i_data, "metadata") <- list(data_format = fmt, database_version = "GTAPv12")
   class(i_data) <- c(fmt, "list")
-  expect_true(.is_ep_input(i_data))
-  expect_false(.is_e_input(i_data))
+  expect_true(.layer_detect(i_data, "ep"))
+  expect_false(.layer_detect(i_data, "e"))
   out <- .prepare_ep(i_data, call = NULL)
   expect_true(isTRUE(attr(out, "metadata")[["ep"]]))
   expect_null(attr(out, "metadata")[["e"]])
-  expect_false(.is_ep_input(out))
+  expect_false(.layer_detect(out, "ep"))
 
   expect_equal(as.character(out$DCOM), p_comm)
   expect_equal(as.character(out$DELY), elec)

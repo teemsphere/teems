@@ -21,11 +21,6 @@
     timeID = timeID
   )
 
-  # one solve at a time per deploy directory: runs separated by their own
-  # tempdir go in parallel, two in one directory would share the solver's
-  # scratch files and the outputs the CMF names (.solve_lock_acquire).
-  # terminal_run only prints the command for the user to run, so it takes
-  # no claim.
   lock_path <- NULL
   if (!isTRUE(v$terminal_run)) {
     lock_path <- .solve_lock_acquire(
@@ -52,9 +47,9 @@
     precision = v$precision,
     n_subintervals = v$n_subintervals,
     verbosity = v$verbosity,
-    assertions = v$assertions,
-    range_test_initial = v$range_test_initial,
-    range_test_updated = v$range_test_updated,
+    assertions = .o_assertions(),
+    range_test_initial = .o_range_test_initial(),
+    range_test_updated = .o_range_test_updated(),
     complementarity = v$complementarity,
     laA = v$laA,
     laD = v$laD,
@@ -62,19 +57,13 @@
     extra_flags = .extra_cli_flags(v)
   )
 
-  # need a process running in parallel, grepping output for error and then kill appropriate PID
   if (isFALSE(cmds)) {
     return(invisible(NULL))
   }
 
-
   status <- 0L
   if (Sys.info()[["sysname"]] == "Windows") {
     captured <- character(0)
-    # system(intern = TRUE) warns on a non-zero status, printing the whole
-    # docker command ahead of the package's own named error; the status is
-    # read from the attribute instead, so the warning carries nothing the
-    # user needs and only buries the message that matters
     elapsed_time <- system.time(
       captured <- suppressWarnings(system(cmds$solve, intern = TRUE))
     )

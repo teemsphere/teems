@@ -1,38 +1,29 @@
-# The `ems_probe()` recommendation (ROADMAP 6.10) and the pre-solve
-# memory check
-#
-# `ems_solve()` runs exactly what it is given. The recommendation of a
-# matrix method and of the tasks, threads and scratch to run it with
-# comes from `ems_probe()`, which reads the deployed system's MEASURED
-# structure (the solver's structural probe: the chain dimension the
-# equations couple through lead/lag offsets, the diagonal-block
-# partition candidates and the border of the chosen partition), the
-# deploy metadata (system size, region count, condensation record) and
-# the container's cores and memory (or the ones given, for a machine
-# other than this one). A memory model per method turns the memory
-# limit into a third input, so a recommendation never names a method
-# that would not fit, and `ems_solve()` refuses by name a run the
-# memory limit would kill.
-#
-# Every constant is a named entry of `.auto_thresholds()`, printed with
-# the recommendation, with its provenance beside it. Calibration (2026-09): the laptop ladder on the
-# HPC box (`teems-dev/hpc/results.csv`, labels `laptop4_*`/`laptop8_*`:
-# a 16 GB laptop emulated as `--memory 12g` with 4 or 8 cores; static
-# plain 346k-7.69M and condensed 20k-230k equations, intertemporal
-# 1.30M-8.85M; tables in `teems-dev/docs/ladder_tables.md`) and the
-# uncapped top-end cells (I-long-big 21.9M, I-230 230M, S-full-big
-# 40.5M, Q34 234M; hpc_auto_plan.md section 3). Ratios transfer between
-# machines (kernel-invariant memory, method crossovers, rank/thread
-# splits); absolute walls do not and none is encoded.
+#' @keywords internal
+#' @noRd
+.auto_est <- function(method, ranks, mem, plain_size, condensed, th) {
+  e <- .auto_memory_gb(method, ranks, plain_size, condensed, th)
+  mem$estimates[[method]] <- e
+  return(e)
+}
 
-#' @description Pure decision rule over the evidence (no I/O), unit
-#'   tested on synthetic `structure` lists. `structure` is
-#'   `probe$structure` (`.probe_stats()` output) or `NULL` when no
-#'   probe ran; then the metadata-only rule applies. `condensed` and
-#'   `n_backsolve_ele` come from the deploy metadata (the probe's own
-#'   record wins when it ran); `mem_limit_gb` is the container's memory
-#'   (`NULL` = unknown: the memory arm and the DBBD memory guard stay
-#'   inert and the won't-fit check is not applied).
+#' @keywords internal
+#' @noRd
+.auto_fits <- function(method, ranks, mem, plain_size, condensed, th, limit) {
+  e <- .auto_est(method, ranks, mem, plain_size, condensed, th)
+  if (is.na(e) || is.na(limit)) {
+    return(NA)
+  }
+  return(e <= limit * th$mem_fit_share)
+}
+
+#' @keywords internal
+#' @noRd
+.auto_finish <- function(d, mem) {
+  d$memory$estimates <- mem$estimates
+  d$memory$chosen_gb <- mem$estimates[[d$method]] %|||% NA_real_
+  return(d)
+}
+
 #' @keywords internal
 #' @noRd
 .auto_decide <- function(enable_time,
@@ -65,23 +56,8 @@
     size + (n_backsolve_ele %|||% 0)
   }
   limit <- mem_limit_gb %|||% NA_real_
-  # the memory estimates are filled in as the rules ask for them; an
-  # explicit environment carries them instead of a super-assignment
   mem <- new.env(parent = emptyenv())
   mem$estimates <- list()
-  est <- function(method, ranks) {
-    e <- .auto_memory_gb(method, ranks, plain_size, condensed, th)
-    mem$estimates[[method]] <- e
-    return(e)
-  }
-  fits <- function(method, ranks) {
-    e <- est(method, ranks)
-    if (is.na(e) || is.na(limit)) {
-      return(NA)
-    }
-    return(e <= limit * th$mem_fit_share)
-  }
-
   d <- list(
     model_type = if (enable_time) {
       "intertemporal"
@@ -122,43 +98,26 @@
     memory_arm = FALSE,
     dbbd_memory_blocked = FALSE
   )
-  finish <- function(d) {
-    d$memory$estimates <- mem$estimates
-    d$memory$chosen_gb <- mem$estimates[[d$method]] %|||% NA_real_
-    return(d)
-  }
-
   if (enable_time && !isFALSE(chain)) {
-    # SBBD is the intertemporal method at every measured size (2.4M-230M
-    # eq; SBBD@2 is 104x LU@1 on I-long); NDBBD only when SBBD's host
-    # copy does not fit the container -- never a time choice on GTAP
-    # geometry (remainder_plan.md section 8)
     d$method <- "SBBD"
-    if (isFALSE(fits("SBBD", n_tasks)) && isTRUE(fits("NDBBD", n_tasks))) {
+    if (isFALSE(.auto_fits("SBBD", n_tasks, mem, plain_size, condensed, th, limit)) &&
+      isTRUE(.auto_fits("NDBBD", n_tasks, mem, plain_size, condensed, th, limit))) {
       d$method <- "NDBBD"
       d$memory_arm <- TRUE
     }
-    decision <- finish(d)
+    decision <- .auto_finish(d, mem)
     return(decision)
   }
   if (enable_time && isFALSE(chain)) {
-    # declared intertemporal, but no equation couples set elements
-    # through lead/lag offsets: the chain methods would abort in the
-    # solver; the static family applies
     d$no_chain <- TRUE
   }
 
   d$method <- "LU"
-  # a bordered partition with at least n_tasks blocks: measured by the
-  # probe when it ran, else the region count from the deploy metadata
-  # (the solver's static partition is the regional set on GTAP models)
   viable <- if (probed) {
     !is.null(part) && (is.na(part$border_share) || part$border_share <= th$border_share_max)
   } else {
     isTRUE((n_reg %|||% 0L) >= max(n_tasks, 2L))
   }
-  # the crossover: plain systems favor DBBD at every measured size;
-  # condensed ones only from the size where threaded LU stops winning
   favorable <- if (!condensed) {
     TRUE
   } else if (!is.na(size)) {
@@ -171,10 +130,6 @@
     FALSE
   }
   if (probed) {
-    # the 32-bit workspace ceiling is a hard exclusion, evaluated
-    # before the performance gates: past it LU cannot factorize this
-    # system at any -laA, so a bordered method is the only option that
-    # runs at all, whatever the crossover would have said
     d$lu_ceiling <- .auto_lu_ceiling(
       nnz = structure$nnz,
       condensed = condensed,
@@ -183,18 +138,16 @@
     d$lu_excluded <- isTRUE(d$lu_ceiling$exceeded)
     if (d$lu_excluded) {
       if (!is.null(part) && part$n_blocks >= max(n_tasks, 1L)) {
-        # correctness outranks the crossover, the border-share guard
-        # and the memory model
         d$method <- "DBBD"
       } else {
         d$lu_unavoidable <- TRUE
       }
-      decision <- finish(d)
+      decision <- .auto_finish(d, mem)
       return(decision)
     }
   }
   if (n_tasks >= 2L && viable && favorable) {
-    if (isFALSE(fits("DBBD", n_tasks))) {
+    if (isFALSE(.auto_fits("DBBD", n_tasks, mem, plain_size, condensed, th, limit))) {
       d$dbbd_memory_blocked <- TRUE
     } else {
       d$method <- "DBBD"
@@ -204,8 +157,8 @@
     d$dbbd_hint <- TRUE
   }
   if (identical(d$method, "LU")) {
-    est("LU", 1L)
+    .auto_est("LU", 1L, mem, plain_size, condensed, th)
   }
-  decision <- finish(d)
+  decision <- .auto_finish(d, mem)
   return(decision)
 }

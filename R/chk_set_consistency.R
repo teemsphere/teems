@@ -1,4 +1,5 @@
 #' @importFrom purrr map2_lgl
+#' @importFrom cli cli_inform
 #' @keywords internal
 #' @noRd
 .check_set_consistency <- function(bin_sets,
@@ -24,7 +25,7 @@
   )
   if (!all(same)) {
     bad_sets <- toupper(bin_sets$setname[!same])
-    cli::cli_inform("Sets whose parsed elements differ from the solver's: {.val {bad_sets}}.")
+    cli::cli_inform(compose_err$set_diff)
     .cli_action(compose_err$set_mismatch,
       action = "abort",
       call = call,

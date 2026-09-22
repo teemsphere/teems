@@ -1,4 +1,3 @@
-# factor := ['+'|'-'] (NUMBER | ELEMENT | ref | sum | '(' expr ')' | '[' expr ']')
 #' @keywords internal
 #' @noRd
 .pe_factor <- function(st, var_lookup) {
@@ -29,7 +28,7 @@
   }
 
   if (is.na(tok)) {
-    stop("unexpected end of expression", call. = FALSE)
+    stop(model_err$linear_reason$unexpected_end, call. = FALSE)
   }
 
   if (grepl("^\"", tok) || grepl("^[0-9.]", tok)) {
@@ -39,7 +38,7 @@
   }
 
   if (!.is_ident(tok)) {
-    stop(paste0("unexpected token `", tok, "`"), call. = FALSE)
+    stop(sprintf(model_err$linear_reason$unexpected_token, tok), call. = FALSE)
   }
 
   .adv(st)
@@ -49,16 +48,13 @@
     close <- ifelse(open %=% "{", "}", ")")
     idx <- .adv(st)
     if (!.is_ident(idx)) {
-      stop("malformed sum index", call. = FALSE)
+      stop(model_err$linear_reason$sum_index, call. = FALSE)
     }
     .expect(st, ",")
     set <- .adv(st)
     if (!.is_ident(set)) {
-      stop("malformed sum set", call. = FALSE)
+      stop(model_err$linear_reason$sum_set, call. = FALSE)
     }
-    # `sum{j,S: COND, expr}` -- the condition ranges over set elements
-    # only (11.9), so substitution never touches it: it is captured
-    # verbatim and serialized back onto the sum it came from
     cond <- .pe_sum_cond(st)
     .expect(st, ",")
     node <- .pe_expr(st, var_lookup)
@@ -75,10 +71,6 @@
     return(node)
   }
 
-  # TABLO takes `(` and `]` as interchangeable with `[` and `)`, in a
-  # reference's arguments as much as in a grouping: GTAP-E writes the
-  # intrinsic as ID01[VXW(c,r)]. The brackets actually used are kept so
-  # a coefficient factor serializes back as it was written.
   args <- NULL
   open <- "("
   if (.pk(st) %in% c("(", "[")) {
@@ -103,8 +95,7 @@
   for (a in args) {
     arg_idents <- .expr_idents(a)
     if (any(tolower(arg_idents) %in% names(var_lookup))) {
-      stop(paste0("variable reference inside the arguments of `", tok, "`"),
-           call. = FALSE)
+      stop(sprintf(model_err$linear_reason$var_in_args, tok), call. = FALSE)
     }
   }
   node <- .coeff_node(paste0(tok, open, paste(args, collapse = ","), close))

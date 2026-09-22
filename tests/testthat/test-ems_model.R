@@ -1126,6 +1126,21 @@ test_that("ems_model rejects a reused backsolve equation", {
   )
 })
 
+test_that("a backsolve equation the condensation parser cannot read aborts with the reason", {
+  parse_graft <- paste(
+    "Variable (all,r,REG)(all,t,ALLTIME) tvn(r,t) # parse test var #;",
+    "Variable (all,r,REG)(all,t,ALLTIME) tvq(r,t) # parse test var #;",
+    "Equation E_tn (all,r,REG)(all,t,ALLTIME) tvn(r,t) = pop(r,t) * pop(r,t);",
+    "Equation E_tq (all,r,REG: POP(r) > 0)(all,t,ALLTIME) tvq(r,t) = pop(r,t);",
+    sep = "\n"
+  )
+  parse_model <- write_modified_model(model_file, parse_graft)
+  # a side that is not linear in the variables
+  expect_snapshot_error(ems_model(parse_model, closure_file, backsolve = c(tvn = "E_tn")))
+  # a conditional quantifier
+  expect_snapshot_error(ems_model(parse_model, closure_file, backsolve = c(tvq = "E_tq")))
+})
+
 test_that("backsolve rule violations abort (GEMPACK 14.1.10)", {
   rule_graft <- paste(
     "Variable (all,r,REG)(all,t,ALLTIME) tvr(r,t) # rule test var #;",

@@ -240,6 +240,50 @@ test_that("solve_in_situ errors when input file is without name", {
   ))
 })
 
+test_that("solve_in_situ errors when an input file does not exist", {
+  pop <- ems_uniform_shock("pop", 1)
+  subdir <- "absent_file"
+  nest_temp(subdir, write_dir)
+  cmf_path <- ems_deploy(dat, model)
+
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
+  GTAPDATA <- file.path(insitu_dir, "GTAPDATA.txt")
+  GTAPINT <- file.path(insitu_dir, "GTAPINT.txt")
+  GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
+  shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
+
+  expect_snapshot_error(solve_in_situ(
+    GTAPDATA = GTAPDATA,
+    GTAPINT = GTAPINT,
+    GTAPPARM = "not_a_file.txt",
+    GTAPSETS = GTAPSETS,
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    model_dir = insitu_dir,
+    shock_file = shock_file
+  ))
+})
+
+test_that("solve_in_situ errors when no input files are given", {
+  expect_snapshot_error(solve_in_situ(
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    model_dir = write_dir,
+    shock_file = "shock.shf"
+  ))
+})
+
+test_that("solve_in_situ errors when ignore_condense is not a single TRUE or FALSE", {
+  expect_snapshot_error(solve_in_situ(
+    GTAPDATA = "GTAPDATA.txt",
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    model_dir = write_dir,
+    shock_file = "shock.shf",
+    ignore_condense = NA
+  ))
+})
+
 test_that("solve_in_situ example works", {
   pop <- ems_uniform_shock("pop", 1)
   subdir <- "example"

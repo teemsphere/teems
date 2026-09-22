@@ -160,6 +160,64 @@ test_that("ems_compose examples run", {
   expect_equal(names(outputs$dat), c("qfd", "EVFP"))
 })
 
+test_that("time steps read from the deploy metadata match the solver's timestep coefficient", {
+  paths <- .get_output_paths(cmf_path = cmf_path)
+  from_metadata <- .get_timesteps(
+    paths = paths, cmf_path = cmf_path,
+    timestep_header = .o_timestep_header(), call = NULL
+  )
+  # a deployment written before the metadata carried them falls back to
+  # the coefficient the solver wrote out
+  legacy <- readRDS(paths$metadata)
+  legacy$time_steps <- NULL
+  paths$metadata <- withr::local_tempfile(fileext = ".rds")
+  saveRDS(legacy, paths$metadata)
+  from_coefficient <- .get_timesteps(
+    paths = paths, cmf_path = cmf_path,
+    timestep_header = .o_timestep_header(), call = NULL
+  )
+  expect_equal(from_metadata, from_coefficient, ignore_attr = TRUE)
+  expect_equal(from_metadata$CYRS - from_metadata$CYRS[1], c(0, 1, 2))
+})
+
+test_that("a run without a coefficient dump or CSVs warns and returns variables only", {
+  # a static run: an intertemporal one reads its time steps from the
+  # coefficient outputs and cannot compose without them
+  static_files <- ems_example("GTAPv7", ems_test_dir(write_dir, "no_coeff_model"))
+  static_dat <- ems_data(
+    dat_input,
+    par_input,
+    set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
+  nest_temp("no_coeff", write_dir)
+  static_cmf <- ems_deploy(static_dat, static_model)
+  withr::defer(ems_option_set(tempdir = write_dir))
+  ems_solve(static_cmf, suppress_outputs = TRUE)
+  run_dir <- dirname(static_cmf)
+  unlink(file.path(run_dir, "out", "variables", "bin", c("sol.cof", "sol.cbin")))
+  unlink(file.path(run_dir, "out", "coefficients"), recursive = TRUE)
+  expect_snapshot_warning(result <- ems_compose(static_cmf))
+  expect_setequal(result$type, "variable")
+})
+
+test_that("an intertemporal run without coefficient outputs still composes its variables over time", {
+  # the run directory is not used again: the next test removes its outputs
+  unlink(file.path(write_dir, "out", "variables", "bin", c("sol.cof", "sol.cbin")))
+  unlink(file.path(write_dir, "out", "coefficients"), recursive = TRUE)
+  expect_warning(
+    result <- ems_compose(cmf_path),
+    "No coefficient outputs found for this run",
+    fixed = TRUE
+  )
+  expect_setequal(result$type, "variable")
+  expect_equal(nrow(result), n_var)
+  expect_true("Year" %in% names(result$dat$qfd))
+})
+
 test_that("ems_compose errors when model run has not taken place", {
   unlink(file.path(write_dir, "out"), recursive = TRUE)
   expect_snapshot(ems_compose(cmf_path),

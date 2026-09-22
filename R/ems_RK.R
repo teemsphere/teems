@@ -1,3 +1,4 @@
+#' @importFrom rlang arg_match
 #' @title Solve a model with a Runge-Kutta method
 #' @export
 #' @description A Runge-Kutta front end for [`ems_solve()`]: the same
@@ -147,5 +148,8 @@ ems_RK <- function(cmf_path,
     rk_guard = guard,
     ...
   )
+  if (is.null(sol)) {
+    return(invisible(NULL))
+  }
   return(sol)
 }

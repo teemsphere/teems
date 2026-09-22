@@ -1,4 +1,5 @@
-#' @importFrom graphics par barplot title
+#' @importFrom graphics par barplot title plot.new
+#' @importFrom utils head
 #' @keywords internal
 #' @noRd
 .probe_plot_cores <- function(x) {
@@ -24,16 +25,16 @@
         ""
       },
       col = "gray55", border = NA,
-      xlab = "simultaneous cores", ylab = "core size (rows)",
+      xlab = probe_info$plot$cores_xlab, ylab = probe_info$plot$cores_ylab,
       main = sprintf(
-        "%d cores > 1 element; %d recursive rows",
+        probe_info$plot$cores_main,
         sum(nontriv$count), singletons
       ),
       cex.main = 0.85
     )
   } else {
     graphics::plot.new()
-    graphics::title(main = "no simultaneous cores: fully recursive system",
+    graphics::title(main = probe_info$plot$cores_none,
       cex.main = 0.85
     )
   }
@@ -48,7 +49,7 @@
     cols <- rep("gray35", length(heights))
     if (other > 0) {
       heights <- c(heights, other)
-      labels <- c(labels, sprintf("(+%d eqs)", NROW(eqs) - NROW(shown)))
+      labels <- c(labels, sprintf(probe_info$plot$core_other, NROW(eqs) - NROW(shown)))
       cols <- c(cols, "gray75")
     }
     graphics::barplot(
@@ -56,13 +57,13 @@
       names.arg = rev(labels),
       horiz = TRUE, las = 1, col = rev(cols), border = NA,
       cex.names = 0.65,
-      xlab = "rows in the largest core",
-      main = sprintf("largest core: %d rows", top$size[[1]]),
+      xlab = probe_info$plot$core_xlab,
+      main = sprintf(probe_info$plot$core_main, top$size[[1]]),
       cex.main = 0.85
     )
   } else {
     graphics::plot.new()
-    graphics::title(main = "no core composition recorded", cex.main = 0.85)
+    graphics::title(main = probe_info$plot$core_none, cex.main = 0.85)
   }
   return(invisible(NULL))
 }

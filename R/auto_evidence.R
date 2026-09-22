@@ -1,19 +1,24 @@
-#' @description One-line evidence string for the auto message.
+#' @keywords internal
+#' @noRd
+.fmt <- function(x) {
+  txt <- format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
+  return(txt)
+}
+
+#' @keywords internal
+#' @noRd
+.pct <- function(x) {
+  txt <- paste0(format(round(100 * x, 1), nsmall = 1, trim = TRUE), "%")
+  return(txt)
+}
+
 #' @keywords internal
 #' @noRd
 .auto_evidence <- function(d) {
-  fmt <- function(x) {
-    txt <- format(x, big.mark = ",", scientific = FALSE, trim = TRUE)
-    return(txt)
-  }
-  pct <- function(x) {
-    txt <- paste0(format(round(100 * x, 1), nsmall = 1, trim = TRUE), "%")
-    return(txt)
-  }
   size <- if (is.na(d$system_size)) {
     "unknown size"
   } else {
-    paste(fmt(d$system_size), "equations")
+    paste(.fmt(d$system_size), "equations")
   }
   if (isTRUE(d$condensed)) {
     size <- paste(size, "(condensed)")
@@ -41,7 +46,7 @@
       if (is.na(p$border_share)) {
         "n/a"
       } else {
-        pct(p$border_share)
+        .pct(p$border_share)
       }, ")"
     )
   }
@@ -49,11 +54,11 @@
     ""
   } else if (isTRUE(d$lu_excluded)) {
     paste0(
-      ", LU excluded (projected MA48 workspace ", fmt(round(d$lu_ceiling$projected)),
-      " > 32-bit ceiling ", fmt(d$lu_ceiling$ceiling), ")"
+      ", LU excluded (projected MA48 workspace ", .fmt(round(d$lu_ceiling$projected)),
+      " > 32-bit ceiling ", .fmt(d$lu_ceiling$ceiling), ")"
     )
   } else {
-    paste0(", LU workspace ", pct(d$lu_ceiling$share), " of the 32-bit ceiling")
+    paste0(", LU workspace ", .pct(d$lu_ceiling$share), " of the 32-bit ceiling")
   }
   evidence <- paste0(size, ", ", chain, ", ", part, ", n_tasks ", d$n_tasks, ceil)
   return(evidence)

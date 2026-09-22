@@ -300,6 +300,14 @@ test_that("ems_deploy errors when aggregated inputs are incomplete", {
   expect_snapshot_error(ems_deploy(mod_data, model))
 })
 
+test_that("ems_deploy without a shock announces the null shock", {
+  nest_temp("null_shock", write_dir)
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- capture_messages(ems_deploy(dat, model))
+  expect_match(msgs, "No shock has been provided", fixed = TRUE, all = FALSE)
+})
+
 test_that("ems_deploy accepts a shock file", {
   shock <- "Shock pfactwld(ALLTIME) = uniform 1;\n"
   temp <- tempfile(tmpdir = temp_dir, fileext = ".shf")

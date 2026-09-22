@@ -1,24 +1,30 @@
 #' @importFrom data.table fread data.table setnames
 #' @importFrom tools file_path_sans_ext
-#' 
 #' @keywords internal
 #' @noRd
 .get_timesteps <- function(paths,
                            cmf_path,
                            timestep_header,
                            call) {
-  t0 <- readRDS(paths$metadata)$reference_year
-  
+  metadata <- readRDS(paths$metadata)
+  t0 <- metadata$reference_year
+
+  if (!is.null(metadata$time_steps)) {
+    timesteps <- data.table::data.table(metadata$time_steps)
+    data.table::setnames(timesteps, timestep_header)
+    timesteps[, let(CYRS = t0 + unlist(timesteps))]
+    timesteps[, let(all_time = seq(0, nrow(timesteps) - 1))]
+    return(timesteps)
+  }
+
   model <- .process_tablo(
     tab_file = paths$tab,
     quiet = TRUE,
     call = call
   )
-  
+
   timestep_coeff <- model$name[match(.o_timestep_header(), model$header)]
 
-  # the timestep coefficient's values: from the solver's binary
-  # coefficient dump when present, else its Write CSV
   sol_prefix <- file.path(dirname(cmf_path), "out", "variables", "bin", "sol.")
   if (.has_coefficient_dump(sol_prefix)) {
     cof <- .parse_coefficient_bins(

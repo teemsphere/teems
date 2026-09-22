@@ -1,17 +1,20 @@
 #' @keywords internal
 #' @noRd
+.decl_name <- function(kind, model, typ) {
+  n <- model$name[typ == kind]
+  n <- n[!is.na(n) & grepl("^[A-Za-z]", n)]
+  return(n)
+}
+
+#' @keywords internal
+#' @noRd
 .chk_tab_names <- function(model,
                            call) {
   typ <- tolower(model$type)
-  decl_name <- function(kind) {
-    n <- model$name[typ == kind]
-    n <- n[!is.na(n) & grepl("^[A-Za-z]", n)]
-    return(n)
-  }
-  coef <- decl_name("coefficient")
-  var <- decl_name("variable")
-  set <- decl_name("set")
-  map <- decl_name("mapping")
+  coef <- .decl_name("coefficient", model, typ)
+  var <- .decl_name("variable", model, typ)
+  set <- .decl_name("set", model, typ)
+  map <- .decl_name("mapping", model, typ)
 
   coef_l <- tolower(coef)
   var_l <- tolower(var)
@@ -88,10 +91,6 @@
     )
   }
 
-  # coefficient X + variable p_X/c_X is the supported hand-linearized
-  # pair idiom since the solver's section-6 naming resolution (GTAP-AEZ
-  # YIELD/p_YIELD); the genuine ambiguity is variable X + variable
-  # p_X/c_X coexisting -- the reference token p_X cannot be resolved
   pre <- var_l[grepl("^[pc]_", var_l)]
   base <- substring(pre, 3)
   hit <- base %in% var_l
@@ -114,11 +113,6 @@
     )
   }
 
-  # C0/C1a levels: p_-leading levels names are carried by the solver's
-  # gen_lv pair rename; c_-leading names stay fatal -- the solver
-  # preprocess folds their value references into p_ column references
-  # on equation/update lines before the rename can see them (solver
-  # fatal mirrored here)
   lev <- typ == "variable" & !is.na(model$qualifier_list) &
     grepl("\\blevels\\b", model$qualifier_list, ignore.case = TRUE)
   bad_lev <- lev & grepl("^c_", tolower(model$name))

@@ -20,9 +20,6 @@
                                      verbosity,
                                      suppress_outputs,
                                      terminal_run,
-                                     assertions,
-                                     range_test_initial,
-                                     range_test_updated,
                                      complementarity,
                                      solver_args,
                                      call) {
@@ -36,7 +33,6 @@
     call = call
   )
   
-  # splice the named solver extras into the ems_solve dots
   sol <- do.call(ems_solve, c(
     list(
       cmf_path = cmf_path,
@@ -54,12 +50,12 @@
       verbosity = verbosity,
       suppress_outputs = suppress_outputs,
       terminal_run = terminal_run,
-      assertions = assertions,
-      range_test_initial = range_test_initial,
-      range_test_updated = range_test_updated,
       complementarity = complementarity
     ),
     solver_args
   ))
+  if (is.null(sol)) {
+    return(invisible(NULL))
+  }
   return(sol)
 }

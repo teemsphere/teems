@@ -366,13 +366,17 @@ test_that("ems_data examples work", {
 
 test_that("ems_data prepares a GTAP-AEZ database in place", {
   skip_if(!nzchar(Sys.getenv("GTAP12AEZ_dat")), "GTAP12AEZ_* inputs not set")
-  aez <- ems_data(
+  # loaded with verbose on: the layer announces itself
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- capture_messages(aez <- ems_data(
     dat_input = Sys.getenv("GTAP12AEZ_dat"),
     par_input = Sys.getenv("GTAP12AEZ_par"),
     set_input = Sys.getenv("GTAP12AEZ_set"),
     REG = "big3",
     ACTS = "macro_sector"
-  )
+  ))
+  expect_match(msgs, "GTAP-AEZ layer detected", fixed = TRUE, all = FALSE)
   expect_true(isTRUE(attr(aez, "metadata")$aez))
   # the disaggregated activity set and its mapping header stay at
   # source resolution; the mapping composes onto ACTS at deploy
@@ -387,13 +391,17 @@ test_that("ems_data prepares a GTAP-AEZ database in place", {
 
 test_that("ems_data prepares a GTAP-E database in place", {
   skip_if(!nzchar(Sys.getenv("GTAP12E_dat")), "GTAP12E_* inputs not set")
-  e <- ems_data(
+  # loaded with verbose on: the layer announces itself
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- capture_messages(e <- ems_data(
     dat_input = Sys.getenv("GTAP12E_dat"),
     par_input = Sys.getenv("GTAP12E_par"),
     set_input = Sys.getenv("GTAP12E_set"),
     REG = "big3",
     ACTS = "energy"
-  )
+  ))
+  expect_match(msgs, "GTAP-E layer detected", fixed = TRUE, all = FALSE)
   md <- attr(e, "metadata")
   expect_true(isTRUE(md[["e"]]))
   expect_null(md[["ep"]])
@@ -416,13 +424,17 @@ test_that("ems_data prepares a GTAP-E database in place", {
 
 test_that("ems_data prepares a GTAP-Power database in place", {
   skip_if(!nzchar(Sys.getenv("GTAP12P_dat")), "GTAP12P_* inputs not set")
-  ep <- ems_data(
+  # loaded with verbose on: the layer announces itself
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- capture_messages(ep <- ems_data(
     dat_input = Sys.getenv("GTAP12P_dat"),
     par_input = Sys.getenv("GTAP12P_par"),
     set_input = Sys.getenv("GTAP12P_set"),
     REG = "big3",
     ACTS = "power"
-  )
+  ))
+  expect_match(msgs, "GTAP-Power layer detected", fixed = TRUE, all = FALSE)
   md <- attr(ep, "metadata")
   expect_true(isTRUE(md[["ep"]]))
   expect_null(md[["e"]])

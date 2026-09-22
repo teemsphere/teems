@@ -29,9 +29,9 @@ None have any R plumbing.
 
 | Statement | Parser | Default | Meaning | Disposition |
 |---|---|---|---|---|
-| ~~`Assertions = …`~~ | REMOVED c099d5f | fatal | now `-assertions 0\|1\|2` | **DONE**: `ems_solve(assertions = "fatal"\|"warn"\|"off")`; recorded |
-| ~~`range test initial values = …`~~ | REMOVED c099d5f | warn | now `-range_test_initial 0\|1\|2` | **DONE**: `ems_solve(range_test_initial = )`; recorded |
-| ~~`range test updated values = …`~~ | REMOVED c099d5f | warn | now `-range_test_updated 0\|1\|2` | **DONE**: `ems_solve(range_test_updated = )`; recorded |
+| ~~`Assertions = …`~~ | REMOVED c099d5f | fatal | now `-assertions 0\|1\|2` | **DONE**: `ems_option_set(assertions = "fatal"\|"warn"\|"off")`; recorded |
+| ~~`range test initial values = …`~~ | REMOVED c099d5f | warn | now `-range_test_initial 0\|1\|2` | **DONE**: `ems_option_set(range_test_initial = )`; recorded |
+| ~~`range test updated values = …`~~ | REMOVED c099d5f | warn | now `-range_test_updated 0\|1\|2` | **DONE**: `ems_option_set(range_test_updated = )`; recorded |
 | ~~`postsim = yes\|no ;`~~ | REMOVED c099d5f | yes | now `-postsim 0\|1` | **DONE**: `ems_solve(postsim = )`; recorded |
 | ~~`complementarity …` (six statements)~~ | REMOVED 09bf33b | — | now `-comp_steps`/`-comp_redo`/`-comp_redo_min_frac`/`-comp_do_approx`/`-comp_do_acc`/`-comp_sberr_warn` CLI flags | **DONE**: `ems_complementarity()` → `ems_solve(complementarity = )`; effective values recorded in stats.json + model_diagnostics.txt |
 

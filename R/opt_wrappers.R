@@ -21,6 +21,13 @@
 
 #' @noRd
 #' @keywords internal
+.o_accuracy_threshold <- function() {
+  accuracy_threshold <- ems_option_get("accuracy_threshold")
+  return(accuracy_threshold)
+}
+
+#' @noRd
+#' @keywords internal
 .o_check_shock_status <- function() {
   shock_status <- ems_option_get("check_shock_status")
   return(shock_status)
@@ -49,14 +56,35 @@
 
 #' @noRd
 #' @keywords internal
-.o_accuracy_threshold <- function() {
-  accuracy_threshold <- ems_option_get("accuracy_threshold")
-  return(accuracy_threshold)
+.o_docker_tag <- function() {
+  docker_tag <- ems_option_get("docker_tag")
+  return(docker_tag)
 }
 
 #' @noRd
 #' @keywords internal
-.o_write_sub_dir <- function() {
-  sub_dir <- ems_option_get("write_sub_dir")
-  return(sub_dir)
+.o_version_check <- function() {
+  version_check <- ems_option_get("version_check")
+  return(version_check)
+}
+
+#' @noRd
+#' @keywords internal
+.o_assertions <- function() {
+  assertions <- ems_option_get("assertions")
+  return(assertions)
+}
+
+#' @noRd
+#' @keywords internal
+.o_range_test_initial <- function() {
+  range_test_initial <- ems_option_get("range_test_initial")
+  return(range_test_initial)
+}
+
+#' @noRd
+#' @keywords internal
+.o_range_test_updated <- function() {
+  range_test_updated <- ems_option_get("range_test_updated")
+  return(range_test_updated)
 }

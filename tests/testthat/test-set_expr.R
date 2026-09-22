@@ -194,3 +194,23 @@ test_that("set products reject duplicate element names", {
     "duplicate element name"
   )
 })
+
+test_that("set definitions that never resolve abort by name", {
+  sets <- list(REG = data.table::data.table(
+    origin = c("a", "b"), mapping = c("a", "b"),
+    key = c("origin", "mapping")
+  ))
+  set_extract <- tibble::tibble(
+    name = c("REG", "A", "B"),
+    header = c("REG", NA, NA),
+    qualifier_list = NA_character_,
+    definition = list(REG = NA, A = "= B + REG", B = "= A - REG")
+  )
+  expect_snapshot_error(
+    .finalize_sets(
+      sets = sets, set_extract = set_extract, coeff_extract = NULL,
+      time_steps = NULL, reference_year = NULL,
+      call = NULL, data_call = NULL, model_call = NULL
+    )
+  )
+})

@@ -89,6 +89,15 @@
   }
 
   if (any(grepl(pattern = "singular", scan_log, ignore.case = TRUE))) {
+    viol_lines <- grep("has an updated value", scan_log, value = TRUE, fixed = TRUE)
+    if (length(viol_lines) > 0L) {
+      n_viol <- length(viol_lines)
+      first_viol <- sub(".*: coefficient ", "", viol_lines[1])
+      .cli_action(solve_err$solution_sing_range,
+        action = c("abort", "inform", "inform", "inform"),
+        call = call
+      )
+    }
     .cli_action(solve_err$solution_sing,
       action = c("abort", "inform", "inform"),
       call = call

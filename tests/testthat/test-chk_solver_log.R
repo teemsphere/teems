@@ -166,6 +166,35 @@ test_that("singularity without Error lines routes to the probe hint", {
   )
   expect_error(check_log(paths), "Singularity detected")
   expect_error(check_log(paths), "ems_probe")
+  expect_error(check_log(paths), "structurally deficient closure")
+})
+
+test_that("singularity after updated range violations routes to the shock-size hint", {
+  paths <- local_solver_log(c(
+    "Warning: coefficient vxsb has a value below its declared lower bound 0.000000",
+    "LU time 0.10",
+    "Warning: coefficient vfob has an updated value below its declared lower bound 0.000000",
+    "Warning: coefficient evfp has an updated value below its declared lower bound 0.000000",
+    "MA48: the matrix is singular at step 52"
+  ))
+  expect_error(check_log(paths), "Singularity detected")
+  expect_error(check_log(paths), "2 updated-value range warnings")
+  expect_error(check_log(paths), "first: coefficient vfob has an updated value")
+  expect_error(check_log(paths), "n_subintervals")
+  expect_error(check_log(paths), "DoPri54")
+  expect_error(check_log(paths), "ems_probe")
+  expect_no_error(tryCatch(check_log(paths), error = \(e) {
+    expect_false(grepl("structurally deficient", conditionMessage(e)))
+    NULL
+  }))
+})
+
+test_that("initial-data range warnings alone keep the structural singularity hint", {
+  paths <- local_solver_log(c(
+    "Warning: coefficient vxsb has a value below its declared lower bound 0.000000",
+    "MA48: the matrix is singular at step 1"
+  ))
+  expect_error(check_log(paths), "structurally deficient closure")
 })
 
 test_that("cli braces in solver output do not break glue rendering", {
@@ -197,15 +226,17 @@ test_that(".map_solver_errors classifies representative catalog lines", {
     "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
     "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)",
     "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters",
-    "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)"
+    "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)",
+    "coefficient vxsb has an updated value at or below its declared strict lower bound 0.000000"
   ))
   expect_identical(
     mapped$class,
     c(
       "tab", "tab", "tab", "tab", "tab", "tab", "tab",
-      "closure", "numeric", "numeric", "tab", "tab"
+      "closure", "numeric", "numeric", "tab", "tab", "numeric"
     )
   )
+  expect_identical(mapped$manual[13], "25.4.4")
   expect_identical(mapped$manual[1], "11.2.1")
   expect_identical(mapped$manual[9], "10.11.1")
 })

@@ -56,6 +56,7 @@
     laDi = v$laDi,
     extra_flags = .extra_cli_flags(v)
   )
+  .clear_solution_files(run_dir = paths$run)
 
   if (isFALSE(cmds)) {
     return(invisible(NULL))

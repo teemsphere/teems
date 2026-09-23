@@ -866,6 +866,10 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   # the exogenous shock identity survives the RK integration
   expect_equal(unique(round(dopri$dat[["aoall"]]$Value, 6)), 5)
   expect_lt(rk_metric(gragg, dopri), 2e-3)
+  # a non-embedded re-solve in the same directory must not inherit the
+  # embedded run's estimate file
+  gragg_again <- ems_solve(cmf_path, solution_method = "Gragg")
+  expect_false("error_estimate" %in% colnames(gragg_again$dat[["qgdp"]]))
 })
 
 test_that("GTAPv6 in-TAB condensation solves equivalently to the full system", {

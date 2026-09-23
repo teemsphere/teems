@@ -139,6 +139,13 @@ build_solve_err <- function() {
       "A square-but-singular system usually indicates a structurally deficient closure partition.",
       "Run {.fun teems::ems_probe} on the deployed model for a named structural diagnosis."
     ),
+    # test-chk_solver_log.R: "singularity after updated range violations routes to the shock-size hint"
+    solution_sing_range = c(
+      "Singularity detected during solution. See {.path {paths$diag_out}}.",
+      "{n_viol} updated-value range warning{?s} preceded it (first: coefficient {first_viol}): the shock is too large for the step schedule, so data flows crossed their declared bounds and the system degenerated.",
+      "Raise {.arg n_subintervals}, switch to {.code solution_method = \"DoPri54\"} (adaptive, keeps levels positive), or use {.code solution_method = \"Euler\"} for severe shocks.",
+      "If the closure is in doubt, run {.fun teems::ems_probe} on the deployed model for a named structural diagnosis."
+    ),
     # test-chk_solver_log.R: "condest near-singularity warns without aborting the run"
     # (the run completed; the verdict is the modeller's to act on)
     condest_nearsing = c(

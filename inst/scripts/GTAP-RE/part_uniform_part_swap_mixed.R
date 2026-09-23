@@ -21,7 +21,7 @@ partial <- ems_uniform_shock(
   var = "qfd",
   REGr = "usa",
   ACTSa = "crops",
-  value = -1
+  value = -0.1
 )
 
 # define a uniform shock across all yp elements
@@ -63,7 +63,7 @@ outputs <- ems_solve(
 
 # checks
 # multi-step solutions carry rounding, so values are compared within a tolerance
-exo_shk1 <- abs(outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value + 1) < 1e-6
+exo_shk1 <- abs(outputs$dat$qfd[REGr == "usa" & ACTSa == "crops"]$Value + 0.1) < 1e-6
 endo1 <- outputs$dat$qfd[!(REGr == "usa" & ACTSa == "crops")]$Value != 0
 endo2 <- outputs$dat$tfd[REGr == "usa" & ACTSa == "crops"]$Value != 0
 exo_null <- abs(outputs$dat$tfd[!(REGr == "usa" & ACTSa == "crops")]$Value) < 1e-6

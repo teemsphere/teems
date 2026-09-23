@@ -19,7 +19,7 @@ partial <- ems_uniform_shock(
   var = "qfd",
   REGs = c("usa", "chn"),
   PROD_COMMj = "TRAD_COMM",
-  value = -0.5
+  value = -0.1
 )
 
 # prepare a partial closure swap making qfd subset exogenous
@@ -54,7 +54,7 @@ outputs <- ems_solve(
 
 # checks
 # multi-step solutions carry rounding, so values are compared within a tolerance
-exo_shk <- abs(outputs$dat$qfd[(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value + 0.5) < 1e-6
+exo_shk <- abs(outputs$dat$qfd[(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value + 0.1) < 1e-6
 endo1 <- outputs$dat$qfd[!(REGs %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
 endo2 <- outputs$dat$tfd[(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value != 0
 exo_null <- abs(outputs$dat$tfd[!(REGr %in% c("usa", "chn") & PROD_COMMj != "cgds")]$Value) < 1e-6

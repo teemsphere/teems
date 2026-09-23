@@ -127,6 +127,7 @@
                                      ...) {
   
   call <- attr(raw_shock, "call")
+  single_ele <- FALSE
   if (attr(raw_shock, "full_var")) {
     if (.o_check_shock_status()) {
       full_vars <- purrr::map_chr(closure[purrr::map_lgl(closure, inherits, "full")], attr, "var_name")
@@ -153,6 +154,7 @@
       shock_LHS[r_idx] <- ifelse(!ss,
                                  paste0('"', raw_shock$subset, '"'),
                                  raw_shock$subset)
+      single_ele <- length(r_idx) %=% length(raw_shock$ls_upper) && !any(ss)
       shock_LHS <- paste0(raw_shock$var, "(", paste0(shock_LHS, collapse = ","), ")")
     } else {
       shock_LHS <- raw_shock$var
@@ -199,7 +201,11 @@
     }
   }
 
-  shock_RHS <- paste("=", "uniform", paste0(raw_shock$input, ";", "\n"))
+  shock_RHS <- if (single_ele) {
+    paste("=", paste0(raw_shock$input, ";", "\n"))
+  } else {
+    paste("=", "uniform", paste0(raw_shock$input, ";", "\n"))
+  }
   shock <- list(shock = paste("Shock", shock_LHS, shock_RHS))
   shock <- structure(shock,
     class = class(raw_shock),

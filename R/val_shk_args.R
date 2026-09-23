@@ -11,12 +11,12 @@
                                     call) {
   checklist <- list(
     var = "character",
-    input = "numeric",
+    value = "numeric",
     subset = c("logical", "list")
   )
 
   .check_arg_class(
-    args_list = shock,
+    args_list = list(var = shock$var, value = shock$input, subset = shock$subset),
     checklist = checklist,
     call = call
   )

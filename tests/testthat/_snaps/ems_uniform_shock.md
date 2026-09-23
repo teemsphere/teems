@@ -12,7 +12,7 @@
 
 # ems_uniform_shock errors when value is not numeric
 
-    x `input` must be a numeric, not a string.
+    x `value` must be a numeric, not a string.
 
 # ems_uniform_shock errors when variable is not present in the model file
 

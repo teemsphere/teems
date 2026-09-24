@@ -16,5 +16,5 @@
 
 # ems_example errors when type is scripts and an input is missing
 
-    x `dat_input`, `par_input`, and `set_input` must be provided when `type` is "scripts".
+    x `dat_input` (with `par_input` and `set_input` for a GTAP database) must be provided when `type` is "scripts".
 

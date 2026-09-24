@@ -26,6 +26,9 @@ core (requires a GTAP-E database)
 \item \code{"GTAP-EP"}: GTAP-E with the GTAP-Power electricity
 technologies (requires a GTAP-Power database)
 \item \code{"GTAPv6"}: Classic GTAP model
+\item \code{"ORANI-G"}: ORANI-G single-country model (2013 edition,
+requires its \code{basedata.har}; the short-run closure is
+returned, the long-run closure ships beside it)
 }}
 
 \item{path}{Character vector of length 1. Directory where
@@ -37,7 +40,9 @@ include:
 \itemize{
 \item \code{"model_files"}: Model file and closure file
 \item \code{"scripts"}: Example scripts for the chosen \code{model}.
-\code{dat_input}, \code{par_input}, and \code{set_input} are required.
+\code{dat_input}, \code{par_input}, and \code{set_input} are required for
+the GTAP models; a single-file model (ORANI-G) takes
+\code{dat_input} alone.
 }}
 
 \item{dat_input}{Character vector of length 1 (default is
@@ -112,6 +117,12 @@ ems_example(model = "GTAP-EP",
             dat_input = "power_data/gsdfdat.har",
             par_input = "power_data/gsdfpar.har",
             set_input = "power_data/gsdfset.har")
+
+# Generate ORANI-G example scripts from its single database file
+ems_example(model = "ORANI-G",
+            path = tempdir(),
+            type = "scripts",
+            dat_input = "oranig/basedata.har")
 
 # Generate GTAPv7 example scripts from a v6.2 format database
 converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",

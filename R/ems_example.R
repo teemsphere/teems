@@ -19,6 +19,9 @@
 #'   * `"GTAP-EP"`: GTAP-E with the GTAP-Power electricity
 #'     technologies (requires a GTAP-Power database)
 #'   * `"GTAPv6"`: Classic GTAP model
+#'   * `"ORANI-G"`: ORANI-G single-country model (2013 edition,
+#'     requires its `basedata.har`; the short-run closure is
+#'     returned, the long-run closure ships beside it)
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.
 #' @param type Character vector of length 1, (default is
@@ -26,7 +29,9 @@
 #'   include:
 #'   * `"model_files"`: Model file and closure file
 #'   * `"scripts"`: Example scripts for the chosen `model`.
-#'   `dat_input`, `par_input`, and `set_input` are required.
+#'   `dat_input`, `par_input`, and `set_input` are required for
+#'   the GTAP models; a single-file model (ORANI-G) takes
+#'   `dat_input` alone.
 #' @param dat_input Character vector of length 1 (default is
 #'   `NULL`, only used when `type = "scripts"`), file name in
 #'   working directory or path to a data input containing
@@ -87,6 +92,12 @@
 #'             dat_input = "power_data/gsdfdat.har",
 #'             par_input = "power_data/gsdfpar.har",
 #'             set_input = "power_data/gsdfset.har")
+#'
+#' # Generate ORANI-G example scripts from its single database file
+#' ems_example(model = "ORANI-G",
+#'             path = tempdir(),
+#'             type = "scripts",
+#'             dat_input = "oranig/basedata.har")
 #'
 #' # Generate GTAPv7 example scripts from a v6.2 format database
 #' converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",

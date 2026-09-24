@@ -4,9 +4,10 @@
                        path) {
   model_file <- paste0(model, ".tab")
   closure_file <- paste0(model, ".cls")
-  origin <- system.file(file.path("models", model, c(model_file, closure_file)),
-                        package = "teems",
-                        mustWork = TRUE)
+  model_dir <- system.file(file.path("models", model),
+                           package = "teems",
+                           mustWork = TRUE)
+  origin <- list.files(model_dir, full.names = TRUE)
   file.copy(
     from = origin,
     to = path,

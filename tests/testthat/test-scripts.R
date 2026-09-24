@@ -4,7 +4,8 @@ skip_on_cran()
 # database: the GTAPv7-format models (GTAPv7, GTAP-RE) on v11 and v12
 # natively and on v10 converted up; GTAPv6 on v10 natively and on v11
 # and v12 converted down; the layer models (GTAP-AEZ, GTAP-E, GTAP-EP)
-# on their own 12a databases, prepared by ems_data() on load.
+# on their own 12a databases, prepared by ems_data() on load; ORANI-G
+# on its single basedata.har through the single-file route.
 ems_option_set(verbose = FALSE)
 withr::defer(ems_option_reset(), teardown_env())
 
@@ -43,16 +44,23 @@ db_inputs <- list(
   ep = list(
     dat = Sys.getenv("GTAP12P_dat"), par = Sys.getenv("GTAP12P_par"),
     set = Sys.getenv("GTAP12P_set"), format = "GTAPv7", year = 2017
+  ),
+  # the ORANI-G single-file database (basedata.har of the 2013 kit)
+  orani = list(
+    dat = Sys.getenv("ORANIG_har"), par = NULL, set = NULL,
+    format = "generic", year = NA
   )
 )
 
 model_format <- c(
   GTAPv6 = "GTAPv6", GTAPv7 = "GTAPv7", "GTAP-RE" = "GTAPv7",
-  "GTAP-AEZ" = "GTAPv7", "GTAP-E" = "GTAPv7", "GTAP-EP" = "GTAPv7"
+  "GTAP-AEZ" = "GTAPv7", "GTAP-E" = "GTAPv7", "GTAP-EP" = "GTAPv7",
+  "ORANI-G" = "generic"
 )
 model_dbs <- list(
   GTAPv6 = c("v10", "v11", "v12"), GTAPv7 = c("v10", "v11", "v12"),
-  "GTAP-RE" = c("v10", "v11", "v12"), "GTAP-AEZ" = "aez", "GTAP-E" = "e", "GTAP-EP" = "ep"
+  "GTAP-RE" = c("v10", "v11", "v12"), "GTAP-AEZ" = "aez", "GTAP-E" = "e", "GTAP-EP" = "ep",
+  "ORANI-G" = "orani"
 )
 
 # the COMM elements of the "services" ACTS mapping, read by the k3/k4

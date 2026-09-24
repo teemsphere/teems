@@ -38,11 +38,8 @@
   a$path <- normalizePath(a$path, "/")
   
   if (a$type %=% "scripts") {
-    if (any(
-      is.null(a$dat_input),
-      is.null(a$par_input),
-      is.null(a$set_input)
-    )) {
+    if (is.null(a$dat_input) ||
+      xor(is.null(a$par_input), is.null(a$set_input))) {
       .cli_action(exp_err$missing_input,
         action = "abort",
         call = call

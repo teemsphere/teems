@@ -13,7 +13,7 @@
 #' @noRd
 .normalize_quantifier_spacing <- function(statements) {
   statements <- gsub(
-    "\\(\\s*all\\s*,\\s*([A-Za-z0-9_]+)\\s*,\\s*",
+    "\\(\\s*all\\s*,\\s*([A-Za-z0-9_@]+)\\s*,\\s*",
     "(all,\\1,",
     statements,
     ignore.case = TRUE,
@@ -46,7 +46,7 @@
         j <- j - 1L
       }
       k <- j
-      while (k >= 1L && grepl("[A-Za-z0-9_]", chars[k])) {
+      while (k >= 1L && grepl("[A-Za-z0-9_@]", chars[k])) {
         k <- k - 1L
       }
       word <- tolower(paste(chars[seq_len(j)][seq.int(k + 1L, length.out = j - k)], collapse = ""))
@@ -140,11 +140,11 @@
 #' @noRd
 .flatten_ranked_sets <- function(statements,
                                  call) {
-  pattern <- "^(\\s*set\\s+[A-Za-z0-9_]+\\s*(?:#[^#]*#)?\\s*=\\s*)([A-Za-z0-9_]+)\\s+ranked\\s+(?:up|down)\\s+by\\s+([A-Za-z0-9_]+)\\s*$"
+  pattern <- "^(\\s*set\\s+[A-Za-z0-9_@]+\\s*(?:#[^#]*#)?\\s*=\\s*)([A-Za-z0-9_@]+)\\s+ranked\\s+(?:up|down)\\s+by\\s+([A-Za-z0-9_@]+)\\s*$"
   hits <- grepl(pattern, statements, ignore.case = TRUE, perl = TRUE)
   if (any(hits)) {
     ranked_set <- purrr::map_chr(statements[hits], \(s) {
-      sub("^\\s*set\\s+([A-Za-z0-9_]+).*$", "\\1", s, ignore.case = TRUE)
+      sub("^\\s*set\\s+([A-Za-z0-9_@]+).*$", "\\1", s, ignore.case = TRUE)
     })
     rank_var <- sub(pattern, "\\3", statements[hits], ignore.case = TRUE, perl = TRUE)
     statements[hits] <- sub(pattern, "\\1\\2", statements[hits], ignore.case = TRUE, perl = TRUE)
@@ -156,62 +156,26 @@
   return(statements)
 }
 
-#' @importFrom purrr map_lgl
-#' @keywords internal
-#' @noRd
-.drop_at_element_sets <- function(statements,
-                                  call) {
-  is_set <- grepl("^\\s*set\\b", statements, ignore.case = TRUE)
-  has_at <- is_set & grepl("\\([^()]*@[^()]*\\)", statements)
-  if (!any(has_at)) {
-    return(statements)
-  }
-  drop <- logical(length(statements))
-  for (i in which(has_at)) {
-    set_name <- sub("^\\s*set\\s+([A-Za-z0-9_]+).*$", "\\1", statements[i], ignore.case = TRUE)
-    others <- gsub("#[^#]*#", "", statements[-i])
-    others <- others[!grepl("^\\s*write\\b", others, ignore.case = TRUE)]
-    referenced <- any(grepl(
-      paste0("(?<![A-Za-z0-9_])", set_name, "(?![A-Za-z0-9_])"),
-      others,
-      ignore.case = TRUE,
-      perl = TRUE
-    ))
-    if (referenced) {
-      .cli_action(model_err$set_ele_at_referenced,
-        action = "abort",
-        call = call
-      )
-    }
-    drop[i] <- TRUE
-  }
-  dropped_sets <- sub(
-    "^\\s*set\\s+([A-Za-z0-9_]+).*$", "\\1",
-    statements[drop],
-    ignore.case = TRUE
-  )
-  .cli_action(model_info$set_ele_at_dropped,
-    action = c("inform", "inform"),
-    call = call
-  )
-  return(statements[!drop])
-}
-
 #' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .normalize_statements <- function(statements,
                                   call) {
-  statements <- statements[!grepl(
-    "^\\s*(write\\s*)?\\(\\s*set\\s*\\)\\s+[A-Za-z0-9_]+\\s+to\\s+file\\b",
-    statements,
-    ignore.case = TRUE
-  )]
   statements <- .normalize_quantifier_spacing(statements)
   statements <- purrr::map_chr(statements, .normalize_brace_brackets)
   statements <- purrr::map_chr(statements, .normalize_qualifier_order)
   statements <- .flatten_ranked_sets(statements, call = call)
-  statements <- .drop_at_element_sets(statements, call = call)
+  return(statements)
+}
+
+#' @keywords internal
+#' @noRd
+.drop_set_writes <- function(statements) {
+  statements <- statements[!grepl(
+    "^\\s*write\\s*\\(\\s*(set|by_elements)\\s*\\)",
+    statements,
+    ignore.case = TRUE
+  )]
   return(statements)
 }
 

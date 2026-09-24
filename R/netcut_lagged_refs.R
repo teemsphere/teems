@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @noRd
 .netcut_lagged_refs <- function(stmt, vars) {
-  hits <- gregexpr("([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)", stmt)[[1]]
+  hits <- gregexpr("([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(([^()]*)\\)", stmt)[[1]]
   out <- list(name = character(0), start = integer(0), end = integer(0), args = list())
   if (hits[1] %=% -1L) {
     refs <- tibble::as_tibble(out)
@@ -17,7 +17,7 @@
       next
     }
     args <- trimws(strsplit(sub("^[^(]*\\(", "", sub("\\)$", "", ref)), ",")[[1]])
-    has_offset <- any(grepl("^[A-Za-z_][A-Za-z0-9_]*\\s*[+-]\\s*[0-9]+$", args))
+    has_offset <- any(grepl("^[A-Za-z_][A-Za-z0-9_@]*\\s*[+-]\\s*[0-9]+$", args))
     has_elem <- any(grepl("^\"[^\"]*\"$", args))
     if (!has_offset || !has_elem) {
       next

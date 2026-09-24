@@ -56,7 +56,7 @@
       call = call
     )
 
-    ref_pattern <- paste0("(?<![[:alnum:]_])", pair$var, "(?![[:alnum:]_])")
+    ref_pattern <- paste0("(?<![[:alnum:]_@])", pair$var, "(?![[:alnum:]_@])")
     for (e in seq_len(nrow(math_extract))) {
       eq_name <- math_extract$name[[e]]
       if (tolower(eq_name) %=% tolower(pair$eq)) {

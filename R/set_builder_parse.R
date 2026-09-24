@@ -15,7 +15,7 @@ NULL
   }
   inner <- substr(d, 2L, close - 1L)
   m <- regmatches(inner, regexec(
-    "^\\s*[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*:(.*)$",
+    "^\\s*[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*:(.*)$",
     inner
   ))[[1]]
   if (length(m) == 0L) {
@@ -94,10 +94,10 @@ NULL
     }
     body <- substr(operand, open + 1L, cl - 1L)
     sm <- regmatches(body, regexec(paste0(
-      "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*",
-      "([A-Za-z_][A-Za-z0-9_]*)\\s*[[({]\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*[])}]\\s*=\\s*",
-      "([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*",
-      "([A-Za-z_][A-Za-z0-9_]*)\\s*[[({]\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*[])}]\\s*$"
+      "^\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*:\\s*",
+      "([A-Za-z_][A-Za-z0-9_@]*)\\s*[[({]\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*[])}]\\s*=\\s*",
+      "([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*",
+      "([A-Za-z_][A-Za-z0-9_@]*)\\s*[[({]\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*[])}]\\s*$"
     ), body))[[1]]
     if (length(sm) == 0L) {
       return(NULL)
@@ -116,7 +116,7 @@ NULL
   }
 
   cm <- regmatches(operand, regexec(
-    "^([A-Za-z_][A-Za-z0-9_]*)\\s*[[({](.*)[])}]\\s*$",
+    "^([A-Za-z_][A-Za-z0-9_@]*)\\s*[[({](.*)[])}]\\s*$",
     operand
   ))[[1]]
   if (length(cm) == 0L) {

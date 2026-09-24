@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .synth_intersect_set <- function(operand, range_set, synth) {
-  if (grepl("^[A-Za-z_][A-Za-z0-9_]*$", operand) &&
+  if (grepl("^[A-Za-z_][A-Za-z0-9_@]*$", operand) &&
     .tab_is_subset(operand, range_set, synth)) {
     intersect <- list(pre = character(0), name = operand)
     return(intersect)

@@ -2,7 +2,7 @@
 #' @noRd
 .classify_if_cond <- function(cond) {
   m <- regmatches(cond, regexec(
-    "^([A-Za-z_][A-Za-z0-9_]*)\\s+[Ii][Nn]\\s+([A-Za-z_][A-Za-z0-9_]*)$",
+    "^([A-Za-z_][A-Za-z0-9_@]*)\\s+[Ii][Nn]\\s+([A-Za-z_][A-Za-z0-9_@]*)$",
     cond
   ))[[1]]
   if (length(m) > 0L) {
@@ -10,7 +10,7 @@
     return(cond)
   }
   m <- regmatches(cond, regexec(
-    '^([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*"([^"]+)"$',
+    '^([A-Za-z_][A-Za-z0-9_@]*)\\s*=\\s*"([^"]+)"$',
     cond
   ))[[1]]
   if (length(m) > 0L) {
@@ -23,7 +23,7 @@
   )
   m <- regmatches(cond, regexec(
     paste0(
-      "^([A-Za-z_][A-Za-z0-9_]*(\\([^()]*\\))?)\\s*",
+      "^([A-Za-z_][A-Za-z0-9_@]*(\\([^()]*\\))?)\\s*",
       "([Ee][Qq]|[Nn][Ee]|[Gg][Tt]|[Ll][Tt]|[Gg][Ee]|[Ll][Ee]|<=|>=|<>|=|<|>)\\s*",
       "([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)$"
     ),

@@ -1377,19 +1377,24 @@ test_that("ranked PostSim sets are flattened to their base set", {
   expect_false(grepl("ranked", row$tab))
 })
 
-test_that("unreferenced sets with @ in their elements are dropped", {
+test_that("sets with @ in their elements are kept", {
   graft <- "Set WAGG # AGGHAR instructions # (SCET@@@@1TOT, P018@@@@4PUR);"
-  expect_snapshot(model <- ems_model(write_modified_model(model_file, graft), closure_file))
-  expect_false("WAGG" %in% model$name)
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  expect_true("WAGG" %in% model$name)
 })
 
-test_that("a referenced set with @ in its elements aborts", {
+test_that("@ is a name character in coefficients, indices and elements", {
   graft <- paste(
-    "Set WAGG # AGGHAR instructions # (SCET@@@@1TOT, P018@@@@4PUR);",
-    "Coefficient (all,w,WAGG) WGT(w) # uses it #;",
+    "Set W@SET # at set # (a@1, b@2);",
+    "Coefficient (all,w@i,W@SET) W@GT(w@i) # at coefficient #;",
+    "Formula (all,w@i,W@SET) W@GT(w@i) = 1;",
+    "Formula W@GT(\"a@1\") = 2;",
     sep = "\n"
   )
-  expect_snapshot_error(ems_model(write_modified_model(model_file, graft), closure_file))
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  expect_true(all(c("W@SET", "W@GT") %in% model$name))
+  row <- model[model$type == "Coefficient" & model$name == "W@GT", ]
+  expect_equal(row$ls_mixed_idx[[1]], "W@SETw@i")
 })
 
 test_that("Write (Set) statements are dropped", {

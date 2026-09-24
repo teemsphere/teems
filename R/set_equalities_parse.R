@@ -4,7 +4,7 @@
                                   is_builder,
                                   call) {
   is_set_eq <- !is.na(sets$definition) &
-    grepl("^\\s*=\\s*[A-Za-z_][A-Za-z0-9_]*\\s*$", sets$definition)
+    grepl("^\\s*=\\s*[A-Za-z_][A-Za-z0-9_@]*\\s*$", sets$definition)
 
   for (i in which(is_set_eq)) {
     rhs_nm <- trimws(sub("^\\s*=\\s*", "", sets$definition[i]))

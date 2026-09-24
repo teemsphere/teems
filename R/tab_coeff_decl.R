@@ -18,11 +18,11 @@
       groups <- c(groups, substr(body, 1L, close))
       body <- substring(body, close + 1L)
     }
-    nm <- sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", body)
+    nm <- sub("^\\s*([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", body)
     if (!toupper(nm) %=% toupper(sym)) {
       next
     }
-    rest <- sub("^\\s*[A-Za-z_][A-Za-z0-9_]*\\s*", "", body)
+    rest <- sub("^\\s*[A-Za-z_][A-Za-z0-9_@]*\\s*", "", body)
     args <- ""
     if (startsWith(rest, "(")) {
       close <- .match_bracket(rest, 1L)

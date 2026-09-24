@@ -22,8 +22,17 @@
     is_set <- grepl("^set\\b", tab, ignore.case = TRUE)
     is_io <- grepl("^(read|write|file)\\b", tab, ignore.case = TRUE)
     for (nme in unique(upper_ele)) {
-      tab[!is_io] <- gsub(paste0("\"", nme, "\""), paste0("\"", tolower(nme), "\""), tab[!is_io], fixed = TRUE)
-      tab[is_set] <- gsub(paste0("\\b", nme, "\\b"), tolower(nme), tab[is_set])
+      tab[!is_io] <- gsub(
+        paste0("(?<![Hh][Ee][Aa][Dd][Ee][Rr] )(?<![Hh][Ee][Aa][Dd][Ee][Rr])\"", nme, "\""),
+        paste0("\"", tolower(nme), "\""),
+        tab[!is_io],
+        perl = TRUE
+      )
+      lists <- gregexpr("\\((?!\\s*all\\s*,)[^()]*\\)", tab[is_set], perl = TRUE, ignore.case = TRUE)
+      regmatches(tab[is_set], lists) <- lapply(
+        regmatches(tab[is_set], lists),
+        \(l) gsub(paste0("\\b", nme, "\\b"), tolower(nme), l)
+      )
     }
 
     extract <- .generate_extracts(

@@ -31,12 +31,12 @@
     side <- list(kind = "elem", text = x)
     return(side)
   }
-  if (grepl("^[A-Za-z_][A-Za-z0-9_]*$", x) && toupper(x) %in% names(idx_set)) {
+  if (grepl("^[A-Za-z_][A-Za-z0-9_@]*$", x) && toupper(x) %in% names(idx_set)) {
     side <- list(kind = "index", text = x, set = idx_set[[toupper(x)]])
     return(side)
   }
   m <- regmatches(x, regexec(
-    "^([A-Za-z_][A-Za-z0-9_]*)\\s*\\(\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)$", x
+    "^([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*\\)$", x
   ))[[1]]
   if (length(m) > 0L && toupper(m[2]) %in% names(maps) &&
     toupper(m[3]) %in% names(idx_set)) {

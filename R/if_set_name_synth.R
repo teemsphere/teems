@@ -4,7 +4,7 @@
   repeat {
     synth$n <- synth$n + 1L
     nm <- paste0("IFS", synth$n)
-    hit <- paste0("(^|[^A-Za-z0-9_])", nm, "([^A-Za-z0-9_]|$)")
+    hit <- paste0("(^|[^A-Za-z0-9_@])", nm, "([^A-Za-z0-9_@]|$)")
     if (!any(grepl(hit, synth$tab, ignore.case = TRUE))) {
       return(nm)
     }

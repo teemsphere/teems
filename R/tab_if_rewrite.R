@@ -2,7 +2,7 @@
 #' @noRd
 .rewrite_tab_if <- function(tab,
                             call) {
-  if_pattern <- "(^|[^A-Za-z0-9_])[Ii][Ff]\\s*[][({]"
+  if_pattern <- "(^|[^A-Za-z0-9_@])[Ii][Ff]\\s*[][({]"
   has_if <- grepl(if_pattern, tab)
   if (!any(has_if)) {
     return(tab)
@@ -43,7 +43,7 @@
 #' @noRd
 .tab_intertemporal_sets <- function(tab) {
   stmts <- tab[grepl("^\\s*[Ss][Ee][Tt]\\s*\\(\\s*[Ii][Nn][Tt][Ee][Rr][Tt][Ee][Mm][Pp][Oo][Rr][Aa][Ll]\\s*\\)", tab)]
-  sets <- toupper(sub("^\\s*[Ss][Ee][Tt]\\s*\\([^)]*\\)\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", stmts))
+  sets <- toupper(sub("^\\s*[Ss][Ee][Tt]\\s*\\([^)]*\\)\\s*([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", stmts))
   return(sets)
 }
 
@@ -58,13 +58,13 @@
 #' @keywords internal
 #' @noRd
 .tab_mentions <- function(text, sym) {
-  hit <- grepl(paste0("(?<![A-Za-z0-9_])", sym, "(?![A-Za-z0-9_])"), text, ignore.case = TRUE, perl = TRUE)
+  hit <- grepl(paste0("(?<![A-Za-z0-9_@])", sym, "(?![A-Za-z0-9_@])"), text, ignore.case = TRUE, perl = TRUE)
   return(hit)
 }
 
 #' @keywords internal
 #' @noRd
 .tab_subst_symbol <- function(text, sym, new) {
-  substituted <- gsub(paste0("(?<![A-Za-z0-9_])", sym, "(?![A-Za-z0-9_])"), new, text, ignore.case = TRUE, perl = TRUE)
+  substituted <- gsub(paste0("(?<![A-Za-z0-9_@])", sym, "(?![A-Za-z0-9_@])"), new, text, ignore.case = TRUE, perl = TRUE)
   return(substituted)
 }

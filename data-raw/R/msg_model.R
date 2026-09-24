@@ -500,8 +500,6 @@ build_model_err <- function() {
     # test-chk_tab_preflight.R: "set self-equality aborts"
     set_self_eq = "Set {.field {bad_set}} is defined as equal to
     itself (GEMPACK manual 10.1.2.1).",
-    # test-ems_model.R: "a referenced set with @ in its elements aborts"
-    set_ele_at_referenced = "Set {.field {set_name}} has element names containing {.code @} and is referenced by other statements; {.code @} is not a valid element character in TEEMS.",
     # test-chk_tab_preflight.R: "element range abbreviations abort"
     set_ele_range = c(
       "Element range abbreviation in set {.field {bad_set}}:
@@ -609,11 +607,6 @@ build_model_info <- function() {
     ranked_set_flattened = c(
       "Ranked set definition(s) for {.val {ranked_set}} read as the base set; the ranking by {.val {rank_var}} is not preserved.",
       "Ordering of report rows is left to the composed outputs."
-    ),
-    # test-ems_model.R: "unreferenced sets with @ in their elements are dropped"
-    set_ele_at_dropped = c(
-      "Set{?s} {.val {dropped_sets}} dropped: element names contain {.code @} and the set is not referenced by any statement.",
-      "Such sets carry aggregation instructions for GEMPACK utilities and play no part in the solved model."
     ),
     # test-ems_model.R: "ignore_condense disables in-TAB condensation"
     condense_ignored = "{n_ignored} in-TAB condensation statement{?s} ignored ({.code ignore_condense = TRUE}).",

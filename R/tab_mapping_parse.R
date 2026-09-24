@@ -18,7 +18,7 @@
   parsed <- regmatches(
     maps$remainder,
     regexec(
-      "^\\s*((?:\\(\\s*(?:onto|project)\\s*\\)\\s*)*)([A-Za-z][A-Za-z0-9_]*)\\s+from\\s+([A-Za-z][A-Za-z0-9_]*)\\s+to\\s+([A-Za-z][A-Za-z0-9_]*)\\s*$",
+      "^\\s*((?:\\(\\s*(?:onto|project)\\s*\\)\\s*)*)([A-Za-z][A-Za-z0-9_@]*)\\s+from\\s+([A-Za-z][A-Za-z0-9_@]*)\\s+to\\s+([A-Za-z][A-Za-z0-9_@]*)\\s*$",
       maps$remainder,
       ignore.case = TRUE,
       perl = TRUE

@@ -9,8 +9,8 @@
     qual <- paste0(substr(rest, 1L, close), " ")
     rest <- trimws(substring(rest, close + 1L))
   }
-  name <- sub("^([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", rest)
-  rest <- trimws(sub("^[A-Za-z_][A-Za-z0-9_]*", "", rest))
+  name <- sub("^([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", rest)
+  rest <- trimws(sub("^[A-Za-z_][A-Za-z0-9_@]*", "", rest))
 
   label <- ""
   if (startsWith(rest, "#")) {

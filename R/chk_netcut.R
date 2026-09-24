@@ -25,13 +25,13 @@
   lagged_refs <- purrr::map(eqs$definition, \(def) {
     refs <- regmatches(
       def,
-      gregexpr("[a-zA-Z][a-zA-Z0-9_]*\\s*\\([^()]*\\)", def)
+      gregexpr("[a-zA-Z][a-zA-Z0-9_@]*\\s*\\([^()]*\\)", def)
     )[[1]]
 
     keep <- purrr::map_lgl(refs, \(ref) {
       args <- sub("^[^(]*\\(", "", sub("\\)$", "", ref))
       args <- trimws(strsplit(args, ",")[[1]])
-      any(grepl("^[a-zA-Z][a-zA-Z0-9_]*\\s*[+-]\\s*[0-9]+$", args))
+      any(grepl("^[a-zA-Z][a-zA-Z0-9_@]*\\s*[+-]\\s*[0-9]+$", args))
     })
 
     tolower(unique(sub("\\s*\\(.*$", "", refs[keep])))

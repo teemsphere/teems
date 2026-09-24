@@ -13,7 +13,7 @@
   }
   body <- trimws(sub(";\\s*$", "", sub("^[^=]*=", "", model$tab[rows[[1]]])))
   m <- regmatches(body, regexec(
-    "^\"([^\"]+)\"\\s*&\\s*[A-Za-z_][A-Za-z0-9_]*$", body
+    "^\"([^\"]+)\"\\s*&\\s*[A-Za-z_][A-Za-z0-9_@]*$", body
   ))[[1]]
   if (length(m) == 0L) {
     return(NULL)

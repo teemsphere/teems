@@ -17,7 +17,7 @@
     paste0("[", cond_info$lhs, "] - [", cond_info$rhs, "]")
   }
   var_names <- .tab_linear_variable_names(synth$tab)
-  toks <- toupper(unique(regmatches(expr, gregexpr("[A-Za-z_][A-Za-z0-9_]*", expr))[[1]]))
+  toks <- toupper(unique(regmatches(expr, gregexpr("[A-Za-z_][A-Za-z0-9_@]*", expr))[[1]]))
   toks <- setdiff(toks, toupper(q_idx[!is.na(q_idx)]))
   if (any(toks %in% var_names)) {
     if_statement <- stmt
@@ -29,14 +29,14 @@
   }
   live <- !is.na(q_idx)
   used <- vapply(q_idx[live], \(ix) {
-    grepl(paste0("(^|[^A-Za-z0-9_])", ix, "([^A-Za-z0-9_]|$)"), expr, ignore.case = TRUE)
+    grepl(paste0("(^|[^A-Za-z0-9_@])", ix, "([^A-Za-z0-9_@]|$)"), expr, ignore.case = TRUE)
   }, logical(1))
   dims <- q_idx[live][used]
   sets <- purrr::map_chr(quant[live][used], "set")
   canon <- toupper(gsub("\\s", "", expr))
   for (k in seq_along(dims)) {
     canon <- gsub(
-      paste0("(^|[^A-Za-z0-9_])", dims[k], "([^A-Za-z0-9_]|$)"),
+      paste0("(^|[^A-Za-z0-9_@])", dims[k], "([^A-Za-z0-9_@]|$)"),
       paste0("\\1<", sets[k], ">\\2"),
       canon,
       ignore.case = TRUE

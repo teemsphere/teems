@@ -7,7 +7,7 @@
   math <- kw %in% c("equation", "formula", "update", "assertion")
   for (i in which(math)) {
     txt <- gsub("\"[^\"]*\"", "\"\"", no_label[i])
-    starts <- gregexpr("[A-Za-z_][A-Za-z0-9_]*\\s*\\(", txt)[[1]]
+    starts <- gregexpr("[A-Za-z_][A-Za-z0-9_@]*\\s*\\(", txt)[[1]]
     if (starts[1] == -1L) {
       next
     }

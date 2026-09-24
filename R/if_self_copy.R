@@ -7,7 +7,7 @@
     qs <- quant[purrr::map_lgl(quant, "is_quant")]
     decl <- list(
       quants = paste0(purrr::map_chr(qs, \(q) sprintf("(all,%s,%s)", q$idx, q$set)), collapse = ""),
-      args = gsub("\\s", "", sub("^\\s*[A-Za-z_][A-Za-z0-9_]*\\s*", "", lhs))
+      args = gsub("\\s", "", sub("^\\s*[A-Za-z_][A-Za-z0-9_@]*\\s*", "", lhs))
     )
   }
   nm <- .synth_copy_name(synth)

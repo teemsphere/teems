@@ -12,7 +12,7 @@
   membership <- list()
   side_terms <- vector("list", 2L)
   for (h in 1:2) {
-    terms <- .split_tab_terms(sides[[h]])
+    terms <- .distribute_if_factors(.split_tab_terms(sides[[h]]), if_pattern)
     parsed <- lapply(terms$body, .parse_if_term)
     is_if <- !purrr::map_lgl(parsed, is.null)
     if (any(grepl(if_pattern, terms$body[!is_if]))) {

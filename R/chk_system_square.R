@@ -19,10 +19,10 @@
 
   eq_sets <- regmatches(
     eqs$tab,
-    gregexpr("\\(\\s*all\\s*,[^,()]+,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)", eqs$tab, ignore.case = TRUE)
+    gregexpr("\\(\\s*all\\s*,[^,()]+,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*\\)", eqs$tab, ignore.case = TRUE)
   )
   eq_sets <- lapply(eq_sets, \(m) {
-    toupper(sub(".*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)$", "\\1", m))
+    toupper(sub(".*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*\\)$", "\\1", m))
   })
   set_sizes <- lengths(sets$ele)
   names(set_sizes) <- toupper(names(sets$ele))

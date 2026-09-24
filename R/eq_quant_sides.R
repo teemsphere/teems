@@ -6,7 +6,7 @@
   quant <- lapply(groups, \(g) {
     inner <- trimws(substr(g, 2L, nchar(g) - 1L))
     m <- regmatches(inner, regexec(
-      "^[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(:.*)?$",
+      "^[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*(:.*)?$",
       inner
     ))[[1]]
     if (length(m) %=% 0L) {

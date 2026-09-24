@@ -4,7 +4,7 @@
 .rewrite_tab_netcut <- function(tab,
                                 call) {
   int_sets <- regmatches(tab, regexec(
-    "^[Ss][Ee][Tt]\\s*\\(\\s*[Ii][Nn][Tt][Ee][Rr][Tt][Ee][Mm][Pp][Oo][Rr][Aa][Ll]\\s*\\)\\s*([A-Za-z_][A-Za-z0-9_]*)",
+    "^[Ss][Ee][Tt]\\s*\\(\\s*[Ii][Nn][Tt][Ee][Rr][Tt][Ee][Mm][Pp][Oo][Rr][Aa][Ll]\\s*\\)\\s*([A-Za-z_][A-Za-z0-9_@]*)",
     tab
   ))
   int_sets <- toupper(purrr::map_chr(
@@ -28,7 +28,7 @@
   synth$rewrites <- character(0)
   additions <- list()
 
-  is_eq <- grepl("^[Ee][Qq][Uu][Aa][Tt][Ii][Oo][Nn][^A-Za-z0-9_]", tab)
+  is_eq <- grepl("^[Ee][Qq][Uu][Aa][Tt][Ii][Oo][Nn][^A-Za-z0-9_@]", tab)
 
   for (s in which(is_eq)) {
     refs <- .netcut_lagged_refs(tab[s], vars)

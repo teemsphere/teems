@@ -64,8 +64,9 @@
 
   data_dt$var <- rep(vars$cofname, vars$matsize)
 
-  derived <- grepl("@", vars$cofname, fixed = TRUE)
-  drop <- grepl("@d$", vars$cofname) | vars$cofname == "del_comp@"
+  declared <- vars$cofname %in% tolower(var_extract$name)
+  derived <- grepl("@", vars$cofname, fixed = TRUE) & !declared
+  drop <- derived & (grepl("@d$", vars$cofname) | vars$cofname == "del_comp@")
   if (any(drop)) {
     vars <- vars[!drop, ]
     derived <- derived[!drop]

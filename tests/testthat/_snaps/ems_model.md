@@ -332,15 +332,3 @@
       i Ranked set definition(s) for "REGUP" read as the base set; the ranking by "qgdp" is not preserved.
       i Ordering of report rows is left to the composed outputs.
 
-# unreferenced sets with @ in their elements are dropped
-
-    Code
-      model <- ems_model(write_modified_model(model_file, graft), closure_file)
-    Message
-      i Set "WAGG" dropped: element names contain `@` and the set is not referenced by any statement.
-      i Such sets carry aggregation instructions for GEMPACK utilities and play no part in the solved model.
-
-# a referenced set with @ in its elements aborts
-
-    x Set WAGG has element names containing `@` and is referenced by other statements; `@` is not a valid element character in TEEMS.
-

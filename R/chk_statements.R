@@ -63,11 +63,8 @@
   if (any(!state_decl %in% tolower(supported_state))) {
     for (s in seq_len(length(statements))) {
       statement <- strsplit(statements[s], split = " ")[[1]][1]
-      state_check <- paste0("\\b", supported_state, "\\b")
-      if (!grepl(paste(state_check, collapse = "|"),
-        statement,
-        ignore.case = TRUE
-      )) {
+      state_check <- paste0("^(", paste(supported_state, collapse = "|"), ")(?![A-Za-z0-9_@])")
+      if (!grepl(state_check, statement, ignore.case = TRUE, perl = TRUE)) {
         implicit_stat <- strsplit(statements[s - 1], split = " ")[[1]][1]
         statements[s] <- paste(implicit_stat, statements[s])
       }
@@ -85,6 +82,7 @@
     )
   }
 
+  statements <- .drop_set_writes(statements)
   statements <- .canonical_keywords(statements)
   statements <- .expand_tab_defaults(statements, call = call)
   return(statements)

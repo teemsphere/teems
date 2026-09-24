@@ -3,7 +3,7 @@
 #' @keywords internal
 #' @noRd
 .netcut_var_table <- function(tab) {
-  is_var <- grepl("^[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee][^A-Za-z0-9_]", tab)
+  is_var <- grepl("^[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee][^A-Za-z0-9_@]", tab)
   rows <- lapply(which(is_var), \(s) {
     rest <- trimws(sub("^[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]\\s*", "", tab[s]))
     quals <- character(0)
@@ -19,7 +19,7 @@
       }
       grp <- substr(rest, 1L, close)
       m <- regmatches(grp, regexec(
-        "^\\(\\s*[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\)$",
+        "^\\(\\s*[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*\\)$",
         grp
       ))[[1]]
       if (length(m) > 0L) {
@@ -30,7 +30,7 @@
       rest <- substring(rest, close + 1L)
     }
     m <- regmatches(rest, regexec(
-      "^([A-Za-z_][A-Za-z0-9_]*)\\s*(\\(([^()]*)\\))?",
+      "^([A-Za-z_][A-Za-z0-9_@]*)\\s*(\\(([^()]*)\\))?",
       rest
     ))[[1]]
     if (length(m) %=% 0L || m[2] %=% "") {

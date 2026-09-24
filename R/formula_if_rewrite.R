@@ -51,7 +51,7 @@
   quant <- lapply(groups, \(g) {
     inner <- trimws(substr(g, 2L, nchar(g) - 1L))
     m <- regmatches(inner, regexec(
-      "^[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(:.*)?$",
+      "^[Aa][Ll][Ll]\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*(:.*)?$",
       inner
     ))[[1]]
     if (length(m) %=% 0L) {
@@ -84,15 +84,15 @@
     return(statements)
   }
 
-  lhs_sym <- sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", lhs)
+  lhs_sym <- sub("^\\s*([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", lhs)
   if (depth %=% 0L && .tab_mentions(rhs, lhs_sym)) {
     cp <- .if_self_copy(lhs, lhs_sym, quant, qual_groups, synth)
     pre <- c(pre, cp$pre)
     rhs <- .tab_subst_symbol(rhs, lhs_sym, cp$name)
   }
 
-  if_pattern <- "(^|[^A-Za-z0-9_])[Ii][Ff]\\s*[][({]"
-  terms <- .split_tab_terms(rhs)
+  if_pattern <- "(^|[^A-Za-z0-9_@])[Ii][Ff]\\s*[][({]"
+  terms <- .distribute_if_factors(.split_tab_terms(rhs), if_pattern)
   parsed <- lapply(terms$body, .parse_if_term)
   is_if <- !purrr::map_lgl(parsed, is.null)
 

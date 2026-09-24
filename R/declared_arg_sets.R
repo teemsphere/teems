@@ -8,7 +8,7 @@
     idx_sets <- .stmt_index_sets(text)
     body <- gsub("\\(\\s*all\\s*,[^)]*\\)", " ", text, ignore.case = TRUE)
     body <- gsub("\\([^()]*=[^()]*\\)|\\(\\s*(parameter|integer|real|levels|linear|change|percent_change|non_parameter|initial|always|ge|gt|le|lt)\\b[^()]*\\)", " ", body, ignore.case = TRUE)
-    m <- regmatches(body, regexec("([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)", body))[[1]]
+    m <- regmatches(body, regexec("([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(([^()]*)\\)", body))[[1]]
     if (length(m) == 0L) {
       next
     }

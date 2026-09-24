@@ -8,7 +8,7 @@
     body <- gsub("#[^#]*#", " ", body)
     body <- sub("^\\s*(\\([^)]*\\)\\s*)*", "", body)
     m <- regmatches(body, regexec(
-      "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+[Ff][Rr][Oo][Mm]\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+[Tt][Oo]\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "^\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s+[Ff][Rr][Oo][Mm]\\s+([A-Za-z_][A-Za-z0-9_@]*)\\s+[Tt][Oo]\\s+([A-Za-z_][A-Za-z0-9_@]*)",
       body
     ))[[1]]
     if (length(m) > 0L) {

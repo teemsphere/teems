@@ -5,7 +5,7 @@
                              call) {
   bare <- gsub("#[^#]*#", "", statement)
   bare <- gsub("\\s", "", bare)
-  m <- gregexpr("\\(all,([[:alnum:]_]+),([[:alnum:]_]+)\\)", bare)
+  m <- gregexpr("\\(all,([[:alnum:]_@]+),([[:alnum:]_@]+)\\)", bare)
   hits <- regmatches(bare, m)[[1]]
   n_all <- length(gregexpr("(all,", bare, fixed = TRUE)[[1]])
   if (identical(gregexpr("(all,", bare, fixed = TRUE)[[1]][1], -1L)) {

@@ -12,7 +12,7 @@
   quant <- context$quant
   q_idx <- context$q_idx
 
-  if_pattern <- "(^|[^A-Za-z0-9_])[Ii][Ff]\\s*[][({]"
+  if_pattern <- "(^|[^A-Za-z0-9_@])[Ii][Ff]\\s*[][({]"
 
   passed <- .rewrite_if_terms(
     sides = context$sides,

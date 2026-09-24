@@ -15,6 +15,6 @@
 .formula_lhs_name <- function(comp1) {
   x <- tolower(comp1)
   x <- gsub("^\\s*(\\([^)]*\\)\\s*)*", "", x)
-  lhs_name <- sub("^([a-z][a-z0-9_]*).*$", "\\1", x)
+  lhs_name <- sub("^([a-z][a-z0-9_@]*).*$", "\\1", x)
   return(lhs_name)
 }

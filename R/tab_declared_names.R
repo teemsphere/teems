@@ -10,6 +10,6 @@
   x <- gsub("#[^#]*#", "", x)
   x <- gsub("\\(all\\s*,[^)]*\\)", "", x, ignore.case = TRUE)
   x <- gsub("^\\s*(\\([^)]*\\)\\s*)*", "", x)
-  declared <- toupper(sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", x))
+  declared <- toupper(sub("^\\s*([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", x))
   return(declared)
 }

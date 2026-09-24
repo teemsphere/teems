@@ -48,7 +48,7 @@
     )
   }
   rem <- trimws(m[3])
-  name <- regmatches(rem, regexec("^([A-Za-z0-9_]+)", rem))[[1]]
+  name <- regmatches(rem, regexec("^([A-Za-z0-9_@]+)", rem))[[1]]
   if (length(name) == 0L) {
     bad_stmt <- trimws(statement)
     .cli_action(model_err$comp_malformed,

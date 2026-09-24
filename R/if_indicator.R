@@ -7,7 +7,7 @@
                           synth,
                           if_cond,
                           call) {
-  argstr <- sub("^[A-Za-z_][A-Za-z0-9_]*", "", cond_info$ref)
+  argstr <- sub("^[A-Za-z_][A-Za-z0-9_@]*", "", cond_info$ref)
   args <- if (nchar(argstr) > 0L) {
     trimws(strsplit(gsub("[()]", "", argstr), ",")[[1]])
   } else {

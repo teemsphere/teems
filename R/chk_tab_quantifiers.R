@@ -60,7 +60,7 @@
       }
       x <- y
     }
-    toupper(sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", x))
+    toupper(sub("^\\s*([A-Za-z_][A-Za-z0-9_@]*).*$", "\\1", x))
   }, character(1))
   for (i in which(kw == "zerodivide")) {
     if (!grepl("\\bdefault\\b", no_label[i], ignore.case = TRUE)) {

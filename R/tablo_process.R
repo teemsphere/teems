@@ -23,6 +23,11 @@
 
   ps_decl_names <- .postsim_decl_names(tab)
 
+  tab <- .rewrite_sum_conditions(
+    tab = tab,
+    call = call
+  )
+
   tab <- .rewrite_tab_if(
     tab = tab,
     call = call

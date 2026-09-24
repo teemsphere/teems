@@ -22,7 +22,7 @@
   names(set_case) <- tolower(set_extract$name)
 
   stmt_rows <- which(tolower(extract$type) %in% c("equation", "formula", "update", "assertion"))
-  ref_pattern <- "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)\\)"
+  ref_pattern <- "\\b([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(([^()]*)\\)"
 
   for (n in stmt_rows) {
     text <- .strip_tab_labels(extract$remainder[[n]])
@@ -43,7 +43,7 @@
       }
       for (k in seq_along(args)) {
         a <- tolower(args[[k]])
-        if (!grepl("^[a-z_][a-z0-9_]*$", a) || is.na(idx_sets[a])) {
+        if (!grepl("^[a-z_][a-z0-9_@]*$", a) || is.na(idx_sets[a])) {
           next
         }
         s <- idx_sets[[a]]
@@ -56,7 +56,7 @@
         bad_idx <- args[[k]]
         bad_ref <- gsub("\\s+", "", ref)
         stmt_name <- if (tolower(extract$type[[n]]) %=% "equation") {
-          regmatches(text, regexpr("[A-Za-z_][A-Za-z0-9_]*", text))
+          regmatches(text, regexpr("[A-Za-z_][A-Za-z0-9_@]*", text))
         } else {
           NULL
         }

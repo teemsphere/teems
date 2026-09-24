@@ -2,14 +2,14 @@
 #' @noRd
 .stmt_index_sets <- function(text) {
   pairs <- regmatches(text, gregexpr(
-    "(\\(\\s*all|\\bsum\\s*[{(])\\s*,?\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_]*)",
+    "(\\(\\s*all|\\bsum\\s*[{(])\\s*,?\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s*,\\s*([A-Za-z_][A-Za-z0-9_@]*)",
     text, ignore.case = TRUE, perl = TRUE
   ))[[1]]
   if (length(pairs) == 0L) {
     sets <- character()
     return(sets)
   }
-  parts <- regmatches(pairs, gregexpr("[A-Za-z_][A-Za-z0-9_]*", pairs))
+  parts <- regmatches(pairs, gregexpr("[A-Za-z_][A-Za-z0-9_@]*", pairs))
   idx <- tolower(vapply(parts, \(p) p[[length(p) - 1L]], character(1)))
   set <- vapply(parts, \(p) p[[length(p)]], character(1))
   out <- character()

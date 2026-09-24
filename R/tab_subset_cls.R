@@ -8,10 +8,10 @@
 #' @keywords internal
 #' @noRd
 .tab_subset_closure <- function(tab) {
-  id <- "[A-Za-z_][A-Za-z0-9_]*"
+  id <- "[A-Za-z_][A-Za-z0-9_@]*"
   acc <- new.env(parent = emptyenv())
   acc$rel <- list()
-  op_re <- "\\+|-|&|(^|[^A-Za-z0-9_])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_]|$)"
+  op_re <- "\\+|-|&|(^|[^A-Za-z0-9_@])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_@]|$)|(^|[^A-Za-z0-9_@])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_@]|$)"
   for (st in tab) {
     m <- regmatches(st, regexec(
       paste0("^\\s*[Ss][Uu][Bb][Ss][Ee][Tt]\\s+(", id, ")\\s+[Ii][Ss]\\s+[Ss][Uu][Bb][Ss][Ee][Tt]\\s+[Oo][Ff]\\s+(", id, ")"),

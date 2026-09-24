@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .is_id <- function(ch) {
-  hit <- grepl("[A-Za-z0-9_]", ch)
+  hit <- grepl("[A-Za-z0-9_@]", ch)
   return(hit)
 }
 
@@ -12,7 +12,7 @@
   chs <- scan$chs
   top <- scan$depth_before == 0L & !scan$in_quote
   n <- length(chs)
-  if (grepl("(^|[^A-Za-z0-9_])(and|or|not)([^A-Za-z0-9_]|$)", cond, ignore.case = TRUE)) {
+  if (grepl("(^|[^A-Za-z0-9_@])(and|or|not)([^A-Za-z0-9_@]|$)", cond, ignore.case = TRUE)) {
     return(NULL)
   }
   words <- c(eq = "=", ne = "<>", gt = ">", lt = "<", ge = ">=", le = "<=")

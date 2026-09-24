@@ -34,6 +34,7 @@
                                   sets,
                                   call) {
   swap <- ems_swap(swap)[[1]]
+  swap$var <- .levels_linear_alias(swap$var, var_extract)
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var[[1]],
@@ -62,6 +63,7 @@
                              sets,
                              call) {
   call <- attr(swap, "call")
+  swap$var <- .levels_linear_alias(swap$var, var_extract)
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var
     .cli_action(swap_err$no_var,
@@ -91,6 +93,7 @@
                                 sets,
                                 call) {
   call <- attr(swap, "call")
+  swap$var <- .levels_linear_alias(swap$var, var_extract)
 
   if (!swap$var %in% var_extract$name) {
     var_name <- swap$var

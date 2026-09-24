@@ -31,6 +31,22 @@ test_that("unknown closure variables without a near match omit candidates", {
   )
 })
 
+test_that("linear names of levels variables resolve in the closure (GEMPACK manual 9.2.2)", {
+  var_extract <- tibble::tibble(
+    name = c("CTAXBAS", "CO2L", "qgdp"),
+    qualifier_list = c("(levels,change)", "(levels)", NA),
+    condense = NA_character_
+  )
+  closure <- .check_closure(
+    c("c_CTAXBAS(REG,NEGYCOM3B)", "p_co2l", "qgdp"),
+    var_extract,
+    call = NULL
+  )
+  expect_identical(closure, c("CTAXBAS(REG,NEGYCOM3B)", "CO2L", "qgdp"))
+  expect_snapshot_error(.check_closure("p_CTAXBAS", var_extract, call = NULL))
+  expect_snapshot_error(.check_closure("c_qgdp", var_extract, call = NULL))
+})
+
 square_fixture <- function(exo_rows) {
   sets <- list(ele = list(REG = c("a", "b", "c")))
   model <- tibble::tibble(

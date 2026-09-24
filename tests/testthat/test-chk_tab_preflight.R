@@ -93,15 +93,67 @@ test_that("duplicate bounds abort", {
 # Default statements (GEMPACK manual 10.19; solver tab_defaults_validate)
 
 test_that("invalid Default statements abort", {
-  expect_preflight_error("Equation (default=levels);")
   expect_preflight_error("Coefficient (default=lower_bound ge 0);")
   expect_preflight_error("Variable (default=foo);")
   expect_preflight_error("Update (default=always);")
   expect_preflight_error("Equation (default=add_homotopy);")
 })
 
-test_that("solver-valid Default statements abort as unsupported", {
-  expect_preflight_error("Variable (default=change);")
+test_that("Default statements apply positionally to the declarations that follow", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (default=levels);",
+      "Variable (default=change);",
+      "Equation (default=levels);",
+      "Formula (default=initial);",
+      "Coefficient (default=parameter);",
+      "Variable DFX # default levels change #;",
+      "Formula DFX = 2;",
+      "Variable (percent_change) DFY;",
+      "Formula DFY = 3;",
+      "Variable (linear) dfl;",
+      "Coefficient DFP;",
+      "Formula DFP = 1;",
+      "Equation E_DFX DFX = DFY + DFP;",
+      "Equation (linear) E_DFL dfl = c_DFX;",
+      "Variable (default=linear);",
+      "Equation (default=linear);",
+      "Formula (default=always);",
+      "Coefficient (default=non_parameter);",
+      "Variable dfz;",
+      "Equation E_DFZ dfz = dfl;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  stmt <- function(nm) model$tab[model$name %in% nm]
+  expect_match(stmt("DFX")[1], "^Variable \\(levels,change\\) DFX")
+  expect_match(stmt("DFY")[1], "^Variable \\(percent_change,levels\\) DFY")
+  expect_match(stmt("dfl"), "^Variable \\(linear,change\\) dfl")
+  expect_match(stmt("DFP")[1], "^Coefficient \\(parameter\\) DFP")
+  expect_match(stmt("E_DFX"), "^Equation \\(levels\\) E_DFX")
+  expect_match(stmt("E_DFL"), "^Equation \\(linear\\) E_DFL")
+  expect_match(stmt("dfz"), "^Variable \\(linear,change\\) dfz")
+  expect_match(stmt("E_DFZ"), "^Equation \\(linear\\) E_DFZ")
+  expect_false(any(grepl("\\(\\s*default", model$tab, ignore.case = TRUE)))
+})
+
+test_that("statement keywords are case-insensitive (GEMPACK manual 11.1.3)", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "COEFFICIENT (all,r,REG) KWC(r);",
+      "FORMULA (all,r,REG) KWC(r) = 1;",
+      "VARIABLE (all,r,REG) kwv(r);",
+      "EQUATION E_KWV (all,r,REG) kwv(r) = KWC(r) * qgdp(r);",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_identical(model$type[model$name %in% "E_KWV"], "Equation")
+  expect_identical(model$type[model$name %in% "KWC"], "Coefficient")
+  expect_match(model$tab[model$name %in% "E_KWV"], "^Equation E_KWV")
 })
 
 # sets (GEMPACK manual 10.1.1.1 / 10.1.2.1; solver set readers)
@@ -338,4 +390,34 @@ test_that("a binary switch in a set definition aborts", {
       model_files[["closure_file"]]
     )
   )
+})
+
+test_that("an IF in a Formula without quantifiers lowers through a one-element frame", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Coefficient SIFA # scalar IF target #;",
+      "Formula SIFA = 1 + IF(sum{r,REG,VKB(r)} > 1, 2) + IF(SIFA = 0, 5);",
+      "Coefficient SIFB;",
+      "Formula (initial) SIFB = IF(SIFA > 0, SIFA);",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  frame <- model$tab[grepl("^Set IFO1 ", model$tab)]
+  expect_length(frame, 1L)
+  expect_match(frame, "(ifo1e)", fixed = TRUE)
+  expect_match(
+    model$tab,
+    "Formula (all,ifo1i,IFO1: IFX1 > 1) IFV1(ifo1i) = IFV1(ifo1i) + [2];",
+    fixed = TRUE, all = FALSE
+  )
+  expect_match(
+    model$tab,
+    "Formula (all,ifo1i,IFO1: SIFA = 0) IFV1(ifo1i) = IFV1(ifo1i) + [5];",
+    fixed = TRUE, all = FALSE
+  )
+  expect_match(model$tab, "Formula SIFA = sum(ifo1i,IFO1,IFV1(ifo1i));", fixed = TRUE, all = FALSE)
+  expect_match(model$tab, "Formula (initial) SIFB = sum(ifo1i,IFO1,IFV2(ifo1i));", fixed = TRUE, all = FALSE)
+  expect_false(any(grepl("\\bIF\\s*\\(", model$tab)))
 })

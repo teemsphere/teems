@@ -25,8 +25,8 @@ input, not just clean strings.
 | qual_empty | Q4 | empty `()` qualifier list |
 | qual_linear_name | Q3 | `linear_name=` qualifier |
 | bound_dup | B1 | duplicate lower bound |
-| default_positional | D (pipeline) | solver-valid positional Default |
-| default_eq_levels | D1 | `Equation (default=levels)` |
+| default_coef_bound | D | `Coefficient (default=lower_bound ...)` |
+| default_eq_homotopy | D1 | `Equation (default=add_homotopy)` |
 | read_no_header | U3 | headerless Read |
 | read_terminal | U2 | Read from terminal |
 | read_undeclared | U4 | Read into undeclared name |

@@ -85,6 +85,8 @@
     )
   }
 
+  statements <- .canonical_keywords(statements)
+  statements <- .expand_tab_defaults(statements, call = call)
   return(statements)
 }
 

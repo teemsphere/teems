@@ -79,6 +79,11 @@
   qual_groups <- purrr::map_chr(quant[!purrr::map_lgl(quant, "is_quant")], "text")
   pre <- character(0)
 
+  if (depth %=% 0L && all(is.na(q_idx))) {
+    statements <- .rewrite_scalar_if(label, qual_groups, lhs, rhs, synth, call)
+    return(statements)
+  }
+
   lhs_sym <- sub("^\\s*([A-Za-z_][A-Za-z0-9_]*).*$", "\\1", lhs)
   if (depth %=% 0L && .tab_mentions(rhs, lhs_sym)) {
     cp <- .if_self_copy(lhs, lhs_sym, quant, qual_groups, synth)

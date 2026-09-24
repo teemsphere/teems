@@ -59,8 +59,13 @@ test_that("a builder looping over the wrong dimension aborts", {
   expect_snapshot_error(eval_builder('= (all,c,COMM: VDFB("food",c) > 0)'))
 })
 
-test_that("a builder that selects nothing aborts", {
-  expect_snapshot_error(eval_builder('= (all,c,COMM: VDFB(c,"chn") > 5)'))
+test_that("a builder that selects nothing yields an empty set", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  out <- eval_builder('= (all,c,COMM: VDFB(c,"chn") > 5)')
+  expect_identical(nrow(out), 0L)
+  ems_option_set(verbose = TRUE)
+  expect_snapshot(out <- eval_builder('= (all,c,COMM: VDFB(c,"chn") > 5)'))
 })
 
 test_that("a mapping-sum builder without its mapping aborts", {

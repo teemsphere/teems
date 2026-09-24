@@ -217,7 +217,7 @@ test_that(".map_solver_errors classifies representative catalog lines", {
   mapped <- .map_solver_errors(c(
     "coefficient name max is a reserved word (manual 11.2.1)",
     "duplicate lower bound on a coefficient declaration (one lower GE/GT and one upper LE/LT allowed)",
-    "Equation (default=levels) is not supported -- the solver handles linearized equations only",
+    "only (linear) or (levels) may qualify an equation under Equation (default=levels)",
     "PostSim Formula assigns variable psave; simulation results cannot be changed (manual 12.2.2)",
     "set nmrg references itself in a set expression",
     "the $POS function is not supported yet: $POS(r)",

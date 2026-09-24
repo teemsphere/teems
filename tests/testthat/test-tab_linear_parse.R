@@ -70,3 +70,20 @@ test_that("the linear parser names each form it refuses", {
   refuse("ABS(x(r))", "variable reference inside the arguments of `ABS`")
   refuse("x(r) @ y(r)", "unrecognized characters {@}")
 })
+
+test_that("a sum written with square brackets is a sum (GTAP PWLDUSE)", {
+  vl <- list(pp = "pp", pg = "pg", pf = "pf")
+  side <- paste(
+    "sum{s,REG, VPA(i,s) * pp(i,s) + VGA(i,s) * pg(i,s)",
+    "+ sum[j,PROD_COMM, VFA(i,j,s) * pf(i,j,s)]}"
+  )
+  terms <- .parse_linear_side(side, vl)
+  expect_length(terms, 3L)
+  inner <- terms[[3]]$quants
+  expect_length(inner, 2L)
+  expect_equal(inner[[2]]$idx, "j")
+  expect_equal(inner[[2]]$set, "PROD_COMM")
+  expect_match(.serialize_linear(terms[3]), "sum{s,REG, sum{j,PROD_COMM, VFA(i,j,s)*pf(i,j,s)}}", fixed = TRUE)
+  coef <- .parse_linear_side("sum[j,PROD_COMM, VFA(i,j,s)] * pp(i,s)", vl)
+  expect_match(.serialize_linear(coef), "sum{j,PROD_COMM, VFA(i,j,s)}", fixed = TRUE)
+})

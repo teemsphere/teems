@@ -119,10 +119,6 @@ build_model_err <- function() {
       manual 10.19.1)."
     ),
     # test-chk_tab_preflight.R: "invalid Default statements abort"
-    default_levels = "Equation {.code (default=levels)} is not supported;
-    the solver handles linearized equations only (GEMPACK manual 10.19):
-    {.val {bad_stmt}}",
-    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_homotopy = "Equation {.code (default=add_homotopy)} is not
     supported (GEMPACK manual 10.19): {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "invalid Default statements abort"
@@ -135,14 +131,6 @@ build_model_err <- function() {
     default_keyword = "Default statements apply only to Coefficient,
     Variable, Formula, and Equation declarations (GEMPACK manual 10.19):
     {.val {bad_stmt}}",
-    # test-chk_tab_preflight.R: "solver-valid Default statements abort as unsupported"
-    default_unsupported = c(
-      "Default statements are not supported by the teems pipeline:
-      {.val {bad_stmt}}",
-      "Declare the qualifier on each affected statement instead; the
-      positional Default semantics (GEMPACK manual 10.19) cannot be
-      carried through model preparation."
-    ),
     # test-ems_model.R: "unbalanced PostSim markers"
     postsim_unbalanced = "Unbalanced PostSim section markers:
     {ps_begin} {.code PostSim (Begin)} against {ps_end}

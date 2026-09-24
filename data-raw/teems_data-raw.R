@@ -80,7 +80,14 @@ tab_default_values <- list(
   coefficient = c("parameter", "non_parameter"),
   variable = c("linear", "levels", "change", "percent_change"),
   formula = c("initial", "always"),
-  equation = c("linear", "not_add_homotopy")
+  equation = c("linear", "levels", "not_add_homotopy")
+)
+
+tab_default_classes <- list(
+  Variable = list(c("levels", "linear"), c("change", "percent_change")),
+  Coefficient = list(c("parameter", "non_parameter")),
+  Formula = list(c("initial", "always")),
+  Equation = list(c("levels", "linear"))
 )
 
 invalid_state <- c(
@@ -339,6 +346,7 @@ usethis::use_data(
   tab_var_qualifier_prefixes,
   tab_coef_qualifiers,
   tab_default_values,
+  tab_default_classes,
   param_weights,
   set_conversion,
   coeff_conversion,

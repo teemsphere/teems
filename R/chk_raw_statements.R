@@ -22,7 +22,6 @@
       call = call
     )
   }
-  .chk_tab_defaults(statements, call = call)
   .chk_tab_qualifiers(statements, call = call)
   .chk_tab_quantifiers(statements, call = call)
   .chk_tab_ref_indices(statements, call = call)

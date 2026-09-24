@@ -14,10 +14,13 @@
 
     x Set builder "NEWSET": the loop index "c" must range over "VDFB"'s dimension set REG exactly (source set COMM differs).
 
-# a builder that selects nothing aborts
+# a builder that selects nothing yields an empty set
 
-    x Set builder "NEWSET" selected no elements of COMM with `VDFB(c,"chn") > 5`.
-    i An empty set cannot enter the model (GEMPACK manual 10.1.2); check the condition against the aggregated data.
+    Code
+      out <- eval_builder("= (all,c,COMM: VDFB(c,\"chn\") > 5)")
+    Message
+      i Set builder "NEWSET" selected no elements of COMM with `VDFB(c,"chn") > 5`.
+      i The set is empty: statements over it have no tuples and sums over it are zero (GEMPACK manual 11.7.9).
 
 # a mapping-sum builder without its mapping aborts
 

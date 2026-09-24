@@ -6,6 +6,7 @@
   if (is.null(names(shock))) {
     shock <- shock[[1]]
   }
+  shock$var <- .levels_linear_alias(shock$var, var_extract)
 
   if (!shock$var %in% var_extract$name) {
     var_name <- shock$var

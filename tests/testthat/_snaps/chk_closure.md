@@ -7,6 +7,16 @@
 
     x Closure variable "zzzzzzzz" not found among the model's variables.
 
+# linear names of levels variables resolve in the closure (GEMPACK manual 9.2.2)
+
+    x Closure variable "p_ctaxbas" not found among the model's variables.
+    i Did you mean "CTAXBAS"?
+
+---
+
+    x Closure variable "c_qgdp" not found among the model's variables.
+    i Did you mean "qgdp"?
+
 # unsquared closures abort with arithmetic and candidates
 
     x The closure does not square the system: 4 endogenous variable elements against 3 equation elements.

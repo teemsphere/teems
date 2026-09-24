@@ -58,10 +58,6 @@
 
 # invalid Default statements abort
 
-    x Equation `(default=levels)` is not supported; the solver handles linearized equations only (GEMPACK manual 10.19): "Equation (default=levels)"
-
----
-
     x Coefficient bound defaults are not supported (GEMPACK manual 10.19): "Coefficient (default=lower_bound ge 0)"
 
 ---
@@ -75,11 +71,6 @@
 ---
 
     x Equation `(default=add_homotopy)` is not supported (GEMPACK manual 10.19): "Equation (default=add_homotopy)"
-
-# solver-valid Default statements abort as unsupported
-
-    x Default statements are not supported by the teems pipeline: "Variable (default=change)"
-    i Declare the qualifier on each affected statement instead; the positional Default semantics (GEMPACK manual 10.19) cannot be carried through model preparation.
 
 # self-referential set expressions abort
 

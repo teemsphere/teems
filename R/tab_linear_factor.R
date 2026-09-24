@@ -43,9 +43,9 @@
 
   .adv(st)
 
-  if (tolower(tok) %=% "sum" && .pk(st) %in% c("{", "(")) {
+  if (tolower(tok) %=% "sum" && .pk(st) %in% c("{", "(", "[")) {
     open <- .adv(st)
-    close <- ifelse(open %=% "{", "}", ")")
+    close <- switch(open, "{" = "}", "(" = ")", "[" = "]")
     idx <- .adv(st)
     if (!.is_ident(idx)) {
       stop(model_err$linear_reason$sum_index, call. = FALSE)

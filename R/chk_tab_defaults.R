@@ -18,19 +18,10 @@
       )
     }
     if (bad_val %in% tab_default_values[[kw]]) {
-      .cli_action(model_err$default_unsupported,
-        action = c("abort", "inform"),
-        call = call
-      )
+      next
     }
     if (kw == "coefficient" && grepl("^(lower|upper)_bound", bad_val)) {
       .cli_action(model_err$default_bound,
-        action = "abort",
-        call = call
-      )
-    }
-    if (kw == "equation" && bad_val == "levels") {
-      .cli_action(model_err$default_levels,
         action = "abort",
         call = call
       )

@@ -93,10 +93,12 @@
   if (!any(sel)) {
     src_set <- b$src
     builder_cond <- b$cond
-    .cli_action(deploy_err$set_builder_empty,
-      action = c("abort", "inform"),
-      call = call
-    )
+    if (.o_verbose()) {
+      .cli_action(deploy_info$set_builder_empty,
+        action = c("inform", "inform"),
+        call = call
+      )
+    }
   }
   out <- src_map[src_map$mapping %in% src_ele[sel], ]
   data.table::setattr(out, "origin_conflict", NULL)

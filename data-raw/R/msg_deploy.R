@@ -14,11 +14,6 @@ build_deploy_err <- function() {
     set_builder_ele = "{.field Set} builder {.val {bad_set}}: element {.val {bad_ele}} is not in the {.field {dim_set}} dimension of {.val {cond_coef}} under the current aggregation.",
     # test-set_builder_eval.R: "a builder looping over the wrong dimension aborts"
     set_builder_dim = "{.field Set} builder {.val {bad_set}}: the loop index {.val {loop_idx}} must range over {.val {cond_coef}}'s dimension set {.field {dim_set}} exactly (source set {.field {src_set}} differs).",
-    # test-set_builder_eval.R: "a builder that selects nothing aborts"
-    set_builder_empty = c(
-      "{.field Set} builder {.val {bad_set}} selected no elements of {.field {src_set}} with {.code {builder_cond}}.",
-      "An empty set cannot enter the model (GEMPACK manual 10.1.2); check the condition against the aggregated data."
-    ),
     # test-set_builder_eval.R: "a mapping-sum builder without its mapping aborts"
     set_builder_mapsum = c(
       "{.field Set} builder {.val {bad_set}}: the mapping-conditional sum over {.val {cond_map}} cannot be evaluated at deploy.",
@@ -96,5 +91,11 @@ build_deploy_err <- function() {
 }
 
 build_deploy_info <- function() {
-  list()
+  list(
+    # test-set_builder_eval.R: "a builder that selects nothing yields an empty set"
+    set_builder_empty = c(
+      "{.field Set} builder {.val {bad_set}} selected no elements of {.field {src_set}} with {.code {builder_cond}}.",
+      "The set is empty: statements over it have no tuples and sums over it are zero (GEMPACK manual 11.7.9)."
+    )
+  )
 }

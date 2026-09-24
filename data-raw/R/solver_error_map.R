@@ -58,7 +58,7 @@ build_solver_error_map <- function() {
     # bounds + Default statements
     c("duplicate (lower|upper) bound", "tab", "10.19.1"),
     c("bound defaults are not supported", "tab", "10.19"),
-    c("default=levels\\) is not supported", "tab", "10.19"),
+    c("under Equation \\(default=levels\\)", "tab", "10.19"),
     c("default=add_homotopy\\) is not supported", "tab", "10.19"),
     c("unknown (coefficient|variable|formula|equation) default", "tab", "10.19"),
     c("Default statements apply only", "tab", "10.19"),
@@ -96,6 +96,9 @@ build_solver_error_map <- function() {
     # jacobian.c eq_linearity_check; 2026-09-06 ECO_TOY report)
     c("is declared with [0-9]+ ind(ex|ices) but is referenced with", "tab", "11.4.10"),
     c("is not linear in its variables", "tab", "11.4.8"),
+    # formula.c conditional-quantifier binding (GTAP-W scalar conditions)
+    c("quantifier condition refers to", "tab", "11.4.11"),
+    c("quantifier condition .* carries", "tab", "11.4.11"),
     c("contains no linear variable", "tab", "11.4.8"),
     # reads
     c("Read without a header", "tab", "11.11.8"),

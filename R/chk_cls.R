@@ -20,6 +20,10 @@
   ))
 
   cls_var <- purrr::map_chr(strsplit(closure, "\\("), 1)
+  aliased <- .levels_linear_alias(cls_var, var_extract)
+  renamed <- aliased != cls_var
+  closure[renamed] <- paste0(aliased[renamed], substring(closure[renamed], nchar(cls_var[renamed]) + 1L))
+  cls_var <- aliased
 
   backsolve_vars <- var_extract$name[var_extract$condense %in% "backsolve"]
 

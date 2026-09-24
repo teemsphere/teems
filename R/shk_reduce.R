@@ -28,6 +28,7 @@
   all_free <- all_free[order(factors, decreasing = TRUE)]
 
   remaining <- data.table::copy(raw_shock$input)
+  .order_by_sets(remaining, with(sets$ele, mget(set_upper)))
   shock_list <- list()
   base_cls <- class(raw_shock)
 

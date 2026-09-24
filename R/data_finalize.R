@@ -75,6 +75,7 @@
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))
       expected <- as.integer(prod(lengths(dt_sets)))
+      .order_by_sets(dt, dt_sets)
       data.table::setattr(dt, "dim_sizes", lengths(dt_sets))
       data.table::setattr(dt, "dimen", paste(lengths(dt_sets), collapse = " "))
     } else {

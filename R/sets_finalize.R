@@ -88,8 +88,7 @@
       if (is.null(m) && !isTRUE(grepl(set_op_pattern, d, ignore.case = TRUE))) {
         m <- data.table::data.table(
           origin = d,
-          mapping = d,
-          key = c("origin", "mapping")
+          mapping = d
         )
       }
       return(m)

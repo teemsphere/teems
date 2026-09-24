@@ -38,7 +38,7 @@
     "header",
     paste0('"', set_extract$name, '"'),
     "longname",
-    paste0('"', trimws(gsub("#", "", set_extract$label)), '"', ";")
+    paste0('"', .longname(set_extract$label, set_extract$name), '"', ";")
   )
 
   coeff_writeout <- if (write_coefficients) {
@@ -55,7 +55,7 @@
       "header",
       paste0('"', coeff_extract$name, '"'),
       "longname",
-      paste0('"', trimws(gsub("#", "", coeff_extract$label)), '"', ";")
+      paste0('"', .longname(coeff_extract$label, coeff_extract$name), '"', ";")
     )
   } else {
     NULL
@@ -86,4 +86,14 @@
   attr(tab, "file") <- attr(model, "tab_file")
   class(tab) <- c("tab", class(tab))
   return(tab)
+}
+
+#' @keywords internal
+#' @noRd
+.longname <- function(label,
+                      name) {
+  longname <- trimws(gsub("#", "", label))
+  missing <- is.na(label) | !nzchar(longname)
+  longname[missing] <- name[missing]
+  return(longname)
 }

@@ -8,6 +8,7 @@
 
   n_comments <- gsub("(?s)!\\[\\[!.*?!\\]\\]!", "", tab, perl = TRUE)
   n_comments <- paste(unlist(strsplit(n_comments, "![^!]*!", perl = TRUE)), collapse = "")
+  n_comments <- .protect_label_semicolons(n_comments)
   statements <- unlist(strsplit(n_comments, ";", perl = TRUE))
 
   statements <- gsub("\r|\n", " ", statements, perl = TRUE)
@@ -35,6 +36,9 @@
     }
     statements <- unlist(statements)
   }
+
+  statements <- .normalize_statements(statements, call = call)
+  statements <- .continue_assertion_labels(statements)
 
   stray <- startsWith(statements, "#")
   if (any(stray)) {

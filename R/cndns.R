@@ -9,7 +9,8 @@
   none <- list(
     tab = tab,
     flags = NULL,
-    n_backsolve = 0L
+    n_backsolve = 0L,
+    omit_vars = character(0)
   )
 
   intab <- .parse_intab_cndns(tab)
@@ -43,8 +44,9 @@
     intab$actions[purrr::map_chr(intab$actions, "action") == "omit"],
     "var"
   )
+  none$omit_vars <- omit_var
   if (length(omit_var) > 0L && !quiet) {
-    .cli_action(model_info$omit_ignored,
+    .cli_action(model_info$omit_exogenous,
       action = c("inform", "inform"),
       call = call
     )
@@ -137,7 +139,8 @@
   condensed <- list(
     tab = tab,
     flags = flags,
-    n_backsolve = length(pairs)
+    n_backsolve = length(pairs),
+    omit_vars = omit_var
   )
   return(condensed)
 }

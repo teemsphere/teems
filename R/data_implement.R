@@ -12,7 +12,8 @@
     dat_input = v$dat_input,
     par_input = v$par_input,
     set_input = v$set_input,
-    data_call = call
+    data_call = call,
+    generic = v$generic
   )
   if (.layer_detect(i_data, "aez") && !isTRUE(attr(i_data, "metadata")[["aez"]])) {
     i_data <- .prepare_aez(i_data = i_data, call = call)

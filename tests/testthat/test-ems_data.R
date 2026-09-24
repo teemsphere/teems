@@ -26,12 +26,29 @@ test_that("ems_data requires dat_input argument", {
   expect_snapshot_error(ems_data())
 })
 
-test_that("ems_data requires par_input argument", {
-  expect_snapshot_error(ems_data(dat_input))
+test_that("single-file route needs both or neither of par_input and set_input", {
+  expect_snapshot_error(ems_data(dat_input, par_input))
 })
 
-test_that("ems_data requires set_input argument", {
-  expect_snapshot_error(ems_data(dat_input, par_input))
+test_that("single-file route rejects set mappings", {
+  expect_snapshot_error(ems_data(dat_input, REG = "big3"))
+})
+
+test_that("single-file route loads a non-GTAP HAR", {
+  orani_har <- Sys.getenv("ORANIG_har")
+  skip_if(!nzchar(orani_har), "ORANIG_har not set")
+  orani <- ems_data(orani_har)
+  expect_s3_class(orani, "ems_data")
+  is_set <- vapply(orani, inherits, logical(1), "set")
+  expect_setequal(names(orani)[is_set], c("COM", "IND", "OCC", "MAR", "REG"))
+  expect_equal(names(orani[["1BAS"]]), c("COM", "SRC", "IND", "Value"))
+  expect_equal(nrow(orani[["1BAS"]]), 37L * 2L * 35L)
+  expect_equal(names(orani[["P021"]]), "Value")
+  expect_false(any(c("XXCD", "XXHS", "MCM2", "MND2") %in% names(orani)))
+  md <- attr(orani, "metadata")
+  expect_true(isTRUE(md$generic))
+  expect_equal(md$data_format, "generic")
+  expect_true(is.na(md$reference_year))
 })
 
 test_that("ems_data requires REG argument", {

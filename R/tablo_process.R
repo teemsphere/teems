@@ -6,11 +6,18 @@
                            ignore_condense = FALSE,
                            type = NULL,
                            quiet = FALSE,
+                           extra_statements = NULL,
                            call) {
   tab <- .check_tab_file(
     tab_file = tab_file,
     call = call
   )
+  if (length(extra_statements) > 0L) {
+    tab <- c(tab, .check_statements(
+      tab = paste0(extra_statements, ";", collapse = "\n"),
+      call = call
+    ))
+  }
 
   .chk_raw_statements(tab, call = call)
 
@@ -136,5 +143,6 @@
   }
 
   attr(tab, "tab_file") <- basename(tab_file)
+  attr(tab, "omit_vars") <- condensed$omit_vars
   return(tab)
 }

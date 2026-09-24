@@ -4,27 +4,45 @@
                                 call) {
   a[["..."]] <- NULL
 
-  if (length(a$set_mappings) %=% 0L) {
+  a$generic <- is.null(a$par_input) && is.null(a$set_input)
+  if (xor(is.null(a$par_input), is.null(a$set_input))) {
+    .cli_action(data_err$partial_inputs,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (a$generic && length(a$set_mappings) > 0L) {
+    .cli_action(data_err$generic_mappings,
+      action = "abort",
+      call = call
+    )
+  }
+
+  if (!a$generic && length(a$set_mappings) %=% 0L) {
     .cli_action(data_err$missing_set_mappings,
       action = "abort",
       call = call
     )
   }
 
-  a$set_mappings <- .check_named_dots(a$set_mappings)
-  if (isFALSE(a$set_mappings)) {
-    .cli_action(data_err$no_name_mapping,
-      action = "abort",
-      call = call
-    )
+  if (!a$generic) {
+    a$set_mappings <- .check_named_dots(a$set_mappings)
+    if (isFALSE(a$set_mappings)) {
+      .cli_action(data_err$no_name_mapping,
+        action = "abort",
+        call = call
+      )
+    }
   }
 
   checklist <- list(
     dat_input = c("character", "list"),
-    par_input = c("character", "list"),
-    set_input = c("character", "list"),
+    par_input = c("NULL", "character", "list"),
+    set_input = c("NULL", "character", "list"),
     time_steps = c("NULL", "numeric", "integer"),
-    set_mappings = "list"
+    set_mappings = "list",
+    generic = "logical"
   )
 
   .check_arg_class(

@@ -984,8 +984,8 @@ test_that("backsolve through a coefficient pivot synthesizes a reciprocal and wa
   expect_identical(eqs$name[hits], "E_qgdp")
 })
 
-test_that("in-TAB Omit statements are ignored", {
-  omit_model <- write_modified_model(model_file, "Omit atall avaall ;")
+test_that("in-TAB Omit statements exogenize the omitted variables", {
+  omit_model <- write_modified_model(model_file, "Omit atall avaall qgdp ;")
   expect_snapshot(model <- ems_model(omit_model, closure_file))
   # nothing condensed: references kept, statement stripped, variables deployed
   expect_true(all(is.na(model$condense)))
@@ -993,6 +993,10 @@ test_that("in-TAB Omit statements are ignored", {
   expect_false(any(grepl("^Omit", model$tab)))
   tab <- teems:::.finalize_tab(model)
   expect_true(grepl("(?<![[:alnum:]_])atall(?![[:alnum:]_])", tab, perl = TRUE))
+  # omitted variables join the closure once, already-listed ones are not duplicated
+  cls <- attr(model, "closure")
+  expect_equal(sum(cls == "atall"), 1L)
+  expect_equal(sum(cls == "qgdp"), 1L)
 })
 
 test_that("in-TAB Substitute executes as backsolve with a message", {
@@ -1304,6 +1308,130 @@ test_that("GTAPv7 condenses automatically from its in-TAB statements (gtapv7.sti
   expect_true(all(c("UACT", "UCOM", "ALLOCEFF") %in% model$name[model$type == "Set"]))
   expect_true(all(c("UCOM2COMM", "UACT2ACTS") %in% model$name[model$type == "Mapping"]))
   expect_true(sum(model$postsim) > 100L)
+})
+
+test_that("assertion continuation labels are read as assertions", {
+  graft <- paste(
+    "Assertion # first check # (all,r,REG)(all,t,ALLTIME) GDP(r,t) > -1e30;",
+    "# second check # (all,r,REG)(all,t,ALLTIME) GDP(r,t) > -1e30;",
+    sep = "\n"
+  )
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  asserts <- model$tab[model$type == "Assertion"]
+  expect_true(any(grepl("second check", asserts)))
+  expect_equal(sum(grepl("first check|second check", asserts)), 2L)
+})
+
+test_that("a semicolon inside a label does not split the statement", {
+  graft <- "Coefficient (all,r,REG) SCLAB(r) # ratio; near one for local #;"
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  row <- model[model$type == "Coefficient" & model$name == "SCLAB", ]
+  expect_equal(nrow(row), 1L)
+  expect_equal(row$label, "ratio, near one for local")
+})
+
+test_that("braces used as grouping brackets are read as brackets", {
+  graft <- paste(
+    "Variable (all,r,REG)(all,t,ALLTIME) brv(r,t) # braces #;",
+    "Equation E_brv (all,r,REG)(all,t,ALLTIME) brv(r,t) = 2*{qgdp(r,t) + pop(r,t)};",
+    "Backsolve brv using E_brv;",
+    sep = "\n"
+  )
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  expect_true("brv" %in% model$name[model$condense %in% "backsolve"])
+  expect_true(any(grepl("2*[qgdp(r,t) + pop(r,t)]", model$tab, fixed = TRUE)))
+})
+
+test_that("a qualifier written after the quantifier list is accepted", {
+  graft <- paste(
+    "Variable (all,r,REG)(all,t,ALLTIME) (change) qav(r,t) # after the quantifiers #;",
+    "Equation E_qav (all,r,REG)(all,t,ALLTIME) qav(r,t) = qgdp(r,t);",
+    sep = "\n"
+  )
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  row <- model[model$type == "Variable" & model$name == "qav", ]
+  expect_equal(nrow(row), 1L)
+  expect_true(grepl("change", row$qualifier_list))
+  expect_true(startsWith(row$tab, "Variable (change) (all,r,REG)"))
+})
+
+test_that("whitespace inside a quantifier is tolerated", {
+  graft <- "Coefficient (all, r,REG)(all,t, ALLTIME) WSQ(r,t) # spaced quantifiers #;"
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  row <- model[model$type == "Coefficient" & model$name == "WSQ", ]
+  expect_equal(row$ls_upper_idx[[1]], c("REG", "ALLTIME"))
+})
+
+test_that("ranked PostSim sets are flattened to their base set", {
+  graft <- paste(
+    "PostSim (begin);",
+    "Set REGUP = REG ranked up by qgdp;",
+    "Coefficient (all,r,REGUP)(all,t,ALLTIME) RGR(r,t) # ranked report #;",
+    "Formula (all,r,REGUP)(all,t,ALLTIME) RGR(r,t) = qgdp(r,t);",
+    "PostSim (end);",
+    sep = "\n"
+  )
+  expect_snapshot(model <- ems_model(write_modified_model(model_file, graft), closure_file))
+  row <- model[model$type == "Set" & model$name == "REGUP", ]
+  expect_equal(nrow(row), 1L)
+  expect_false(grepl("ranked", row$tab))
+})
+
+test_that("unreferenced sets with @ in their elements are dropped", {
+  graft <- "Set WAGG # AGGHAR instructions # (SCET@@@@1TOT, P018@@@@4PUR);"
+  expect_snapshot(model <- ems_model(write_modified_model(model_file, graft), closure_file))
+  expect_false("WAGG" %in% model$name)
+})
+
+test_that("a referenced set with @ in its elements aborts", {
+  graft <- paste(
+    "Set WAGG # AGGHAR instructions # (SCET@@@@1TOT, P018@@@@4PUR);",
+    "Coefficient (all,w,WAGG) WGT(w) # uses it #;",
+    sep = "\n"
+  )
+  expect_snapshot_error(ems_model(write_modified_model(model_file, graft), closure_file))
+})
+
+test_that("Write (Set) statements are dropped", {
+  graft <- paste(
+    "File (new) SUMMARY # summary #;",
+    "Write (Set) REG to file SUMMARY header \"REGW\";",
+    "Write",
+    " (Set) COMM to file SUMMARY header \"COMW\";",
+    sep = "\n"
+  )
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  expect_false(any(grepl("REGW|COMW", model$tab)))
+})
+
+test_that("an element name equal to a coefficient name is not folded into it", {
+  graft <- paste(
+    "Set MCHK (USE,MAKE,DIFF);",
+    "Coefficient (all,r,REG)(all,t,ALLTIME) MAKE(r,t) # collides with an element #;",
+    "Formula (all,r,REG)(all,t,ALLTIME) MAKE(r,t) = GDP(r,t);",
+    "Coefficient (all,r,REG)(all,t,ALLTIME)(all,m,MCHK) MCHKC(r,t,m) # report #;",
+    "Formula (all,r,REG)(all,t,ALLTIME) MCHKC(r,t,\"MAKE\") = MAKE(r,t);",
+    sep = "\n"
+  )
+  model <- ems_model(write_modified_model(model_file, graft), closure_file)
+  expect_true("MAKE" %in% model$name[model$type == "Coefficient"])
+  expect_false("make" %in% model$name[model$type == "Coefficient"])
+  expect_true(any(grepl("MCHKC(r,t,\"make\") = MAKE(r,t)", model$tab, fixed = TRUE)))
+  expect_true(any(grepl("Set MCHK (use,make,diff)", model$tab, fixed = TRUE)))
+})
+
+test_that("xSet and xSubset lines in the closure file define sets", {
+  mod_closure <- c(
+    "xSet BIG # two regions # (chn, usa);",
+    "xSubset BIG is subset of REG;",
+    "xSet SMALL # the rest # = REG - BIG;",
+    readLines(closure_file)
+  )
+  xset_cls <- file.path(dirname(closure_file), "xset.cls")
+  writeLines(mod_closure, xset_cls)
+  model <- ems_model(model_file, xset_cls)
+  expect_true(all(c("BIG", "SMALL") %in% model$name[model$type == "Set"]))
+  expect_true(any(grepl("^Subset BIG is subset of REG", model$tab[model$type == "Subset"])))
 })
 
 unlink(write_dir, recursive = TRUE)

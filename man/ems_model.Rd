@@ -37,9 +37,9 @@ GEMPACK substitution requirements (GEMPACK manual, section
 If \code{TRUE}, \code{Substitute} and \code{Backsolve} statements found in the
 model file are ignored (the equivalent of the GEMPACK \code{ICT}
 option). In-TAB \code{Substitute} statements are always executed as
-backsolves. In-TAB \code{Omit} statements are always ignored: omission
-does not decrease memory usage or change the solved system in
-TEEMS.}
+backsolves. In-TAB \code{Omit} statements hold the omitted variables
+exogenous and unshocked, which is what omission means in
+GEMPACK; the variables stay in the model and in the outputs.}
 
 \item{...}{A named pairlist assigning values to model
 coefficients. Name must match a coefficient declared in the

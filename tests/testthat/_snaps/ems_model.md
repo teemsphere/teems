@@ -205,13 +205,13 @@
     ! Backsolving qgdp using E_qgdp divides by the coefficient expression GDP(r,t).
     i Ensure this expression can never be zero; a zero value will surface as a solver error.
 
-# in-TAB Omit statements are ignored
+# in-TAB Omit statements exogenize the omitted variables
 
     Code
       model <- ems_model(omit_model, closure_file)
     Message
-      i In-TAB Omit statements ignored for "atall" and "avaall".
-      i Omission does not decrease memory usage or change the solved system in TEEMS, so these variables stay in the model.
+      i In-TAB Omit statements for "atall", "avaall", and "qgdp" applied as exogenous, unshocked closure entries.
+      i Omission removes a variable from the solved system in GEMPACK; TEEMS keeps it in the model and holds it fixed, so its values remain available in solve outputs.
 
 # in-TAB Substitute executes as backsolve with a message
 
@@ -323,4 +323,24 @@
 
     x Shock variable "tva" was condensed out of the model (backsolve).
     i Backsolved variables are endogenous; drop the backsolve in `teems::ems_model()` (or load with `ignore_condense = TRUE`) to shock this variable.
+
+# ranked PostSim sets are flattened to their base set
+
+    Code
+      model <- ems_model(write_modified_model(model_file, graft), closure_file)
+    Message
+      i Ranked set definition(s) for "REGUP" read as the base set; the ranking by "qgdp" is not preserved.
+      i Ordering of report rows is left to the composed outputs.
+
+# unreferenced sets with @ in their elements are dropped
+
+    Code
+      model <- ems_model(write_modified_model(model_file, graft), closure_file)
+    Message
+      i Set "WAGG" dropped: element names contain `@` and the set is not referenced by any statement.
+      i Such sets carry aggregation instructions for GEMPACK utilities and play no part in the solved model.
+
+# a referenced set with @ in its elements aborts
+
+    x Set WAGG has element names containing `@` and is referenced by other statements; `@` is not a valid element character in TEEMS.
 

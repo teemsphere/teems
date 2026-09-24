@@ -26,9 +26,9 @@
 #'   If `TRUE`, `Substitute` and `Backsolve` statements found in the
 #'   model file are ignored (the equivalent of the GEMPACK `ICT`
 #'   option). In-TAB `Substitute` statements are always executed as
-#'   backsolves. In-TAB `Omit` statements are always ignored: omission
-#'   does not decrease memory usage or change the solved system in
-#'   TEEMS.
+#'   backsolves. In-TAB `Omit` statements hold the omitted variables
+#'   exogenous and unshocked, which is what omission means in
+#'   GEMPACK; the variables stay in the model and in the outputs.
 #' @param ... A named pairlist assigning values to model
 #'   coefficients. Name must match a coefficient declared in the
 #'   model file. Value may be a length-1 numeric, a data frame or

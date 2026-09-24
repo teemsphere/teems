@@ -22,11 +22,13 @@
   weights <- c(arr_data, dt_data)
   weights <- weights[names(weights) %in% weight_headers]
 
-  dt_data <- .weight_param(
-    i_data = dt_data,
-    weights = weights,
-    data_format = metadata$data_format
-  )
+  if (metadata$data_format %in% names(param_weights)) {
+    dt_data <- .weight_param(
+      i_data = dt_data,
+      weights = weights,
+      data_format = metadata$data_format
+    )
+  }
 
   ndigits <- .o_ndigits()
   dt_agg <- lapply(dt_data,

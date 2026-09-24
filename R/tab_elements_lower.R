@@ -19,9 +19,11 @@
   ))) {
     upper_ele <- unlist(ele_names[tolower(ele_names) != ele_names])
 
+    is_set <- grepl("^set\\b", tab, ignore.case = TRUE)
+    is_io <- grepl("^(read|write|file)\\b", tab, ignore.case = TRUE)
     for (nme in unique(upper_ele)) {
-      pattern <- paste0("\\b", nme, "\\b")
-      tab <- gsub(pattern, tolower(nme), tab)
+      tab[!is_io] <- gsub(paste0("\"", nme, "\""), paste0("\"", tolower(nme), "\""), tab[!is_io], fixed = TRUE)
+      tab[is_set] <- gsub(paste0("\\b", nme, "\\b"), tolower(nme), tab[is_set])
     }
 
     extract <- .generate_extracts(

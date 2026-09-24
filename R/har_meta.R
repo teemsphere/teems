@@ -5,6 +5,14 @@
                       DVER,
                       data_type) {
   metadata <- list()
+  if (is.null(DREL)) {
+    metadata$database_version <- "generic"
+    metadata$reference_year <- NA_real_
+    if (data_type %=% "dat") {
+      metadata$data_format <- "generic"
+    }
+    return(metadata)
+  }
   if (length(DREL) %=% 1L) {
     string <- purrr::pluck(strsplit(DREL, "_"), 1, 1)
     if (string %=% "R9.0A") {

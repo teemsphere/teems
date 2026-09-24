@@ -13,6 +13,7 @@
     tab_file = v$model_file,
     backsolve = v$backsolve,
     ignore_condense = v$ignore_condense,
+    extra_statements = attr(v$closure, "xsets"),
     call = call
   )
 
@@ -28,8 +29,13 @@
     )
   }
 
-  closure <- .check_closure(
+  closure <- .closure_add_omitted(
     closure = v$closure,
+    omit_vars = attr(model, "omit_vars")
+  )
+
+  closure <- .check_closure(
+    closure = closure,
     var_extract = model[model$type == "Variable", ],
     call = call
   )

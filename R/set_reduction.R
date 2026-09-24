@@ -6,7 +6,7 @@
   return(UseMethod(".reduce2sets"))
 }
 
-#' @importFrom data.table fsetequal
+#' @importFrom data.table fsetdiff
 #' @noRd
 #' @keywords internal
 #' @method .reduce2sets ele
@@ -14,7 +14,7 @@
 .reduce2sets.ele <- function(preswap,
                              swap,
                              ...) {
-  if (!data.table::fsetequal(attr(preswap, "ele"), attr(swap, "ele"))) {
+  if (nrow(data.table::fsetdiff(attr(preswap, "ele"), attr(swap, "ele"))) != 0L) {
     .cli_action(gen_err$ele_swap_internal,
       action = "abort",
       .internal = TRUE

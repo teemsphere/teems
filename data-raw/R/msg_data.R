@@ -45,6 +45,10 @@ build_data_err <- function(layer_spec) {
     ),
     # test-ems_data.R: "ems_data requires REG argument"
     missing_set_mappings = "Set mappings are required as named arguments in {.arg ...}.",
+    # test-ems_data.R: "single-file route rejects set mappings"
+    generic_mappings = "Set mappings cannot be applied on the single-file route ({.arg par_input} and {.arg set_input} absent); the file is loaded at full resolution.",
+    # test-ems_data.R: "single-file route needs both or neither of par_input and set_input"
+    partial_inputs = "{.arg par_input} and {.arg set_input} must be given together or both left {.code NULL} (single-file route).",
     # test-GTAP_convert.R: "GTAP_convert GTAP-AEZ target rejects the v6-format layer (v10a AEZ)"
     aez_v6_format = c(
       "The {.val GTAP-AEZ} target prepares the GTAPv7-format AEZ layer (GTAP 11/12 AEZ databases); the input is in the v6.2 format.",
@@ -143,6 +147,11 @@ build_data_info <- function(layer_spec) {
       layer_group(ep, "energy"), "), the electricity nest sets (",
       paste0(names(ep$nest$families), "*", collapse = ", "), "), ",
       layer_group(ep, "top"), ", and ", cde(ep), "."
+    ),
+    # test-ems_data.R: "single-file route loads a non-GTAP HAR"
+    generic = c(
+      "Single-file database: {n_sets} set{?s} ({.val {set_names}}) and {n_headers} data headers, loaded at full resolution.",
+      "No database version is recorded and set mappings do not apply on this route."
     ),
     # test-inform_messages.R: "loaded data reports its version, reference year and format"
     dat = c(

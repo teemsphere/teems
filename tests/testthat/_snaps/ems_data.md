@@ -2,13 +2,13 @@
 
     x argument `dat_input` is missing, with no default
 
-# ems_data requires par_input argument
+# single-file route needs both or neither of par_input and set_input
 
-    x argument `par_input` is missing, with no default
+    x `par_input` and `set_input` must be given together or both left `NULL` (single-file route).
 
-# ems_data requires set_input argument
+# single-file route rejects set mappings
 
-    x argument `set_input` is missing, with no default
+    x Set mappings cannot be applied on the single-file route (`par_input` and `set_input` absent); the file is loaded at full resolution.
 
 # ems_data requires REG argument
 
@@ -20,11 +20,11 @@
 
 # ems_data rejects non-character par_input
 
-    x `par_input` must be a character or list, not a number.
+    x `par_input` must be a NULL, character, or list, not a number.
 
 # ems_data rejects non-character set_input
 
-    x `set_input` must be a character or list, not a number.
+    x `set_input` must be a NULL, character, or list, not a number.
 
 # ems_data rejects non-character REG
 

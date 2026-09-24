@@ -88,6 +88,17 @@ test_that("ems_deploy accepts mixed direct input ems_swap partial variable swap"
   expect_true(file.exists(cmf_path))
 })
 
+test_that("successive partial swap-outs of one variable reduce cleanly", {
+  shk <- ems_uniform_shock("qfd", 1)
+  swap_in <- list(ems_swap("yp", REGr = "row"), ems_swap("yp", REGr = "chn"), "qfd")
+  swap_out <- list(ems_swap("dppriv", REGr = "row"), ems_swap("dppriv", REGr = "chn"), "tfd")
+  nest_temp("deploy_swap_chain", write_dir)
+  cmf_path <- ems_deploy(dat, model, shk, swap_in, swap_out)
+  cls <- readLines(file.path(dirname(cmf_path), "GTAP-RE.cls"))
+  expect_true(any(grepl("^dppriv\\(\"usa\"", cls)))
+  expect_false(any(grepl("^dppriv\\(\"row\"|^dppriv\\(\"chn\"|^dppriv$", cls)))
+})
+
 test_that("ems_deploy folds element case in swaps", {
   shk <- ems_uniform_shock("qfd", 1)
   nest_temp("deploy_case_lower", write_dir)

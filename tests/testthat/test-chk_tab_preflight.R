@@ -421,3 +421,24 @@ test_that("an IF in a Formula without quantifiers lowers through a one-element f
   expect_match(model$tab, "Formula (initial) SIFB = sum(ifo1i,IFO1,IFV2(ifo1i));", fixed = TRUE, all = FALSE)
   expect_false(any(grepl("\\bIF\\s*\\(", model$tab)))
 })
+
+test_that("condensation keeps a quantifier index whose case differs from its uses (GEMPACK manual 11.1.3)", {
+  quiet_pivot(model <- suppressWarnings(.process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (all,c,COMM)(all,r,REG) zqw(c,r);",
+      "Equation E_zqw (all,C,COMM)(all,r,REG) zqw(c,r) = sum{d,REG, VFOB(c,r,d)*pfob(c,r,d)};",
+      sep = "\n"
+    )),
+    backsolve = "pfob",
+    quiet = TRUE,
+    call = NULL
+  )))
+  eq <- model$tab[model$name %in% "E_zqw"]
+  csub <- regmatches(eq, regexpr("CSUB[0-9]+", eq))
+  expect_match(eq, paste0(csub, "(c,r)*pds(c,r)"), fixed = TRUE)
+  expect_match(
+    model$tab,
+    paste0("Formula (all,c,COMM)(all,r,REG) ", csub, "(c,r) = sum{d,REG, VFOB(c,r,d)}"),
+    fixed = TRUE, all = FALSE
+  )
+})

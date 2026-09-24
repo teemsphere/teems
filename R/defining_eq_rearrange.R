@@ -61,7 +61,7 @@
     }
 
     binding <- .quant_binding(entry$quants)
-    binding <- binding[intersect(names(binding), .expr_idents(pivot_expr))]
+    binding <- .binding_used(binding, pivot_expr)
     pivot_ref <- .csub_new(
       expr = pivot_expr,
       binding = binding,

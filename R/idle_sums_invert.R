@@ -48,11 +48,9 @@
 
   keep <- term$quants[!idle]
   full_binding <- c(binding, .quant_binding(keep))
-  used <- intersect(names(full_binding), .expr_idents(expr))
-
   ref <- .csub_new(
     expr = expr,
-    binding = full_binding[used],
+    binding = .binding_used(full_binding, expr),
     label = label,
     csub = csub
   )

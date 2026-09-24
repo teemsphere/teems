@@ -15,10 +15,9 @@
   for (f in seq_along(term$fac)[-1]) {
     expr <- paste0(expr, term$ops[[f]], term$fac[[f]])
   }
-  used <- intersect(names(binding), .expr_idents(expr))
   ref <- .csub_new(
     expr = expr,
-    binding = binding[used],
+    binding = .binding_used(binding, expr),
     label = label,
     csub = csub
   )

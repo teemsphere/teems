@@ -24,7 +24,7 @@ write_tab <- function(text, name = "mut.tab", ...) {
 }
 
 process <- function(path) {
-  .process_tablo(tab_file = path, quiet = TRUE, call = NULL)
+  quiet_pivot(.process_tablo(tab_file = path, quiet = TRUE, call = NULL))
 }
 
 base_model <- process(model_file)

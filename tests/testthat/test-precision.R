@@ -68,7 +68,7 @@ test_that("precision = \"double\" reaches the solver and the record (e2e)", {
     ENDW = "labor_agg"
   ))
   model_files <- ems_example("GTAPv7", write_dir)
-  model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]])
+  quiet_pivot(model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]]))
   cmf_path <- ems_deploy(d, model)
   out <- suppressMessages(ems_solve(
     cmf_path,
@@ -106,7 +106,7 @@ test_that("default precision records single (e2e)", {
     ENDW = "labor_agg"
   ))
   model_files <- ems_example("GTAPv7", write_dir)
-  model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]])
+  quiet_pivot(model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]]))
   cmf_path <- ems_deploy(d, model)
   out <- suppressMessages(ems_solve(cmf_path))
   expect_s3_class(out, "data.frame")

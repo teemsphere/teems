@@ -33,7 +33,7 @@ mutate_tab <- function(text, name = "mut.tab") {
 
 expect_preflight_error <- function(text) {
   expect_snapshot_error(
-    .process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL)
+    quiet_pivot(.process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL))
   )
 }
 
@@ -56,11 +56,11 @@ mapping_block <- paste(
 # --- model stage -------------------------------------------------------
 
 test_that("mapping declarations and by_elements reads parse", {
-  model <- .process_tablo(
+  quiet_pivot(model <- .process_tablo(
     tab_file = mutate_tab(mapping_block),
     quiet = TRUE,
     call = NULL
-  )
+  ))
   # the GTAPv7 fixture carries its own report-block mappings
   map_row <- model[model$type == "Mapping" & model$name == "REGTOBLOC", ]
   expect_identical(nrow(map_row), 1L)
@@ -81,7 +81,7 @@ test_that("mapping declarations and by_elements reads parse", {
 })
 
 test_that("mapping set references are canonicalized to declared case", {
-  model <- .process_tablo(
+  quiet_pivot(model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Set BLOC (blk1, blk2);",
       "Mapping RB from reg to bloc;",
@@ -90,7 +90,7 @@ test_that("mapping set references are canonicalized to declared case", {
     )),
     quiet = TRUE,
     call = NULL
-  )
+  ))
   map_row <- model[model$type == "Mapping" & model$name == "RB", ]
   expect_identical(map_row$comp1, "REG")
   expect_identical(map_row$comp2, "BLOC")
@@ -98,11 +98,11 @@ test_that("mapping set references are canonicalized to declared case", {
 })
 
 test_that("mapping-equality sum conditions keep the full RHS in comp2", {
-  model <- .process_tablo(
+  quiet_pivot(model <- .process_tablo(
     tab_file = mutate_tab(mapping_block),
     quiet = TRUE,
     call = NULL
-  )
+  ))
   cond <- model[model$type == "Formula" &
     !is.na(model$comp2) & grepl("REGTOBLOC", model$comp2), ]
   expect_identical(
@@ -246,7 +246,7 @@ tab_file <- mutate_tab(mapping_block, name = "mapped.tab")
 test_that("a consistent mapping composes under aggregation", {
   nest_temp("map_compose", write_dir)
   d <- map_data(consistent_mblc)
-  model <- ems_model(tab_file, closure_file)
+  quiet_pivot(model <- ems_model(tab_file, closure_file))
   cmf_path <- ems_deploy(d, model, swap_in = "vbloc")
   run_dir <- dirname(cmf_path)
 
@@ -274,50 +274,50 @@ test_that("mapped formulas alone do not set the equation flag", {
     sep = "\n"
   )
   d <- map_data(consistent_mblc)
-  model <- ems_model(mutate_tab(formula_block, name = "fml.tab"), closure_file)
+  quiet_pivot(model <- ems_model(mutate_tab(formula_block, name = "fml.tab"), closure_file))
   cmf_path <- ems_deploy(d, model)
   metadata <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))
   expect_false(metadata$mapped_equations)
 })
 
 deploy_error <- function(d, tf = tab_file, ...) {
-  model <- ems_model(tf, closure_file)
+  model <- quiet_pivot(ems_model(tf, closure_file))
   ems_deploy(d, model, ...)
 }
 
 test_that("mapping header missing from the data aborts", {
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(NULL), swap_in = "vbloc")
-  )
+  ))
 })
 
 test_that("mapping header count mismatch aborts", {
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(c("blk1", "blk2")), swap_in = "vbloc")
-  )
+  ))
 })
 
 test_that("mapping values outside the codomain abort", {
   bad <- consistent_mblc
   bad[1] <- "blk9"
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(bad), swap_in = "vbloc")
-  )
+  ))
 })
 
 test_that("a split mapping under aggregation aborts", {
   split <- consistent_mblc
   split[which(reg_agg == "row")[1]] <- "blk2"
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(split), swap_in = "vbloc")
-  )
+  ))
 })
 
 test_that("onto coverage is re-checked on the aggregated sets", {
   uncovered <- rep("blk1", length(reg_src))
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(uncovered), swap_in = "vbloc")
-  )
+  ))
 })
 
 # --- e2e solve legs (need a teems image with the mapping solver,
@@ -374,7 +374,7 @@ test_that("a conditional-sum formula solves with composed mapping values (e2e)",
     sep = "\n"
   )
   d <- map_data(consistent_mblc)
-  model <- ems_model(mutate_tab(cond_block, name = "cond.tab"), closure_file)
+  quiet_pivot(model <- ems_model(mutate_tab(cond_block, name = "cond.tab"), closure_file))
   cmf_path <- ems_deploy(d, model)
   out <- suppressMessages(ems_solve(cmf_path))
   expect_s3_class(out, "data.frame")
@@ -387,7 +387,7 @@ test_that("a mapped-index equation solves to the pinned total (e2e)", {
   # uniformly: 3 aggregated regions pick up 10 each under the linear
   # Johansen solution (a multi-step solution compounds them to 33.1)
   d <- map_data(consistent_mblc)
-  model <- ems_model(tab_file, closure_file)
+  quiet_pivot(model <- ems_model(tab_file, closure_file))
   cmf_path <- ems_deploy(
     d,
     model,
@@ -411,7 +411,7 @@ test_that("a mapped-index equation solves under a bordered method (e2e)", {
   # border classification routes mapped references, so the bordered
   # methods accept mapped equations (bordered pair, Part A)
   d <- map_data(consistent_mblc)
-  model <- ems_model(tab_file, closure_file)
+  quiet_pivot(model <- ems_model(tab_file, closure_file))
   cmf_path <- ems_deploy(
     d,
     model,

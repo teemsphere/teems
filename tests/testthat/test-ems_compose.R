@@ -192,7 +192,7 @@ test_that("a run without a coefficient dump or CSVs warns and returns variables 
     ACTS = "macro_sector",
     ENDW = "labor_agg"
   )
-  static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
+  quiet_pivot(static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]]))
   nest_temp("no_coeff", write_dir)
   static_cmf <- ems_deploy(static_dat, static_model)
   withr::defer(ems_option_set(tempdir = write_dir))

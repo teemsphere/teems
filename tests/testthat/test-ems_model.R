@@ -886,7 +886,7 @@ test_that("ems_model errors dots passed without names", {
 test_that("ems_model examples run", {
   # Simple static model retrieval and load
   GTAPv7 <- ems_example("GTAPv7", write_dir)
-  model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
+  quiet_pivot(model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]]))
   
   # Retrieve intertemporal model
   GTAP_RE <- ems_example("GTAP-RE", write_dir)

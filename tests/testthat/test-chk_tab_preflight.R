@@ -20,7 +20,7 @@ mutate_tab <- function(text, name = "mut.tab") {
 
 expect_preflight_error <- function(text) {
   expect_snapshot_error(
-    .process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL)
+    quiet_pivot(.process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL))
   )
 }
 
@@ -53,13 +53,13 @@ test_that("p_/c_ variable-pair clashes abort", {
 test_that("the hand-linearized pair idiom parses", {
   # VKB is a declared GTAPv7 coefficient: coefficient X + variable
   # p_X is the supported pair (solver section-6 naming resolution)
-  model <- .process_tablo(
+  quiet_pivot(model <- .process_tablo(
     tab_file = mutate_tab(
       "Variable (all,r,REG) p_VKB(r) # pair of coefficient VKB #;"
     ),
     quiet = TRUE,
     call = NULL
-  )
+  ))
   expect_true("p_VKB" %in% model$name[model$type == "Variable"])
 })
 
@@ -190,9 +190,9 @@ test_that("PostSim reads into PostSim coefficients pass", {
     "File PSDATA;",
     'Read PSREADC from file PSDATA header "PSRD";'
   )
-  expect_no_error(
+  quiet_pivot(expect_no_error(
     .process_tablo(tab_file = mutate_tab(txt), quiet = TRUE, call = NULL)
-  )
+  ))
 })
 
 test_that("PostSim scope violations abort", {
@@ -260,9 +260,9 @@ test_that("internal models pass the pre-flight", {
     system.file("models/GTAP-RE/GTAP-RE.tab", package = "teems")
   )
   for (tab in tabs[nzchar(tabs)]) {
-    expect_no_error(
+    quiet_pivot(expect_no_error(
       .process_tablo(tab_file = tab, quiet = TRUE, call = NULL)
-    )
+    ))
   }
 })
 

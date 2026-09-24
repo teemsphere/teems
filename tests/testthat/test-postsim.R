@@ -23,7 +23,7 @@ ps_section <- paste(
 tab_txt <- readChar(model_file, file.info(model_file)$size)
 writeChar(paste0(tab_txt, "\n", ps_section, "\n"), model_file, eos = NULL)
 
-model <- ems_model(model_file, closure_file)
+quiet_pivot(model <- ems_model(model_file, closure_file))
 
 test_that("PostSim section rows are tagged in the model tibble", {
   expect_true("postsim" %in% names(model))
@@ -72,9 +72,9 @@ test_that("forbidden statements in a PostSim section abort", {
     paste0(tab_txt, "\n", ps_section, "\n")
   )
   writeChar(bad_txt, bad_file, eos = NULL)
-  expect_snapshot_error(
+  quiet_pivot(expect_snapshot_error(
     .process_tablo(tab_file = bad_file, quiet = TRUE, call = NULL)
-  )
+  ))
 })
 
 test_that("PostSim runs end-to-end through deploy, solve and compose", {

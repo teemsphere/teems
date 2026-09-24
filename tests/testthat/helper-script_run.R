@@ -25,7 +25,7 @@ run_script <- function(model,
   env$model_file <- model_files[["model_file"]]
   env$closure_file <- model_files[["closure_file"]]
   env$services <- services
-  source(path, local = env)
+  quiet_pivot(source(path, local = env))
 
   checks <- mget(
     c("check", "checks", "var_check", "coeff_check"),
@@ -112,4 +112,17 @@ scrub_paths <- function(lines) {
   lines <- gsub("--mount ['\"](type=bind[^'\"]*)['\"]", "--mount \\1", lines)
   lines <- gsub("solver_out_[0-9]+(_[0-9]+)?\\.txt", "solver_out_HHMM.txt", lines)
   gsub("teems:[A-Za-z0-9._-]+ /bin/bash", "teems:TAG /bin/bash", lines)
+}
+
+# Muffle the condensation warning that a backsolve pivot divides by a
+# coefficient expression (model_wrn$condense_pivot_zero): the GTAPv7 and
+# GTAP-RE models raise it on every ems_model() call, and
+# test-ems_model.R "backsolve through a coefficient pivot synthesizes a
+# reciprocal and warns" is the one test that asserts it fires.
+quiet_pivot <- function(expr) {
+  withCallingHandlers(expr, warning = function(w) {
+    if (grepl("divides by the coefficient expression", conditionMessage(w), fixed = TRUE)) {
+      invokeRestart("muffleWarning")
+    }
+  })
 }

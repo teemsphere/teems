@@ -92,6 +92,8 @@
     non_int_req <- setdiff(non_int_req, model_headers)
   }
 
+  a$.data <- .canonical_headers(a$.data, a$model$header[!is.na(a$model$header)])
+
   if (any(!non_int_req %in% names(a$.data))) {
     missing_headers <- setdiff(non_int_req, names(a$.data))
     .cli_action(deploy_err$missing_header,

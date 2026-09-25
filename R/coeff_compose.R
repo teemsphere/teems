@@ -47,15 +47,17 @@
 
   r_idx <- match(coeff_tib$name, coeff_extract$name)
   coeff_tib$set_nmes <- coeff_extract$ls_mixed_idx[r_idx]
+  coeff_tib$upper_nmes <- coeff_extract$ls_upper_idx[r_idx]
 
   coeff_tib$dat <- purrr::pmap(
     .l = list(
       dimen    = coeff_tib$dim,
       col_nmes = coeff_tib$set_nmes,
+      upper_nmes = coeff_tib$upper_nmes,
       num_ls   = coeff_tib$ls_data
     ),
-    .f = \(dimen, col_nmes, num_ls) {
-      dt <- .parse_coeff_block(dimen, col_nmes, num_ls, sets, call)
+    .f = \(dimen, col_nmes, upper_nmes, num_ls) {
+      dt <- .parse_coeff_block(dimen, col_nmes, upper_nmes, num_ls, sets, call)
       return(dt)
     }
   )

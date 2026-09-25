@@ -106,3 +106,26 @@ test_that("stray label text outside a statement aborts", {
   )
   expect_snapshot_error(process(write_tab(txt)))
 })
+
+test_that("declared names are canonicalised to their declared spelling", {
+  st <- c(
+    "Set Com # c # (Wool, Com, Grain)",
+    "Set MIND = (all,i,Ind: X(i) > 0)",
+    "Set IND # i # read elements from file InFile header \"IND\"",
+    "File INFILE # data #",
+    "Coefficient (all,c,COM)(all,i,ind) Make(c,i) # MAKE #",
+    "Read MAKE from file Infile header \"Make\"",
+    "Variable (all,c,com) xCom(c)",
+    "Equation E_x (all,c,COM) xcom(c) = sum{i,IND, MAKE(c,i)*XCOM(c)} + y(\"com\")"
+  )
+  out <- .canonical_names(st)
+  expect_identical(out[1], st[1])
+  expect_identical(out[2], "Set MIND = (all,i,IND: X(i) > 0)")
+  expect_identical(out[3], "Set IND # i # read elements from file INFILE header \"IND\"")
+  expect_identical(out[5], "Coefficient (all,c,Com)(all,i,IND) Make(c,i) # MAKE #")
+  expect_identical(out[6], "Read Make from file INFILE header \"Make\"")
+  expect_identical(out[8], "Equation E_x (all,c,Com) xCom(c) = sum{i,IND, Make(c,i)*xCom(c)} + y(\"com\")")
+
+  clash <- .canonical_names(c("Coefficient (all,r,REG) POP(r)", "Variable (all,r,REG) pop(r)", "Equation E_p (all,r,REG) pop(r) = POP(r)"))
+  expect_identical(clash[3], "Equation E_p (all,r,REG) pop(r) = POP(r)")
+})

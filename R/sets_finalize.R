@@ -16,8 +16,9 @@
                            model = NULL,
                            set_raw = NULL) {
   
-  if (!all(stats::na.omit(set_extract$header) %in% names(sets))) {
-    m_map <- setdiff(stats::na.omit(set_extract$header), names(sets))
+  if (!all(toupper(stats::na.omit(set_extract$header)) %in% toupper(names(sets)))) {
+    m_map <- stats::na.omit(set_extract$header)
+    m_map <- m_map[!toupper(m_map) %in% toupper(names(sets))]
    .cli_action(deploy_err$missing_mapping,
                action = "abort",
                call = data_call) 
@@ -71,12 +72,12 @@
       }
     )
 
-    r_idx <- match(set_extract$header, names(sets))
+    r_idx <- match(toupper(set_extract$header), toupper(names(sets)))
     set_extract$mapping <- ifelse(!is.na(r_idx),
                                   sets[r_idx],
                                   set_extract$mapping)
   } else {
-    r_idx <- match(set_extract$header, names(sets))
+    r_idx <- match(toupper(set_extract$header), toupper(names(sets)))
     set_extract$mapping <- sets[r_idx]
   }
   names(set_extract$mapping) <- set_extract$name

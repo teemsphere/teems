@@ -9,7 +9,7 @@
       if (var_sets %=% NA) {
         return(1)
       }
-      prod(lengths(with(sets$ele, mget(var_sets, ifnotfound = ""))))
+      prod(lengths(sets$ele[match(tolower(var_sets), tolower(names(sets$ele)))]))
     }
   ))
   return(n_elements)

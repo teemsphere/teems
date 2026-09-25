@@ -1,4 +1,5 @@
 #' @importFrom purrr map_chr
+#' @importFrom tools file_path_sans_ext
 #' @keywords internal
 #' @noRd
 .finalize_cmf <- function(model,
@@ -14,7 +15,7 @@
 
   tab_path <- file.path(write_dir, tab_file)
   cls_path <- file.path(write_dir, cls_file)
-  cmf_path <- sub("\\.tab", "\\.cmf", tab_path)
+  cmf_path <- paste0(tools::file_path_sans_ext(tab_path), ".cmf")
   shf_path <- file.path(write_dir, shock_file)
   
   cmf_comp <- c(

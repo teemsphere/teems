@@ -259,7 +259,7 @@
 ---
 
     x Failed to parse E_tq into linear terms while condensing: unsupported equation quantifier form.
-    i Statement: Equation E_tq (all,r,REG: POP(r) > 0)(all,t,ALLTIME) tvq(r,t) = pop(r,t).
+    i Statement: Equation E_tq (all,r,REG: pop(r) > 0)(all,t,ALLTIME) tvq(r,t) = pop(r,t).
 
 # backsolve rule violations abort (GEMPACK 14.1.10)
 

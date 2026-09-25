@@ -1,4 +1,4 @@
-#' @importFrom purrr map map2 map2_lgl pmap
+#' @importFrom purrr map map2 pmap pmap_lgl
 #' @importFrom data.table data.table CJ setnames setkeyv set
 #' @importFrom tibble tibble
 #' @keywords internal
@@ -61,14 +61,13 @@
   })
 
   set_names <- names(sets)
-  strict_check <- all(purrr::map2_lgl(
-    coeff_extract$ls_mixed_idx,
-    cofs$column_id,
-    \(mixed, c_id) {
+  strict_check <- all(purrr::pmap_lgl(
+    list(coeff_extract$ls_mixed_idx, coeff_extract$ls_upper_idx, cofs$column_id),
+    \(mixed, upper, c_id) {
       if (mixed %=% NA_character_ || anyNA(c_id)) {
         return(mixed %=% NA_character_ && anyNA(c_id))
       }
-      declared <- tolower(.dock_tail(mixed))
+      declared <- tolower(upper)
       dumped <- tolower(set_names[as.integer(c_id) + 1L])
       length(declared) == length(dumped) && all(declared == dumped)
     }

@@ -54,6 +54,12 @@ test_that("single-file route loads a non-GTAP HAR", {
   expect_true(is.unsorted(orani[["COM"]]$origin))
   expect_identical(orani[["COM"]]$origin, orani[["COM"]]$mapping)
 
+  # an upper-case extension reads through the same route
+  upper_har <- file.path(tempdir(), "BASEDATA.HAR")
+  file.copy(orani_har, upper_har, overwrite = TRUE)
+  withr::defer(unlink(upper_har))
+  upper <- ems_data(upper_har)
+  expect_identical(upper[["COM"]], orani[["COM"]])
 })
 
 test_that("pass-through sets keep file order and aggregated sets sort", {

@@ -21,7 +21,7 @@
     )
   }
 
-  ext <- tools::file_ext(file)
+  ext <- tolower(tools::file_ext(file))
   classes <- c(ext, class(file))
   file <- normalizePath(file)
   class(file) <- classes

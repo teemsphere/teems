@@ -19,6 +19,8 @@
     ))
   }
 
+  tab <- .canonical_names(tab)
+
   .chk_raw_statements(tab, call = call)
 
   ps_decl_names <- .postsim_decl_names(tab)

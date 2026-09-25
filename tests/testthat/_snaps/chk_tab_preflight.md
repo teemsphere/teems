@@ -177,7 +177,7 @@
 
 ---
 
-    x Sum with an empty index in: "Formula (all,r,REG) CBAD(r) = sum(,REG, VGDP(r))"
+    x Sum with an empty index in: "Formula (all,r,REG) CBAD(r) = sum(,REG, vgdp(r))"
     i Write `sum(<index>,<set>, <expression>)`.
 
 ---
@@ -190,17 +190,17 @@
 
 ---
 
-    x Reference "VGDP( )" has an empty index in: "Formula (all,r,REG) CBAD2(r) = VGDP( )"
+    x Reference "vgdp( )" has an empty index in: "Formula (all,r,REG) CBAD2(r) = vgdp( )"
     i A reference carries exactly the declared indices, `NAME(<index>, ...)` (GEMPACK manual 10.3, 11.4.10).
 
 ---
 
-    x Reference "VGDP(r,,)" has an empty index in: "Formula (all,r,REG) CBAD3(r) = VGDP(r,,)"
+    x Reference "vgdp(r,,)" has an empty index in: "Formula (all,r,REG) CBAD3(r) = vgdp(r,,)"
     i A reference carries exactly the declared indices, `NAME(<index>, ...)` (GEMPACK manual 10.3, 11.4.10).
 
 # statements over the solver statement buffer abort
 
-    x Statement "Formula (all,r,REG) CLONG(r) = VGDP(r)+VGDP(r)+VGDP(r)+VGDP(..." needs about 20858 characters in the solver, over its 20000-character statement limit.
+    x Statement "Formula (all,r,REG) CLONG(r) = vgdp(r)+vgdp(r)+vgdp(r)+vgdp(..." needs about 20858 characters in the solver, over its 20000-character statement limit.
     i Split it into shorter statements, for example through intermediate coefficients or variables. Equation and Update statements count 2 extra characters per variable reference.
 
 ---
@@ -215,7 +215,7 @@
 
 ---
 
-    x Unbalanced parentheses in: "Formula (all,r,REG) CUNB2(r) = (VGDP(r)+1))"
+    x Unbalanced parentheses in: "Formula (all,r,REG) CUNB2(r) = (vgdp(r)+1))"
     i Every `(` needs a matching `)`; an unclosed `sum(` is the common case.
 
 # subsets by numbers abort

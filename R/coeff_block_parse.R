@@ -1,12 +1,12 @@
 #' @importFrom data.table setDT
 #' @keywords internal
 #' @noRd
-.parse_coeff_block <- function(dimen, col_nmes, num_ls, sets, call) {
+.parse_coeff_block <- function(dimen, col_nmes, upper_nmes, num_ls, sets, call) {
   dim_length <- length(dimen)
   has_sets   <- col_nmes %!=% NA_character_
   
   if (has_sets) {
-    r_idx <- match(.dock_tail(string = col_nmes), names(sets))
+    r_idx <- match(tolower(upper_nmes), tolower(names(sets)))
     if (anyNA(r_idx)) {
       .cli_action(compose_err$invalid_coeff_set, action = "abort", call = call)
     }

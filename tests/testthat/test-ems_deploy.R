@@ -316,6 +316,17 @@ test_that("an unlabelled header is dimensioned from its reading coefficient", {
   expect_snapshot_error(.dimension_positional(agg, unl_model, set_ele, call = NULL))
 })
 
+test_that("data headers match the TAB's header spelling case-insensitively", {
+  d1 <- data.table::data.table(Value = 1)
+  class(d1) <- c("P21h", "dat", class(d1))
+  d2 <- data.table::data.table(Value = 2)
+  class(d2) <- c("XPLH", "dat", class(d2))
+  out <- .canonical_headers(list(P21h = d1, XPLH = d2), c("P21H", "XPLh", "OTHR"))
+  expect_identical(names(out), c("P21H", "XPLh"))
+  expect_identical(class(out$P21H)[1], "P21H")
+  expect_identical(class(out$XPLh)[1], "XPLh")
+})
+
 test_that("ems_deploy errors when aggregated inputs are incomplete", {
   mod_data <- ems_data(
     dat_input,

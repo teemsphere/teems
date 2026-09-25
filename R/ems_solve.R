@@ -73,7 +73,12 @@
 #'   `c(2L, 4L, 8L)` for the extrapolating methods, `4L` for the
 #'   Runge-Kutta methods). `"Gragg"`, `"Johansen"` and `"Euler"`
 #'   take a vector of length 3: the three counts must increase for
-#'   `"Gragg"` and `"Euler"`, and must all be even for `"Gragg"`.
+#'   `"Gragg"` and `"Euler"`, and must be all even or all odd for
+#'   `"Gragg"` (even counts are recommended). `"Gragg"` and
+#'   `"Euler"` also take a single count, a single multi-step run
+#'   without Richardson extrapolation (GEMPACK's single Euler
+#'   N-step run, as used by recursive-dynamic models); no
+#'   extrapolation accuracy estimate is then available.
 #'   `"RK2"`, `"Heun"`, `"RK4"`, `"BoSha32"` and `"DoPri54"` take a
 #'   single count of 1 or more. A larger number of steps may
 #'   improve accuracy for some model runs.

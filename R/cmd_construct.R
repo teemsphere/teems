@@ -70,7 +70,9 @@
   )
   solver_param <- paste(
     "-matsol", matsol,
-    if (solmed %in% c("Gragg", "Euler")) {
+    if (solmed %in% c("Gragg", "Euler") && length(steps) == 1L) {
+      paste("-step1", steps[1], "-single_run 1")
+    } else if (solmed %in% c("Gragg", "Euler")) {
       paste("-step1", steps[1], "-step2", steps[2], "-step3", steps[3])
     },
     if (solmed %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")) {

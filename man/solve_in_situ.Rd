@@ -138,7 +138,12 @@ large shock magnitudes.}
 \code{c(2L, 4L, 8L)} for the extrapolating methods, \code{4L} for the
 Runge-Kutta methods). \code{"Gragg"}, \code{"Johansen"} and \code{"Euler"}
 take a vector of length 3: the three counts must increase for
-\code{"Gragg"} and \code{"Euler"}, and must all be even for \code{"Gragg"}.
+\code{"Gragg"} and \code{"Euler"}, and must be all even or all odd for
+\code{"Gragg"} (even counts are recommended). \code{"Gragg"} and
+\code{"Euler"} also take a single count, a single multi-step run
+without Richardson extrapolation (GEMPACK's single Euler
+N-step run, as used by recursive-dynamic models); no
+extrapolation accuracy estimate is then available.
 \code{"RK2"}, \code{"Heun"}, \code{"RK4"}, \code{"BoSha32"} and \code{"DoPri54"} take a
 single count of 1 or more. A larger number of steps may
 improve accuracy for some model runs.}

@@ -6,19 +6,20 @@
 
     x `n_tasks` must be integer-like.
 
-# ems_solve errors when steps is not length 3
+# ems_solve errors when steps is not length 1 or 3
 
-    x `steps` must be a numeric vector of length 3.
-
-# ems_solve errors when steps are not all even for Gragg
-
-    x `steps` must be all even when `solution_method` is "Gragg".
-    i Gragg's method guarantees its accuracy properties for even step counts only (Pearson 1991, Theorem 6.1).
+    x `steps` must be one or three positive whole numbers.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated.
 
 ---
 
-    x `steps` must be all even when `solution_method` is "Gragg".
-    i Gragg's method guarantees its accuracy properties for even step counts only (Pearson 1991, Theorem 6.1).
+    x `steps` must be one or three positive whole numbers.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated.
+
+# ems_solve errors when Gragg steps mix parity
+
+    x `steps` must be all even or all odd when `solution_method` is "Gragg".
+    i Richardson extrapolation of Gragg solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended.
 
 # ems_solve errors when steps are not increasing
 
@@ -81,7 +82,7 @@
     Condition
       Error in `ems_solve()`:
       x The solver stopped on 1 runtime error while evaluating model values:
-      i coefficient vdgb has a value below its declared lower bound 0.000000
+      i coefficient vdgb has an updated value below its declared lower bound 0.000000
       i See GEMPACK manual section "25.4.4".
       i Full log: '<cache>/solve/solve_err_error/out/solver_out_HHMM.txt'.
 

@@ -82,21 +82,43 @@ test_that("ems_solve errors when n_tasks is not integerish", {
   expect_snapshot_error(ems_solve(cmf_path, n_tasks = 1.5))
 })
 
-test_that("ems_solve errors when steps is not length 3", {
+test_that("ems_solve errors when steps is not length 1 or 3", {
   nest_temp("solve_err_steps", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
   expect_snapshot_error(ems_solve(cmf_path, steps = c(2L, 4L)))
+  expect_snapshot_error(ems_solve(cmf_path, solution_method = "Euler", steps = 2.5))
 })
 
-test_that("ems_solve errors when steps are not all even for Gragg", {
+test_that("ems_solve errors when Gragg steps mix parity", {
   nest_temp("solve_err_parity", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
   expect_snapshot_error(
     ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 3L, 4L))
   )
-  expect_snapshot_error(
-    ems_solve(cmf_path, solution_method = "Gragg", steps = c(3L, 5L, 9L))
+})
+
+test_that("single multi-step runs and odd Gragg step counts solve", {
+  nest_temp("solve_single_run", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model, real_shock)
+  ref <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
+  qgdp <- \(o) o$dat[[match("qgdp", o$name)]]$Value
+  exec <- file.path(dirname(cmf_path), "model_exec.txt")
+  for (m in c("Euler", "Gragg")) {
+    single <- ems_solve(cmf_path, solution_method = m, steps = 16L)
+    expect_equal(qgdp(single), qgdp(ref), tolerance = 1e-2, label = m)
+  }
+  odd <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(3L, 5L, 7L))
+  expect_equal(qgdp(odd), qgdp(ref), tolerance = 1e-4)
+  cmd <- .construct_cmd(
+    paths = list(run = "/r", docker_cmf = "/c", docker_run = "/d", cmf = cmf_path),
+    terminal_run = FALSE, timeID = "t", n_tasks = 1L, n_subintervals = 1L,
+    solmed = "Euler", matsol = 0L, steps = 16L,
+    assertions = .o_assertions(),
+    range_test_initial = .o_range_test_initial(),
+    range_test_updated = .o_range_test_updated()
   )
+  expect_match(cmd$solve, "-step1 16 -single_run 1", fixed = TRUE)
+  expect_false(grepl("-step2", cmd$solve, fixed = TRUE))
 })
 
 test_that("ems_solve errors when steps are not increasing", {

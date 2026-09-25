@@ -37,24 +37,29 @@
       )
     }
   } else {
-    if (!all(is.numeric(a$steps), length(a$steps) == 3)) {
+    if (!all(
+      is.numeric(a$steps), length(a$steps) %in% c(1L, 3L),
+      rlang::is_integerish(a$steps), a$steps >= 1
+    )) {
       .cli_action(solve_err$step_length,
-        action = "abort",
-        call = call
-      )
-    }
-    if (a$solution_method %=% "Gragg" && !all(a$steps %% 2 == 0)) {
-      .cli_action(solve_err$step_parity,
         action = c("abort", "inform"),
         call = call
       )
     }
-    if (a$solution_method %in% c("Gragg", "Euler") && !all(diff(a$steps) > 0)) {
-      solution_method <- a$solution_method
-      .cli_action(solve_err$step_increasing,
-        action = c("abort", "inform"),
-        call = call
-      )
+    if (length(a$steps) == 3L) {
+      if (a$solution_method %=% "Gragg" && length(unique(a$steps %% 2)) != 1L) {
+        .cli_action(solve_err$step_parity,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
+      if (a$solution_method %in% c("Gragg", "Euler") && !all(diff(a$steps) > 0)) {
+        solution_method <- a$solution_method
+        .cli_action(solve_err$step_increasing,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
     }
   }
   return(invisible(NULL))

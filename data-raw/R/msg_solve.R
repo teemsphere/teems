@@ -64,13 +64,16 @@ build_solve_err <- function() {
     ),
     # test-solver_switches.R: "numeric-knob validation aborts"
     invalid_length = "{.arg {arg}} must be an integer-like numeric of length 1.",
-    # test-ems_solve.R: "ems_solve errors when steps are not all even for Gragg"
+    # test-ems_solve.R: "ems_solve errors when Gragg steps mix parity"
     step_parity = c(
-      "{.arg steps} must be all even when {.arg solution_method} is {.val Gragg}.",
-      "Gragg's method guarantees its accuracy properties for even step counts only (Pearson 1991, Theorem 6.1)."
+      "{.arg steps} must be all even or all odd when {.arg solution_method} is {.val Gragg}.",
+      "Richardson extrapolation of Gragg solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended."
     ),
-    # test-ems_solve.R: "ems_solve errors when steps is not length 3"
-    step_length = "{.arg steps} must be a numeric vector of length 3.",
+    # test-ems_solve.R: "ems_solve errors when steps is not length 1 or 3"
+    step_length = c(
+      "{.arg steps} must be one or three positive whole numbers.",
+      "One count (e.g. {.code steps = 8L}) is a single multi-step run without extrapolation; three increasing counts (e.g. {.code c(2L, 4L, 8L)}) are extrapolated."
+    ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
     step_single_rk = c(
       "{.arg steps} must be a single positive integer when {.arg solution_method} is {.val {solution_method}}.",

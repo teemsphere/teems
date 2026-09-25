@@ -244,6 +244,7 @@ test_that("GTAP_convert from v6 to v7", {
   gdyn$ENDW[which(gdyn$ENDW$origin == "natres"), ]$origin <- "natlres"
   gdyn$ENDW[which(gdyn$ENDW$origin == "natlres"), ]$mapping <- "natlres"
   data.table::setorder(gdyn$ENDW)
+  data.table::setorder(normalv7$ENDW)
 
   gdyn$ETRE <- gdyn$ETRE[!duplicated(gdyn$ETRE)]
 

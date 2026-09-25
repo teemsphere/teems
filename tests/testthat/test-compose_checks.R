@@ -109,7 +109,7 @@ test_that("a coefficient file that carries another coefficient aborts", {
 test_that("a coefficient dimensioned on an unknown set aborts", {
   expect_snapshot_error(
     .parse_coeff_block(
-      dimen = 2L, col_nmes = "REGr", num_ls = c("1", "2"),
+      dimen = 2L, col_nmes = "REGr", upper_nmes = "REG", num_ls = c("1", "2"),
       sets = list(COMM = c("f", "m")), call = NULL
     )
   )

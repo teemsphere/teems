@@ -123,6 +123,17 @@ test_that("ems_custom_shock errors when some shock tuples are endogenous", {
   expect_snapshot_error(ems_deploy(dat, model, invalid_tup))
 })
 
+test_that("custom shock column names match the declared set and index case-insensitively", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shk)
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  canon <- shf(ems_custom_shock("pop", data.frame(REGr = "row", ALLTIMEt = 0:2, Value = 2)), "cust_case_canon")
+  mixed <- shf(ems_custom_shock("POP", data.frame(regR = "ROW", alltimet = 0:2, Value = 2)), "cust_case_mixed")
+  expect_identical(mixed, canon)
+})
+
 test_that("ems_custom_shock example runs", {
   model <- "GTAP-RE"
   model_files <- ems_example(model, write_dir)

@@ -7,6 +7,7 @@
 
   set_pattern <- paste(sets$name, collapse = "|")
   closure <- purrr::map(closure, \(c) {
+    c <- .canonical_entry_sets(c, sets$name)
     var_name <- strsplit(c, "\\(")[[1]][1]
     
     new_class <- if (!grepl("\\(|\"", c)) {
@@ -34,4 +35,27 @@
   }
 
   return(closure)
+}
+
+#' @keywords internal
+#' @noRd
+.canonical_entry_sets <- function(entry,
+                                  set_names) {
+  if (!grepl("(", entry, fixed = TRUE)) {
+    return(entry)
+  }
+  head <- sub("\\(.*$", "", entry)
+  args <- strsplit(sub("\\)\\s*$", "", sub("^[^(]*\\(", "", entry)), ",")[[1]]
+  bare <- !grepl("\"", args)
+  hit <- match(tolower(trimws(args)), tolower(set_names))
+  swap <- bare & !is.na(hit)
+  quoted <- !bare & args != tolower(args)
+  if (!any(swap) && !any(quoted)) {
+    return(entry)
+  }
+  args[swap] <- set_names[hit[swap]]
+  args[quoted] <- tolower(args[quoted])
+  out <- paste0(head, "(", paste(args, collapse = ","), ")")
+  attributes(out) <- attributes(entry)
+  return(out)
 }

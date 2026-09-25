@@ -36,7 +36,7 @@
   }
 
   if (!all(cls_var %in% var_extract$name)) {
-    var_discrepancy <- setdiff(tolower(cls_var), tolower(var_extract$name))
+    var_discrepancy <- unique(setdiff(cls_var, var_extract$name))
     candidates <- .nearest_names(var_discrepancy, var_extract$name)
     msg <- cls_err$unknown_var
     action <- c("abort", "inform")

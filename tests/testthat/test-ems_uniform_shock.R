@@ -137,6 +137,17 @@ test_that("ems_uniform_shock errors dots passed without names", {
   expect_snapshot_error(ems_uniform_shock("qe", 1, "capital", ALLTIMEt = 1))
 })
 
+test_that("uniform shock set, index and element names match case-insensitively", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shk)
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  canon <- shf(ems_uniform_shock("pop", 1, REGr = "row", Year = 2023), "uni_case_canon")
+  mixed <- shf(ems_uniform_shock("POP", 1, regr = "ROW", year = 2023), "uni_case_mixed")
+  expect_identical(mixed, canon)
+})
+
 test_that("ems_uniform examples work", {
   # Full uniform: 2% shock imposed on all afeall tuples
   expect_type(ems_uniform_shock(var = "afeall", value = 2), "list")

@@ -111,6 +111,8 @@
   )
 
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", swap$var)
+  ls_upper <- purrr::pluck(var_extract, "ls_upper_idx", swap$var)
+  names(swap$subset) <- .canonical_mixed(names(swap$subset), ls_mixed)
 
   if (!all(names(swap$subset) %in% ls_mixed)) {
     non_exist_set <- setdiff(names(swap$subset), ls_mixed)
@@ -126,8 +128,9 @@
     comp <- swap$subset[[i]]
     nm <- names(swap$subset)[[i]]
 
-    valid_ele <- with(sets$ele, get(.dock_tail(nm)))
-    valid_subsets <- with(sets$subsets, get(.dock_tail(nm)))
+    nm_set <- .mixed_set(nm, ls_mixed, ls_upper)
+    valid_ele <- with(sets$ele, get(nm_set))
+    valid_subsets <- with(sets$subsets, get(nm_set))
     valid_subsets <- valid_subsets[!grepl("^IFS[0-9]+$", valid_subsets)]
 
     if (length(valid_subsets) == 0L || all(is.na(valid_subsets))) {
@@ -156,7 +159,6 @@
     swap$subset[[i]] <- comp
   }
 
-  ls_upper <- purrr::pluck(var_extract, "ls_upper_idx", swap$var)
   m_mixed <- setdiff(ls_mixed, names(swap$subset))
   ls_missing_sets <- as.list(m_mixed)
   names(ls_missing_sets) <- m_mixed

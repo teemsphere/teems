@@ -1,5 +1,5 @@
 #' @importFrom purrr pluck
-#' @importFrom data.table setcolorder copy
+#' @importFrom data.table setcolorder copy setnames
 #' @noRd
 #' @keywords internal
 .check_cst_scen <- function(shock,
@@ -8,6 +8,12 @@
                             call) {
   
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
+  canon <- .canonical_mixed(shock$set, ls_mixed)
+  if (!identical(canon, shock$set)) {
+    shock$input <- data.table::copy(shock$input)
+    data.table::setnames(shock$input, shock$set, canon)
+    shock$set <- canon
+  }
 
   if (!is.null(int_sets)) {
     if (any(grepl(pattern = "Year", shock$set))) {

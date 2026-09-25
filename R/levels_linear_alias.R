@@ -9,5 +9,7 @@
   target <- c(var_extract$name[chg], var_extract$name[lev & !chg])
   hit <- match(tolower(names), tolower(alias))
   names[!is.na(hit)] <- target[hit[!is.na(hit)]]
+  declared <- match(tolower(names), tolower(var_extract$name))
+  names[!is.na(declared)] <- var_extract$name[declared[!is.na(declared)]]
   return(names)
 }

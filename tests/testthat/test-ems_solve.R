@@ -749,6 +749,43 @@ test_that("a mutually referencing backsolve pair solves like the uncondensed mod
   }
 })
 
+test_that("names match case-insensitively and keep their declared spelling", {
+  nest_temp("solve_name_case", write_dir)
+  case_dir <- file.path(write_dir, "solve_name_case")
+  case_tab <- file.path(case_dir, "CASE.TAB")
+  writeLines(c(
+    readLines(static_model_file),
+    "Coefficient (all,C,comm)(all,R,Reg) ZCOEF(C,R) # upper-case indices #;",
+    "Formula (all,C,COMM)(all,R,REG) zcoef(C,R) = 2;",
+    "Coefficient (all,r,REG) ZSave(r) # saving, read through another spelling #;",
+    "Read ZSAVE from file gtapdata header \"SAVE\";",
+    "Variable (all,c,comm)(all,r,reg) zExo(c,r) # exogenous #;",
+    "Variable (all,c,COMM)(all,r,REG) zEndo(c,r) # endogenous #;",
+    "Equation E_zendo (all,c,Comm)(all,r,REG) ZENDO(c,r) = ZCoef(c,r)*zexo(c,r);"
+  ), case_tab)
+  case_cls <- file.path(case_dir, "case.cls")
+  cls <- readLines(static_closure_file)
+  writeLines(c(cls[1], "ZEXO", cls[-1]), case_cls)
+
+  case_model <- suppressMessages(suppressWarnings(
+    ems_model(case_tab, case_cls, ignore_condense = TRUE)
+  ))
+  expect_true("zExo" %in% case_model$name)
+  expect_true(any(grepl("zEndo(c,r) = ZCOEF(c,r)*zExo(c,r)", case_model$tab, fixed = TRUE)))
+
+  cmf <- ems_deploy(static_data, case_model, ems_uniform_shock("ZEXO", 1))
+  expect_identical(basename(cmf), "CASE.cmf")
+  expect_true(any(grepl("zEndo", readLines(file.path(dirname(cmf), "CASE.TAB")), fixed = TRUE)))
+  out <- ems_solve(cmf, solution_method = "Johansen", matrix_method = "LU")
+  zendo <- out$dat[[match("zEndo", out$name)]]
+  expect_equal(unique(round(zendo$Value, 6)), 2)
+  zcoef <- ems_compose(cmf, "ZCOEF")$dat$ZCOEF
+  expect_identical(colnames(zcoef), c("COMMC", "REGR", "Value"))
+  expect_true(all(zcoef$Value == 2))
+  zsave <- ems_compose(cmf, c("ZSave", "SAVE"))$dat
+  expect_equal(zsave$ZSave$Value, zsave$SAVE$Value)
+})
+
 test_that("deploy metadata records the condensation state", {
   nest_temp("solve_condense_meta", write_dir)
   cond_model <- suppressWarnings(

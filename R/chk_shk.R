@@ -40,6 +40,7 @@
   if (is.null(names(shock))) {
     shock <- shock[[1]]
   }
+  shock$var <- .levels_linear_alias(shock$var, var_extract)
 
   call <- attr(shock, "call")
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
@@ -52,6 +53,9 @@
 
   shock$ls_upper <- purrr::pluck(var_extract, "ls_upper_idx", shock$var)
   shock$ls_mixed <- ls_mixed
+  if (!is.null(shock$subset)) {
+    names(shock$subset) <- .canonical_mixed(names(shock$subset), ls_mixed)
+  }
 
   if (!is.null(int_sets)) {
     shock <- .year2time_set(
@@ -77,7 +81,7 @@
     
     for (i in seq_along(shock$subset)) {
       ele <- shock$subset[[i]]
-      ele_set <- .dock_tail(shock_subsets[[i]])
+      ele_set <- .mixed_set(shock_subsets[[i]], ls_mixed, shock$ls_upper)
       recognized_ele <- purrr::pluck(sets, "ele", ele_set)
       recognized_ss <- purrr::pluck(sets, "subsets", ele_set)
       ele <- .canonical_ele(ele, recognized_ele, recognized_ss)
@@ -120,6 +124,7 @@
   if (is.null(names(shock))) {
     shock <- shock[[1]]
   }
+  shock$var <- .levels_linear_alias(shock$var, var_extract)
 
   call <- attr(shock, "call")
 
@@ -177,6 +182,7 @@
   if (is.null(names(shock))) {
     shock <- shock[[1]]
   }
+  shock$var <- .levels_linear_alias(shock$var, var_extract)
 
   call <- attr(shock, "call")
 

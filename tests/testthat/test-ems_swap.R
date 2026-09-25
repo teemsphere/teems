@@ -181,6 +181,28 @@ test_that("ems_swap out subset not valid", {
   expect_snapshot_error(ems_deploy(dat, model, swap_out = swap_out))
 })
 
+test_that("swap variables match case-insensitively", {
+  cmf <- ems_deploy(dat, model, swap_in = "QFD", swap_out = "TFD")
+  cls <- readLines(file.path(dirname(cmf), paste0(tools::file_path_sans_ext(basename(cmf)), ".cls")))
+  expect_true("qfd" %in% cls)
+  expect_false("tfd" %in% cls)
+})
+
+test_that("partial swap set, index and element names match case-insensitively", {
+  cls_of <- function(cmf) {
+    readLines(file.path(dirname(cmf), paste0(tools::file_path_sans_ext(basename(cmf)), ".cls")))
+  }
+  canon <- cls_of(ems_deploy(dat, model,
+    swap_in = ems_swap("qfd", COMMc = "food", REGr = "usa"),
+    swap_out = ems_swap("tfd", COMMc = "food", REGr = "usa")
+  ))
+  mixed <- cls_of(ems_deploy(dat, model,
+    swap_in = ems_swap("QFD", commc = "FOOD", REGR = "Usa"),
+    swap_out = ems_swap("TFD", COMMC = "Food", regr = "USA")
+  ))
+  expect_identical(mixed, canon)
+})
+
 test_that("ems_swap examples work", {
   # Full variable swaps
   expect_type(ems_swap("tfd"), "list") # out

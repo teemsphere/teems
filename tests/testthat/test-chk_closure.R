@@ -47,6 +47,36 @@ test_that("linear names of levels variables resolve in the closure (GEMPACK manu
   expect_snapshot_error(.check_closure("c_qgdp", var_extract, call = NULL))
 })
 
+test_that("closure names match case-insensitively and take the declared spelling", {
+  var_extract <- tibble::tibble(
+    name = c("delB", "xGov", "qgdp"),
+    qualifier_list = NA_character_,
+    condense = NA_character_
+  )
+  closure <- .check_closure(c("delb", "XGOV(COM)", "qgdp"), var_extract, call = NULL)
+  expect_identical(closure, c("delB", "xGov(COM)", "qgdp"))
+  expect_snapshot_error(.check_closure(c("delb", "Nothere"), var_extract, call = NULL))
+
+  expect_identical(
+    .canonical_entry_sets("xGov(com,\"Wool\",reg)", c("COM", "REG")),
+    "xGov(COM,\"wool\",REG)"
+  )
+  expect_identical(.canonical_entry_sets("qgdp", c("REG")), "qgdp")
+})
+
+test_that("mixed set-index names and element literals resolve case-insensitively", {
+  mixed <- c("REGr", "AGGREGA", "COMMc")
+  expect_identical(.canonical_mixed(c("regr", "AGGREGA", "aggregA", "Commc", "year", "zz"), mixed),
+                   c("REGr", "AGGREGA", "AGGREGA", "COMMc", "Year", "zz"))
+  expect_identical(.mixed_set(c("AGGREGA", "REGr"), mixed, c("REG", "AGGREG", "COMM")[c(1, 2, 3)]),
+                   c("AGGREG", "REG"))
+  expect_identical(.canonical_mixed("regr", c("REGr", "REGR")), "regr")
+  expect_identical(
+    .canonical_entry_sets("qfd(\"Food\",acts,\"USA\")", c("ACTS", "REG")),
+    "qfd(\"food\",ACTS,\"usa\")"
+  )
+})
+
 square_fixture <- function(exo_rows) {
   sets <- list(ele = list(REG = c("a", "b", "c")))
   model <- tibble::tibble(

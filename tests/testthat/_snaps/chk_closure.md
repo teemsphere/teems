@@ -9,13 +9,17 @@
 
 # linear names of levels variables resolve in the closure (GEMPACK manual 9.2.2)
 
-    x Closure variable "p_ctaxbas" not found among the model's variables.
+    x Closure variable "p_CTAXBAS" not found among the model's variables.
     i Did you mean "CTAXBAS"?
 
 ---
 
     x Closure variable "c_qgdp" not found among the model's variables.
     i Did you mean "qgdp"?
+
+# closure names match case-insensitively and take the declared spelling
+
+    x Closure variable "Nothere" not found among the model's variables.
 
 # unsquared closures abort with arithmetic and candidates
 

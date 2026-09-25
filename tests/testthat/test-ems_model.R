@@ -984,6 +984,27 @@ test_that("backsolve through a coefficient pivot synthesizes a reciprocal and wa
   expect_identical(eqs$name[hits], "E_qgdp")
 })
 
+test_that("a mutually referencing backsolve pair divides by the combined pivot", {
+  pair_graft <- paste(
+    "Variable (all,r,REG)(all,t,ALLTIME) zx(r,t) # make supply #;",
+    "Variable (all,r,REG)(all,t,ALLTIME) zp(r,t) # make price #;",
+    "Variable (all,r,REG)(all,t,ALLTIME) zc(r,t) # make total #;",
+    "Equation E_zx (all,r,REG)(all,t,ALLTIME) zx(r,t) = qgdp(r,t) + 2*[zp(r,t) - pop(r,t)];",
+    "Equation E_zp (all,r,REG)(all,t,ALLTIME) zp(r,t) = pop(r,t) - 0.05*[zx(r,t) - zc(r,t)];",
+    "Equation E_zc (all,r,REG)(all,t,ALLTIME) zc(r,t) = zx(r,t);",
+    "Backsolve zp using E_zp;",
+    "Backsolve zx using E_zx;",
+    sep = "\n"
+  )
+  pair_model <- write_modified_model(model_file, pair_graft)
+  model <- suppressWarnings(ems_model(pair_model, closure_file))
+  eqs <- stats::setNames(model$tab, model$name)
+  pivot <- regmatches(eqs[["E_zc"]], regexpr("CSUB[0-9]+", eqs[["E_zc"]]))
+  expect_true(any(grepl(paste0("Formula +", pivot, " = 1 \\+ 2\\*0.05;"), model$tab)))
+  expect_match(eqs[["E_zc"]], paste0("= 1/", pivot, "*qgdp(r,t)"), fixed = TRUE)
+  expect_match(eqs[["E_zp"]], paste0("0.05/", pivot, "*qgdp(r,t)"), fixed = TRUE)
+})
+
 test_that("in-TAB Omit statements exogenize the omitted variables", {
   omit_model <- write_modified_model(model_file, "Omit atall avaall qgdp ;")
   expect_snapshot(model <- ems_model(omit_model, closure_file))

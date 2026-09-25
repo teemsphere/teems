@@ -1,13 +1,7 @@
 #' @keywords internal
 #' @noRd
 .serialize_term <- function(term) {
-  prod <- ""
-  if (length(term$fac) > 0L) {
-    prod <- term$fac[[1]]
-    for (f in seq_along(term$fac)[-1]) {
-      prod <- paste0(prod, term$ops[[f]], term$fac[[f]])
-    }
-  }
+  prod <- .fac_text(term$fac, term$ops)
   if (!is.null(term$var)) {
     var_text <- term$var$name
     if (length(term$var$args) > 0L) {

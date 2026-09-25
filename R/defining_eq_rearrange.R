@@ -17,10 +17,7 @@
   pieces <- purrr::map_chr(x_terms, \(t) {
     body <- "1"
     if (length(t$fac) > 0L) {
-      body <- t$fac[[1]]
-      for (f in seq_along(t$fac)[-1]) {
-        body <- paste0(body, t$ops[[f]], t$fac[[f]])
-      }
+      body <- .fac_text(t$fac, t$ops)
     }
     for (q in rev(t$quants)) {
       body <- paste0("sum{", q$idx, ",", q$set, ", ", body, "}")

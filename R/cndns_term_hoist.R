@@ -16,10 +16,7 @@
   if (length(unique(unlist(fac_dims))) > max(lengths(fac_dims))) {
     return(term)
   }
-  expr <- term$fac[[1]]
-  for (f in seq_along(term$fac)[-1]) {
-    expr <- paste0(expr, term$ops[[f]], term$fac[[f]])
-  }
+  expr <- .fac_text(term$fac, term$ops)
   ref <- .csub_new(
     expr = expr,
     binding = .binding_used(binding, expr),

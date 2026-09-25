@@ -711,6 +711,44 @@ test_that("condensed models solve equivalently and recover backsolved values (ro
   expect_true(max(abs(aoall$Value - 5)) < 1e-6)
 })
 
+test_that("a mutually referencing backsolve pair solves like the uncondensed model", {
+  nest_temp("solve_condense_pair", write_dir)
+  pair_file <- file.path(write_dir, "solve_condense_pair", "pair.tab")
+  writeLines(c(
+    readLines(static_model_file),
+    "Variable (all,c,COMM)(all,r,REG) zx(c,r) # make supply #;",
+    "Variable (all,c,COMM)(all,r,REG) zp(c,r) # make price #;",
+    "Variable (all,c,COMM)(all,r,REG) zc(c,r) # make total #;",
+    "Equation E_zx (all,c,COMM)(all,r,REG) zx(c,r) = qc(c,r) + 2*[zp(c,r) - pds(c,r)];",
+    "Equation E_zp (all,c,COMM)(all,r,REG) zp(c,r) = pds(c,r) - 0.05*[zx(c,r) - zc(c,r)];",
+    "Equation E_zc (all,c,COMM)(all,r,REG) zc(c,r) = zx(c,r);"
+  ), pair_file)
+  plain_model <- suppressMessages(suppressWarnings(
+    ems_model(pair_file, static_closure_file, ignore_condense = TRUE)
+  ))
+  pair_model <- suppressMessages(suppressWarnings(
+    ems_model(pair_file, static_closure_file,
+      backsolve = c("zp", "zx"), ignore_condense = TRUE
+    )
+  ))
+  plain <- ems_solve(ems_deploy(static_data, plain_model, real_shock),
+    solution_method = "Johansen", matrix_method = "LU"
+  )
+  cond <- ems_solve(ems_deploy(static_data, pair_model, real_shock),
+    solution_method = "Johansen", matrix_method = "LU"
+  )
+
+  qc <- plain$dat[[match("qc", plain$name)]]
+  zc <- cond$dat[[match("zc", cond$name)]]
+  expect_true(max(abs(qc$Value)) > 0.1)
+  expect_equal(zc$Value, qc$Value, tolerance = 1e-5)
+  for (v in c("zx", "zp", "zc", "qc", "pds")) {
+    a <- plain$dat[[match(v, plain$name)]]
+    b <- cond$dat[[match(v, cond$name)]]
+    expect_true(isTRUE(all.equal(a, b, tolerance = 1e-5)), label = v)
+  }
+})
+
 test_that("deploy metadata records the condensation state", {
   nest_temp("solve_condense_meta", write_dir)
   cond_model <- suppressWarnings(

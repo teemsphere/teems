@@ -36,12 +36,7 @@
     return(term)
   }
 
-  expr <- term$fac[[1]]
-  if (length(term$fac) > 1L) {
-    for (f in seq_along(term$fac)[-1]) {
-      expr <- paste0(expr, term$ops[[f]], term$fac[[f]])
-    }
-  }
+  expr <- .fac_text(term$fac, term$ops)
   for (q in rev(term$quants[idle])) {
     expr <- paste0("sum{", q$idx, ",", q$set, ", ", expr, "}")
   }

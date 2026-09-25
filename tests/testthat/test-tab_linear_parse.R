@@ -87,3 +87,12 @@ test_that("a sum written with square brackets is a sum (GTAP PWLDUSE)", {
   coef <- .parse_linear_side("sum[j,PROD_COMM, VFA(i,j,s)] * pp(i,s)", vl)
   expect_match(.serialize_linear(coef), "sum{j,PROD_COMM, VFA(i,j,s)}", fixed = TRUE)
 })
+
+test_that("a variable divided by a coefficient keeps the division when serialized", {
+  vl <- list(x = "x", y = "y")
+  terms <- .parse_linear_side("x(r)/C(r) + A(r)*y(r)/B(r)", vl)
+  expect_equal(.serialize_linear(terms), "1/C(r)*x(r) + A(r)/B(r)*y(r)")
+  expect_equal(.fac_text(c("P", "Q"), c("/", "*")), "1/P*Q")
+  expect_equal(.fac_text(c("P", "Q"), c("*", "/")), "P/Q")
+  expect_equal(.fac_text(character(), character()), "")
+})

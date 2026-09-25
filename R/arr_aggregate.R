@@ -26,7 +26,7 @@
   }
   dt <- data.table::setDT(c(cols, list(Value = val)))
   if (!rlang::is_integerish(dt$Value)) {
-    dt[, let(Value = round(Value, ndigits))]
+    dt[, let(Value = .round_digits(Value, ndigits))]
   }
   data.table::setkeyv(dt, nms)
   class(dt) <- c(class(arr)[1:2], class(dt))

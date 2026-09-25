@@ -30,7 +30,7 @@
     val <- if (is_int || rlang::is_integerish(val)) {
       as.integer(val)
     } else {
-      round(val, .o_ndigits())
+      .round_digits(val, .o_ndigits())
     }
     e <- tolower(dt[[cols]])
     out <- vapply(tolower(over), \(x) {

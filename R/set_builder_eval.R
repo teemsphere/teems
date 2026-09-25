@@ -87,7 +87,7 @@
   if (is_int || rlang::is_integerish(val)) {
     val <- as.integer(val)
   } else {
-    val <- round(val, .o_ndigits())
+    val <- .round_digits(val, .o_ndigits())
   }
 
   keep_rows <- rep(TRUE, nrow(dt))

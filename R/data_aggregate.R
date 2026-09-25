@@ -32,7 +32,7 @@
   }
   dt <- dt[, list(Value = sum(Value)), keyby = xval_col]
   if (!rlang::is_integerish(dt$Value) && !shock) {
-    dt[, let(Value = round(Value, ndigits))]
+    dt[, let(Value = .round_digits(Value, ndigits))]
   } 
   return(dt)
 }
@@ -71,7 +71,7 @@
     }
   }
   if (!rlang::is_integerish(dt$Value)) {
-    dt[, let(Value = round(Value, ndigits))]
+    dt[, let(Value = .round_digits(Value, ndigits))]
   } 
   if (xval_col %!=% character(0)) {
     data.table::setkeyv(dt, xval_col)

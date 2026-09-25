@@ -7,10 +7,11 @@
 #'   `FALSE`, function-specific diagnostics are silenced.
 #' @param tempdir A character vector length 1. Default is what is
 #'   returned by `tempdir()`.
-#' @param ndigits Integer (default is `6`). Exact number of
-#'   digits to the right of the decimal point to be written to
-#'   file for numeric type double. This value is passed to the
-#'   `format()` nsmall argument and `round()` digits argument.
+#' @param ndigits Integer (default is `6`). Number of digits to
+#'   the right of the decimal point kept when numeric type double
+#'   data are written to file. Values smaller than 0.1 in
+#'   magnitude keep `ndigits` significant digits instead, so small
+#'   nonzero data are never rounded to zero.
 #' @param accuracy_threshold Numeric length 1 (default `0.8`),
 #'   converted to a percentage. 4-digit precision is compared
 #'   against this threshold; a warning is generated if it is not
@@ -141,9 +142,9 @@ ems_option_set <- function(verbose = NULL,
 #'     diagnostics are silenced.
 #'   * `"tempdir"` Character. Directory used for temporary
 #'     file storage during a model run.
-#'   * `"ndigits"` Integer. Exact number of digits to the
-#'     right of the decimal point written to file for numeric
-#'     type double.
+#'   * `"ndigits"` Integer. Number of digits to the right of
+#'     the decimal point written to file for numeric type double
+#'     (at least `ndigits` significant digits for small values).
 #'   * `"accuracy_threshold"` Numeric. Threshold
 #'     (converted to a percentage) against which 4-digit
 #'     precision is compared.

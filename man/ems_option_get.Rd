@@ -15,9 +15,9 @@ value. One of:
 diagnostics are silenced.
 \item \code{"tempdir"} Character. Directory used for temporary
 file storage during a model run.
-\item \code{"ndigits"} Integer. Exact number of digits to the
-right of the decimal point written to file for numeric
-type double.
+\item \code{"ndigits"} Integer. Number of digits to the right of
+the decimal point written to file for numeric type double
+(at least \code{ndigits} significant digits for small values).
 \item \code{"accuracy_threshold"} Numeric. Threshold
 (converted to a percentage) against which 4-digit
 precision is compared.

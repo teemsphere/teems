@@ -27,6 +27,11 @@ build_deploy_err <- function() {
     missing_tsteps = "{.arg time_steps} required for intertemporal models. See {.fun teems::ems_data}.",
     # test-ems_deploy.R: "ems_deploy errors when set-calculated number of entries does not match a finalized data header"
     data_set_mismatch = "{.field {class(dt)[1]}} has {.val {nrow(dt)}} entries; {.val {expected}} expected.",
+    # test-ems_deploy.R: "an unlabelled header is dimensioned from its reading coefficient"
+    unlabelled_header = c(
+      "Header {.val {header}} carries no set labels and its {.val {n_values}} value{?s} (shape {file_shape}) do not fit coefficient {.field {coeff}}, declared over {decl_dims}.",
+      "An unlabelled header is read positionally against the declared sets of the coefficient that reads it; label the header's dimensions or correct the declaration."
+    ),
     # test-set_expr.R: "set union rejects element-level overlap with disjoint origins"
     invalid_plus = "Set operator {.code +} requires disjoint sets; overlapping elements: {.field {d}}.",
     # test-set_expr.R: "set difference rejects elements absent from the minuend"

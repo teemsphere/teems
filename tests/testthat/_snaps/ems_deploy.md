@@ -42,6 +42,11 @@
 
     x ESBT has 45 entries; 30 expected.
 
+# an unlabelled header is dimensioned from its reading coefficient
+
+    x Header "MEXP" carries no set labels and its 6 values (shape 3 x 2) do not fit coefficient MEXP, declared over COM (3) x EXP2 (3).
+    i An unlabelled header is read positionally against the declared sets of the coefficient that reads it; label the header's dimensions or correct the declaration.
+
 # ems_deploy errors when aggregated inputs are incomplete
 
     x 7 tuples in the provided input file for "SAVE" were missing: 1: chn 1, 2: chn 2, 3: row 1, 4: row 2, 5: usa 0, 6: usa 1, and 7: usa 2.

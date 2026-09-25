@@ -22,6 +22,9 @@
   Value <- NULL
   
   xval_col <- colnames(dt)[!colnames(dt) %in% "Value"]
+  if (!is.null(attr(dt, "positional_dim"))) {
+    return(dt)
+  }
   dt <- .map_data(dt = dt, sets = sets, col = xval_col)
   if (any(duplicated(xval_col))) {
     xval_col[duplicated(xval_col)] <- paste0(xval_col[duplicated(xval_col)], ".1")
@@ -47,6 +50,9 @@
   Value <- NULL
   
   xval_col <- colnames(dt)[!colnames(dt) %in% c("Value", "omega", "sigma")]
+  if (!is.null(attr(dt, "positional_dim"))) {
+    return(dt)
+  }
   dt <- .map_data(dt = dt, sets = sets, col = xval_col)
   if (any(duplicated(xval_col))) {
     xval_col[duplicated(xval_col)] <- paste0(xval_col[duplicated(xval_col)], ".1")

@@ -292,6 +292,30 @@ test_that("ems_deploy errors when set-calculated number of entries does not matc
   expect_snapshot_error(ems_deploy(mod_data, model))
 })
 
+test_that("an unlabelled header is dimensioned from its reading coefficient", {
+  arr <- array(c(1L, 2L, 3L, 4L, 5L, 6L), dim = c(3L, 2L))
+  class(arr) <- c("MEXP", "dat", "generic", class(arr))
+  dt <- .array2DT(list(MEXP = arr))[[1]]
+  expect_identical(attr(dt, "positional_dim"), c(3L, 2L))
+  agg <- .aggregate_data(dt, sets = list(), ndigits = 6L)
+  expect_identical(agg$Value, 1:6)
+
+  unl_model <- tibble::tibble(
+    type = c("Coefficient", "Read"), name = c("MEXP", "MEXP"),
+    header = c("MEXP", "MEXP"), ls_upper_idx = list(c("COM", "EXP"), NA)
+  )
+  set_ele <- list(COM = c("a", "b", "c"), EXP = c("x", "y"), EXP2 = c("x", "y", "z"))
+  out <- .dimension_positional(agg, unl_model, set_ele, call = NULL)
+  expect_identical(colnames(out), c("COM", "EXP", "Value"))
+  expect_identical(out$COM, rep(c("a", "b", "c"), 2L))
+  expect_identical(out$EXP, rep(c("x", "y"), each = 3L))
+  expect_identical(out$Value, 1:6)
+  expect_identical(class(out)[1], "MEXP")
+
+  unl_model$ls_upper_idx[[1]] <- c("COM", "EXP2")
+  expect_snapshot_error(.dimension_positional(agg, unl_model, set_ele, call = NULL))
+})
+
 test_that("ems_deploy errors when aggregated inputs are incomplete", {
   mod_data <- ems_data(
     dat_input,

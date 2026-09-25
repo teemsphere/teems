@@ -1,11 +1,14 @@
-#' @importFrom data.table as.data.table setnames
+#' @importFrom data.table as.data.table data.table setattr setnames
 #' @keywords internal
 #' @noRd
 .array2DT <- function(i_data) {
   i_data <- lapply(i_data, \(arr) {
     dim_length <- length(dimnames(arr))
 
-    if (dim_length %=% 0L) {
+    if (dim_length %=% 0L && is.numeric(arr) && length(arr) > 1L) {
+      dt <- data.table::data.table(Value = as.vector(arr))
+      data.table::setattr(dt, "positional_dim", dim(arr) %|||% length(arr))
+    } else if (dim_length %=% 0L) {
       if (!is.numeric(arr)) {
         arr <- tolower(arr)
       }

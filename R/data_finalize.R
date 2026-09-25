@@ -71,6 +71,14 @@
   }
 
   .data <- lapply(.data, \(dt) {
+    if (!is.null(attr(dt, "positional_dim"))) {
+      dt <- .dimension_positional(
+        dt = dt,
+        model = model,
+        set_ele = sets$ele,
+        call = call
+      )
+    }
     if (colnames(dt) %!=% "Value") {
       dt_col <- gsub("\\.[0-9]+", "", colnames(dt))
       dt_sets <- with(sets$ele, mget(dt_col[!dt_col %in% "Value"]))

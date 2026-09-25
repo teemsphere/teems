@@ -43,7 +43,7 @@
                            laDi = NULL,
                            extra_flags = NULL) {
   docker_preamble <- paste(
-    "docker run --rm --mount",
+    paste0("docker run --rm ", .docker_user_flag(), "--mount"),
     .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
     paste0("teems", ":", .resolve_docker_tag()),
     "/bin/bash -c"

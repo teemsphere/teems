@@ -17,3 +17,12 @@ test_that("the mount value is quoted for the platform's shell", {
   # the default follows the running platform
   expect_equal(.shell_quote(spec), .shell_quote(spec, os = .Platform$OS.type))
 })
+
+test_that("Linux runs the container as the calling user; Docker Desktop hosts do not", {
+  flag <- .docker_user_flag(sysname = "Linux")
+  ids <- paste0(system2("id", "-u", stdout = TRUE), ":", system2("id", "-g", stdout = TRUE))
+  skip_if(!nzchar(ids) || Sys.info()[["sysname"]] != "Linux")
+  expect_identical(flag, paste0("--user ", ids, " -e HOME=/tmp "))
+  expect_identical(.docker_user_flag(sysname = "Darwin"), "")
+  expect_identical(.docker_user_flag(sysname = "Windows"), "")
+})

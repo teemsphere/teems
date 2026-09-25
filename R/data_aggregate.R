@@ -90,7 +90,9 @@
     r_idx <- match(dt$Value, purrr::pluck(sets, class(dt)[2], 1))
     dt[[2]] <- purrr::pluck(sets, class(dt)[2], 2)[r_idx]
     data.table::setnames(dt, new = c("origin", "mapping"))
-    data.table::setkey(dt, mapping, origin)
+    if (!identical(dt$origin, dt$mapping)) {
+      data.table::setkey(dt, mapping, origin)
+    }
     return(dt)
   }
 }

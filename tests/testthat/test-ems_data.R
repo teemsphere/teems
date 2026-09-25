@@ -49,6 +49,25 @@ test_that("single-file route loads a non-GTAP HAR", {
   expect_true(isTRUE(md$generic))
   expect_equal(md$data_format, "generic")
   expect_true(is.na(md$reference_year))
+  # sets read from the file keep the file's element order (GEMPACK order)
+  expect_identical(orani[["COM"]]$origin[1:3], c("woolmutton", "grainshay", "beefcattle"))
+  expect_true(is.unsorted(orani[["COM"]]$origin))
+  expect_identical(orani[["COM"]]$origin, orani[["COM"]]$mapping)
+
+})
+
+test_that("pass-through sets keep file order and aggregated sets sort", {
+  raw <- data.table::data.table(Value = c("c10", "c2", "c1"))
+  class(raw) <- c("CNT", "CNT", "set", class(raw))
+  ident <- list(CNT = data.table::data.table(CNT = c("c10", "c2", "c1"), mapping = c("c10", "c2", "c1")))
+  kept <- .aggregate_data(data.table::copy(raw), sets = ident)
+  expect_identical(kept$origin, c("c10", "c2", "c1"))
+  expect_identical(kept$mapping, c("c10", "c2", "c1"))
+
+  agg <- list(CNT = data.table::data.table(CNT = c("c10", "c2", "c1"), mapping = c("z", "a", "z")))
+  sorted <- .aggregate_data(data.table::copy(raw), sets = agg)
+  expect_identical(sorted$mapping, c("a", "z", "z"))
+  expect_identical(sorted$origin, c("c2", "c1", "c10"))
 })
 
 test_that("ems_data requires REG argument", {

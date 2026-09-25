@@ -443,3 +443,35 @@ test_that("a non-onto mapping tolerates uncovered codomain elements", {
   lead <- grep("\"MBLC\"", gtapsets)
   expect_identical(gtapsets[lead + 1:3], c("blk1", "blk1", "blk1"))
 })
+
+test_that("a by_elements mapping over a derived domain reads in file order", {
+  raw_set <- function(nm, v) {
+    d <- data.table::data.table(Value = v)
+    class(d) <- c(nm, nm, "set", class(d))
+    d
+  }
+  ident <- function(nm, v) {
+    stats::setNames(list(data.table::data.table(x = v, mapping = v)), nm)
+  }
+  maps <- list(
+    IND = .aggregate_data(raw_set("IND", c("zeta", "alpha", "mid")), sets = ident("IND", c("zeta", "alpha", "mid"))),
+    COM = .aggregate_data(raw_set("COM", c("cz", "ca", "cm")), sets = ident("COM", c("cz", "ca", "cm"))),
+    MIND = data.table::data.table(origin = "alpha", mapping = "alpha")
+  )
+  maps$SIND <- .eval_set_expr(d = "IND - MIND", mappings = maps, owner = "SIND", call = NULL)
+  sets <- tibble::tibble(
+    name = names(maps), header = c("IND", "COM", NA, NA),
+    mapping = unname(maps), ele = lapply(maps, \(m) unique(m$mapping))
+  )
+  model <- tibble::tibble(
+    type = c("Mapping", "Read"), name = c("SIND2COM", "SIND2COM"),
+    comp1 = c("SIND", NA), comp2 = c("COM", NA),
+    qualifier_list = c(NA, "(by_elements)"), header = c(NA, "SI2C"), file = c(NA, "INFILE")
+  )
+  out <- .finalize_map_data(model, sets,
+    set_raw = list(IND = c("zeta", "alpha", "mid"), COM = c("cz", "ca", "cm"), SI2C = c("cz", "cm")),
+    call = NULL, data_call = NULL
+  )
+  expect_identical(sets$ele[[4]], c("zeta", "mid"))
+  expect_identical(as.vector(unclass(out$SI2C)), c("cz", "cm"))
+})

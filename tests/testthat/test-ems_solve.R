@@ -97,6 +97,23 @@ test_that("ems_solve errors when Gragg steps mix parity", {
   )
 })
 
+test_that("a scalar variable shock is written without sets or uniform", {
+  nest_temp("solve_scalar_shock", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("pfactwld", 1))
+  shf <- list.files(dirname(cmf_path), pattern = "\\.shf$", full.names = TRUE)
+  expect_true(any(grepl("Shock pfactwld = 1;", unlist(lapply(shf, readLines)), fixed = TRUE)))
+  outputs <- ems_solve(cmf_path, solution_method = "Johansen")
+  expect_equal(outputs$dat[[match("pfactwld", outputs$name)]]$Value, 1, tolerance = 1e-6)
+  for (shock in c("Shock pfactwld = 1;\n", "Shock pfactwld = uniform 1;\n")) {
+    shf <- tempfile(fileext = ".shf")
+    cat(shock, file = shf)
+    nest_temp("solve_scalar_shock_file", write_dir)
+    cmf_path <- ems_deploy(static_data, static_model, shock_file = shf)
+    outputs <- ems_solve(cmf_path, solution_method = "Johansen")
+    expect_equal(outputs$dat[[match("pfactwld", outputs$name)]]$Value, 1, tolerance = 1e-6)
+  }
+})
+
 test_that("single multi-step runs and odd Gragg step counts solve", {
   nest_temp("solve_single_run", write_dir)
   cmf_path <- ems_deploy(static_data, static_model, real_shock)

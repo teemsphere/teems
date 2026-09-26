@@ -128,6 +128,8 @@
   
   call <- attr(raw_shock, "call")
   single_ele <- FALSE
+  scalar <- length(raw_shock$ls_upper) %=% 0L || anyNA(raw_shock$ls_upper) ||
+    raw_shock$ls_upper %=% "null_set"
   if (attr(raw_shock, "full_var")) {
     if (.o_check_shock_status()) {
       full_vars <- purrr::map_chr(closure[purrr::map_lgl(closure, inherits, "full")], attr, "var_name")
@@ -140,10 +142,10 @@
       }
     }
 
-    if (raw_shock$ls_upper %!=% "null_set") {
-      shock_LHS <- paste0(raw_shock$var, "(", paste0(raw_shock$ls_upper, collapse = ","), ")")
-    } else {
+    if (scalar) {
       shock_LHS <- raw_shock$var
+    } else {
+      shock_LHS <- paste0(raw_shock$var, "(", paste0(raw_shock$ls_upper, collapse = ","), ")")
     }
   } else {
     mixed_ss <- names(raw_shock$subset)
@@ -201,7 +203,7 @@
     }
   }
 
-  shock_RHS <- if (single_ele) {
+  shock_RHS <- if (single_ele || scalar) {
     paste("=", paste0(raw_shock$input, ";", "\n"))
   } else {
     paste("=", "uniform", paste0(raw_shock$input, ";", "\n"))

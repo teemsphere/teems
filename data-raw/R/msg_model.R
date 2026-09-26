@@ -442,17 +442,14 @@ build_model_err <- function() {
     # tab_setbuilder_transform); test-ems_model.R: "conditional set builders"
     set_builder_cond = c(
       "Unsupported condition in the {.field Set} builder {.val {bad_set}}: {.val {bad_def}}.",
-      "Supported: {.code (all,i,SRC: COEF(i[,\"ele\"...]) <op> <constant>)} and
-      {.code (all,i,SRC: sum{{j,S2: MAP(j) = i, COEF2(j)}} <op> <constant>)}
-      with {.code <op>} one of {.code = <> < > <= >=} or
-      {.code eq ne lt gt le ge}; compound conditions are not supported."
+      "A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, {.code $POS} and sums, joined by {.code and}, {.code or} and {.code not} (GEMPACK manual 10.1.2); every name it uses must be declared."
     ),
     # test-chk_tab_preflight.R: "intertemporal set builders abort"
     set_builder_int = "{.field Set} builder {.val {bad_set}} is intertemporal; builders are supported for static sets only.",
     # test-ems_model.R: "a set builder on an undeclared/unread coefficient aborts"
     set_builder_noread = c(
-      "{.field Set} builder {.val {bad_set}} conditions on {.val {cond_coef}}, which is neither Read from an input file nor an indicator assigned only constants.",
-      "Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as {.code UNITD(a) = 0 + IF[a in DSUB, 1]}."
+      "{.field Set} builder {.val {bad_set}} conditions on {.val {cond_coef}}, which is neither Read from an input file nor assigned by a Formula.",
+      "Declare the coefficient and Read or compute it before the {.field Set} statement."
     ),
     # test-chk_tab_preflight.R: "a mapping-sum set builder over a non-mapping aborts"
     set_builder_nomap = c(

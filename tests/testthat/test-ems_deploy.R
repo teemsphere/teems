@@ -327,6 +327,34 @@ test_that("data headers match the TAB's header spelling case-insensitively", {
   expect_identical(class(out$XPLh)[1], "XPLh")
 })
 
+test_that("set builders over Formula coefficients deploy with their indicators", {
+  nest_temp("deploy_formula_builders", write_dir)
+  fb_model <- ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        'Set CMPW # positive domestic value in chn # = (all,c,COMM: sum{t,ALLTIME, VDB(c,"chn",t)} > 0);',
+        "Set CMPZ # after the second commodity # = (all,c,COMM: $pos(c) > 2 and not $pos(c) > 4);",
+        sep = "\n"
+      )
+    ),
+    closure_file,
+    ignore_condense = TRUE
+  )
+  cmf <- ems_deploy(dat, fb_model)
+  data_lines <- readLines(file.path(dirname(cmf), "GTAPDATA.txt"))
+  block <- function(h) {
+    at <- grep(sprintf('Header "%s"', h), data_lines, fixed = TRUE)
+    n <- as.integer(strsplit(data_lines[at], " ")[[1]][1])
+    as.numeric(data_lines[at + seq_len(n)])
+  }
+  comm <- unique(dat$COMM$mapping)
+  expect_identical(block("SB02"), as.numeric(seq_along(comm) %in% 3:4))
+  expect_true(sum(block("SB01")) > 0)
+  tab <- readLines(file.path(dirname(cmf), basename(attr(fb_model, "tab_file"))))
+  expect_true(any(grepl("= (all,c,COMM: SBI02(c) > 0.5);", tab, fixed = TRUE)))
+})
+
 test_that("ems_deploy errors when aggregated inputs are incomplete", {
   mod_data <- ems_data(
     dat_input,

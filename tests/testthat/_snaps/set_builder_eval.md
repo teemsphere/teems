@@ -27,3 +27,7 @@
     x Set builder "NEWSET": the mapping-conditional sum over "MAPRC" cannot be evaluated at deploy.
     i The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a `(by_elements)` Read whose header is in the set data (GEMPACK manual 10.1.2).
 
+# a formula builder that cannot be evaluated names the reason
+
+    x Set builder "MIND": the condition "NCOMPROD(i)>1" cannot be evaluated at deploy: MAKE is Read from header "MAKE", which is not in the loaded data.
+

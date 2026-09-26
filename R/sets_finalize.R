@@ -1,5 +1,5 @@
 #' @importFrom data.table data.table
-#' @importFrom purrr pmap map map_lgl map2
+#' @importFrom purrr pmap map map_lgl map2 compact map_chr
 #' @importFrom stats na.omit
 #' @importFrom tibble tibble
 #' @keywords internal
@@ -142,6 +142,11 @@
   set_extract$ele <- purrr::map(set_extract$mapping, \(s) {
     unique(s$mapping)
   })
+  sb_data <- purrr::compact(purrr::map(set_extract$mapping, attr, "sb_indicator"))
+  if (length(sb_data) > 0L) {
+    names(sb_data) <- purrr::map_chr(sb_data, \(d) class(d)[[1]])
+    attr(set_extract, "sb_data") <- sb_data
+  }
 
   attr(set_extract, "intertemporal") <- intertemporal
   return(set_extract)

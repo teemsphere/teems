@@ -73,3 +73,84 @@ test_that("a mapping-sum builder without its mapping aborts", {
     eval_builder("= (all,c,COMM: sum{r,REG: MAPRC(r) = c, VDFR(r)} > 0)")
   )
 })
+
+formula_builder_fixture <- function() {
+  model <- .process_tablo(test_path("fixtures", "builders", "formula_builders.tab"), call = NULL)
+  ele_map <- function(x) data.table::data.table(origin = x, mapping = x)
+  make <- data.table::CJ(COM = c("c1", "c2", "c3"), IND = c("i1", "i2", "i3"), REG = c("r1", "r2"), sorted = FALSE)
+  make$Value <- 0
+  make[COM == "c1" & IND == "i1", Value := 3]
+  make[COM == "c2" & IND == "i1", Value := 1]
+  make[COM == "c2" & IND == "i2", Value := 2]
+  make[COM == "c3" & IND == "i2", Value := 2]
+  make[COM == "c3" & IND == "i3", Value := 1e-7]
+  class(make) <- c("MAKE", "dat", class(make))
+  list(
+    model = model,
+    mappings = list(COM = ele_map(c("c1", "c2", "c3")), IND = ele_map(c("i1", "i2", "i3")), REG = ele_map(c("r1", "r2"))),
+    coeff_data = list(MAKE = make),
+    set_raw = list(I2R = c("r1", "r2", "r1"))
+  )
+}
+
+eval_formula_builders <- function(fx) {
+  model <- fx$model
+  mappings <- fx$mappings
+  for (r in which(model$type == "Set")) {
+    d <- model$definition[[r]]
+    if (!.is_set_builder(d)) {
+      next
+    }
+    mappings[[model$name[r]]] <- .eval_set_builder(
+      b = .parse_set_builder(d), owner = model$name[r], mappings = mappings,
+      coeff_data = fx$coeff_data, coeff_extract = model[model$type == "Coefficient", ],
+      call = NULL, model = model, set_raw = fx$set_raw
+    )
+  }
+  mappings
+}
+
+test_that("builders over Formula coefficients are evaluated from the Formula chain", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  fx <- formula_builder_fixture()
+  sb <- attr(fx$model, "set_builders")
+  expect_identical(unname(purrr::map_chr(sb, "set")), c("MIND", "MINDCOM", "LOCIND", "FIRST", "BOTH", "R1IND"))
+  expect_true(any(grepl("Set MIND # multi-product industries # = (all,i,IND: SBI01(i) > 0.5);", fx$model$tab, fixed = TRUE)))
+  maps <- eval_formula_builders(fx)
+  ele <- \(s) maps[[s]]$mapping
+  expect_identical(ele("MIND"), c("i1", "i2"))
+  expect_identical(ele("MINDCOM"), c("c1", "c2", "c3"))
+  expect_identical(ele("LOCIND"), character(0))
+  expect_identical(ele("FIRST"), "i1")
+  expect_identical(ele("BOTH"), "i1")
+  expect_identical(ele("R1IND"), c("i1", "i3"))
+  ind <- attr(maps[["MIND"]], "sb_indicator")
+  expect_identical(class(ind)[1], "SB01")
+  expect_identical(names(ind), c("IND", "Value"))
+  expect_identical(ind$Value, c(1, 1, 0))
+})
+
+test_that("a builder over a formula waits for the sets its chain needs", {
+  fx <- formula_builder_fixture()
+  spec <- attr(fx$model, "set_builders")[["SBI02"]]
+  out <- .eval_set_builder_formula(
+    spec = spec, owner = "MINDCOM", src_map = fx$mappings$COM, mappings = fx$mappings,
+    coeff_data = fx$coeff_data, model = fx$model, set_raw = fx$set_raw, call = NULL
+  )
+  expect_null(out)
+})
+
+test_that("a formula builder that cannot be evaluated names the reason", {
+  fx <- formula_builder_fixture()
+  fx$coeff_data <- list()
+  expect_snapshot_error(eval_formula_builders(fx))
+})
+
+test_that("the set-condition evaluator reads sums, IF, functions and $POS", {
+  expect_null(tryCatch(.sbx_parse("sum{i,IND:"), error = \(e) NULL))
+  node <- .sbx_parse('if[x(i) > 1 and not y(i) = "a", ABS[-2]^2] + $pos(i,IND)')
+  expect_identical(node$t, "bin")
+  expect_setequal(.sbx_names(node, "i"), c("x", "y", "IND"))
+  expect_setequal(.sbx_names(.sbx_parse("sum{j,S:m(j)=i, c(j)}"), "i"), c("S", "m", "c"))
+})

@@ -316,18 +316,33 @@ test_that("conditional set builders (GEMPACK manual 10.1.2)", {
   comm <- model[which(model$name %in% "COMM"), ]
   expect_true(all(c("COMMX", "COMMY", "COMMZ") %in% comm$subsets[[1]]))
 
-  # unsupported condition shapes are named
+  # compound conditions, coefficient comparisons and Formula operands
+  # are evaluated at deploy through an injected indicator
+  fb_model <- ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        'Set CMPX = (all,c,COMM: VDFB(c,"crops","chn","t0") > 0 and VDFB(c,"food","chn","t0") > 0);',
+        'Set CMPY = (all,c,COMM: VDFB(c,"crops","chn","t0") > VDB(c,"chn","t0"));',
+        'Set CMPZ = (all,c,COMM: VDB(c,"chn","t0") > 0);',
+        sep = "\n"
+      )
+    ),
+    closure_file
+  )
+  sb <- attr(fb_model, "set_builders")
+  expect_identical(unname(purrr::map_chr(sb, "set")), c("CMPX", "CMPY", "CMPZ"))
+  expect_identical(sb[[3]]$cond, 'VDB(c,"chn","t0") > 0')
+  expect_true(any(grepl("Set CMPZ = (all,c,COMM: SBI03(c) > 0.5);", fb_model$tab, fixed = TRUE)))
+  expect_true(any(grepl('Read SBI03 from file GTAPDATA header "SB03";', fb_model$tab, fixed = TRUE)))
+
+  # a condition that does not parse, or names nothing declared, is named
   expect_snapshot_error(ems_model(
-    write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDFB(c,"crops","chn","t0") > 0 and VDFB(c,"food","chn","t0") > 0);'),
+    write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDFB(c,"crops","chn","t0") > 0 and);'),
     closure_file
   ))
   expect_snapshot_error(ems_model(
-    write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDFB(c,"crops","chn","t0") > VDB(c,"chn","t0"));'),
-    closure_file
-  ))
-  # formula-computed operands cannot drive set resolution (solver fatal)
-  expect_snapshot_error(ems_model(
-    write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDB(c,"chn","t0") > 0);'),
+    write_modified_model(model_file, 'Set BADX = (all,c,COMM: VDFB(c,"crops","chn","t0") > NOPE(c));'),
     closure_file
   ))
 })
@@ -360,8 +375,8 @@ test_that("set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)", 
   expect_equal(.eval_indicator(steps, c("chn", "row", "usa"), maps), c(chn = 1, row = 0, usa = 0))
   # unresolved step set: pending
   expect_null(.eval_indicator(steps, c("chn", "row"), maps["REG"]))
-  # a non-constant formula is not an indicator
-  bad_model <- write_modified_model(
+  # a non-constant formula is not an indicator: it is evaluated at deploy
+  fx_model <- write_modified_model(
     model_file,
     paste(
       "Coefficient (all,r,REG) UNITX(r) # not an indicator #;",
@@ -370,7 +385,8 @@ test_that("set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)", 
       sep = "\n"
     )
   )
-  expect_snapshot_error(ems_model(bad_model, closure_file))
+  fx <- ems_model(fx_model, closure_file)
+  expect_identical(attr(fx, "set_builders")[[1]]$set, "RX")
   # the source set must be declared
   expect_snapshot_error(ems_model(
     write_modified_model(model_file, 'Set BADX = (all,c,NOSET: VDFB(c,"crops","chn","t0") > 0);'),

@@ -23,6 +23,10 @@
     model = args_list$model,
     set_raw = attr(args_list$.data, "set_raw")
   )
+  sb_data <- attr(sets, "sb_data")
+  if (length(sb_data) > 0L) {
+    args_list$.data[names(sb_data)] <- sb_data
+  }
   .check_subset_containment(
     sets = sets,
     call = model_call

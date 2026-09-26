@@ -38,6 +38,18 @@
     coeff_data[[hdr]]
   }
   cond_coef <- b$coef
+  spec <- if (is.null(model)) {
+    NULL
+  } else {
+    attr(model, "set_builders")[[b$coef]]
+  }
+  if (is.null(dt) && !is.null(spec)) {
+    elements <- .eval_set_builder_formula(
+      spec = spec, owner = owner, src_map = src_map, mappings = mappings,
+      coeff_data = coeff_data, model = model, set_raw = set_raw, call = call
+    )
+    return(elements)
+  }
   if (is.null(dt) && length(b$args) == 1L) {
     steps <- if (is.null(model)) {
       NULL

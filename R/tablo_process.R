@@ -21,6 +21,9 @@
 
   tab <- .canonical_names(tab)
 
+  sb_rewrite <- .rewrite_set_builders(tab)
+  tab <- sb_rewrite$tab
+
   .chk_raw_statements(tab, call = call)
 
   ps_decl_names <- .postsim_decl_names(tab)
@@ -151,5 +154,8 @@
 
   attr(tab, "tab_file") <- basename(tab_file)
   attr(tab, "omit_vars") <- condensed$omit_vars
+  if (length(sb_rewrite$builders) > 0L) {
+    attr(tab, "set_builders") <- sb_rewrite$builders
+  }
   return(tab)
 }

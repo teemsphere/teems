@@ -67,8 +67,8 @@
 
 # a set builder on an undeclared/unread coefficient aborts
 
-    x Set builder "ENDWM" conditions on "ENDOWFLAG", which is neither Read from an input file nor an indicator assigned only constants.
-    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
+    x Set builder "ENDWM" conditions on "ENDOWFLAG", which is neither Read from an input file nor assigned by a Formula.
+    i Declare the coefficient and Read or compute it before the Set statement.
 
 # intertemporal set equality
 
@@ -85,25 +85,15 @@
 
 # conditional set builders (GEMPACK manual 10.1.2)
 
-    x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > 0 and VDFB(c,\"food\",\"chn\",\"t0\") > 0)".
-    i Supported: `(all,i,SRC: COEF(i[,"ele"...]) <op> <constant>)` and `(all,i,SRC: sum{j,S2: MAP(j) = i, COEF2(j)} <op> <constant>)` with <op> one of `= <> < > <= >=` or `eq ne lt gt le ge`; compound conditions are not supported.
+    x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > 0 and)".
+    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.2); every name it uses must be declared.
 
 ---
 
-    x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > VDB(c,\"chn\",\"t0\"))".
-    i Supported: `(all,i,SRC: COEF(i[,"ele"...]) <op> <constant>)` and `(all,i,SRC: sum{j,S2: MAP(j) = i, COEF2(j)} <op> <constant>)` with <op> one of `= <> < > <= >=` or `eq ne lt gt le ge`; compound conditions are not supported.
-
----
-
-    x Set builder "BADX" conditions on "VDB", which is neither Read from an input file nor an indicator assigned only constants.
-    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
+    x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > NOPE(c))".
+    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.2); every name it uses must be declared.
 
 # set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)
-
-    x Set builder "RX" conditions on "UNITX", which is neither Read from an input file nor an indicator assigned only constants.
-    i Formula-computed operands cannot drive set resolution (the condition is evaluated ahead of formulas, GEMPACK manual 10.1.2); an indicator is a coefficient assigned constants only, such as `UNITD(a) = 0 + IF[a in DSUB, 1]`.
-
----
 
     x Set referenced before declaration in "Set BADX = (all,c,NOSET: VDFB(c,\"crops\",\"chn\",\"t0\") > 0)": "NOSET".
     i Sets must be declared before they are used in a definition or Subset statement (GEMPACK manual 10.1).

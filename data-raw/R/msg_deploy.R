@@ -8,6 +8,23 @@ build_deploy_err <- function() {
     # mirror of the solver's tab_setbuilder_transform fatals);
     # test-set_builder_eval.R: "a builder whose coefficient has no loaded data aborts"
     set_builder_data = "{.field Set} builder {.val {bad_set}}: no loaded data for its condition coefficient {.val {cond_coef}}.",
+    # set builders over Formula coefficients evaluated at deploy
+    # (.eval_set_builder_formula); test-set_builder_eval.R: "a formula
+    # builder that cannot be evaluated names the reason"
+    set_builder_eval = "{.field Set} builder {.val {bad_set}}: the condition {.val {builder_cond}} cannot be evaluated at deploy: {reason}.",
+    # sprintf templates injected into set_builder_eval as {reason};
+    # test-set_builder_eval.R: "a formula builder that cannot be evaluated names the reason"
+    set_builder_reason = list(
+      char_value = "an element name is used where a number is needed",
+      unsupported = "%s is not supported in a set condition or the Formulas it depends on",
+      args = "%s is used with a number of arguments that does not match its declaration",
+      element = "%s is referenced at an element outside its declared sets",
+      unknown = "%s is not a declared coefficient, mapping or set",
+      cycle = "%s depends on itself",
+      no_source = "%s is neither Read nor assigned by a Formula before the Set statement",
+      no_data = "%s is Read from header \"%s\", which is not in the loaded data",
+      free_index = "the condition depends on index %s, which it does not bind"
+    ),
     # test-set_builder_eval.R: "a builder with the wrong number of arguments aborts"
     set_builder_args = "{.field Set} builder {.val {bad_set}}: condition coefficient {.val {cond_coef}} has {n_dims} dimension{?s} but {n_args} argument{?s} {?was/were} given.",
     # test-set_builder_eval.R: "a builder naming an element outside the aggregation aborts"

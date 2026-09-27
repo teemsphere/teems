@@ -165,6 +165,7 @@
   return(.sbx_val(out, others, j$ele[others]))
 }
 
+#' @importFrom stats dnorm pnorm dlnorm plnorm
 #' @keywords internal
 #' @noRd
 .sbx_eval_fun <- function(node, binds, ctx) {
@@ -185,7 +186,14 @@
     id01 = ifelse(x == 0, 1, x),
     id0v = ifelse(x == 0, j$vs[[2]], x),
     round = round(x),
-    trunc0 = trunc(x)
+    trunc0 = trunc(x),
+    truncb = floor(x),
+    normal = stats::dnorm(x),
+    cumnormal = stats::pnorm(x),
+    lognormal = ifelse(x > 0, stats::dlnorm(pmax(x, .Machine$double.xmin)), 0),
+    cumlognormal = ifelse(x > 0, stats::plnorm(pmax(x, .Machine$double.xmin)), 0),
+    gperf = 2 * stats::pnorm(x * sqrt(2)) - 1,
+    gperfc = 2 * stats::pnorm(-x * sqrt(2))
   )
   return(.sbx_val(v, j$idx, j$ele))
 }

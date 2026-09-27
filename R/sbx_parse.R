@@ -216,7 +216,10 @@
     .sbx_next(st)
     return(list(t = "pos", args = .sbx_args(st)))
   }
-  fun <- c("abs", "max", "min", "sqrt", "exp", "loge", "log10", "id01", "id0v", "round", "trunc0")
+  fun <- c(
+    "abs", "max", "min", "sqrt", "exp", "loge", "log10", "id01", "id0v", "round", "trunc0", "truncb",
+    "normal", "cumnormal", "lognormal", "cumlognormal", "gperf", "gperfc"
+  )
   if (low %in% fun && opens) {
     .sbx_next(st)
     return(list(t = "fun", name = low, args = .sbx_args(st)))

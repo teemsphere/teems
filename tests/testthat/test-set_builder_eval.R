@@ -68,6 +68,20 @@ test_that("a builder that selects nothing yields an empty set", {
   expect_snapshot(out <- eval_builder('= (all,c,COMM: VDFB(c,"chn") > 5)'))
 })
 
+test_that("the set-condition evaluator reads the statistical functions and TRUNCB (manual 11.5.3-11.5.7)", {
+  ev <- \(e) .sbx_eval(.sbx_parse(e), list(), list())$v
+  expect_equal(ev("NORMAL(1)"), 0.241970725, tolerance = 1e-8)
+  expect_equal(ev("CUMNORMAL[2]"), 0.977249868, tolerance = 1e-8)
+  expect_equal(ev("LOGNORMAL{2}"), 0.156874019, tolerance = 1e-8)
+  expect_equal(ev("CUMLOGNORMAL(2)"), 0.755891404, tolerance = 1e-8)
+  expect_identical(ev("LOGNORMAL(0)"), 0)
+  expect_identical(ev("CUMLOGNORMAL(0-1)"), 0)
+  expect_equal(ev("GPERF(0-1)"), -0.842700793, tolerance = 1e-8)
+  expect_equal(ev("GPERFC(1)"), 0.157299207, tolerance = 1e-8)
+  expect_equal(ev("CUMNORMAL(0.7) - 0.5*(1 + GPERF(0.7/SQRT(2)))"), 0, tolerance = 1e-12)
+  expect_identical(ev("TRUNCB(0-0.5)"), -1)
+})
+
 test_that("a mapping-sum builder without its mapping aborts", {
   expect_snapshot_error(
     eval_builder("= (all,c,COMM: sum{r,REG: MAPRC(r) = c, VDFR(r)} > 0)")

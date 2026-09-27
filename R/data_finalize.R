@@ -1,4 +1,3 @@
-#' @importFrom rlang is_integerish
 #' @importFrom data.table data.table setnames setkeyv setattr is.data.table
 #' @importFrom purrr map2 map_chr map_lgl map_int pluck
 #' @keywords internal
@@ -115,11 +114,7 @@
         type <- "Integer"
       }
 
-      if (type %=% "Real" && !rlang::is_integerish(dt$Value)) {
-        dt[, let(Value = .round_digits(Value, ndigits))]
-      } else {
-        dt[, let(Value = as.integer(Value))]
-      }
+      dt[, let(Value = .typed_values(Value, type, ndigits))]
 
       lead <- paste(
         attr(dt, "dimen"),

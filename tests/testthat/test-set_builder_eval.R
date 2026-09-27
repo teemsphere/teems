@@ -82,6 +82,15 @@ test_that("the set-condition evaluator reads the statistical functions and TRUNC
   expect_identical(ev("TRUNCB(0-0.5)"), -1)
 })
 
+test_that("ROUND takes halves away from zero, as the solver does", {
+  ev <- \(e) .sbx_eval(.sbx_parse(e), list(), list())$v
+  expect_identical(ev("ROUND(2.5)"), 3)
+  expect_identical(ev("ROUND(0.5)"), 1)
+  expect_identical(ev("ROUND(0-2.5)"), -3)
+  expect_identical(ev("ROUND(1.4)"), 1)
+  expect_identical(ev("ROUND(0-1.6)"), -2)
+})
+
 test_that("a mapping-sum builder without its mapping aborts", {
   expect_snapshot_error(
     eval_builder("= (all,c,COMM: sum{r,REG: MAPRC(r) = c, VDFR(r)} > 0)")

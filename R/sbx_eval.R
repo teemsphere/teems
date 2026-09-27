@@ -185,7 +185,7 @@
     log10 = log10(x),
     id01 = ifelse(x == 0, 1, x),
     id0v = ifelse(x == 0, j$vs[[2]], x),
-    round = round(x),
+    round = sign(x) * floor(abs(x) + 0.5),
     trunc0 = trunc(x),
     truncb = floor(x),
     normal = stats::dnorm(x),

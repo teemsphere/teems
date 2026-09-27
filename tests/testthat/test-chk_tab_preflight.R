@@ -432,6 +432,58 @@ test_that("an IF in a Formula without quantifiers lowers through a one-element f
   expect_false(any(grepl("\\bIF\\s*\\(", model$tab)))
 })
 
+test_that("an IF over a scalar coefficient in an Equation lowers to a scalar indicator (SIMPLEv3 SEGMKT)", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Coefficient (parameter) SWP # parameter switch #;",
+      "Formula SWP = 1;",
+      "Coefficient SWN # non-parameter switch #;",
+      "Formula SWN = 1;",
+      "Variable (all,r,REG) zsw(r);",
+      "Equation E_zsw (all,r,REG) zsw(r) = IF{SWP = 1, qgdp(r)} + IF{SWP = 0, pop(r)} + IF{SWN > 0, pop(r)};",
+      "Variable (levels) LSW;",
+      "Formula (initial) LSW = 2;",
+      "Equation (levels) E_LSW IF{SWP = 1, LSW} + IF{SWP = 0, 2*LSW} = 2;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  tab <- model$tab
+  eq <- tab[grepl("^Equation E_zsw ", tab)]
+  ind <- regmatches(eq, gregexpr("IFC[0-9]+", eq))[[1]]
+  expect_length(unique(ind), 3L)
+  expect_match(eq, paste(ind[1], "* qgdp(r)"), fixed = TRUE)
+  decl <- function(i) tab[grepl(paste0("^Coefficient (\\(parameter\\) )?", i, " "), tab)]
+  expect_identical(decl(ind[1]), paste0("Coefficient (parameter) ", ind[1], " # if-rewrite indicator SWP = 1 #;"))
+  expect_identical(decl(ind[2]), paste0("Coefficient (parameter) ", ind[2], " # if-rewrite indicator SWP = 0 #;"))
+  expect_identical(decl(ind[3]), paste0("Coefficient ", ind[3], " # if-rewrite indicator SWN > 0 #;"))
+  frame <- tab[grepl("^Set IFO[0-9]+ ", tab)]
+  expect_length(frame, 1L)
+  fr <- sub("^Set (IFO[0-9]+) .*$", "\\1", frame)
+  fi <- paste0(tolower(fr), "i")
+  expect_match(tab, sprintf("Formula (all,%s,%s: SWP = 1) ", fi, fr), fixed = TRUE, all = FALSE)
+  expect_match(tab, sprintf("Formula %s = sum(%s,%s,", ind[1], fi, fr), fixed = TRUE, all = FALSE)
+  lev <- tab[grepl("^Equation \\(levels\\) E_LSW ", tab)]
+  expect_match(lev, paste(ind[1], "* LSW"), fixed = TRUE)
+  expect_match(lev, paste(ind[2], "* 2*LSW"), fixed = TRUE)
+  expect_false(any(grepl("\\bIF\\s*[({]", tab[grepl("^(Equation|Formula)", tab)])))
+})
+
+test_that(".tab_coef_is_param reads parameter, integer and non_parameter qualifiers", {
+  tab <- c(
+    "Coefficient (parameter) A # a #;",
+    "Coefficient (integer) (all,r,REG) B(r);",
+    "Coefficient (integer, non_parameter) C;",
+    "Coefficient (all,r,REG) D(r);"
+  )
+  expect_true(.tab_coef_is_param(tab, "a"))
+  expect_true(.tab_coef_is_param(tab, "B"))
+  expect_false(.tab_coef_is_param(tab, "C"))
+  expect_false(.tab_coef_is_param(tab, "D"))
+  expect_false(.tab_coef_is_param(tab, "E"))
+})
+
 test_that("condensation keeps a quantifier index whose case differs from its uses (GEMPACK manual 11.1.3)", {
   quiet_pivot(model <- suppressWarnings(.process_tablo(
     tab_file = mutate_tab(paste(

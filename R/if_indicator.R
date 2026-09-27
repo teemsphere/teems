@@ -15,7 +15,11 @@
   }
   is_idx <- !grepl('^"', args)
   at <- match(tolower(args[is_idx]), tolower(q_idx))
-  if (length(args[is_idx]) %=% 0L || anyNA(at)) {
+  if (length(args[is_idx]) %=% 0L) {
+    indicator <- .if_indicator_scalar(cond_info, synth, if_cond, call)
+    return(indicator)
+  }
+  if (anyNA(at)) {
     .cli_action(model_err$invalid_if_cond,
       action = c("abort", "inform"),
       call = call

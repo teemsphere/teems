@@ -158,6 +158,22 @@ test_that("ems_option_set sets the solver run modes and rejects other values", {
   expect_identical(ems_option_get("assertions"), "fatal")
 })
 
+test_that("random_seed is validated, stored as an integer and reset", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("random_seed"), 1L)
+  ems_option_set(random_seed = 42)
+  expect_identical(ems_option_get("random_seed"), 42L)
+  expect_identical(ems_option_get()$random_seed, 42L)
+  expect_snapshot_error(ems_option_set(random_seed = -1))
+  expect_error(ems_option_set(random_seed = 2.5), "random_seed")
+  expect_error(ems_option_set(random_seed = c(1, 2)), "random_seed")
+  expect_error(ems_option_set(random_seed = "7"), "random_seed")
+  expect_error(ems_option_set(random_seed = 2^31), "random_seed")
+  expect_identical(ems_option_get("random_seed"), 42L)
+  ems_option_reset()
+  expect_identical(ems_option_get("random_seed"), 1L)
+})
+
 test_that("ems_option_reset restores default version_check", {
   ems_option_set(version_check = "off")
   ems_option_reset()

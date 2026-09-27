@@ -88,3 +88,10 @@
   range_test_updated <- ems_option_get("range_test_updated")
   return(range_test_updated)
 }
+
+#' @noRd
+#' @keywords internal
+.o_random_seed <- function() {
+  random_seed <- ems_option_get("random_seed")
+  return(random_seed)
+}

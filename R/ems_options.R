@@ -61,6 +61,12 @@
 #' @param range_test_updated Character length 1, `"warn"` (default),
 #'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
 #'   values (`range test updated values`).
+#' @param random_seed Integer (default is `1`). Seed of the TAB
+#'   function `RANDOM(a,b)` (GEMPACK manual 11.5.2) in
+#'   [`ems_solve()`]. The same seed reproduces every draw; each
+#'   Formula element keeps its draw across steps and extrapolation
+#'   passes. GEMPACK draws a new sequence per run by default
+#'   (`randomize = yes`); change the seed for a new sequence.
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -84,7 +90,8 @@ ems_option_set <- function(verbose = NULL,
                            version_check = NULL,
                            assertions = NULL,
                            range_test_initial = NULL,
-                           range_test_updated = NULL) {
+                           range_test_updated = NULL,
+                           random_seed = NULL) {
   call <- match.call()
   if (!is.null(verbose)) {
     ems_options$set_verbose(verbose, call = call)
@@ -124,6 +131,9 @@ ems_option_set <- function(verbose = NULL,
   }
   if (!is.null(range_test_updated)) {
     ems_options$set_range_test_updated(range_test_updated, call = call)
+  }
+  if (!is.null(random_seed)) {
+    ems_options$set_random_seed(random_seed, call = call)
   }
   invisible(NULL)
 }
@@ -174,6 +184,8 @@ ems_option_set <- function(verbose = NULL,
 #'   * `"range_test_updated"` Character. `"warn"` (the default),
 #'     `"fatal"` or `"off"`: as `"range_test_initial"`, for updated
 #'     values.
+#'   * `"random_seed"` Integer. Seed of `RANDOM(a,b)` (the default
+#'     is `1`).
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -206,7 +218,8 @@ ems_option_get <- function(name = NULL) {
          version_check      = ems_options$get_version_check(),
          assertions         = ems_options$get_assertions(),
          range_test_initial = ems_options$get_range_test_initial(),
-         range_test_updated = ems_options$get_range_test_updated()
+         range_test_updated = ems_options$get_range_test_updated(),
+         random_seed        = ems_options$get_random_seed()
   )
 }
 

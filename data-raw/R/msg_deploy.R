@@ -13,7 +13,8 @@ build_deploy_err <- function() {
     # builder that cannot be evaluated names the reason"
     set_builder_eval = "{.field Set} builder {.val {bad_set}}: the condition {.val {builder_cond}} cannot be evaluated at deploy: {reason}.",
     # sprintf templates injected into set_builder_eval as {reason};
-    # test-set_builder_eval.R: "a formula builder that cannot be evaluated names the reason"
+    # test-set_builder_eval.R: "a formula builder that cannot be evaluated names the reason",
+    # "RANDOM in a set condition is refused"
     set_builder_reason = list(
       char_value = "an element name is used where a number is needed",
       unsupported = "%s is not supported in a set condition or the Formulas it depends on",
@@ -23,7 +24,8 @@ build_deploy_err <- function() {
       cycle = "%s depends on itself",
       no_source = "%s is neither Read nor assigned by a Formula before the Set statement",
       no_data = "%s is Read from header \"%s\", which is not in the loaded data",
-      free_index = "the condition depends on index %s, which it does not bind"
+      free_index = "the condition depends on index %s, which it does not bind",
+      random = "RANDOM draws its numbers at solve time, so a set cannot depend on it (GEMPACK manual 11.5.2)"
     ),
     # test-set_builder_eval.R: "a builder with the wrong number of arguments aborts"
     set_builder_args = "{.field Set} builder {.val {bad_set}}: condition coefficient {.val {cond_coef}} has {n_dims} dimension{?s} but {n_args} argument{?s} {?was/were} given.",

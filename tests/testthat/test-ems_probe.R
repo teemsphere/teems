@@ -233,6 +233,7 @@ test_that("ems_probe announces a structurally singular system", {
   local_mocked_bindings(
     .check_docker = function(...) invisible(NULL),
     .run_solver_cmd = function(...) invisible(NULL),
+    .solver_uses_random = function(...) FALSE,
     .collect_probe = function(...) broken,
     .deploy_metadata = function(...) NULL,
     .probe_recommend = function(...) NULL

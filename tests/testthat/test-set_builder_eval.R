@@ -82,6 +82,13 @@ test_that("the set-condition evaluator reads the statistical functions and TRUNC
   expect_identical(ev("TRUNCB(0-0.5)"), -1)
 })
 
+test_that("RANDOM in a set condition is refused", {
+  expect_error(
+    .sbx_eval(.sbx_parse("RANDOM(0, 1) > 0.5"), list(), list()),
+    "RANDOM draws its numbers at solve time"
+  )
+})
+
 test_that("ROUND takes halves away from zero, as the solver does", {
   ev <- \(e) .sbx_eval(.sbx_parse(e), list(), list())$v
   expect_identical(ev("ROUND(2.5)"), 3)

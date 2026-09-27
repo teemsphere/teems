@@ -47,6 +47,8 @@ initial values.
 \item \code{"range_test_updated"} Character. \code{"warn"} (the default),
 \code{"fatal"} or \code{"off"}: as \code{"range_test_initial"}, for updated
 values.
+\item \code{"random_seed"} Integer. Seed of \code{RANDOM(a,b)} (the default
+is \code{1}).
 }}
 }
 \value{

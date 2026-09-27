@@ -169,6 +169,9 @@
 #' @keywords internal
 #' @noRd
 .sbx_eval_fun <- function(node, binds, ctx) {
+  if (node$name %=% "random") {
+    .sbx_fail(.sbx_reason("random"))
+  }
   args <- lapply(node$args, \(a) .sbx_num(.sbx_eval(a, binds, ctx)))
   if (length(args) == 0L) {
     .sbx_fail(.sbx_reason("unsupported", node$name))

@@ -136,6 +136,7 @@ test_that("single multi-step runs and odd Gragg step counts solve", {
   )
   expect_match(cmd$solve, "-step1 16 -single_run 1", fixed = TRUE)
   expect_false(grepl("-step2", cmd$solve, fixed = TRUE))
+  expect_false(grepl("-random_seed", cmd$solve, fixed = TRUE))
 })
 
 test_that("ems_solve errors when steps are not increasing", {
@@ -573,6 +574,51 @@ test_that("IF formulas solve identically to their hand adaptations", {
   cmf_if <- ems_deploy(static_data, if_model)
   if_out <- ems_solve(cmf_if)
   expect_equal(if_out, base)
+})
+
+test_that("RANDOM draws are reproducible, seeded by the random_seed option and recorded", {
+  withr::defer(ems_option_set(random_seed = 1L))
+  rand_file <- write_modified_model(
+    static_model_file,
+    paste(
+      "Coefficient (all,r,REG) RNDA(r) # random probe #;",
+      "Formula (all,r,REG) RNDA(r) = RANDOM(2, 3);",
+      "Variable (all,r,REG) zrnd(r) # random-coefficient probe #;",
+      "Equation E_zrnd (all,r,REG) zrnd(r) = RANDOM(0.5, 1.5) * qgdp(r);",
+      sep = "\n"
+    )
+  )
+  rand_model <- suppressMessages(suppressWarnings(
+    ems_model(rand_file, static_closure_file, ignore_condense = TRUE)
+  ))
+  val <- \(o, v) o$dat[[match(v, o$name)]]$Value
+  run <- function(name, seed, method) {
+    ems_option_set(random_seed = seed)
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(static_data, rand_model, shock = real_shock)
+    out <- ems_solve(cmf, solution_method = method)
+    list(out = out, record = readLines(file.path(dirname(cmf), "model_diagnostics.txt")))
+  }
+  j7 <- run("solve_random_j7", 7L, "Johansen")
+  j7b <- run("solve_random_j7b", 7L, "Johansen")
+  j8 <- run("solve_random_j8", 8L, "Johansen")
+  g7 <- run("solve_random_g7", 7L, "Gragg")
+  a <- val(j7$out, "RNDA")
+  expect_true(all(a >= 2 & a < 3))
+  expect_length(unique(a), length(a))
+  expect_identical(val(j7b$out, "RNDA"), a)
+  expect_false(identical(val(j8$out, "RNDA"), a))
+  expect_true(any(grepl("Random seed: 7 (RANDOM draws in the model)", j7$record, fixed = TRUE)))
+  # the equation's coefficient is one draw per region at every step and
+  # extrapolation pass: Johansen gives it as zrnd/qgdp, and Gragg then
+  # compounds qgdp by exactly that power
+  u <- val(j7$out, "zrnd") / val(j7$out, "qgdp")
+  expect_true(all(u >= 0.5 & u < 1.5))
+  expect_equal(
+    val(g7$out, "zrnd"),
+    100 * ((1 + val(g7$out, "qgdp") / 100)^u - 1),
+    tolerance = 1e-4
+  )
 })
 
 test_that("IF equations solve identically to their hand adaptations", {

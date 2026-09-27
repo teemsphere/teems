@@ -27,7 +27,10 @@
     "-solmed", "probe",
     "-probefine", as.integer(fine),
     "-maxthreads", 1L,
-    "-nox"
+    "-nox",
+    if (.solver_uses_random(paths)) {
+      paste("-random_seed", .o_random_seed())
+    }
   )
   if (!is.null(extra)) {
     la_flags <- paste(c(

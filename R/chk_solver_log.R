@@ -125,7 +125,8 @@
   )
   .solve_record_append(
     run_dir = paths$run,
-    resources_record = resources_record
+    resources_record = resources_record,
+    cmf = paths$cmf
   )
 
   return(invisible(NULL))

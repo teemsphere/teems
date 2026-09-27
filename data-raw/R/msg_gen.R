@@ -22,6 +22,8 @@ build_gen_err <- function() {
     opt_tempdir = "{.path {tempdir}} does not exist.",
     # test-ems_options.R: "ems_option_set rejects invalid values"
     opt_ndigits = "{.arg ndigits} must be an integer or coercible to one.",
+    # test-ems_options.R: "random_seed is validated, stored as an integer and reset"
+    opt_random_seed = "{.arg random_seed} must be a single whole number from 0 to 2147483647.",
     # test-ems_options.R: "ems_option_set rejects invalid values"
     opt_accuracy_threshold = "{.arg accuracy_threshold} must be a numeric between 0 and 1.",
     # test-ems_options.R: "ems_option_set rejects invalid values"

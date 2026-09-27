@@ -98,7 +98,10 @@
     },
     .mode_flag("-assertions", assertions),
     .mode_flag("-range_test_initial", range_test_initial),
-    .mode_flag("-range_test_updated", range_test_updated)
+    .mode_flag("-range_test_updated", range_test_updated),
+    if (.solver_uses_random(paths)) {
+      paste("-random_seed", .o_random_seed())
+    }
   ), collapse = " ")
 
   comp_flags <- .comp_cli_flags(complementarity)

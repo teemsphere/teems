@@ -22,6 +22,7 @@ options_class <- R6::R6Class(
     assertions = NULL,
     range_test_initial = NULL,
     range_test_updated = NULL,
+    random_seed = NULL,
 
     initialize = function(verbose = NULL,
                           tempdir = NULL,
@@ -35,7 +36,8 @@ options_class <- R6::R6Class(
                           version_check = NULL,
                           assertions = NULL,
                           range_test_initial = NULL,
-                          range_test_updated = NULL) {
+                          range_test_updated = NULL,
+                          random_seed = NULL) {
       self$verbose <- verbose
       self$tempdir <- tempdir
       self$ndigits <- ndigits
@@ -49,6 +51,7 @@ options_class <- R6::R6Class(
       self$assertions <- assertions
       self$range_test_initial <- range_test_initial
       self$range_test_updated <- range_test_updated
+      self$random_seed <- random_seed
     },
 
     export = function() {
@@ -65,7 +68,8 @@ options_class <- R6::R6Class(
         version_check = self$get_version_check(),
         assertions = self$get_assertions(),
         range_test_initial = self$get_range_test_initial(),
-        range_test_updated = self$get_range_test_updated()
+        range_test_updated = self$get_range_test_updated(),
+        random_seed = self$get_random_seed()
       )
     },
 
@@ -83,6 +87,7 @@ options_class <- R6::R6Class(
       self$set_assertions(list$assertions)
       self$set_range_test_initial(list$range_test_initial)
       self$set_range_test_updated(list$range_test_updated)
+      self$set_random_seed(list$random_seed)
     },
 
     reset = function() {
@@ -99,6 +104,7 @@ options_class <- R6::R6Class(
       self$assertions <- NULL
       self$range_test_initial <- NULL
       self$range_test_updated <- NULL
+      self$random_seed <- NULL
     },
 
     get_verbose = function() {
@@ -111,6 +117,10 @@ options_class <- R6::R6Class(
 
     get_ndigits = function() {
       self$ndigits %|||% 6L
+    },
+
+    get_random_seed = function() {
+      self$random_seed %|||% 1L
     },
 
     get_accuracy_threshold = function() {
@@ -166,6 +176,11 @@ options_class <- R6::R6Class(
     set_ndigits = function(ndigits, call = rlang::caller_env()) {
       self$validate_ndigits(ndigits, call = call)
       self$ndigits <- ndigits
+    },
+
+    set_random_seed = function(random_seed, call = rlang::caller_env()) {
+      self$validate_random_seed(random_seed, call = call)
+      self$random_seed <- as.integer(random_seed)
     },
 
     set_accuracy_threshold = function(accuracy_threshold, call = rlang::caller_env()) {
@@ -233,6 +248,13 @@ options_class <- R6::R6Class(
     validate_ndigits = function(ndigits, call = rlang::caller_env()) {
       if (!rlang::is_integerish(ndigits)) {
         cli::cli_abort(gen_err$opt_ndigits, call = call)
+      }
+    },
+
+    validate_random_seed = function(random_seed, call = rlang::caller_env()) {
+      if (!rlang::is_integerish(random_seed, n = 1L, finite = TRUE) ||
+        random_seed < 0 || random_seed > .Machine$integer.max) {
+        cli::cli_abort(gen_err$opt_random_seed, call = call)
       }
     },
 

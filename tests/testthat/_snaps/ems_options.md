@@ -1,6 +1,6 @@
 # ems_option_get errors on invalid name
 
-    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", and "range_test_updated", not "not_an_option".
+    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", "range_test_updated", and "random_seed", not "not_an_option".
 
 # ems_option errors when write_dir does not exist
 
@@ -61,6 +61,10 @@
 ---
 
     `range_test_updated` must be one of "fatal", "warn" or "off".
+
+# random_seed is validated, stored as an integer and reset
+
+    `random_seed` must be a single whole number from 0 to 2147483647.
 
 # docker tag auto-selection
 

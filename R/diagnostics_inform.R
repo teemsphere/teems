@@ -80,7 +80,8 @@
 #' @keywords internal
 #' @noRd
 .solve_record_append <- function(run_dir,
-                                 resources_record = NULL) {
+                                 resources_record = NULL,
+                                 cmf = NULL) {
   diagnostic_file <- file.path(run_dir, "model_diagnostics.txt")
   stats_path <- file.path(run_dir, "out", "variables", "bin", "sol.stats.json")
   if (!file.exists(diagnostic_file) || !file.exists(stats_path)) {
@@ -199,6 +200,9 @@
       opt$assertions, opt$range_test_initial, opt$range_test_updated,
       .onoff(opt$postsim), .onoff(opt$gpzerodivide)
     ),
+    if (!is.null(opt$random_seed) && !is.null(cmf) && .solver_uses_random(list(cmf = cmf))) {
+      sprintf(solve_info$record$random_seed, opt$random_seed)
+    },
     if (!is.null(opt$complementarity)) {
       cp <- opt$complementarity
       sprintf(

@@ -218,7 +218,7 @@
   }
   fun <- c(
     "abs", "max", "min", "sqrt", "exp", "loge", "log10", "id01", "id0v", "round", "trunc0", "truncb",
-    "normal", "cumnormal", "lognormal", "cumlognormal", "gperf", "gperfc"
+    "normal", "cumnormal", "lognormal", "cumlognormal", "gperf", "gperfc", "random"
   )
   if (low %in% fun && opens) {
     .sbx_next(st)

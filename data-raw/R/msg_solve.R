@@ -270,6 +270,7 @@ build_solve_info <- function() {
     # test-ems_solve.R: "matrix_method has no auto: the run is what is given, and the record says what ran"
     # test-solver_switches.R: "switches reach the solver and the run records them (e2e)"
     # test-chk_solver_log.R: "the solve record names the BLAS kernel family the run dispatched"
+    # test-ems_solve.R: "RANDOM draws are reproducible, seeded by the random_seed option and recorded"
     record = list(
       solver_version = "Solver version: %s",
       blas = "BLAS kernels: %s",
@@ -301,6 +302,7 @@ build_solve_info <- function() {
       storage = "Coefficient storage: %s precision",
       system = "System: %s equations, %s exogenous elements",
       modes = "Modes: assertions %s; range test initial %s, updated %s; postsim %s; gpzerodivide %s",
+      random_seed = "Random seed: %s (RANDOM draws in the model)",
       complementarity = paste0(
         "Complementarity: %s active component(s); approximate run %s ",
         "Euler steps (%s; redo %s, min fraction %s); accurate run %s; ",

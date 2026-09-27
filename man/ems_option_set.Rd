@@ -17,7 +17,8 @@ ems_option_set(
   version_check = NULL,
   assertions = NULL,
   range_test_initial = NULL,
-  range_test_updated = NULL
+  range_test_updated = NULL,
+  random_seed = NULL
 )
 }
 \arguments{
@@ -90,6 +91,13 @@ manual 25.4.4, \verb{range test initial values}; GEMPACK's
 \item{range_test_updated}{Character length 1, \code{"warn"} (default),
 \code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated
 values (\verb{range test updated values}).}
+
+\item{random_seed}{Integer (default is \code{1}). Seed of the TAB
+function \code{RANDOM(a,b)} (GEMPACK manual 11.5.2) in
+\code{\link[=ems_solve]{ems_solve()}}. The same seed reproduces every draw; each
+Formula element keeps its draw across steps and extrapolation
+passes. GEMPACK draws a new sequence per run by default
+(\code{randomize = yes}); change the seed for a new sequence.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

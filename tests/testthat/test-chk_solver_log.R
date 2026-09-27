@@ -37,6 +37,15 @@ test_that("multiple TAB errors are previewed with their manual sections", {
   expect_error(check_log(paths), "unknown variable qualifier")
 })
 
+test_that("braces in a solver error line are relayed as written", {
+  paths <- local_solver_log(c(
+    "Error: normal{factor_1{r}} is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)"
+  ))
+  err <- tryCatch(check_log(paths), error = function(e) conditionMessage(e))
+  expect_match(err, "normal{factor_1{r}} is not a coefficient", fixed = TRUE)
+  expect_no_match(err, "{{", fixed = TRUE)
+})
+
 test_that("closure errors map to the closure abort", {
   paths <- local_solver_log(c(
     "Error: variable qgdp is not declared",

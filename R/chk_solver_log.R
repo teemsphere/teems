@@ -58,7 +58,7 @@
     if (n_err > 10L) {
       preview <- c(preview, paste0("... and ", n_err - 10L, " more"))
     }
-    err_preview <- paste(gsub("([{}])", "\\1\\1", preview), collapse = "\f")
+    err_preview <- paste(preview, collapse = "\f")
 
     if (length(sel) > 0L) {
       sel <- sel[1]

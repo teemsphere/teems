@@ -47,6 +47,24 @@ test_that("linear names of levels variables resolve in the closure (GEMPACK manu
   expect_snapshot_error(.check_closure("c_qgdp", var_extract, call = NULL))
 })
 
+test_that("linear names resolve when no levels variable is a change variable", {
+  var_extract <- tibble::tibble(
+    name = c("INC_PC", "POP", "P", "qgdp"),
+    qualifier_list = c("(levels)", "(levels)", "(levels)", NA),
+    condense = NA_character_
+  )
+  closure <- .check_closure(
+    c("p_INC_PC", "p_POP", "p_P(NFOOD,REG)", "qgdp"),
+    var_extract,
+    call = NULL
+  )
+  expect_identical(closure, c("INC_PC", "POP", "P(NFOOD,REG)", "qgdp"))
+  expect_identical(
+    .levels_linear_alias(c("p_inc_pc", "p_pop", "p_p", "c_"), var_extract),
+    c("INC_PC", "POP", "P", "c_")
+  )
+})
+
 test_that("closure names match case-insensitively and take the declared spelling", {
   var_extract <- tibble::tibble(
     name = c("delB", "xGov", "qgdp"),

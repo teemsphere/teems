@@ -5,7 +5,10 @@
   qual <- var_extract[["qualifier_list"]]
   lev <- !is.na(qual) & grepl("\\blevels\\b", qual, ignore.case = TRUE)
   chg <- lev & grepl("(^|[(,\\s])change\\b", qual, ignore.case = TRUE, perl = TRUE)
-  alias <- c(paste0("c_", var_extract$name[chg]), paste0("p_", var_extract$name[lev & !chg]))
+  alias <- c(
+    paste0("c_", var_extract$name[chg], recycle0 = TRUE),
+    paste0("p_", var_extract$name[lev & !chg], recycle0 = TRUE)
+  )
   target <- c(var_extract$name[chg], var_extract$name[lev & !chg])
   hit <- match(tolower(names), tolower(alias))
   names[!is.na(hit)] <- target[hit[!is.na(hit)]]

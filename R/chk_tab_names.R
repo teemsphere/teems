@@ -83,7 +83,8 @@
     )
   }
 
-  bad_names <- coef[grepl("^c_", coef, ignore.case = TRUE)]
+  c_coef <- coef[grepl("^c_", coef, ignore.case = TRUE)]
+  bad_names <- c_coef[tolower(substring(c_coef, 3)) %in% var_l]
   if (length(bad_names) > 0L) {
     .cli_action(model_err$name_c_prefix,
       action = "abort",

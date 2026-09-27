@@ -21,9 +21,9 @@
 
     x Declaration name "max" is a reserved word (GEMPACK manual 11.2.1).
 
-# c_ prefixed coefficients abort
+# c_X coefficients abort when a variable X exists
 
-    x The `c_` prefix is reserved for change variables; rename coefficient "c_foo".
+    x Coefficient "c_qgdp" collides with the change column `c_X` of a variable `X`; rename the coefficient.
 
 # p_/c_ variable-pair clashes abort
 

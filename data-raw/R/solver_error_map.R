@@ -47,7 +47,7 @@ build_solver_error_map <- function() {
     c("declared as both a", "tab", "11.2.1"),
     c("declared more than once", "tab", "11.2.1"),
     c("is a reserved word", "tab", "11.2.1"),
-    c("prefix is reserved for change variables", "tab", NA),
+    c("collides with the change column", "tab", NA),
     c("share a name \\(p_/c_ prefixes", "tab", NA),
     # declaration qualifiers (tab_qualifiers_parse)
     c("unknown (variable|coefficient) qualifier", "tab", "10.3"),

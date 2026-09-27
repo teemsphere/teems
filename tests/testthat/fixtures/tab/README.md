@@ -19,7 +19,7 @@ input, not just clean strings.
 | name_coef_set_clash | N2 | coefficient/set name clash |
 | name_reserved | N6 | reserved intrinsic name declared |
 | name_dup | N4 | duplicate coefficient declaration |
-| name_c_prefix | N7 | `c_` prefixed coefficient |
+| name_c_prefix | N7 | `c_X` coefficient beside a variable `X` |
 | name_overlength | N9 | 300-char identifier (fuzz class) |
 | qual_unknown | Q1 | mistyped declaration qualifier |
 | qual_empty | Q4 | empty `()` qualifier list |

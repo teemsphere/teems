@@ -38,10 +38,10 @@ build_model_err <- function() {
     name_reserved = "{cli::qty(res_names)}Declaration name{?s}
     {.val {res_names}} {?is a reserved word/are reserved words} (GEMPACK
     manual 11.2.1).",
-    # test-chk_tab_preflight.R: "c_ prefixed coefficients abort"
-    name_c_prefix = "{cli::qty(bad_names)}The {.code c_} prefix is
-    reserved for change variables; rename coefficient{?s}
-    {.val {bad_names}}.",
+    # test-chk_tab_preflight.R: "c_X coefficients abort when a variable X exists"
+    name_c_prefix = "{cli::qty(bad_names)}Coefficient{?s} {.val {bad_names}}
+    {?collides/collide} with the change column {.code c_X} of a variable
+    {.code X}; rename the coefficient{?s}.",
     # test-chk_tab_preflight.R: "p_/c_ variable-pair clashes abort"
     name_prefix_clash = c(
       "{cli::qty(clash)}Variable pair{?s} sharing a base name:

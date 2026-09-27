@@ -12,7 +12,7 @@
       mapping_malformed.tab: x Malformed Mapping statement: "Mapping REGTOBLOC of REG onto BLOC" i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 11.9.1).
       mapping_no_read.tab: x Mapping "regtobloc" has no `Read (by_elements)` statement assigning its values.
       mapping_undeclared_set.tab: x Set "BLOC" in the Mapping declaration of "REGTOBLOC" is not declared in the model.
-      name_c_prefix.tab: x The `c_` prefix is reserved for change variables; rename coefficient "c_foo".
+      name_c_prefix.tab: x Coefficient "c_pop" collides with the change column `c_X` of a variable `X`; rename the coefficient.
       name_coef_set_clash.tab: x Name declared as both a coefficient and a set: "reg". i TABLO names are case-insensitive and must be unique (GEMPACK manual 11.2.1).
       name_coef_var_clash.tab: x Name declared as both a coefficient and a variable: "pop". i TABLO names are case-insensitive and must be unique (GEMPACK manual 11.2.1).
       name_dup.tab: x Duplicate coefficient declaration: "dupx" (GEMPACK manual 11.2.1).

@@ -40,8 +40,18 @@ test_that("reserved words abort", {
   expect_preflight_error("Coefficient (all,r,REG) MAX(r);")
 })
 
-test_that("c_ prefixed coefficients abort", {
-  expect_preflight_error("Coefficient c_foo;")
+test_that("c_X coefficients abort when a variable X exists", {
+  # qgdp is a declared GTAPv7 variable
+  expect_preflight_error("Coefficient c_qgdp;")
+})
+
+test_that("c_ prefixed coefficients without a variable of the tail name parse", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab("Coefficient (all,r,REG) C_EMIS_HAr(r);"),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true("C_EMIS_HAr" %in% model$name)
 })
 
 test_that("p_/c_ variable-pair clashes abort", {

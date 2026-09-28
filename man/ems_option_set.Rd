@@ -44,14 +44,16 @@ met.}
 endogenous/exogenous status is conducted.}
 
 \item{timestep_header}{A character vector length 1 (default is
-\code{"YEAR"}). Coefficient containing a numeric vector of
-timestep intervals. For novel intertemporal models — modify
-with caution.}
+\code{"YEAR"}). Header written with the time of each period, as
+given in the \code{time_steps} argument of \code{\link[=ems_data]{ems_data()}} (years,
+or steps from the initial period); the model takes the
+differences between consecutive periods as interval lengths.
+For novel intertemporal models — modify with caution.}
 
 \item{n_timestep_header}{A character vector length 1 (default
-is \code{"NTSP"}). Coefficient containing a numeric vector length
-one with sum of timestep intervals. For novel intertemporal
-models — modify with caution.}
+is \code{"NTSP"}). Header written with the number of periods (the
+length of \code{time_steps}). For novel intertemporal models —
+modify with caution.}
 
 \item{full_exclude}{A character vector of variable length
 (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers to fully exclude from all aspects

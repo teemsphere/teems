@@ -20,13 +20,15 @@
 #'   `TRUE`). If `FALSE`, no check on shock element
 #'   endogenous/exogenous status is conducted.
 #' @param timestep_header A character vector length 1 (default is
-#'   `"YEAR"`). Coefficient containing a numeric vector of
-#'   timestep intervals. For novel intertemporal models — modify
-#'   with caution.
+#'   `"YEAR"`). Header written with the time of each period, as
+#'   given in the `time_steps` argument of [`ems_data()`] (years,
+#'   or steps from the initial period); the model takes the
+#'   differences between consecutive periods as interval lengths.
+#'   For novel intertemporal models — modify with caution.
 #' @param n_timestep_header A character vector length 1 (default
-#'   is `"NTSP"`). Coefficient containing a numeric vector length
-#'   one with sum of timestep intervals. For novel intertemporal
-#'   models — modify with caution.
+#'   is `"NTSP"`). Header written with the number of periods (the
+#'   length of `time_steps`). For novel intertemporal models —
+#'   modify with caution.
 #' @param full_exclude A character vector of variable length
 #'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
 #'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
@@ -161,11 +163,10 @@ ems_option_set <- function(verbose = NULL,
 #'   * `"check_shock_status"` Logical. If `FALSE`, no
 #'     check on shock element endogenous/exogenous status is
 #'     conducted.
-#'   * `"timestep_header"` Character. Coefficient
-#'     containing a numeric vector of timestep intervals.
-#'   * `"n_timestep_header"` Character. Coefficient
-#'     containing a numeric vector length one with sum of
-#'     timestep intervals.
+#'   * `"timestep_header"` Character. Header written with the
+#'     time of each period (`time_steps` of [`ems_data()`]).
+#'   * `"n_timestep_header"` Character. Header written with the
+#'     number of periods.
 #'   * `"full_exclude"` Character vector. Headers to
 #'     fully exclude from all aspects of the model run.
 #'   * `"docker_tag"` Character. Docker tag specifying

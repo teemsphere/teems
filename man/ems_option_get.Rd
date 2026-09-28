@@ -24,11 +24,10 @@ precision is compared.
 \item \code{"check_shock_status"} Logical. If \code{FALSE}, no
 check on shock element endogenous/exogenous status is
 conducted.
-\item \code{"timestep_header"} Character. Coefficient
-containing a numeric vector of timestep intervals.
-\item \code{"n_timestep_header"} Character. Coefficient
-containing a numeric vector length one with sum of
-timestep intervals.
+\item \code{"timestep_header"} Character. Header written with the
+time of each period (\code{time_steps} of \code{\link[=ems_data]{ems_data()}}).
+\item \code{"n_timestep_header"} Character. Header written with the
+number of periods.
 \item \code{"full_exclude"} Character vector. Headers to
 fully exclude from all aspects of the model run.
 \item \code{"docker_tag"} Character. Docker tag specifying

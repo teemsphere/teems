@@ -28,6 +28,10 @@
   names(set_sizes) <- toupper(names(sets$ele))
   unresolved <- setdiff(unique(unlist(eq_sets)), names(set_sizes))
   if (length(unresolved) > 0L) {
+    .cli_action(cls_err$square_unresolved,
+      action = c("warn", "inform"),
+      call = call
+    )
     return(invisible(NULL))
   }
   n_eq_ele <- sum(vapply(

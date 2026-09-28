@@ -148,6 +148,8 @@
     call = call
   )
 
+  .chk_shk_dup_tup(shock = shock, call = call)
+
   set_ele <- with(sets$ele, mget(shock$ls_upper))
   template <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
   data.table::setnames(template, new = shock$ls_mixed)
@@ -205,6 +207,8 @@
     int_sets = int_sets,
     call = call
   )
+
+  .chk_shk_dup_tup(shock = shock, call = call)
 
   set_ele <- with(sets$mapping, mget(shock$ls_upper))
   set_ele <- lapply(set_ele, \(s) {

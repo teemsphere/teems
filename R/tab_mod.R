@@ -72,12 +72,13 @@
   })
   comp1 <- paste0(nme, "(", paste0(sub_idx, collapse = ","), ")")
   purrr::pluck(model, "comp1", r_idx) <- comp1
-  purrr::pluck(model, "comp2", r_idx) <- as.character(input)
+  num_txt <- .tab_number(input)
+  purrr::pluck(model, "comp2", r_idx) <- num_txt
   stnd_sets <- model[which(model$name == nme), ]$ls_upper_idx[[1]]
   sets <- paste0(purrr::map2_chr(stnd_sets, sub_idx, \(upper, lower) {
     paste0(c("(all", lower, paste0(upper, ")")), collapse = ",")
   }), collapse = "")
-  purrr::pluck(model, "tab", r_idx) <- paste("Formula", sets, comp1, "=", paste0(input, ";"))
+  purrr::pluck(model, "tab", r_idx) <- paste("Formula", sets, comp1, "=", paste0(num_txt, ";"))
   return(model)
 }
 
@@ -90,7 +91,8 @@
                                      call) {
   nme <- attr(input, "name")
   r_idx <- grep(nme, model$comp1)
-  model$tab[r_idx] <- gsub(model[r_idx, ]$comp2, input, model$tab[r_idx])
-  model[r_idx, ]$comp2 <- as.character(input)
+  num_txt <- .tab_number(input)
+  model$tab[r_idx] <- gsub(model[r_idx, ]$comp2, num_txt, model$tab[r_idx])
+  model[r_idx, ]$comp2 <- num_txt
   return(model)
 }

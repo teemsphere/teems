@@ -42,3 +42,8 @@
     i No single-variable candidate closes the gap.
     i If the counts look right but the partition is structurally deficient, run `teems::ems_probe()` on the deployed model for a named diagnosis.
 
+# unresolvable quantifier sets warn and skip the count check
+
+    ! Equation quantifier set "MYSTERY" could not be sized before deployment, so the closure count check (endogenous elements = equation elements) was skipped.
+    i A closure that does not square the system will be reported by the solver instead.
+

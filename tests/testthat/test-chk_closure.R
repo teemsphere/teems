@@ -164,10 +164,10 @@ test_that("an over-exogenized count with nothing exogenous to release names no c
   )
 })
 
-test_that("unresolvable quantifier sets skip the count check", {
+test_that("unresolvable quantifier sets warn and skip the count check", {
   fx <- square_fixture(exo_rows = 2L)
   fx$model$tab <- "Equation E_x (all,z,MYSTERY) x(z) = 1;"
-  expect_no_error(
+  expect_snapshot_warning(
     .check_system_square(
       model = fx$model, var_extract = fx$var_extract, sets = fx$sets,
       closure = fx$closure, size_metadata = fx$size_metadata, call = NULL

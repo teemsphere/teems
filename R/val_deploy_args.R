@@ -21,6 +21,7 @@
   )
 
   if (!is.null(a$shock)) {
+    a$shock <- lapply(a$shock, \(s) if (is.null(names(s))) s[[1]] else s)
     a$shock <- .expand_ele(input = a$shock)
     a$shock <- lapply(
       a$shock,

@@ -113,6 +113,16 @@ test_that("aggregated numeric to a read", {
   expect_true(grepl("-4.321", model[grepl("ETRAQ", model$comp1), ]$tab))
 })
 
+test_that("numerics reach the TAB text as plain decimals (A7a)", {
+  model <- ems_model(model_file, closure_file, KAPPA = 1e-5, ETRAQ = -2.5e-7)
+  kappa <- model[grepl("KAPPA", model$comp1), ]$tab
+  etraq <- model[grepl("ETRAQ", model$comp1), ]$tab
+  expect_true(grepl("= 0.00001;", kappa, fixed = TRUE))
+  expect_true(grepl("= -0.00000025;", etraq, fixed = TRUE))
+  expect_false(any(grepl("[0-9][eE][-+]?[0-9]", c(kappa, etraq))))
+  expect_identical(.tab_number(c(1 / 3, 123456.789, 1e20)), c("0.333333333333333", "123456.789", "100000000000000000000"))
+})
+
 test_that("aggregated data frame to a read", {
   set.seed(42)
   COMMc <- c("crops", "food", "livestock", "mnfcs", "svces")

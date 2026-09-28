@@ -44,3 +44,19 @@
     x Shock applied to non-exogenous tuples: 1: capital row 1.
     i Call: `ems_custom_shock(var = "qe", input = invalid_tup)`
 
+# ems_custom_shock errors on duplicated tuples
+
+    x Shock input for pop lists a tuple more than once: (row,0).
+    i Each component may be shocked only once; remove the duplicated rows.
+
+# custom and uniform shocks sharing a component abort
+
+    x 2 shocks on pop overlap; a component is shocked more than once: (row,1).
+    i A component may be shocked only once (GEMPACK: "specified more than once"); the solver does not let a later shock override an earlier one.
+    i Split the shocks so their components are disjoint, or combine them into a single `ems_custom_shock()`.
+
+# ems_custom_shock errors when the variable is fully endogenous
+
+    x No exogenous components in qgdp; partial shocks require at least one.
+    i Call: `ems_custom_shock(var = "qgdp", input = data.frame(REGr = "row", ` and ` ALLTIMEt = 0, Value = 1))`
+

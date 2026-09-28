@@ -26,6 +26,15 @@
       attr(c, "var_name") == raw_shock$var
     })]
 
+    if (length(cls_entries) %=% 0L) {
+      call <- attr(raw_shock, "call")
+      .cli_action(
+        if (is_full) shk_err$x_full_exo else shk_err$x_full_exo_part,
+        action = if (is_full) c("abort", "inform", "inform") else c("abort", "inform"),
+        call = call
+      )
+    }
+
     if (is_full) {
       if (!inherits(cls_entries[[1]], "full")) {
         .cli_action(
@@ -64,6 +73,7 @@
     raw_shock = raw_shock,
     sets = sets
   )
+  attr(shock, "tuples") <- .shk_input_tuples(raw_shock$input[, c(raw_shock$ls_mixed, "Value"), with = FALSE])
 
   return(shock)
 }

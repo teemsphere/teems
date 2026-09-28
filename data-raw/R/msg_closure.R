@@ -25,6 +25,14 @@ build_cls_err <- function() {
       {.val {var_discrepancy}} not found among the model's variables.",
       "Did you mean {.or {.val {candidates}}}?"
     ),
+    # test-chk_closure.R: "unresolvable quantifier sets warn and skip the count check"
+    square_unresolved = c(
+      "{cli::qty(unresolved)}Equation quantifier set{?s} {.val {unresolved}}
+      could not be sized before deployment, so the closure count check
+      (endogenous elements = equation elements) was skipped.",
+      "A closure that does not square the system will be reported by the
+      solver instead."
+    ),
     # test-chk_closure.R: "unsquared closures abort with arithmetic and candidates"
     not_square = c(
       "The closure does not square the system: {n_endo} endogenous

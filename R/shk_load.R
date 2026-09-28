@@ -1,4 +1,4 @@
-#' @importFrom purrr map_chr
+#' @importFrom purrr map_chr map2
 #' @keywords internal
 #' @noRd
 .shk_load <- function(shocks,
@@ -17,6 +17,15 @@
       )
     }
   )
+
+  tuples <- purrr::map2(shocks, final_shocks, \(shk, fin) {
+    if (inherits(shk, "uniform")) {
+      .shk_uniform_tuples(shk = shk, sets = sets)
+    } else {
+      attr(fin, "tuples")
+    }
+  })
+  .chk_shk_repeat(shocks = shocks, tuples = tuples)
 
   final_shocks <- unlist(x = final_shocks, recursive = FALSE)
   shock_names <- purrr::map_chr(.x = shocks, .f = "var")

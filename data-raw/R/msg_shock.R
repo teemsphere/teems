@@ -84,6 +84,17 @@ build_shk_err <- function() {
       "Some shock tuples contain elements outside their respective sets: {.field {errant_tuples}}.",
       "Call: {.code {deparse(call)}}"
     ),
+    # test-ems_custom_shock.R: "ems_custom_shock errors on duplicated tuples"
+    cust_dup_tup = c(
+      "Shock input for {.field {var_name}} lists {cli::qty(dup_tuples)}{?a/} tuple{?s} more than once: {.field {dup_tuples}}.",
+      "Each component may be shocked only once; remove the duplicated rows."
+    ),
+    # test-ems_uniform_shock.R: "overlapping shocks on one variable abort"
+    repeat_shock = c(
+      "{n_shocks} shocks on {.field {var_name}} overlap; {cli::qty(dup_tuples)}{?a/} component{?s} {?is/are} shocked more than once: {.field {dup_tuples}}.",
+      "A component may be shocked only once (GEMPACK: \"specified more than once\"); the solver does not let a later shock override an earlier one.",
+      "Split the shocks so their components are disjoint, or combine them into a single {.fun ems_custom_shock}."
+    ),
     # test-ems_custom_shock.R: "ems_custom_shock errors when some shock tuples are endogenous"
     cust_endo_tup = c(
       "Shock applied to non-exogenous tuples: {.field {x_exo_parts}}.",

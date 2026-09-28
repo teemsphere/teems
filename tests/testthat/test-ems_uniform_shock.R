@@ -133,6 +133,43 @@ test_that("ems_uniform_shock errors when endogenous components are allocated sho
   expect_snapshot_error(ems_deploy(dat, model, endo_ele))
 })
 
+test_that("overlapping shocks on one variable abort", {
+  all_years <- ems_uniform_shock("pop", 1, REGr = "row")
+  one_year <- ems_uniform_shock("pop", 2, REGr = "row", Year = 2023)
+  nest_temp("uni_repeat_shock", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, shock = list(all_years, one_year)))
+})
+
+test_that("a multi-element uniform shock repeating an element aborts", {
+  dup_ele <- ems_uniform_shock("pop", 1, REGr = c("row", "row"))
+  nest_temp("uni_repeat_multi", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, shock = list(dup_ele)))
+})
+
+test_that("disjoint shocks on one variable deploy once per component", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shock = shk)
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  split <- shf(list(
+    ems_uniform_shock("pop", 1, REGr = "row"),
+    ems_uniform_shock("pop", 1, REGr = "usa")
+  ), "uni_disjoint_split")
+  multi <- shf(list(ems_uniform_shock("pop", 1, REGr = c("row", "usa"))), "uni_disjoint_multi")
+  expect_identical(multi, split)
+  expect_length(grep("^Shock pop", split), 2L)
+})
+
+test_that("redeploying a shock into the same directory rewrites the shock file", {
+  nest_temp("uni_redeploy", write_dir)
+  shk <- ems_uniform_shock("pop", 1, REGr = "row")
+  first <- ems_deploy(dat, model, shk)
+  second <- ems_deploy(dat, model, shk)
+  lines <- readLines(list.files(dirname(second), pattern = "\\.shf$", full.names = TRUE))
+  expect_length(grep("^Shock pop", lines), 1L)
+})
+
 test_that("ems_uniform_shock errors dots passed without names", {
   expect_snapshot_error(ems_uniform_shock("qe", 1, "capital", ALLTIMEt = 1))
 })

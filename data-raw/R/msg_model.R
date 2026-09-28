@@ -196,6 +196,12 @@ build_model_err <- function() {
       "A {.code # label #} outside any statement (usually a label placed
       after the terminating {.code ;}) is not valid TABLO."
     ),
+    # test-chk_statements.R: "unclosed strong comment aborts (A5)"
+    unclosed_strong_comment = c(
+      "Strong comment {.code ![[!} opened on line {open_line} is never closed.",
+      "Strong comments nest: every {.code ![[!} needs its own {.code !]]!};
+      everything between the outermost pair is ignored."
+    ),
     # test-chk_tab_preflight.R: "read from terminal aborts"
     read_terminal = "Read from terminal is not supported; read from a
     file instead: {.val {bad_stmt}}",

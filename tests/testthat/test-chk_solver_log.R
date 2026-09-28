@@ -250,6 +250,38 @@ test_that(".map_solver_errors classifies representative catalog lines", {
   expect_identical(mapped$manual[9], "10.11.1")
 })
 
+test_that(".map_solver_errors classifies the Tier A solver fatals", {
+  mapped <- .map_solver_errors(c(
+    "Formula for c1 reads a later element of c1 along the loop (backward recursion; formulas run forwards through their loops and use the most recent values, manual 16.5(b)/(c) -- copy the coefficient first): (all,t,time2) c1(t) = c1(t+1) + d(t)",
+    "index offset t+nlag is not an integer constant (manual 11.2.4: an offset is index + <integer> or index - <integer>)",
+    "index offset t+1 in k(t+1) runs outside set TIME (at element t10 of TIME; manual 16.4)",
+    "the left-hand side of Formula c1 carries 1 argument(s); c1 is declared with 2 (manual 10.8, 11.4.10): c1(t) = 1",
+    "index offsets are not allowed on the left-hand side of a Formula(Initial) (a Read in later steps; manual 10.8, 11.11.4): c1(t+1) = 1",
+    "the shock statement for pop names component pop(usa), which is endogenous; only exogenous components can be shocked (manual 24, 24.14.1; shock file)",
+    "some components of pop have been specified more than once (pop(usa) is shocked by two statements; manual 68.1.1; shock file)",
+    "initial closure check: 10 endogenous components is not equal to the number of equation rows (11); 20 variable components, 10 exogenous, 0 backsolved -- make 1 more component(s) endogenous (manual 23.2.7)",
+    "LOOP statements are not supported (loops in TAB files, manual 11.18): loop (all,i,com)",
+    "a strong comment opened with '![[!' in the TAB file is never closed by '!]]!' (1 still open at the end of the file; manual 11.1.5)",
+    "product Update of vfm: the right-hand side must be a product of percentage-change variables v1*v2*...*vn (manual 11.12.4), and 2 is not one; write a (change) Update for any other form: (all,i,com) vfm(i) = 2*p(i)",
+    "Formula for x gives a value that is not finite (NaN) at x(usa): a division, LOGE, SQRT or power left its domain or the value overflowed (arithmetic error, manual 34.3): x(r) = loge(y(r))",
+    "the linear solve gave a value that is not finite (NaN) for qo(usa): the LHS matrix is singular or badly scaled at this step, or a coefficient overflowed (manual 34.1, 34.3)",
+    "more than 100 equations were not satisfied very accurately (101 warnings); all files are written, but the solution may not be valid (manual 30.6.1)"
+  ))
+  expect_identical(
+    mapped$class,
+    c(rep("tab", 5), rep("closure", 3), rep("tab", 3), rep("numeric", 3))
+  )
+  expect_identical(
+    mapped$manual,
+    c(
+      "16.5", "11.2.4", "16.4", "10.8", "11.11.4",
+      "24.14.1", "68.1.1", "23.2.7",
+      "11.18", "11.1.5", "11.12.4",
+      "34.3", "34.1", "30.6.1"
+    )
+  )
+})
+
 test_that("condest diagnostic lines do not trip the generic scans", {
   paths <- local_solver_log(c(
     "solver banner",

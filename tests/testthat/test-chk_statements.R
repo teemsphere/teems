@@ -57,6 +57,47 @@ test_that("![[! !]]! block comments with nested ! are stripped (B2)", {
   expect_same_model(write_tab(txt))
 })
 
+test_that("nested strong comments strip to the outermost pair (A5)", {
+  txt <- paste0(
+    "![[! outer\n",
+    "Coefficient (all,r,REG) BOGUS1(r);\n",
+    "![[! inner\n",
+    "Coefficient (all,r,REG) BOGUS2(r);\n",
+    "!]]!\n",
+    "Coefficient (all,r,REG) BOGUS3(r);\n",
+    "!]]!\n",
+    base_txt
+  )
+  expect_same_model(write_tab(txt))
+})
+
+test_that("strong comment helper counts depth and keeps stray closes", {
+  expect_identical(.strip_strong_comments("a![[!b![[!c!]]!d!]]!e", call = NULL), "ae")
+  expect_identical(.strip_strong_comments("a![[!b!]]!c![[!d!]]!e", call = NULL), "ace")
+  expect_identical(.strip_strong_comments("a !x!!]]! b", call = NULL), "a !x!!]]! b")
+  expect_identical(.strip_strong_comments("no markers", call = NULL), "no markers")
+})
+
+test_that("PHILGEM nested block is fully commented out (A5)", {
+  philgem <- file.path(
+    "/home/mpc/src/teems/teems_tabs/potential_models/tabs",
+    "PHILGEM_tpec0109.tab"
+  )
+  skip_if_not(file.exists(philgem))
+  txt <- .tab_to_utf8(readChar(philgem, file.info(philgem)$size, useBytes = TRUE))
+  out <- .strip_strong_comments(txt, call = NULL)
+  expect_false(grepl("![[!", out, fixed = TRUE))
+  expect_false(grepl("!]]!", out, fixed = TRUE))
+  expect_false(grepl("QRATIO", out, fixed = TRUE))
+  expect_false(grepl("CAPSTOK", out, fixed = TRUE))
+  expect_true(grepl("End of PHILGEM", out, fixed = TRUE))
+})
+
+test_that("unclosed strong comment aborts (A5)", {
+  txt <- paste0(base_txt, "\n![[! open\n![[! nested !]]!\n")
+  expect_snapshot_error(process(write_tab(txt)))
+})
+
 test_that("empty statements are no-ops (B3)", {
   txt <- sub(";", ";;", base_txt, fixed = TRUE)
   txt <- paste0(txt, "\n;\n  ;\n")

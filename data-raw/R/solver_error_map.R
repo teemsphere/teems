@@ -13,8 +13,13 @@ build_solver_error_map <- function() {
     # shocks_read wording: "(shock file)")
     c("is not in set .* \\(in ", "closure", NA),
     c("is not declared \\(in ", "closure", NA),
+    c("which is endogenous; only exogenous components", "closure", "24.14.1"),
+    c("specified more than once", "closure", "68.1.1"),
+    c("has no exogenous components, so it cannot be shocked", "closure", "24.6.3"),
+    c("exogenous of [0-9]+ components", "closure", "24.14.1"),
     c("shock file", "closure", NA),
     c("closure file", "closure", NA),
+    c("initial closure check", "closure", "23.2.7"),
     c("^variable [^ ]+ is not declared", "closure", NA),
     # data files
     c("header .* not found", "data", NA),
@@ -35,12 +40,30 @@ build_solver_error_map <- function() {
     # aborts past that range, the same size class with the same remedy
     c("32-bit HSL MP48 interface", "size", NA),
     # runtime numeric evaluation
+    c("linear solve gave a value that is not finite", "numeric", "34.1"),
+    c("not finite", "numeric", "34.3"),
+    c("not satisfied very accurately", "numeric", "30.6.1"),
     c("zero divided by zero", "numeric", "10.11.1"),
     c("division by zero in a formula", "numeric", "10.11.1"),
     c("assertion failed", "numeric", "25.3"),
     c("has an? (updated )?value (at or )?(above|below) its declared", "numeric", "25.4.4"),
     c("fractional power of a negative number", "numeric", NA),
     c("zero pivot", "numeric", "14.1.10"),
+    # statement surface (Tier A: strong comments, loop keywords,
+    # constants, signed powers, product updates)
+    c("strong comment", "tab", "11.1.5"),
+    c("(LOOP|BREAK|CYCLE) statements are not supported", "tab", "11.18"),
+    c("numeric constant .* is out of the supported range", "tab", "11.4.9"),
+    c("after (expanding exponent-notation|bracketing signed powers)", "tab", NA),
+    c("product Update of", "tab", "11.12.4"),
+    # left-hand sides and index offsets (formula.c lhs_args_bind,
+    # offset_range_check, parse_index_leadlag; recursion order)
+    c("backward recursion", "tab", "16.5"),
+    c("index offsets are not allowed on the left-hand side", "tab", "11.11.4"),
+    c("index offset .* is not an integer constant", "tab", "11.2.4"),
+    c("index offset .* runs outside set", "tab", "16.4"),
+    c("the left-hand side of .* (carries [0-9]+ argument|has an empty or malformed argument)", "tab", "10.8"),
+    c("is not an index of the statement's quantifiers", "tab", "10.8"),
     # names (names_validate)
     c("or a declared subset of it", "tab", "10.1.2"),
     c("is not a declared subset of", "tab", "10.1.2"),

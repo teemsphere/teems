@@ -6,7 +6,7 @@
 .check_statements <- function(tab,
                               call) {
 
-  n_comments <- gsub("(?s)!\\[\\[!.*?!\\]\\]!", "", tab, perl = TRUE)
+  n_comments <- .strip_strong_comments(tab, call = call)
   n_comments <- paste(unlist(strsplit(n_comments, "![^!]*!", perl = TRUE)), collapse = "")
   n_comments <- .protect_label_semicolons(n_comments)
   statements <- unlist(strsplit(n_comments, ";", perl = TRUE))

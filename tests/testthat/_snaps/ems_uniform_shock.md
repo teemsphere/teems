@@ -60,6 +60,18 @@
     x Shock allocated to non-exogenous tuples: 1: capital chn 1, 2: capital row 1, and 3: capital usa 1.
     i Call: `ems_uniform_shock(var = "qe", value = 1, ENDWMSe = "capital", ` and ` ALLTIMEt = 1)`
 
+# overlapping shocks on one variable abort
+
+    x 2 shocks on pop overlap; a component is shocked more than once: (row,0).
+    i A component may be shocked only once (GEMPACK: "specified more than once"); the solver does not let a later shock override an earlier one.
+    i Split the shocks so their components are disjoint, or combine them into a single `ems_custom_shock()`.
+
+# a multi-element uniform shock repeating an element aborts
+
+    x 2 shocks on pop overlap; components are shocked more than once: (row,0), (row,1), and (row,2).
+    i A component may be shocked only once (GEMPACK: "specified more than once"); the solver does not let a later shock override an earlier one.
+    i Split the shocks so their components are disjoint, or combine them into a single `ems_custom_shock()`.
+
 # ems_uniform_shock errors dots passed without names
 
     x Subset arguments in `...` must be named pairs: `SETi = "component"`.

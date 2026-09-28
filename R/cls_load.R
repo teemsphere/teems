@@ -7,6 +7,8 @@
   closure <- readLines(closure_file)
   closure_file <- basename(closure_file)
 
+  closure <- strsplit(.strip_strong_comments(paste(closure, collapse = "\n"), call = call), "\n", fixed = TRUE)[[1]]
+
   closure <- gsub(";", "", closure)
   closure <- gsub("![^!]*!", "", closure)
   closure <- closure[trimws(closure) != ""]

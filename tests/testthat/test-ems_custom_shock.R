@@ -123,6 +123,26 @@ test_that("ems_custom_shock errors when some shock tuples are endogenous", {
   expect_snapshot_error(ems_deploy(dat, model, invalid_tup))
 })
 
+test_that("ems_custom_shock errors on duplicated tuples", {
+  dup_tup <- data.frame(REGr = c("row", "row", "usa"), ALLTIMEt = c(0, 0, 0), Value = c(1, 2, 1))
+  dup_tup <- ems_custom_shock("pop", dup_tup)
+  nest_temp("cust_dup_tup", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, dup_tup))
+})
+
+test_that("custom and uniform shocks sharing a component abort", {
+  cst <- ems_custom_shock("pop", data.frame(REGr = "row", ALLTIMEt = 0:2, Value = 2))
+  uni <- ems_uniform_shock("pop", 1, REGr = "row", ALLTIMEt = 1)
+  nest_temp("cust_repeat_shock", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, shock = list(cst, uni)))
+})
+
+test_that("ems_custom_shock errors when the variable is fully endogenous", {
+  endo <- ems_custom_shock("qgdp", data.frame(REGr = "row", ALLTIMEt = 0, Value = 1))
+  nest_temp("cust_x_full_exo_part", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, endo))
+})
+
 test_that("custom shock column names match the declared set and index case-insensitively", {
   shf <- function(shk, name) {
     nest_temp(name, write_dir)

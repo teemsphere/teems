@@ -43,6 +43,18 @@ build_swap_err <- function() {
     invalid_full = c(
       "{.val {var_name}} cannot be fully swapped out; it is not fully exogenous.",
       "Call: {.code {deparse(call)}}"
+    ),
+    # test-ems_swap.R: "two swaps in on one tuple abort with no valid order",
+    # "swaps blocking one another abort with no valid order"
+    no_order = "No order of the swaps reconciles the closure; {n_pending} swap{?s} cannot be applied.",
+    # sprintf templates injected after no_order; same tests
+    no_order_parity = "%s swapped in %d and out %d time(s) while initially %s: %s",
+    no_order_blocked_in = "%s cannot swap in, already exogenous: %s",
+    no_order_blocked_out = "%s cannot swap out, not exogenous: %s",
+    no_order_more = "%s and %d more",
+    no_order_status = list(
+      exo = "exogenous",
+      endo = "endogenous"
     )
   )
 }

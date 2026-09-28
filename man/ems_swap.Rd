@@ -39,10 +39,14 @@ specified. Note that full variable swaps can be directly
 inputted as a character string in the \code{"swap_in"} and
 \code{"swap_out"} arguments of \code{\link[=ems_deploy]{ems_deploy()}}.
 
-Swaps "in" (joining the list of exogenous variables) are
-processed prior to swaps out (leaving the list of exogenous
-variables), and in the same order as they are loaded into
-\code{\link[=ems_deploy]{ems_deploy()}}.
+Swaps "in" (joining the list of exogenous variables) and
+swaps "out" (leaving it) are reconciled together rather than
+in a fixed order: each tuple ends exogenous or endogenous by
+the net of the swaps that name it, so a variable may be
+swapped in whole and a slice of it swapped back out, or a
+swap reversed by its mirror. Swaps are rejected only when no
+order of them is valid on the closure, such as a tuple swapped
+in twice.
 }
 \examples{
 # Full variable swaps

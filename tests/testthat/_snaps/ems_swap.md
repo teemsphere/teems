@@ -112,3 +112,15 @@
     i For "pop" these include: REGr and ALLTIMEt.
     i Call: `ems_swap(var = "pop", NOT_A_SET = "usa")`
 
+# two swaps in on one tuple abort with no valid order
+
+    x No order of the swaps reconciles the closure; 1 swap cannot be applied.
+    i qfd("food","crops","usa",0), qfd("food","crops","usa",1), qfd("food","crops","usa",2), qfd("food","food","usa",0), qfd("food","food","usa",1) and 10 more swapped in 2 and out 0 time(s) while initially endogenous: ems_swap(var = "qfd", COMMc = "food", REGr = "usa"); ems_swap(var = "qfd", COMMc = "food", REGr = "usa")
+    i ems_swap(var = "qfd", COMMc = "food", REGr = "usa") cannot swap in, already exogenous: qfd("food","crops","usa",0), qfd("food","crops","usa",1), qfd("food","crops","usa",2), qfd("food","food","usa",0), qfd("food","food","usa",1) and 10 more
+
+# swaps blocking one another abort with no valid order
+
+    x No order of the swaps reconciles the closure; 2 swaps cannot be applied.
+    i ems_swap(var = "qe", ENDWMSe = "ENDWC") cannot swap in, already exogenous: qe("capital","chn",0), qe("capital","row",0), qe("capital","usa",0)
+    i ems_swap(var = "qe", ENDWMSe = "ENDWC") cannot swap out, not exogenous: qe("capital","chn",1), qe("capital","chn",2), qe("capital","row",1), qe("capital","row",2), qe("capital","usa",1) and 1 more
+

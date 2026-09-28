@@ -203,6 +203,62 @@ test_that("partial swap set, index and element names match case-insensitively", 
   expect_identical(mixed, canon)
 })
 
+cls_lines <- function(cmf) {
+  readLines(file.path(dirname(cmf), paste0(tools::file_path_sans_ext(basename(cmf)), ".cls")))
+}
+
+test_that("a variable swapped in whole and a slice swapped back reconciles", {
+  nest_temp("reconcile_reswap", write_dir)
+  base <- cls_lines(ems_deploy(dat, model))
+  cls <- cls_lines(ems_deploy(dat, model,
+    swap_in = list("qfd", ems_swap("tfd", COMMc = "food", REGr = "usa")),
+    swap_out = list("tfd", ems_swap("qfd", COMMc = "food", REGr = "usa"))
+  ))
+  expect_false("tfd" %in% cls)
+  expect_true("tfd(\"food\",ACTS,\"usa\",ALLTIME)" %in% cls)
+  expect_false("qfd" %in% cls)
+  expect_false(any(grepl("^qfd\\(\"food\",ACTS,\"usa\"", cls)))
+  expect_true("qfd(\"food\",ACTS,\"chn\",ALLTIME)" %in% cls)
+  expect_identical(setdiff(base, cls), "tfd")
+})
+
+test_that("a swap and its mirror leave the closure unchanged", {
+  nest_temp("reconcile_mirror", write_dir)
+  base <- cls_lines(ems_deploy(dat, model))
+  cls <- cls_lines(ems_deploy(dat, model,
+    swap_in = list("qfd", "tfd"),
+    swap_out = list("tfd", "qfd")
+  ))
+  expect_identical(cls, base)
+})
+
+test_that("a tuple swapped in while exogenous and swapped out is a no-op", {
+  nest_temp("reconcile_noop", write_dir)
+  base <- cls_lines(ems_deploy(dat, model))
+  cls <- cls_lines(ems_deploy(dat, model,
+    swap_in = ems_swap("tfd", COMMc = "food", REGr = "usa"),
+    swap_out = ems_swap("tfd", COMMc = "food", REGr = "usa")
+  ))
+  expect_identical(cls, base)
+})
+
+test_that("two swaps in on one tuple abort with no valid order", {
+  nest_temp("reconcile_parity", write_dir)
+  swap_in <- list(
+    ems_swap("qfd", COMMc = "food", REGr = "usa"),
+    ems_swap("qfd", COMMc = "food", REGr = "usa")
+  )
+  swap_out <- ems_swap("tfd", COMMc = "food", REGr = "usa")
+  expect_snapshot_error(ems_deploy(dat, model, swap_in = swap_in, swap_out = swap_out))
+})
+
+test_that("swaps blocking one another abort with no valid order", {
+  nest_temp("reconcile_blocked", write_dir)
+  swap_in <- ems_swap("qe", ENDWMSe = "ENDWC")
+  swap_out <- ems_swap("qe", ENDWMSe = "ENDWC")
+  expect_snapshot_error(ems_deploy(dat, model, swap_in = swap_in, swap_out = swap_out))
+})
+
 test_that("ems_swap examples work", {
   # Full variable swaps
   expect_type(ems_swap("tfd"), "list") # out

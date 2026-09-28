@@ -51,7 +51,7 @@
   if (length(err_lines) > 0L) {
     err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
     mapped <- .map_solver_errors(err_lines)
-    sel <- intersect(c("tab", "closure", "data", "numeric", "resource", "size"), mapped$class)
+    sel <- intersect(c("interface", "tab", "closure", "data", "numeric", "resource", "size"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -64,6 +64,7 @@
       sel <- sel[1]
       manual_secs <- unique(mapped$manual[mapped$class == sel & !is.na(mapped$manual)])
       msg_name <- switch(sel,
+        interface = "solver_interface",
         tab = "solver_tab",
         closure = "solver_closure",
         data = "solver_data",

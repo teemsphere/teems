@@ -414,3 +414,26 @@ test_that("a non-zero exit status aborts even with a clean log", {
   # a zero status with a clean log passes as before
   expect_no_error(check_log(paths))
 })
+
+test_that("an option or manifest statement the image does not know maps to the interface abort", {
+  paths <- local_solver_log(c(
+    "teems-solver 1.1.0-dev.4",
+    "Error: unknown command-line option -subtotals: teems-solver 1.1.0-dev.4 does not read it (teems and its solver image are released together; use the image that matches this teems version, and see docs/solver-reference.md section 11 for the options)"
+  ))
+  expect_error(check_log(paths), "does not accept 1 input that teems sent")
+  expect_error(check_log(paths), "unknown command-line option -subtotals")
+  expect_error(check_log(paths), "released together")
+  paths <- local_solver_log(
+    "Error: unknown statement at line 272 of the manifest (.cmf) file (expected one of iodata, outdata, soldata, tabfile, closure, shock): subtotal \"/opt/teems/sub.sts\";"
+  )
+  expect_error(check_log(paths), "does not accept 1 input that teems sent")
+  expect_error(check_log(paths), "subtotal", fixed = TRUE)
+})
+
+test_that("a misspelt TAB keyword maps to the model-specification abort", {
+  paths <- local_solver_log(
+    "Error: unknown statement keyword 'coeficient' (a statement without a keyword continues the previous coefficient statement, manual 11.1.1, and this one cannot): coeficient (all,r,reg) k8(r) ;"
+  )
+  expect_error(check_log(paths), "rejected the model specification")
+  expect_error(check_log(paths), "11.1.1")
+})

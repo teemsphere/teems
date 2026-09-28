@@ -141,6 +141,30 @@ test_that("coefficients come from the binary dump; CSVs are opt-in and agree", {
   }
 })
 
+test_that("the solver lists its outputs and the pre-simulation coefficients read back", {
+  bin_dir <- file.path(dirname(cmf_path), "out", "variables", "bin")
+  sol_prefix <- file.path(bin_dir, "sol.")
+  outputs <- jsonlite::fromJSON(paste0(sol_prefix, "outputs.json"))
+  expect_true(outputs$complete)
+  expect_true(all(c("sol.bin", "sol.var", "sol.set", "sol.sel", "sol.mds",
+                    "sol.cof", "sol.cbin", "sol.cbin0", "sol.xac",
+                    "sol.stats.json") %in% outputs$files$name))
+  expect_true(.has_coefficient_dump(sol_prefix, presim = TRUE))
+  post <- .parse_coefficient_bins(sol_prefix)
+  pre <- .parse_coefficient_bins(sol_prefix, presim = TRUE)
+  expect_identical(pre$cof_union, post$cof_union)
+  expect_identical(nrow(pre$xc), nrow(post$xc))
+  params <- post$cof_union$r_idx[post$cof_union$parameter &
+    !post$cof_union$postsim]
+  rows <- unlist(lapply(params + 1L, function(i) {
+    post$cof_union$pack_begadd[i] + seq_len(post$cof_union$matsize[i])
+  }))
+  expect_gt(length(rows), 0L)
+  expect_identical(pre$xc$Value[rows], post$xc$Value[rows])
+  unlink(paste0(sol_prefix, "outputs.json"))
+  expect_false(.has_coefficient_dump(sol_prefix, presim = TRUE))
+})
+
 test_that("ems_compose errors when cmf_path does not exist", {
   expect_snapshot_error(ems_compose(cmf_path = file.path("not_a_path")))
 })

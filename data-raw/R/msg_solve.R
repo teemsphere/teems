@@ -204,6 +204,16 @@ build_solve_err <- function() {
       "Use the distributed {.code matrix_method = \"DBBD\"}, condense the model, or reduce its dimensions.",
       "Full log: {.path {diag_out}}."
     ),
+    # test-chk_solver_log.R: "an option or manifest statement the image does not know maps to the interface abort"
+    # teems and the solver image are released together: an unknown
+    # command-line option or manifest statement means the image is older
+    # (or newer) than the package driving it
+    solver_interface = c(
+      "The solver image does not accept {n_err} input{?s} that teems sent:",
+      "{err_preview}",
+      "teems and its solver image are released together: use the image that matches this version of teems (the {.arg docker_tag} option of {.fun teems::ems_option_set} names the image in use).",
+      "Full log: {.path {diag_out}}."
+    ),
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_installed = "Docker is required but not installed.",
     # not in tests: not simulated (Docker absent or misconfigured)

@@ -413,11 +413,13 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
 //     ncofele, reserved} + ncof x hcge_cof + ncof x uint8 kind (bit 0
 //     PostSim, bit 1 parameter); .cbin = ncofele x double in begadd order.
 // names_filter: coefficient names (solver casing) to extract; empty
-// reads all. Values are read only when read_values is true.
+// reads all. Values are read only when read_values is true; presim
+// reads them from .cbin0 instead (pre-simulation values: int64 header
+// {version 1, ncof, ncofele, phase 0}, then the .cbin layout).
 
 [[cpp11::register]]
 cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_filter,
-                               bool read_values) {
+                               bool read_values, bool presim) {
 
   std::string cof_path = path_prefix + "cof";
   std::ifstream cof_file(cof_path, std::ios::binary);
@@ -500,10 +502,21 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
 
   cpp11::sexp bin_sexp = R_NilValue;
   if (read_values) {
-    std::string bin_path = path_prefix + "cbin";
+    std::string bin_path = path_prefix + (presim ? "cbin0" : "cbin");
     std::ifstream bin_file(bin_path, std::ios::binary);
     if (!bin_file.is_open()) {
-      cpp11::stop("Cannot open .cbin file: %s", bin_path.c_str());
+      cpp11::stop("Cannot open %s", bin_path.c_str());
+    }
+    std::streamoff base = 0;
+    if (presim) {
+      uvadd vhdr[4];
+      bin_file.read(reinterpret_cast<char*>(vhdr), sizeof(uvadd) * 4);
+      if (!bin_file || vhdr[0] != 1 || vhdr[1] != ncof ||
+          vhdr[2] != ncofele || vhdr[3] != 0) {
+        cpp11::stop("Unsupported or mismatched .cbin0 header in %s",
+                    bin_path.c_str());
+      }
+      base = static_cast<std::streamoff>(sizeof(uvadd) * 4);
     }
     cpp11::writable::doubles bin_vec(static_cast<R_xlen_t>(total_ele));
     if (filter) {
@@ -511,7 +524,7 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
       for (auto i : sel_idx) {
         uvadd beg = cof_structs[i].begadd;
         uvadd mat = cof_structs[i].matsize;
-        bin_file.seekg(static_cast<std::streamoff>(beg) * sizeof(forreal),
+        bin_file.seekg(base + static_cast<std::streamoff>(beg) * sizeof(forreal),
                        std::ios::beg);
         bin_file.read(reinterpret_cast<char*>(REAL(bin_vec) + write_pos),
                       sizeof(forreal) * mat);
@@ -522,7 +535,7 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
                     sizeof(forreal) * ncofele);
     }
     if (!bin_file) {
-      cpp11::stop("Truncated .cbin file: %s", bin_path.c_str());
+      cpp11::stop("Truncated coefficient values file: %s", bin_path.c_str());
     }
     bin_file.close();
     bin_sexp = (SEXP)bin_vec;

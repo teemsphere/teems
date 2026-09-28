@@ -9,6 +9,14 @@
 # section cited by the solver message, NA when none.
 build_solver_error_map <- function() {
   rows <- list(
+    # the image does not accept what teems sent (strict options and
+    # manifest, main.c cli_options_check / tab_parse.c manifest_check):
+    # above every other row, since the offending text is quoted verbatim
+    c("unknown command-line option", "interface", NA),
+    c("of the manifest \\(\\.cmf\\) file", "interface", NA),
+    # a misspelt TAB keyword (cmf_io.c kwless_unknown), also quoting
+    # the statement
+    c("unknown statement keyword", "tab", "11.1.1"),
     # closure / shock files (closure_read wording: "(in <var>)";
     # shocks_read wording: "(shock file)")
     c("is not in set .* \\(in ", "closure", NA),

@@ -214,6 +214,15 @@ build_solve_err <- function() {
       "teems and its solver image are released together: use the image that matches this version of teems (the {.arg docker_tag} option of {.fun teems::ems_option_set} names the image in use).",
       "Full log: {.path {diag_out}}."
     ),
+    # test-chk_solver_log.R: "shock-group subtotal errors map to the subtotal abort"
+    # the run asked for subtotals (or for more solves with each step's
+    # factorization) that the groups or the chosen method cannot give
+    solver_subtotal = c(
+      "The solver rejected the subtotal (shock-group) request with {n_err} error{?s}:",
+      "{err_preview}",
+      "A subtotal names shocked exogenous components under a unique label, and needs {.code matrix_method} LU, SBBD or DBBD with the Johansen, Euler or Gragg method (GEMPACK manual section 29).",
+      "Full log: {.path {diag_out}}."
+    ),
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_installed = "Docker is required but not installed.",
     # not in tests: not simulated (Docker absent or misconfigured)

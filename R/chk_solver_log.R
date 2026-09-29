@@ -51,7 +51,7 @@
   if (length(err_lines) > 0L) {
     err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
     mapped <- .map_solver_errors(err_lines)
-    sel <- intersect(c("interface", "tab", "closure", "data", "numeric", "resource", "size"), mapped$class)
+    sel <- intersect(c("interface", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -67,6 +67,7 @@
         interface = "solver_interface",
         tab = "solver_tab",
         closure = "solver_closure",
+        subtotal = "solver_subtotal",
         data = "solver_data",
         numeric = "solver_numeric",
         resource = "solver_resource",

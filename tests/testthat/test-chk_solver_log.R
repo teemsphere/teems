@@ -437,3 +437,23 @@ test_that("a misspelt TAB keyword maps to the model-specification abort", {
   expect_error(check_log(paths), "rejected the model specification")
   expect_error(check_log(paths), "11.1.1")
 })
+
+test_that("shock-group subtotal errors map to the subtotal abort", {
+  paths <- local_solver_log(
+    "Error: element mars is not in set reg (in pop; subtotal \"bad\"; subtotals file)"
+  )
+  expect_error(check_log(paths), "rejected the subtotal \\(shock-group\\) request with 1 error")
+  expect_error(check_log(paths), "element mars is not in set reg", fixed = TRUE)
+  paths <- local_solver_log(
+    "Error: subtotals (manual 29) are not available with matrix_method NDBBD, which cannot keep its factorization for more solves yet; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
+  )
+  expect_error(check_log(paths), "rejected the subtotal")
+  mapped <- .map_solver_errors(c(
+    "subtotal \"Twice\" is defined twice (subtotals file)",
+    "cannot open subtotals file /opt/teems/sub.sts: No such file or directory",
+    "subtotals (manual 29) are not available in a model with complementarities yet: the approximate and accurate runs change the closure and the states between steps, so the step right-hand sides are not the shocks alone (manual 52)",
+    "this run solves extra right-hand sides with each step's factorization (-fhtest), which matrix_method NDBBD cannot keep yet; use matrix_method LU, SBBD or DBBD",
+    "the manifest (.cmf) file has more than one subtotals statement; put every subtotal in one file"
+  ))
+  expect_identical(mapped$class, c("subtotal", "subtotal", "subtotal", "subtotal", "interface"))
+})

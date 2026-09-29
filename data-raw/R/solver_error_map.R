@@ -14,9 +14,19 @@ build_solver_error_map <- function() {
     # above every other row, since the offending text is quoted verbatim
     c("unknown command-line option", "interface", NA),
     c("of the manifest \\(\\.cmf\\) file", "interface", NA),
+    c("more than one subtotals statement", "interface", NA),
     # a misspelt TAB keyword (cmf_io.c kwless_unknown), also quoting
     # the statement
     c("unknown statement keyword", "tab", "11.1.1"),
+    # shock groups for subtotals (tab_parse.c subtotals_read, main.c
+    # method checks, solve_drivers.c extra solves): above the closure
+    # and data rows, whose "is not in set"/"cannot open" wording the
+    # subtotals-file messages share
+    c("subtotals file", "subtotal", "29.1"),
+    c("subtotals \\(manual 29\\) are not available", "subtotal", "29"),
+    c("cannot keep (its factorization|yet)", "subtotal", NA),
+    c("subtotal solves found no kept factorization", "subtotal", NA),
+    c("kept (SBBD|DBBD) factor", "subtotal", NA),
     # closure / shock files (closure_read wording: "(in <var>)";
     # shocks_read wording: "(shock file)")
     c("is not in set .* \\(in ", "closure", NA),

@@ -13,7 +13,8 @@
   nm_order <- names(i_data)
   is_arr <- purrr::map_lgl(i_data, \(x) {
     inherits(x, "dat") && is.numeric(x) &&
-      !is.null(dimnames(x)) && !is.null(names(dimnames(x)))
+      !is.null(dimnames(x)) && !is.null(names(dimnames(x))) &&
+      !exists(paste0(".aggregate_data.", class(x)[1]), mode = "function")
   })
   arr_data <- i_data[is_arr]
   dt_data <- .array2DT(i_data = i_data[!is_arr])

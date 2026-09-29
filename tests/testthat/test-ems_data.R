@@ -317,6 +317,8 @@ test_that("aggregation conserves every data header total", {
   dat_headers <- names(agg_data)[vapply(agg_data, inherits, TRUE, "dat")]
   expect_true(length(dat_headers) > 20L)
   expect_setequal(dat_headers, names(full_data)[vapply(full_data, inherits, TRUE, "dat")])
+  # DPSM passes its value through to each region rather than summing
+  dat_headers <- setdiff(dat_headers, "DPSM")
   # 1e-6: HAR values are single precision, so the two summation orders
   # differ by float32 accumulation (XTRV measures 2.4e-8)
   totals <- vapply(dat_headers, function(h) {
@@ -491,6 +493,12 @@ test_that("ems_data prepares a GTAP-Power database in place", {
   expect_true("tnd" %in% ep$EGY$mapping)
   expect_true("eny" %in% ep$SUBP$TOPP)
   expect_false("tnd" %in% ep$SUBP$TOPP)
+})
+
+test_that("ems_data passes DPSM through unaggregated to each region", {
+  dpsm <- agg_data$DPSM
+  expect_setequal(dpsm$REG, c("chn", "row", "usa"))
+  expect_true(all(dpsm$Value == 1))
 })
 
 unlink(write_dir, recursive = TRUE)

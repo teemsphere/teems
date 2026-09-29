@@ -79,6 +79,25 @@
   return(dt)
 }
 
+#' @importFrom data.table setkeyv
+#' @keywords internal
+#' @noRd
+#' @method .aggregate_data DPSM
+#' @export
+.aggregate_data.DPSM <- function(dt,
+                                 sets,
+                                 ...) {
+  Value <- NULL
+
+  xval_col <- colnames(dt)[!colnames(dt) %in% "Value"]
+  value <- dt$Value[1]
+  dt <- .map_data(dt = dt, sets = sets, col = xval_col)
+  dt <- unique(dt[, xval_col, with = FALSE])
+  dt[, let(Value = value)]
+  data.table::setkeyv(dt, xval_col)
+  return(dt)
+}
+
 #' @importFrom data.table setkey setnames
 #' @importFrom purrr pluck
 #' @keywords internal

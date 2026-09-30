@@ -22,6 +22,15 @@
     cores = host$cores,
     mem_gb = host$mem_gb
   )
+  refine <- .refine_decide(
+    method = a$matrix_method,
+    n_tasks = a$n_tasks,
+    plain_size = plain_size,
+    condensed = condensed,
+    th = th
+  )
+  a$refine <- refine$on
+  resources_record$refine <- refine
   resources_record$fit <- .memory_fit_check(
     method = a$matrix_method,
     n_tasks = a$n_tasks,
@@ -29,7 +38,8 @@
     condensed = condensed,
     host = host,
     th = th,
-    call = call
+    call = call,
+    refine = isTRUE(refine$on)
   )
   if (is.null(a$tempdir) && (a$matrix_method %=% "NDBBD" || isFALSE(a$inmemory))) {
     a$tempdir <- "/tmp"

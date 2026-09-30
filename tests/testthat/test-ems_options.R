@@ -174,6 +174,20 @@ test_that("random_seed is validated, stored as an integer and reset", {
   expect_identical(ems_option_get("random_seed"), 1L)
 })
 
+test_that("the refine option is validated, stored and reset", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("refine"), "on")
+  ems_option_set(refine = "off")
+  expect_identical(ems_option_get("refine"), "off")
+  expect_identical(ems_option_get()$refine, "off")
+  expect_identical(.o_refine(), "off")
+  expect_snapshot_error(ems_option_set(refine = TRUE))
+  expect_error(ems_option_set(refine = c("on", "off")), "refine")
+  expect_identical(ems_option_get("refine"), "off")
+  ems_option_reset()
+  expect_identical(ems_option_get("refine"), "on")
+})
+
 test_that("ems_option_reset restores default version_check", {
   ems_option_set(version_check = "off")
   ems_option_reset()

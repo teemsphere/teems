@@ -138,7 +138,9 @@
 #'   default, in-memory for every method except `"NDBBD"`, and falls
 #'   back to scratch with a warning when the estimated need exceeds
 #'   the memory available), `fastrefac` (persistent-pivot
-#'   refactorization, logical), `gpzerodivide` (GEMPACK dual-class
+#'   refactorization, logical; under `"DBBD"` it helps only small
+#'   systems, whose block orderings repeat from step to step),
+#'   `gpzerodivide` (GEMPACK dual-class
 #'   ZERODIVIDE semantics, logical), `cntl_3`/`cntl_6` (HSL
 #'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
 #'   block-count override, integer), `withmc66` (MC66 row ordering
@@ -213,7 +215,8 @@
 #'   `"suppress_outputs"` or `"terminal_run"` is `TRUE`.
 #'   [`ems_option_set()`] for the severities of TAB `Assertion`
 #'   failures and declared-range violations (`assertions`,
-#'   `range_test_initial`, `range_test_updated`).
+#'   `range_test_initial`, `range_test_updated`), and for the
+#'   refinement step of `"DBBD"` solves (`refine`).
 #' @return A tibble of model output variables and coefficients.
 #'   `invisible(NULL)` if `suppress_outputs = TRUE`. Instructions
 #'   for terminal execution if `terminal_run = TRUE`.

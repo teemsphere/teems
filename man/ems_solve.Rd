@@ -171,7 +171,9 @@ in scratch files; absent, the solver applies its per-method
 default, in-memory for every method except \code{"NDBBD"}, and falls
 back to scratch with a warning when the estimated need exceeds
 the memory available), \code{fastrefac} (persistent-pivot
-refactorization, logical), \code{gpzerodivide} (GEMPACK dual-class
+refactorization, logical; under \code{"DBBD"} it helps only small
+systems, whose block orderings repeat from step to step),
+\code{gpzerodivide} (GEMPACK dual-class
 ZERODIVIDE semantics, logical), \code{cntl_3}/\code{cntl_6} (HSL
 pivot/ordering thresholds, numeric), \code{nsbbdblocks} (SBBD
 block-count override, integer), \code{withmc66} (MC66 row ordering
@@ -286,5 +288,6 @@ files. \code{\link[=ems_compose]{ems_compose()}} for structuring data when
 \code{"suppress_outputs"} or \code{"terminal_run"} is \code{TRUE}.
 \code{\link[=ems_option_set]{ems_option_set()}} for the severities of TAB \code{Assertion}
 failures and declared-range violations (\code{assertions},
-\code{range_test_initial}, \code{range_test_updated}).
+\code{range_test_initial}, \code{range_test_updated}), and for the
+refinement step of \code{"DBBD"} solves (\code{refine}).
 }

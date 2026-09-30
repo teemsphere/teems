@@ -23,6 +23,7 @@ options_class <- R6::R6Class(
     range_test_initial = NULL,
     range_test_updated = NULL,
     random_seed = NULL,
+    refine = NULL,
 
     initialize = function(verbose = NULL,
                           tempdir = NULL,
@@ -37,7 +38,8 @@ options_class <- R6::R6Class(
                           assertions = NULL,
                           range_test_initial = NULL,
                           range_test_updated = NULL,
-                          random_seed = NULL) {
+                          random_seed = NULL,
+                          refine = NULL) {
       self$verbose <- verbose
       self$tempdir <- tempdir
       self$ndigits <- ndigits
@@ -52,6 +54,7 @@ options_class <- R6::R6Class(
       self$range_test_initial <- range_test_initial
       self$range_test_updated <- range_test_updated
       self$random_seed <- random_seed
+      self$refine <- refine
     },
 
     export = function() {
@@ -69,7 +72,8 @@ options_class <- R6::R6Class(
         assertions = self$get_assertions(),
         range_test_initial = self$get_range_test_initial(),
         range_test_updated = self$get_range_test_updated(),
-        random_seed = self$get_random_seed()
+        random_seed = self$get_random_seed(),
+        refine = self$get_refine()
       )
     },
 
@@ -88,6 +92,7 @@ options_class <- R6::R6Class(
       self$set_range_test_initial(list$range_test_initial)
       self$set_range_test_updated(list$range_test_updated)
       self$set_random_seed(list$random_seed)
+      self$set_refine(list$refine)
     },
 
     reset = function() {
@@ -105,6 +110,7 @@ options_class <- R6::R6Class(
       self$range_test_initial <- NULL
       self$range_test_updated <- NULL
       self$random_seed <- NULL
+      self$refine <- NULL
     },
 
     get_verbose = function() {
@@ -161,6 +167,10 @@ options_class <- R6::R6Class(
 
     get_range_test_updated = function() {
       self$range_test_updated %|||% "warn"
+    },
+
+    get_refine = function() {
+      self$refine %|||% "on"
     },
 
     set_verbose = function(verbose, call = rlang::caller_env()) {
@@ -231,6 +241,11 @@ options_class <- R6::R6Class(
     set_range_test_updated = function(range_test_updated, call = rlang::caller_env()) {
       self$validate_range_test_updated(range_test_updated, call = call)
       self$range_test_updated <- range_test_updated
+    },
+
+    set_refine = function(refine, call = rlang::caller_env()) {
+      self$validate_refine(refine, call = call)
+      self$refine <- refine
     },
 
     validate_verbose = function(verbose, call = rlang::caller_env()) {
@@ -322,6 +337,13 @@ options_class <- R6::R6Class(
       }
     },
 
+    validate_refine = function(refine, call = rlang::caller_env()) {
+      if (!is.character(refine) || length(refine) != 1L ||
+        !refine %in% c("on", "off")) {
+        cli::cli_abort(gen_err$opt_refine, call = call)
+      }
+    },
+
     validate = function() {
       self$validate_verbose(self$get_verbose())
       self$validate_tempdir(self$get_tempdir())
@@ -336,6 +358,7 @@ options_class <- R6::R6Class(
       self$validate_assertions(self$get_assertions())
       self$validate_range_test_initial(self$get_range_test_initial())
       self$validate_range_test_updated(self$get_range_test_updated())
+      self$validate_refine(self$get_refine())
     }
   )
 )

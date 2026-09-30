@@ -60,6 +60,15 @@
     }
     cli::cli_text(probe_info$recommend$memory)
   }
+  rf <- r$refine
+  if (!is.null(rf)) {
+    refine_gb <- .recommend_gb(rf$est_gb)
+    if (isTRUE(rf$on)) {
+      cli::cli_text(probe_info$recommend$refine_on)
+    } else {
+      cli::cli_text(probe_info$recommend$refine_off)
+    }
+  }
   if (!is.null(r$tempdir)) {
     cli::cli_text(probe_info$recommend$scratch)
   }

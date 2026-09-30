@@ -4,7 +4,8 @@
                             n_tasks,
                             plain_size,
                             condensed = FALSE,
-                            th = .auto_thresholds()) {
+                            th = .auto_thresholds(),
+                            refine = !.o_refine() %=% "off") {
   if (is.null(plain_size) || is.na(plain_size) || plain_size <= 0) {
     return(NA_real_)
   }
@@ -15,7 +16,12 @@
     } else {
       1
     }),
-    DBBD = (th$mem_dbbd_base + th$mem_dbbd_rank * n_tasks) *
+    DBBD = (th$mem_dbbd_base + th$mem_dbbd_rank * n_tasks +
+      (if (isTRUE(refine)) {
+        th$mem_dbbd_refine
+      } else {
+        0
+      })) *
       (if (isTRUE(condensed)) {
         th$mem_dbbd_condensed
       } else {

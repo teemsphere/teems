@@ -341,7 +341,14 @@ build_solve_info <- function() {
         "  memory check: %s at %s task(s) estimated %s = %s kB/eq x %s ",
         "plain-equivalent equations%s -> %s of %s (%s)"
       ),
-      fit_condensed = " (condensed)"
+      fit_condensed = " (condensed)",
+      refine = "  refinement (DBBD, one step per solve): %s (%s)",
+      refine_reason = list(
+        on = "the default",
+        off = "set by the refine option"
+      ),
+      refine_run = "Refinement (DBBD): %s solve(s) refined; worst residual ratio %s before the step, %s after",
+      refine_skipped = "Refinement (DBBD): off"
     ),
     # .resolve_resources() rationales, shown with the recommendation
     # test-ems_probe.R: "the probe prints its recommendation"

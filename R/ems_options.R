@@ -69,6 +69,13 @@
 #'   Formula element keeps its draw across steps and extrapolation
 #'   passes. GEMPACK draws a new sequence per run by default
 #'   (`randomize = yes`); change the seed for a new sequence.
+#' @param refine Character length 1, `"on"` (default) or `"off"`. One
+#'   step of iterative refinement after every linear solve of
+#'   `matrix_method = "DBBD"` in [`ems_solve()`], which brings its
+#'   accuracy to that of `"LU"`. Refinement holds the system matrix and
+#'   the block factorizations through each solve, so it raises peak
+#'   memory; the memory estimate counts it. Other matrix methods are
+#'   not refined.
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -93,7 +100,8 @@ ems_option_set <- function(verbose = NULL,
                            assertions = NULL,
                            range_test_initial = NULL,
                            range_test_updated = NULL,
-                           random_seed = NULL) {
+                           random_seed = NULL,
+                           refine = NULL) {
   call <- match.call()
   if (!is.null(verbose)) {
     ems_options$set_verbose(verbose, call = call)
@@ -136,6 +144,9 @@ ems_option_set <- function(verbose = NULL,
   }
   if (!is.null(random_seed)) {
     ems_options$set_random_seed(random_seed, call = call)
+  }
+  if (!is.null(refine)) {
+    ems_options$set_refine(refine, call = call)
   }
   invisible(NULL)
 }
@@ -187,6 +198,9 @@ ems_option_set <- function(verbose = NULL,
 #'     values.
 #'   * `"random_seed"` Integer. Seed of `RANDOM(a,b)` (the default
 #'     is `1`).
+#'   * `"refine"` Character. `"on"` (the default) or `"off"`: one
+#'     refinement step per `"DBBD"` solve (see
+#'     [`ems_option_set()`]).
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -220,7 +234,8 @@ ems_option_get <- function(name = NULL) {
          assertions         = ems_options$get_assertions(),
          range_test_initial = ems_options$get_range_test_initial(),
          range_test_updated = ems_options$get_range_test_updated(),
-         random_seed        = ems_options$get_random_seed()
+         random_seed        = ems_options$get_random_seed(),
+         refine             = ems_options$get_refine()
   )
 }
 

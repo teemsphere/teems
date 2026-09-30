@@ -44,6 +44,8 @@ build_gen_err <- function() {
     opt_range_test_initial = "{.arg range_test_initial} must be one of {.val fatal}, {.val warn} or {.val off}.",
     # test-ems_options.R: "ems_option_set sets the solver run modes and rejects other values"
     opt_range_test_updated = "{.arg range_test_updated} must be one of {.val fatal}, {.val warn} or {.val off}.",
+    # test-ems_options.R: "the refine option is validated, stored and reset"
+    opt_refine = "{.arg refine} must be {.val on} or {.val off}.",
     # one-line internal aborts
     # test-ems_compose.R: "ems_compose errors when cmf_path is missing"
     missing_arg = "argument {.arg {arg}} is missing, with no default",

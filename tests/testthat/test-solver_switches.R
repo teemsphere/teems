@@ -172,3 +172,72 @@ test_that("switches reach the solver and the run records them (e2e)", {
     fixed = TRUE
   )))
 })
+
+solver_has_refine <- function() {
+  img <- paste0("teems:", .resolve_docker_tag())
+  if (!.docker_image_present(img)) {
+    return(FALSE)
+  }
+  out <- suppressWarnings(system2(
+    "docker",
+    c(
+      "run", "--rm", img, "/bin/bash", "-c",
+      shQuote("grep -c 'Refinement step (DBBD)' /opt/teems-solver/solver/teems-solver")
+    ),
+    stdout = TRUE,
+    stderr = FALSE
+  ))
+  length(out) > 0L && !is.na(suppressWarnings(as.integer(out[1]))) &&
+    as.integer(out[1]) > 0L
+}
+
+test_that("the DBBD refinement option reaches the solver and the record (e2e)", {
+  nest_temp("refine_e2e", write_dir)
+  skip_if(
+    !solver_has_refine(),
+    "teems image absent or predates the DBBD refinement step"
+  )
+  conv <- GTAP_convert(dat_input, par_input, set_input)
+  d <- suppressMessages(ems_data(
+    dat_input = conv$dat,
+    par_input = conv$par,
+    set_input = conv$set,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  ))
+  model_files <- ems_example("GTAPv7", write_dir)
+  quiet_pivot(model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]]))
+  cmf_path <- ems_deploy(d, model, ems_uniform_shock("aoall", 5))
+  run_dir <- dirname(cmf_path)
+  read_stats <- function() {
+    jsonlite::read_json(
+      file.path(run_dir, "out", "variables", "bin", "sol.stats.json"),
+      simplifyVector = TRUE
+    )
+  }
+  on <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L))
+  stats <- read_stats()
+  expect_true(stats$options$refine)
+  expect_gt(stats$refine$solves, 0L)
+  expect_lt(stats$refine$residual_ratio_after_max, 1e-12)
+  diag_txt <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("refinement (DBBD, one step per solve): on", diag_txt, fixed = TRUE)))
+  expect_true(any(grepl("^Refinement \\(DBBD\\): [0-9]+ solve\\(s\\) refined", diag_txt)))
+  ems_option_set(refine = "off")
+  off <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L))
+  ems_option_set(refine = "on")
+  stats <- read_stats()
+  expect_false(stats$options$refine)
+  expect_null(stats$refine)
+  diag_txt <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("refinement (DBBD, one step per solve): off (set by the refine option)", diag_txt, fixed = TRUE)))
+  expect_true(any(grepl("Refinement (DBBD): off", diag_txt, fixed = TRUE)))
+  lu <- suppressMessages(ems_solve(cmf_path, matrix_method = "LU"))
+  stats <- read_stats()
+  expect_false(stats$options$refine)
+  expect_null(stats$refine)
+  expect_s3_class(on, "data.frame")
+  expect_s3_class(off, "data.frame")
+  expect_s3_class(lu, "data.frame")
+})

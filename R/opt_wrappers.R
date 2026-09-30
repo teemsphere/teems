@@ -95,3 +95,10 @@
   random_seed <- ems_option_get("random_seed")
   return(random_seed)
 }
+
+#' @noRd
+#' @keywords internal
+.o_refine <- function() {
+  refine <- ems_option_get("refine")
+  return(refine)
+}

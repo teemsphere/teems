@@ -18,7 +18,8 @@ ems_option_set(
   assertions = NULL,
   range_test_initial = NULL,
   range_test_updated = NULL,
-  random_seed = NULL
+  random_seed = NULL,
+  refine = NULL
 )
 }
 \arguments{
@@ -100,6 +101,14 @@ function \code{RANDOM(a,b)} (GEMPACK manual 11.5.2) in
 Formula element keeps its draw across steps and extrapolation
 passes. GEMPACK draws a new sequence per run by default
 (\code{randomize = yes}); change the seed for a new sequence.}
+
+\item{refine}{Character length 1, \code{"on"} (default) or \code{"off"}. One
+step of iterative refinement after every linear solve of
+\code{matrix_method = "DBBD"} in \code{\link[=ems_solve]{ems_solve()}}, which brings its
+accuracy to that of \code{"LU"}. Refinement holds the system matrix and
+the block factorizations through each solve, so it raises peak
+memory; the memory estimate counts it. Other matrix methods are
+not refined.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

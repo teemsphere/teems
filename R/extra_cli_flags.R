@@ -18,6 +18,9 @@
     if (!is.null(a$fastrefac)) {
       paste("-fastrefac", .as01(a$fastrefac))
     },
+    if (!is.null(a$refine)) {
+      paste("-refine", .as01(a$refine))
+    },
     if (!is.null(a$gpzerodivide)) {
       paste("-gpzerodivide", .as01(a$gpzerodivide))
     },

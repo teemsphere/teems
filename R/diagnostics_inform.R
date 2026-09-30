@@ -168,6 +168,16 @@
       }
     ),
     .resources_record_lines(resources_record),
+    if (!is.null(stats$refine)) {
+      sprintf(
+        solve_info$record$refine_run,
+        stats$refine$solves,
+        format(stats$refine$residual_ratio_before_max, digits = 3),
+        format(stats$refine$residual_ratio_after_max, digits = 3)
+      )
+    } else if (stats$matrix_method %=% "DBBD" && isFALSE(opt$refine)) {
+      solve_info$record$refine_skipped
+    },
     if (!is.null(stats$la_used)) {
       sprintf(
         solve_info$record$la_used,

@@ -100,7 +100,8 @@
       n_tasks 2
       two ranks on a laptop, more only where cores and memory allow; threads take the
       rest
-      memory: about 0.01 GB at 2 tasks, 0% of 12.0 GB -- fits
+      memory: about 0.02 GB at 2 tasks, 0% of 12.0 GB -- fits
+      one refinement step per "DBBD" solve: on (about 0.02 GB with it)
       `ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2, n_threads = 4)`
 
 ---

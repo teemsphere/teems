@@ -38,6 +38,11 @@
       paste0(round(100 * fit$share), "%"), .record_gb(fit$limit_gb), fit$verdict
     )
   }
+  rf <- r$refine
+  refine_line <- if (!is.null(rf)) {
+    reason <- solve_info$record$refine_reason[[rf$reason]]
+    sprintf(solve_info$record$refine, .onoff(rf$on), reason)
+  }
   lines <- c(
     sprintf(
       solve_info$record$resources,
@@ -50,7 +55,8 @@
       r$tempdir %|||% solve_info$record$solver_default,
       host
     ),
-    fit_line
+    fit_line,
+    refine_line
   )
   return(lines)
 }

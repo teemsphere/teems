@@ -60,6 +60,12 @@
     host = host,
     report_only = TRUE
   )
+  refine <- .refine_decide(
+    method = d$method,
+    n_tasks = r$n_tasks,
+    plain_size = d$plain_size,
+    condensed = d$condensed
+  )
   tempdir <- if (identical(d$method, "NDBBD")) {
     "/tmp"
   } else {
@@ -96,6 +102,7 @@
       source = host$source %|||% "container"
     ),
     fit = fit,
+    refine = refine,
     call = call
   )
   return(recommendation)

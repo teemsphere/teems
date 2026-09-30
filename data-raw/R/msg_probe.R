@@ -100,6 +100,8 @@ build_probe_info <- function() {
       dbbd_blocked = "  {.val DBBD} would be faster but its {dbbd_gb} estimate does not fit; {.val LU} stays",
       lu_excluded = "  {.val LU} excluded: the projected MA48 workspace passes the 32-bit ceiling",
       memory = "  memory: about {est_gb} at {fit$n_tasks} task{?s}{share_txt} -- {fit$verdict}",
+      refine_on = "  one refinement step per {.val DBBD} solve: on (about {refine_gb} with it)",
+      refine_off = "  one refinement step per {.val DBBD} solve: off, set by the refine option",
       scratch = "  scratch inside the container ({.path {r$tempdir}}); ems_solve() sets it for {.val NDBBD}",
       call = "  {.code {r$call}}",
       unknown_gb = "unknown"

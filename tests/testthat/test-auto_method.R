@@ -166,8 +166,8 @@ test_that("an excluded LU falls through to the bordered method", {
 
 test_that("the memory model reproduces the ladder's binding cells", {
   # S90P DBBD at 2 ranks (7.69M plain): 10.8-11.2 GB measured
-  expect_equal(.auto_memory_gb("DBBD", 2L, 7.69e6), 7.69e6 * (0.85 + 2 * 0.27) / 1e6)
-  expect_lt(abs(.auto_memory_gb("DBBD", 2L, 7.69e6) - 10.7), 0.1)
+  expect_equal(.auto_memory_gb("DBBD", 2L, 7.69e6, refine = FALSE), 7.69e6 * (0.85 + 2 * 0.27) / 1e6)
+  expect_lt(abs(.auto_memory_gb("DBBD", 2L, 7.69e6, refine = FALSE) - 10.7), 0.1)
   # I-long-big SBBD at 8 ranks (21.9M): 9.98 GB measured, within 15 %
   expect_lt(abs(.auto_memory_gb("SBBD", 8L, 21.9e6) / 9.98 - 1), 0.15)
   # condensed DBBD = 1.55x the plain rig's DBBD at the same plain size
@@ -269,13 +269,13 @@ test_that("the memory fit check refuses a run past the error band and warns insi
   expect_identical(.memory_fit_check("SBBD", 4L, 4.5e6, host = laptop)$verdict, "fits")
   # 95 % of the container: inside the band, warned
   expect_warning(
-    rec <- .memory_fit_check("DBBD", 2L, 8.2e6, host = laptop),
+    rec <- .memory_fit_check("DBBD", 2L, 8.2e6, host = laptop, refine = FALSE),
     "may not fit"
   )
   expect_identical(rec$verdict, "tight")
   expect_equal(rec$share, 8.2 * 1.39 / 12)
   # past the band: refused by name
-  expect_snapshot_error(.memory_fit_check("DBBD", 4L, 7.69e6, host = laptop))
+  expect_snapshot_error(.memory_fit_check("DBBD", 4L, 7.69e6, host = laptop, refine = FALSE))
   # unknown size or container: not applied
   expect_identical(.memory_fit_check("DBBD", 4L, NA_real_, host = laptop)$verdict, "unknown")
   expect_identical(.memory_fit_check("DBBD", 4L, 7.69e6)$verdict, "unknown")

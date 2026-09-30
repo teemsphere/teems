@@ -48,6 +48,9 @@ initial values.
 values.
 \item \code{"random_seed"} Integer. Seed of \code{RANDOM(a,b)} (the default
 is \code{1}).
+\item \code{"refine"} Character. \code{"on"} (the default) or \code{"off"}: one
+refinement step per \code{"DBBD"} solve (see
+\code{\link[=ems_option_set]{ems_option_set()}}).
 }}
 }
 \value{

@@ -72,13 +72,15 @@ build_auto_thresholds <- function() {
     mem_dbbd_condensed = 1.55,
     # DBBD refinement step (ems_option_set(refine)): the system matrix
     # and the block factorizations are held through each solve; added
-    # to the DBBD kB/eq (scaled like it when condensed). Measured
-    # 2026-09-30 on the 1.41M GTAPv7 aoall+20 rig (fastrefac_dbbd_f3_report):
-    # the solve-phase resident sum over ranks grows 0.50 GB at 2 ranks
-    # and 0.49 at 4 (0.35 kB/eq, rank-independent) while the whole-run
-    # peak, set earlier in the run at that size, grows 0.08-0.14 GB; the
-    # term assumes the solve phase becomes the peak
-    mem_dbbd_refine = 0.35,
+    # to the DBBD kB/eq (scaled like it when condensed). Whole-run peak,
+    # measured 2026-10-01 on L-S90P (7.69M eq, DBBD 2x2 Johansen, Windows
+    # box, report_2026-10-01_s90p_refine): the peak sits inside the solve
+    # and grows 0.115 kB/eq (high-water sum over ranks) / 0.137 (container
+    # peak, pairs 0.098-0.175); 0.20 = the worst pair + ~15 %. The
+    # post-solve resident increase (0.35 on the 1.41M aoall+20 rig, 0.47
+    # here) is not the peak. Workstation Gragg cell still to confirm
+    # (wrapup_plan 4.6)
+    mem_dbbd_refine = 0.20,
     # SBBD: (0.36 + 0.02 x ranks) kB/eq at >= 4.5M; extrapolates to
     # I-long-big 21.9M within 15 %
     mem_sbbd_base = 0.36,

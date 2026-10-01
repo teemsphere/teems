@@ -81,7 +81,9 @@ build_layer_spec <- function() {
         par = c("SUBE", "INCE"),
         dat = character()
       ),
-      vocab = list(energy_top = "eny"),
+      # natural_resource: the sector-specific endowment (the .tab's
+      # ENDWF), whose cost share recalibrates ELFVAEN for fossil mining
+      vocab = list(energy_top = "eny", natural_resource = "natlres"),
       sets = list(
         DCOM = list(group = "commodity"),
         MCOM = list(group = "commodity"),
@@ -120,6 +122,7 @@ build_layer_spec <- function() {
       ),
       vocab = list(
         energy_top = "eny",
+        natural_resource = "natlres",
         electricity = "ely",
         generation = "egen",
         base_load = "ebl",

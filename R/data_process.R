@@ -3,6 +3,7 @@
 #' @noRd
 .process_data <- function(i_data,
                           set_mappings,
+                          par_weights,
                           call) {
 
   metadata <- attr(i_data, "metadata")
@@ -19,16 +20,28 @@
   arr_data <- i_data[is_arr]
   dt_data <- .array2DT(i_data = i_data[!is_arr])
 
-  weight_headers <- gsub("-", "", unique(unlist(param_weights[[metadata$data_format]])))
-  weights <- c(arr_data, dt_data)
-  weights <- weights[names(weights) %in% weight_headers]
-
-  if (metadata$data_format %in% names(param_weights)) {
+  if (metadata$data_format %in% names(param_weights$value)) {
+    methods <- .resolve_par_weights(
+      par_weights = par_weights,
+      data_format = metadata$data_format,
+      call = call
+    )
+    weight_entries <- c(
+      unlist(param_weights$value[[metadata$data_format]]),
+      unlist(lapply(param_weights$share[[metadata$data_format]], \(n) lapply(n, `[[`, "inputs")))
+    )
+    weight_headers <- unique(sub("\\[.*$", "", sub("^-", "", weight_entries)))
+    weights <- c(arr_data, dt_data)
+    weights <- weights[names(weights) %in% weight_headers]
     dt_data <- .weight_param(
       i_data = dt_data,
       weights = weights,
+      sets = set_raw,
+      set_mappings = set_mappings,
+      methods = methods,
       data_format = metadata$data_format
     )
+    metadata$par_weights <- methods
   }
 
   ndigits <- .o_ndigits()
@@ -42,8 +55,16 @@
     sets = set_mappings,
     ndigits = ndigits
   )
-  i_data <- c(dt_agg, arr_agg)[nm_order]
-  names(i_data) <- nm_order
+  agg_data <- c(dt_agg, arr_agg)[nm_order]
+  names(agg_data) <- nm_order
+  i_data <- .fossil_vaen(
+    agg_data = agg_data,
+    i_data = i_data,
+    set_raw = set_raw,
+    set_mappings = set_mappings,
+    metadata = metadata,
+    ndigits = ndigits
+  )
   i_data <- purrr::compact(i_data)
   attr(i_data, "metadata") <- metadata
   attr(i_data, "call") <- call

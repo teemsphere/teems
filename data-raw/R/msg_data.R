@@ -90,6 +90,25 @@ build_data_err <- function(layer_spec) {
       "GTAP-E weight {.field {e_header}} cannot be recast onto {.val TOPP} from {.val {e_dim}}.",
       "The CDE parameters are aggregated with private consumption over {.val COMM}, which {.val TOPP} must cover with exactly one aggregate element."
     ),
+    # test-ems_data.R: "ems_data rejects a par_weights method it does not know"
+    par_weights_method = c(
+      "{.arg par_weights} methods are {.val share} and {.val value}, not {.val {e_method}}."
+    ),
+    # test-ems_data.R: "ems_data rejects more than one default par_weights method"
+    par_weights_default = c(
+      "{.arg par_weights} takes at most one unnamed method, the default for every weighted parameter; {.val {e_method}} were given.",
+      "Name the others after the parameters they apply to, e.g. {.code c(\"share\", ESBM = \"value\")}."
+    ),
+    # test-ems_data.R: "ems_data rejects a par_weights parameter the format does not weight"
+    par_weights_header = c(
+      "{.arg par_weights} names {.val {e_header}}, which {.val {e_format}} data does not weight.",
+      "Weighted parameters: {.val {e_weighted}}."
+    ),
+    # test-param_weight.R: "a weight entry restricted to a set keeps only its elements"
+    e_weight_set = c(
+      "Parameter weight {.field {e_header}} is restricted to set {.val {e_set}} over {.val {e_dim}}, which the database does not carry.",
+      "The weight table in {.code param_weights} names a set header or dimension this database lacks."
+    ),
     # test-ems_data.R: "ems_data errors when dots passed without names"
     no_name_mapping = "Set mappings must be passed as named pairs: {.code REG = \"mapping\"}"
   )

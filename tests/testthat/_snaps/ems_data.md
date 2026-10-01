@@ -79,3 +79,17 @@
 
     x Set mappings must be passed as named pairs: `REG = "mapping"`
 
+# ems_data rejects a par_weights method it does not know
+
+    x `par_weights` methods are "share" and "value", not "mean".
+
+# ems_data rejects more than one default par_weights method
+
+    x `par_weights` takes at most one unnamed method, the default for every weighted parameter; "share" and "value" were given.
+    i Name the others after the parameters they apply to, e.g. `c("share", ESBM = "value")`.
+
+# ems_data rejects a par_weights parameter the format does not weight
+
+    x `par_weights` names "ESBX", which "GTAPv7" data does not weight.
+    i Weighted parameters: "ESBD", "ESBM", "ESBT", "ESBV", "INCP", "SUBP", "ESBC", "ESBG", "ESBI", "ETRQ", "ESBQ", "EFVE", "EAEZ", and "ETRE".
+

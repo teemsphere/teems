@@ -4,7 +4,14 @@
 \alias{ems_data}
 \title{Load and prepare data inputs}
 \usage{
-ems_data(dat_input, par_input = NULL, set_input = NULL, time_steps = NULL, ...)
+ems_data(
+  dat_input,
+  par_input = NULL,
+  set_input = NULL,
+  time_steps = NULL,
+  par_weights = "share",
+  ...
+)
 }
 \arguments{
 \item{dat_input}{Character vector of length 1, file name in
@@ -31,6 +38,27 @@ is \code{NULL}). For use with temporally dynamic models. Input
 format is either chronological years of steps including
 initial reference year corresponding to the database
 employed or steps from t0 with initial value 0.}
+
+\item{par_weights}{Character vector (default is \code{"share"}),
+the weights with which parameters are averaged when their
+sets are aggregated.
+\itemize{
+\item \code{"share"}: each member is weighted by the value of its
+CES or CET nest times one minus the sum of its squared
+input shares, so that the aggregate elasticity reproduces
+the members' response to a small relative price change.
+Members whose input shares cannot move (for example a
+commodity that is never imported) carry no weight.
+\item \code{"value"}: each member is weighted by the value of its
+nest, as the FlexAgg aggregation programs do.
+}
+
+An unnamed element sets the method for every weighted
+parameter; elements named after a parameter header (e.g.
+\code{c("share", ESBM = "value")}) override it for that
+parameter. The CDE parameters (INCP, SUBP) are weighted by
+value under either method. Ignored on the single-file
+route, where nothing is aggregated.}
 
 \item{...}{A named pairlist assigning set mappings to model
 sets that are explicitly read (not constructed via any set
@@ -94,6 +122,16 @@ v7_data <- ems_data("v7_data/gsdfdat.har",
                     REG = "AR5",
                     ACTS = "food",
                     ENDW = "labor_diff")
+
+# The same aggregation with FlexAgg's value weights for the
+# import-sourcing elasticities
+v7_value <- ems_data("v7_data/gsdfdat.har",
+                     "v7_data/gsdfpar.har",
+                     "v7_data/gsdfset.har",
+                     REG = "AR5",
+                     ACTS = "food",
+                     ENDW = "labor_diff",
+                     par_weights = c(ESBM = "value"))
 
 # Data for an intertemporal model with explicit time steps
 int_data <- ems_data("v6_data/gsddat.har",

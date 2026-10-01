@@ -431,6 +431,10 @@ test_that("ems_data prepares a GTAP-AEZ database in place", {
   expect_true("CROPACTS" %in% names(aez$AREA))
   expect_equal(unique(aez$AREA$CROPACTS), "crops")
   expect_true("LCOV" %in% names(aez$LCOV))
+  # ESUBAEZ is weighted by land rents: every land-using aggregate keeps
+  # the source value 20, however few of its members use land
+  land_using <- aez$EAEZ[ACTS %in% c("crops", "livestock", "mnfcs")]
+  expect_true(all(land_using$Value == 20))
 })
 
 test_that("ems_data prepares a GTAP-E database in place", {
@@ -464,6 +468,16 @@ test_that("ems_data prepares a GTAP-E database in place", {
   expect_false(any(energy %in% e$SUBP$TOPP))
   expect_false(any(c("SUBE", "INCE") %in% names(e)))
   expect_lte(max(e$SUBP$Value), 1)
+  # GSHR is a share, averaged rather than summed over the aggregated regions
+  expect_true(all(e$GSHR$Value == 1))
+  # ELFVAEN as the FlexAgg GTAP-E program aggregates it: recalibrated
+  # to the fossil supply elasticity for coal, oil and gas mining, 1 for
+  # the other fuels, weighted by value added and energy elsewhere
+  efve <- e$EFVE
+  expect_equal(efve[ACTS == "gas" & REG == "chn", Value], 0.131541, tolerance = 1e-5)
+  expect_equal(efve[ACTS == "gas" & REG == "usa", Value], 1.504764, tolerance = 1e-5)
+  expect_equal(efve[ACTS == "coa" & REG == "usa", Value], 3.58521, tolerance = 1e-5)
+  expect_true(all(efve[ACTS %in% c("p_c", "gdt"), Value] == 1))
 })
 
 test_that("ems_data prepares a GTAP-Power database in place", {
@@ -493,12 +507,77 @@ test_that("ems_data prepares a GTAP-Power database in place", {
   expect_true("tnd" %in% ep$EGY$mapping)
   expect_true("eny" %in% ep$SUBP$TOPP)
   expect_false("tnd" %in% ep$SUBP$TOPP)
+  expect_true(all(ep$GSHR$Value == 1))
+  # the power mapping renames the fuels: gas absorbs gdt and is
+  # recalibrated as mining, oil_pcts holds p_c alone and takes 1; peak
+  # load is weighted towards its near-zero gas and oil technologies
+  efve <- ep$EFVE
+  expect_equal(efve[ACTS == "gas" & REG == "usa", Value], 0.938472, tolerance = 1e-5)
+  expect_true(all(efve[ACTS == "oil_pcts", Value] == 1))
+  expect_lt(max(efve[ACTS == "peakload", Value]), 0.02)
 })
 
-test_that("ems_data passes DPSM through unaggregated to each region", {
+test_that("ems_data averages DPSM over the regions it aggregates", {
   dpsm <- agg_data$DPSM
   expect_setequal(dpsm$REG, c("chn", "row", "usa"))
   expect_true(all(dpsm$Value == 1))
+})
+
+test_that("ems_data rejects a par_weights method it does not know", {
+  expect_snapshot_error(ems_data(
+    dat_input, par_input, set_input,
+    REG = "big3", par_weights = "mean"
+  ))
+})
+
+test_that("ems_data rejects more than one default par_weights method", {
+  expect_snapshot_error(ems_data(
+    dat_input, par_input, set_input,
+    REG = "big3", par_weights = c("share", "value")
+  ))
+})
+
+test_that("ems_data rejects a par_weights parameter the format does not weight", {
+  expect_snapshot_error(ems_data(
+    dat_input, par_input, set_input,
+    REG = "big3", par_weights = c(ESBX = "value")
+  ))
+})
+
+test_that("par_weights selects the share or value weights per parameter", {
+  value_data <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg",
+    par_weights = "value"
+  )
+  mixed_data <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg",
+    par_weights = c(ESBM = "value")
+  )
+  expect_true(all(attr(agg_data, "metadata")$par_weights == "share"))
+  expect_true(all(attr(value_data, "metadata")$par_weights == "value"))
+  expect_equal(unname(attr(mixed_data, "metadata")$par_weights["ESBM"]), "value")
+  # China's livestock imports are half wool (ESBM 12.9), nearly all from
+  # one aggregated source: its sourcing can barely shift, so share
+  # weights keep wool from dominating the aggregate as value weights do
+  livestock <- \(d, h) d[[h]][COMM == "livestock" & REG == "chn", Value]
+  expect_equal(livestock(agg_data, "ESBM"), 3.010618, tolerance = 1e-5)
+  expect_equal(livestock(value_data, "ESBM"), 7.64888, tolerance = 1e-5)
+  # ESBD pools one domestic/imported nest per agent
+  expect_equal(livestock(agg_data, "ESBD"), 2.451707, tolerance = 1e-5)
+  expect_equal(mixed_data$ESBM, value_data$ESBM)
+  expect_equal(mixed_data$ESBD, agg_data$ESBD)
+  # the CDE parameters are value weighted under either method
+  expect_equal(agg_data$SUBP, value_data$SUBP)
 })
 
 unlink(write_dir, recursive = TRUE)

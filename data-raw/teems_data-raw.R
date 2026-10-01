@@ -109,26 +109,89 @@ mappings <- process_mappings(
 )
 
 # parameters
+# "value" weights, those of the FlexAgg aggregation programs (aggpar.tab,
+# aggpar_e.tab, aggpar_p.tab); a parameter absent here is averaged.
+# "-H" negates header H; "H[DIM=SET]" keeps the elements of H's DIM
+# that belong to the set header SET. ESUBAEZ is not weighted by FlexAgg
+# (it writes the constant 20): the land rents it is weighted by here
+# reproduce that constant for every land-using aggregate
 GTAPv6_weights <- list(
   ESBD = c("VDPA", "VIPA", "VDGA", "VIGA", "VDFA", "VIFA"),
   ESBM = c("VIPA", "VIGA", "VIFA"),
-  ESBT = c("VDFM", "VIFM", "VFM", "FTRV", "-FBEP", "-ISEP"),
+  ESBT = c("VDFA", "VIFA"),
   ESBV = "EVFA",
   INCP = c("VDPA", "VIPA"),
   SUBP = c("VDPA", "VIPA")
 )
 
 GTAPv7_weights <- list(
-  ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP"),
-  ESBM = c("VMPP", "VMGP", "VMFP"),
-  ESBT = c("VDFB", "VMFB", "EVFB", "FTRV", "-FBEP", "-ISEP"),
+  ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP", "VDIP", "VMIP"),
+  ESBM = c("VMPP", "VMGP", "VMFP", "VMIP"),
+  ESBT = c("VDFP", "VMFP", "EVFP"),
   ESBV = "EVFP",
   INCP = c("VDPP", "VMPP"),
   SUBP = c("VDPP", "VMPP"),
-  ESBC = c("VDFB", "VMFB")
+  ESBC = c("VDFP", "VMFP"),
+  ESBG = c("VDGP", "VMGP"),
+  ESBI = c("VDIP", "VMIP"),
+  ETRQ = "MAKS",
+  ESBQ = "MAKB",
+  EFVE = c("EVFP", "VDFP[COMM=COME]", "VMFP[COMM=COME]"),
+  EAEZ = "EVFP[ENDW=AEZS]"
 )
 
-param_weights <- list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights)
+# "share" weights (ems_data(par_weights = "share"), the default): each
+# member is weighted by the value of its CES/CET nest times one minus
+# the sum of its squared input shares, the weight under which the
+# aggregate elasticity reproduces the members' response to a small
+# relative price change. A parameter can carry several nests (ESBD has
+# one per agent). A nest's inputs are either `inputs`, groups of
+# headers each summed into one input, or the elements of dimension
+# `over`, mapped as the aggregated set `map` (default `over`) is.
+# `dims` renames the headers' dimensions where they repeat a set (the
+# bilateral trade headers' source REG). Parameters absent here (the
+# CDE parameters) are weighted by value
+GTAPv6_share <- list(
+  ESBD = list(
+    list(inputs = list("VDFA", "VIFA")),
+    list(inputs = list("VDPA", "VIPA")),
+    list(inputs = list("VDGA", "VIGA"))
+  ),
+  ESBM = list(list(
+    inputs = list("VIMS"), over = "SRC", map = "REG",
+    dims = c("TRAD_COMM", "SRC", "REG")
+  )),
+  ESBT = list(list(inputs = list(c("VDFA", "VIFA"), "EVFA"))),
+  ESBV = list(list(inputs = list("EVFA"), over = "ENDW_COMM"))
+)
+
+GTAPv7_share <- list(
+  ESBD = list(
+    list(inputs = list("VDFP", "VMFP")),
+    list(inputs = list("VDPP", "VMPP")),
+    list(inputs = list("VDGP", "VMGP")),
+    list(inputs = list("VDIP", "VMIP"))
+  ),
+  ESBM = list(list(
+    inputs = list("VMSB"), over = "SRC", map = "REG",
+    dims = c("COMM", "SRC", "REG")
+  )),
+  ESBT = list(list(inputs = list(c("VDFP", "VMFP"), "EVFP"))),
+  ESBV = list(list(inputs = list("EVFP"), over = "ENDW")),
+  ESBC = list(list(inputs = list(c("VDFP", "VMFP")), over = "COMM")),
+  ESBG = list(list(inputs = list(c("VDGP", "VMGP")), over = "COMM")),
+  ESBI = list(list(inputs = list(c("VDIP", "VMIP")), over = "COMM")),
+  ETRQ = list(list(inputs = list("MAKS"), over = "COMM")),
+  ESBQ = list(list(inputs = list("MAKB"), over = "ACTS")),
+  ETRE = list(list(inputs = list("EVOS"), over = "ACTS")),
+  EFVE = list(list(inputs = list("EVFP", c("VDFP[COMM=COME]", "VMFP[COMM=COME]")))),
+  EAEZ = list(list(inputs = list("EVFP[ENDW=AEZS]"), over = "ENDW"))
+)
+
+param_weights <- list(
+  value = list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights),
+  share = list(GTAPv6 = GTAPv6_share, GTAPv7 = GTAPv7_share)
+)
 set_conversion <- data.frame(
   GTAPv6name = c(
     "REG", "TRAD_COMM", "MARG_COMM", "NMRG_COMM", "CGDS_COMM", "PROD_COMM",

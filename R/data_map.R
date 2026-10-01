@@ -6,7 +6,7 @@
                       col) {
   
   col_mapping <- data.frame(
-    pos = which(!colnames(dt) %in% c("Value", "sigma", "omega")),
+    pos = which(!colnames(dt) %in% c("Value", "sigma", "omega", "sigma_v", "omega_v")),
     name = col,
     stringsAsFactors = FALSE
   )

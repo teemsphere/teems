@@ -114,6 +114,9 @@
               gtapv7.sti omissions do not decrease memory usage or change the
               solved system in TEEMS, and backsolving densifies the block
               structure the intertemporal methods rely on).
+    Oct 2026: PVALFWDTIME discounts over the period length Year(t+1)-Year(t),
+              as PVALENDTIME does (identical on annual steps); KAPPA set to
+              0.04, the depreciation rate of the GTAP data (VDEP/VKB).
                  	
     ----------------------------------
     Overview of the GTAP.TAB Structure
@@ -992,7 +995,7 @@ Formula (all,r,REG)(all,t,ALLTIME)
 Coefficient (parameter)(all,r,REG)(all,t,ALLTIME)
     KAPPA(r,t) # depreciation rate #;
 Formula (all,r,REG)(all,t,ALLTIME)
-    KAPPA(r,t) = 0.05;
+    KAPPA(r,t) = 0.04;
 
 Coefficient (parameter)(all,r,REG)(all,t,ALLTIME)
     LTGR(r,t) # discount coefficient #;
@@ -2720,7 +2723,7 @@ Equation PVALFWDTIME
     pval(r,t) = 1/[VRENTAL(r,t+1)+VPINV(r,t+1)*(1-KAPPA(r,t)*(Year(t+1)-Year(t)))-VPINV(r,t)*(1+VRORG(t)*(Year(t+1)-Year(t)))]*
                 [VRENTAL(r,t+1)*rental(r,t+1)+VPINV(r,t+1)*(1-KAPPA(r,t)*(Year(t+1)-Year(t)))*pinv(r,t+1)
                 -VPINV(r,t)*(1+VRORG(t)*(Year(t+1)-Year(t)))*[pinv(r,t)+VRORG(t)*(Year(t+1)-Year(t))/[1+VRORG(t)*(Year(t+1)-Year(t))]*rorg(t)]]
-                -VRORG(t)/[1+VRORG(t)]*rorg(t);
+                -VRORG(t)*(Year(t+1)-Year(t))/[1+VRORG(t)*(Year(t+1)-Year(t))]*rorg(t);
 Equation PVALENDTIME 
 # present value of a unit of capital #
 (all,r,REG)(all,t,ENDTIME)

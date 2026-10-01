@@ -56,6 +56,7 @@
   i_data <- .process_data(
     i_data = i_data,
     set_mappings = set_mappings,
+    par_weights = v$par_weights,
     call = call
   )
   

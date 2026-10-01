@@ -41,6 +41,7 @@
     par_input = c("NULL", "character", "list"),
     set_input = c("NULL", "character", "list"),
     time_steps = c("NULL", "numeric", "integer"),
+    par_weights = "character",
     set_mappings = "list",
     generic = "logical"
   )
@@ -58,6 +59,8 @@
     checklist = checklist,
     call = call
   )
+
+  .check_par_weights(par_weights = a$par_weights, call = call)
 
   a <- .data_inputs(a = a, call = call)
   return(a)

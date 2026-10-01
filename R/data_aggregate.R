@@ -6,7 +6,7 @@
 .aggregate_data <- function(dt,
                             sets,
                             ...) {
-  return(UseMethod(".aggregate_data"))
+  UseMethod(".aggregate_data")
 }
 
 #' @importFrom rlang is_integerish
@@ -38,7 +38,7 @@
 }
 
 #' @importFrom rlang is_integerish
-#' @importFrom data.table setkeyv
+#' @importFrom data.table set setkeyv
 #' @keywords internal
 #' @noRd
 #' @method .aggregate_data par
@@ -49,7 +49,8 @@
                                 ...) {
   Value <- NULL
   
-  xval_col <- colnames(dt)[!colnames(dt) %in% c("Value", "omega", "sigma")]
+  weight_col <- c("omega", "sigma", "omega_v", "sigma_v")
+  xval_col <- colnames(dt)[!colnames(dt) %in% c("Value", weight_col)]
   if (!is.null(attr(dt, "positional_dim"))) {
     return(dt)
   }
@@ -60,10 +61,15 @@
   }
 
   if (all(c("sigma", "omega") %in% colnames(dt))) {
-    dt <- dt[, lapply(.SD, FUN = sum), .SDcols = c("Value", "omega", "sigma"), by = xval_col]
+    sum_col <- intersect(c("Value", weight_col), colnames(dt))
+    dt <- dt[, lapply(.SD, FUN = sum), .SDcols = sum_col, by = xval_col]
     dt$Value <- dt$sigma / dt$omega
+    if ("omega_v" %in% colnames(dt)) {
+      fallback <- !is.finite(dt$Value)
+      dt$Value[fallback] <- dt$sigma_v[fallback] / dt$omega_v[fallback]
+    }
     dt[is.nan(Value), let(Value = 1)]
-    dt[, let(sigma = NULL, omega = NULL)]
+    data.table::set(dt, j = intersect(weight_col, colnames(dt)), value = NULL)
   } else {
     sets <- setdiff(colnames(dt), "Value")
     if (sets %!=% character(0)) {
@@ -79,22 +85,27 @@
   return(dt)
 }
 
-#' @importFrom data.table setkeyv
 #' @keywords internal
 #' @noRd
 #' @method .aggregate_data DPSM
 #' @export
 .aggregate_data.DPSM <- function(dt,
                                  sets,
+                                 ndigits,
                                  ...) {
-  Value <- NULL
+  dt <- .aggregate_data.par(dt = dt, sets = sets, ndigits = ndigits)
+  return(dt)
+}
 
-  xval_col <- colnames(dt)[!colnames(dt) %in% "Value"]
-  value <- dt$Value[1]
-  dt <- .map_data(dt = dt, sets = sets, col = xval_col)
-  dt <- unique(dt[, xval_col, with = FALSE])
-  dt[, let(Value = value)]
-  data.table::setkeyv(dt, xval_col)
+#' @keywords internal
+#' @noRd
+#' @method .aggregate_data GSHR
+#' @export
+.aggregate_data.GSHR <- function(dt,
+                                 sets,
+                                 ndigits,
+                                 ...) {
+  dt <- .aggregate_data.par(dt = dt, sets = sets, ndigits = ndigits)
   return(dt)
 }
 

@@ -310,7 +310,7 @@ Formula
 >!
 
 !<  Domestic intermediate purchases by firms at basic prices >!
-! VPQ types for homogeneity testing (GEMPACK manual 57.2; teems ems_homogeneity()): prefix rules, then named exceptions; variables not typed here are Unspecified !
+! VPQ types for homogeneity testing: prefix rules, then named exceptions; variables not typed here are Unspecified !
 Variable (begins p default VPQType Price);
 Variable (begins q default VPQType Quantity);
 Variable (begins v default VPQType Value);

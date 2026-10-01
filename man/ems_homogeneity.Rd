@@ -21,9 +21,11 @@ always \code{"Johansen"}.}
 }
 \value{
 A list with \code{equations}, one row per equation block
-(\code{tested} is \code{FALSE} when some element could not be evaluated),
-\code{elements}, one row per equation element, and with
-\code{simulate = TRUE}, \code{variables}, one row per typed variable.
+(\code{tested} is \code{FALSE} when some element could not be evaluated;
+\code{max_err} and \code{worst} leave out zero-flow elements, counted in
+\code{zero_flow}), \code{elements}, one row per equation element with its
+\code{zero_flow} mark, and with \code{simulate = TRUE}, \code{variables}, one row
+per typed variable on the same terms.
 }
 \description{
 Tests a deployed model for nominal or real
@@ -42,8 +44,27 @@ The error metric of an equation element is
 block reports its maximum (GEMPACK's MaxErrMet); values above
 about \code{1e-6} point at a problem. An element is tested only when
 every variable in it has a type other than \code{Unspecified}; a
-change variable also needs its \code{ORIG_LEVEL} to be typed. Zero
-flows can make an equation fail harmlessly (manual 57.2.5). The
+change variable also needs its \code{ORIG_LEVEL} to be typed.
+
+Zero flows can make an equation fail harmlessly (manual 57.2.5):
+a share computed from a zero total takes the model file's
+zero-divide default, and the shares no longer sum to one. The
+check finds these by repeating the export with every zero-divide
+default shifted slightly: an element whose coefficients move
+depends on a default and is marked \code{zero_flow}, as is an element
+that reduces to a single variable equal to zero (an inactive
+branch such as \verb{IF[MAKEB(c,a,r) gt 0, ...]}), that uses a
+variable so pinned, or that keeps a single variable the test moves
+beside shifters typed \code{None} (every IF branch false, e.g.
+\code{qfe = -afe} for an activity without land): such an element can
+never balance. An equation that lost a term everywhere would look
+the same; it shows as a block whose \code{zero_flow} equals its \code{rows}.
+Zero-flow elements are
+left out of \code{max_err}; \code{zero_flow} in \code{equations} counts them per
+block. The simulation marks a variable element as a zero flow when
+a second solve with the shifted defaults moves it, when the check
+found it pinned, or when it stays at exactly zero where a change is
+expected (an inactive element, including backsolved ones). The
 check works on the system as deployed, so a condensed model's
 equations carry the substituted ones (manual 57.4.5).
 

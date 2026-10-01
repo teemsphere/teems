@@ -46,6 +46,22 @@
   pre <- .var_presim_levels(sol_prefix, meta$var_union, var_extract)
   z <- .homogeneity_z(meta$var_union, vpq, pre, type)
   rows <- .homogeneity_rows(jac, z, meta)
+  .implement_solve(
+    args_list = .homogeneity_solve_args(work_cmf, list(suppress_outputs = TRUE)),
+    call = call,
+    solmed = "probe",
+    extra_flags = paste("-jacdump 2 -zdivshift", .homogeneity_zdiv_shift)
+  )
+  shifted <- .parse_jacobian(sol_prefix)
+  if (is.null(shifted)) {
+    .cli_action(solve_err$homog_no_jacobian,
+      action = "abort",
+      call = call
+    )
+  }
+  pinned <- attr(rows, "pinned")
+  rows$zero_flow <- rows$zero_flow | .homogeneity_moved_rows(jac, shifted)
+  attr(rows, "pinned") <- NULL
   output <- list(
     type = type,
     typed = sum(vpq != "unspecified"),
@@ -58,12 +74,28 @@
       vpq = vpq,
       pre = pre,
       var_tbl = meta$var_union,
+      pinned = pinned,
       type = type,
       solve_args = solve_args,
       call = call
     )
   }
   return(output)
+}
+
+.homogeneity_zdiv_shift <- 1e-3
+
+#' @importFrom data.table data.table
+#' @keywords internal
+#' @noRd
+.homogeneity_moved_rows <- function(a, b) {
+  da <- data.table::data.table(row = a$row, col = a$col, va = a$value)
+  db <- data.table::data.table(row = b$row, col = b$col, vb = b$value)
+  both <- merge(da, db, by = c("row", "col"), all = TRUE)
+  both$va[is.na(both$va)] <- 0
+  both$vb[is.na(both$vb)] <- 0
+  moved_rows <- unique(both$row[abs(both$va - both$vb) > 1e-9 * (1 + abs(both$va))])
+  return((seq_len(a$nrow) - 1L) %in% moved_rows)
 }
 
 #' @keywords internal
@@ -147,6 +179,29 @@
 
 #' @keywords internal
 #' @noRd
+.homogeneity_col_labels <- function(cols, meta) {
+  vars <- meta$var_union
+  sets <- meta$set_union
+  ele <- meta$setele$mapped_ele
+  start <- c(0, cumsum(vars$matsize))
+  i <- findInterval(cols, start, rightmost.closed = FALSE)
+  vapply(seq_along(cols), \(k) {
+    v <- i[k]
+    off <- cols[k] - start[v]
+    size <- vars$size[v]
+    if (size == 0L) {
+      return(tolower(vars$cofname[v]))
+    }
+    ids <- as.integer(strsplit(vars$setid[v], ",", fixed = TRUE)[[1]][seq_len(size)])
+    dims <- sets$size[ids + 1L]
+    stride <- rev(cumprod(rev(c(dims[-1], 1))))
+    idx <- off %/% stride %% dims
+    tolower(paste0(vars$cofname[v], "(", paste(ele[sets$begadd[ids + 1L] + idx + 1L], collapse = ","), ")"))
+  }, character(1))
+}
+
+#' @keywords internal
+#' @noRd
 .homogeneity_labels <- function(eq, meta) {
   sets <- meta$set_union
   ele <- meta$setele$mapped_ele
@@ -172,17 +227,23 @@
 #' @noRd
 .homogeneity_rows <- function(jac, z, meta) {
   term <- jac$value * z[jac$col + 1L]
-  dt <- data.table::data.table(row = jac$row, term = term)
+  zc <- z[jac$col + 1L]
+  dt <- data.table::data.table(row = jac$row, term = term, nz = jac$value != 0,
+                               moving = jac$value != 0 & !is.na(zc) & zc != 0)
   agg <- dt[, list(
     tested = !anyNA(term),
     rel_sum = abs(sum(term)),
-    sum_abs = sum(abs(term))
+    sum_abs = sum(abs(term)),
+    pinned = sum(nz) == 1L,
+    single = sum(moving) == 1L
   ), by = "row"]
   rows <- data.table::data.table(row = seq_len(jac$nrow) - 1L)
   rows <- merge(rows, agg, by = "row", all.x = TRUE, sort = TRUE)
   rows$tested[is.na(rows$tested)] <- TRUE
   rows$rel_sum[is.na(rows$rel_sum)] <- 0
   rows$sum_abs[is.na(rows$sum_abs)] <- 0
+  rows$pinned[is.na(rows$pinned)] <- FALSE
+  rows$single[is.na(rows$single)] <- FALSE
   rows$rel_ratio <- ifelse(rows$sum_abs > 0, rows$rel_sum / rows$sum_abs, 0)
   rows$err <- ifelse(rows$tested, pmin(rows$rel_sum, rows$rel_ratio), NA_real_)
   eqs <- jac$equations
@@ -190,7 +251,12 @@
   rows$element <- unlist(lapply(seq_len(nrow(eqs)), \(i) {
     .homogeneity_labels(list(name = eqs$name[i], nrows = eqs$nrows[i], sets = eqs$sets[[i]]), meta)
   }))
-  rows <- rows[, c("equation", "element", "tested", "err", "rel_sum", "rel_ratio", "sum_abs")]
+  pinned_rows <- rows$row[rows$pinned]
+  pinned_cols <- jac$col[jac$row %in% pinned_rows & jac$value != 0]
+  uses_pinned <- unique(jac$row[jac$col %in% pinned_cols & jac$value != 0])
+  rows$zero_flow <- rows$pinned | rows$single | rows$row %in% uses_pinned
+  rows <- rows[, c("equation", "element", "tested", "err", "rel_sum", "rel_ratio", "sum_abs", "zero_flow")]
+  attr(rows, "pinned") <- .homogeneity_col_labels(pinned_cols, meta)
   return(rows)
 }
 
@@ -199,12 +265,14 @@
 #' @noRd
 .homogeneity_blocks <- function(rows) {
   blocks <- split(rows, factor(rows$equation, levels = unique(rows$equation)))
+  counted <- \(b) b$tested & !b$zero_flow
   out <- tibble::tibble(
     equation = names(blocks),
     rows = vapply(blocks, nrow, integer(1)),
     tested = vapply(blocks, \(b) all(b$tested), logical(1)),
-    max_err = vapply(blocks, \(b) if (any(b$tested)) max(b$err, na.rm = TRUE) else NA_real_, numeric(1)),
-    worst = vapply(blocks, \(b) if (any(b$tested)) b$element[which.max(b$err)] else NA_character_, character(1))
+    zero_flow = vapply(blocks, \(b) sum(b$zero_flow), integer(1)),
+    max_err = vapply(blocks, \(b) if (any(counted(b))) max(b$err[counted(b)]) else NA_real_, numeric(1)),
+    worst = vapply(blocks, \(b) if (any(counted(b))) b$element[counted(b)][which.max(b$err[counted(b)])] else NA_character_, character(1))
   )
   out <- out[order(!out$tested, -ifelse(is.na(out$max_err), -Inf, out$max_err)), ]
   return(out)
@@ -217,6 +285,7 @@
                                   vpq,
                                   pre,
                                   var_tbl,
+                                  pinned,
                                   type,
                                   solve_args,
                                   call) {
@@ -256,6 +325,12 @@
     call = call
   )
   out <- out[out$type == "variable", ]
+  shifted <- .implement_solve(
+    args_list = .homogeneity_solve_args(work_cmf, solve_args),
+    call = call,
+    extra_flags = paste("-zdivshift", .homogeneity_zdiv_shift)
+  )
+  shifted <- shifted[shifted$type == "variable", ]
   res <- lapply(seq_len(nrow(out)), \(i) {
     nm <- tolower(out$name[i])
     e <- .homogeneity_expected(unname(vpq[nm]), type)
@@ -273,6 +348,15 @@
     }
     err <- abs(d$Value - expected) / pmax(1, pmin(abs(d$Value), abs(expected)))
     keys <- setdiff(names(d), c("Value", "error_estimate", "PreLevel", "PostLevel", "Change", "PercentChange", "Year"))
+    labels <- if (length(keys) > 0L) {
+      paste0(nm, "(", do.call(paste, c(as.list(d[, keys, with = FALSE]), sep = ",")), ")")
+    } else {
+      rep(nm, nrow(d))
+    }
+    moved <- abs(d$Value - shifted$dat[[match(out$name[i], shifted$name)]]$Value) > 1e-6 * (1 + abs(d$Value)) |
+      tolower(labels) %in% pinned |
+      (d$Value == 0 & expected != 0)
+    err[moved] <- 0
     worst <- which.max(err)
     label <- if (length(keys) > 0L) {
       paste0(out$name[i], "(", paste(unlist(d[worst, keys, with = FALSE]), collapse = ","), ")")
@@ -283,6 +367,7 @@
       variable = out$name[i],
       vpqtype = unname(vpq[nm]),
       expected = expected[worst],
+      zero_flow = sum(moved),
       max_err = max(err),
       worst = label
     )

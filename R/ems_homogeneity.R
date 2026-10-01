@@ -15,8 +15,27 @@
 #'   block reports its maximum (GEMPACK's MaxErrMet); values above
 #'   about `1e-6` point at a problem. An element is tested only when
 #'   every variable in it has a type other than `Unspecified`; a
-#'   change variable also needs its `ORIG_LEVEL` to be typed. Zero
-#'   flows can make an equation fail harmlessly (manual 57.2.5). The
+#'   change variable also needs its `ORIG_LEVEL` to be typed.
+#'
+#'   Zero flows can make an equation fail harmlessly (manual 57.2.5):
+#'   a share computed from a zero total takes the model file's
+#'   zero-divide default, and the shares no longer sum to one. The
+#'   check finds these by repeating the export with every zero-divide
+#'   default shifted slightly: an element whose coefficients move
+#'   depends on a default and is marked `zero_flow`, as is an element
+#'   that reduces to a single variable equal to zero (an inactive
+#'   branch such as `IF[MAKEB(c,a,r) gt 0, ...]`), that uses a
+#'   variable so pinned, or that keeps a single variable the test moves
+#'   beside shifters typed `None` (every IF branch false, e.g.
+#'   `qfe = -afe` for an activity without land): such an element can
+#'   never balance. An equation that lost a term everywhere would look
+#'   the same; it shows as a block whose `zero_flow` equals its `rows`.
+#'   Zero-flow elements are
+#'   left out of `max_err`; `zero_flow` in `equations` counts them per
+#'   block. The simulation marks a variable element as a zero flow when
+#'   a second solve with the shifted defaults moves it, when the check
+#'   found it pinned, or when it stays at exactly zero where a change is
+#'   expected (an inactive element, including backsolved ones). The
 #'   check works on the system as deployed, so a condensed model's
 #'   equations carry the substituted ones (manual 57.4.5).
 #'
@@ -35,9 +54,11 @@
 #'   (e.g. `matrix_method`, `n_tasks`); its `solution_method` is
 #'   always `"Johansen"`.
 #' @return A list with `equations`, one row per equation block
-#'   (`tested` is `FALSE` when some element could not be evaluated),
-#'   `elements`, one row per equation element, and with
-#'   `simulate = TRUE`, `variables`, one row per typed variable.
+#'   (`tested` is `FALSE` when some element could not be evaluated;
+#'   `max_err` and `worst` leave out zero-flow elements, counted in
+#'   `zero_flow`), `elements`, one row per equation element with its
+#'   `zero_flow` mark, and with `simulate = TRUE`, `variables`, one row
+#'   per typed variable on the same terms.
 #' @examples
 #' \dontrun{
 #' check <- ems_homogeneity(cmf_path, type = "nominal")

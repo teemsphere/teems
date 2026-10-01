@@ -2,7 +2,7 @@
 #' @noRd
 .validate_shk <- function(shock,
                           call) {
-  return(UseMethod(".validate_shk"))
+  UseMethod(".validate_shk")
 }
 
 #' @method .validate_shk uniform

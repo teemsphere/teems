@@ -25,7 +25,7 @@
     call = attr(shock, "call")
   )
 
-  return(UseMethod(".check_shk", shock))
+  UseMethod(".check_shk", shock)
 }
 
 #' @importFrom purrr pluck

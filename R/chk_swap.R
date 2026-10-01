@@ -4,7 +4,7 @@
                         var_extract,
                         sets,
                         call) {
-    return(UseMethod(".check_swap"))
+    UseMethod(".check_swap")
 }
 
 #' @noRd

@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .convert_data <- function(i_data) {
-  return(UseMethod(".convert_data"))
+  UseMethod(".convert_data")
 }
 
 #' @method .convert_data GTAPv6

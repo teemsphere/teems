@@ -2,7 +2,7 @@
 #' @noRd
 .ems_write <- function(input,
                        ...) {
-  return(UseMethod(".ems_write"))
+  UseMethod(".ems_write")
 }
 
 #' @keywords internal

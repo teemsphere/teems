@@ -5,7 +5,7 @@
                            database_version,
                            call,
                            ...) {
-  return(UseMethod(".check_set_map"))
+  UseMethod(".check_set_map")
 }
 
 #' @importFrom purrr pluck

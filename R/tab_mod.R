@@ -3,7 +3,7 @@
 .tab_mod <- function(input,
                      model,
                      call) {
-  return(UseMethod(".tab_mod"))
+  UseMethod(".tab_mod")
 }
 
 #' @importFrom purrr pluck

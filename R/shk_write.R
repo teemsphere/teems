@@ -2,7 +2,7 @@
 #' @keywords internal
 .write_shk <- function(shock,
                        write_path) {
-  return(UseMethod(".write_shk"))
+  UseMethod(".write_shk")
 }
 
 #' @keywords internal

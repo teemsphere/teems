@@ -3,7 +3,7 @@
 .shk_preload <- function(input,
                          type,
                          call) {
-  return(UseMethod(".shk_preload"))
+  UseMethod(".shk_preload")
 }
 
 #' @importFrom data.table fread

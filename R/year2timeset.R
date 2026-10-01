@@ -4,7 +4,7 @@
                            sets,
                            int_set_names,
                            call) {
-  return(UseMethod(".year2time_set"))
+  UseMethod(".year2time_set")
 }
 
 #' @importFrom purrr pluck

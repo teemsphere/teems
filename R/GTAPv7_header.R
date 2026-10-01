@@ -2,7 +2,7 @@
 #' @noRd
 .GTAPv7_header <- function(input,
                            ...) {
-  return(UseMethod(".GTAPv7_header"))
+  UseMethod(".GTAPv7_header")
 }
 
 #' @method .GTAPv7_header default

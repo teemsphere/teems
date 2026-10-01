@@ -3,7 +3,7 @@
 .reduce2sets <- function(preswap,
                          swap,
                          ...) {
-  return(UseMethod(".reduce2sets"))
+  UseMethod(".reduce2sets")
 }
 
 #' @importFrom data.table fsetdiff

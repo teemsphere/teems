@@ -5,7 +5,7 @@
                         metadata = NULL,
                         attach_metadata = FALSE,
                         call = NULL) {
-  return(UseMethod(".read_input"))
+  UseMethod(".read_input")
 }
 
 #' @importFrom utils read.csv

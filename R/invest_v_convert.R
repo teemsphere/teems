@@ -2,7 +2,7 @@
 #' @noRd
 .convert_invest_v <- function(input,
                               ...) {
-  return(UseMethod(".convert_invest_v"))
+  UseMethod(".convert_invest_v")
 }
 
 #' @method .convert_invest_v GTAPv7

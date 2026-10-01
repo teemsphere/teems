@@ -3,7 +3,7 @@
 .inject_value <- function(input,
                           model,
                           call) {
-  return(UseMethod(".inject_value"))
+  UseMethod(".inject_value")
 }
 
 #' @keywords internal

@@ -4,7 +4,7 @@
                            var_extract,
                            sets,
                            call) {
-  return(UseMethod(".exp_cls_entry"))
+  UseMethod(".exp_cls_entry")
 }
 
 #' @importFrom data.table CJ setkey setnames

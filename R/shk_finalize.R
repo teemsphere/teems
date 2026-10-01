@@ -2,7 +2,7 @@
 #' @noRd
 .finalize_shks <- function(shock,
                            ...) {
-  return(UseMethod(".finalize_shks"))
+  UseMethod(".finalize_shks")
 }
 
 #' @keywords internal

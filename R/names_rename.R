@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 .names_rename <- function(input) {
-  return(UseMethod(".names_rename"))
+  UseMethod(".names_rename")
 }
 
 #' @method .names_rename default

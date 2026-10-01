@@ -4,7 +4,7 @@
                            closure,
                            sets,
                            ...) {
-  return(UseMethod(".construct_shk"))
+  UseMethod(".construct_shk")
 }
 
 #' @importFrom data.table setnames fsetdiff rbindlist

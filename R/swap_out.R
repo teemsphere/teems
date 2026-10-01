@@ -7,7 +7,7 @@
                       var_extract,
                       var_entries,
                       call) {
-  return(UseMethod(".swap_out"))
+  UseMethod(".swap_out")
 }
 
 #' @importFrom purrr map pluck

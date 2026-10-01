@@ -17,6 +17,7 @@
     tempdir = NULL,
     nowrites = NULL,
     condest = NULL,
+    jacdump = NULL,
     ma48u = NULL,
     rk_chart = NULL,
     rk_norm = NULL,

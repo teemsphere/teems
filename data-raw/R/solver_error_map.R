@@ -18,6 +18,10 @@ build_solver_error_map <- function() {
     # a misspelt TAB keyword (cmf_io.c kwless_unknown), also quoting
     # the statement
     c("unknown statement keyword", "tab", "11.1.1"),
+    # the -jacdump switch (main.c): a data program has no system to
+    # export; any other value than 0/1 is an interface mismatch
+    c("needs a simulation, and this run has none", "tab", "5.1.2"),
+    c("-jacdump must be 0 \\(off\\) or 1", "interface", NA),
     # shock groups for subtotals (tab_parse.c subtotals_read, main.c
     # method checks, solve_drivers.c extra solves): above the closure
     # and data rows, whose "is not in set"/"cannot open" wording the

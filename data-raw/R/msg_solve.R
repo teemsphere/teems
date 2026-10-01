@@ -38,10 +38,13 @@ build_solve_err <- function() {
       "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
     ),
     # test-solve_in_situ.R: "solve_in_situ errors when no input files are given"
+    # test-ems_calculate.R: "ems_calculate requires its input files"
     no_insitu_inputs = "No input files loaded; all files must be passed as named arguments via {.arg ...}.",
     # test-solve_in_situ.R: "solve_in_situ errors when missing input file"
+    # test-ems_calculate.R: "ems_calculate requires its input files"
     missing_insitu_inputs = "Required files {.val {req_inputs}} not all provided; missing: {.val {missing_files}}.",
     # test-solve_in_situ.R: "solve_in_situ errors when an input file does not exist"
+    # test-ems_calculate.R: "ems_calculate requires its input files"
     insitu_no_file = "Input file{?s} not found: {.val {nonexist_files}}.",
     # test-ems_solve.R: "ems_solve errors when n_tasks is not integerish"
     x_integerish = "{.arg {arg}} must be integer-like.",
@@ -232,8 +235,10 @@ build_solve_err <- function() {
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_x_image = "The {.val {image_name}} Docker image is not present.",
     # test-solve_in_situ.R: "solve_in_situ errors when model directory doesn't exist"
+    # test-ems_calculate.R: "ems_calculate requires its input files"
     no_model_dir = "The {.arg model_dir} provided {.path {model_dir}} does not exist.",
     # test-solve_in_situ.R: "solve_in_situ errors when input file is without name"
+    # test-ems_calculate.R: "ems_calculate requires its input files"
     no_input_names = "Input files provided to {.arg ...} must be named as the appear within the {.arg model_file}.",
     # test-ems_solve.R: "ems_solve errors when verbosity is invalid"
     verbosity_range = "{.arg verbosity} must be 0, 1, or 2.",

@@ -5,7 +5,7 @@ test_that("a previous run's solution files are cleared and the probe record surv
   stale <- file.path(bin_dir, paste0("sol", c(
     ".bin", ".est", ".acc", ".var", ".sel", ".set", ".mds",
     ".cof", ".cbin", ".stats.json", ".cbin0", ".xac", ".cols",
-    ".cols.json", ".outputs.json", ".outputs.json.tmp"
+    ".cols.json", ".jac", ".jac.json", ".outputs.json", ".outputs.json.tmp"
   )))
   kept <- file.path(bin_dir, "sol.probe.json")
   for (f in c(stale, kept)) {

@@ -17,6 +17,7 @@
     tempdir = c("NULL", "character"),
     nowrites = c("NULL", "logical"),
     condest = c("NULL", "logical"),
+    jacdump = c("NULL", "logical"),
     ma48u = c("NULL", "numeric"),
     rk_chart = c("NULL", "character"),
     rk_norm = c("NULL", "character"),

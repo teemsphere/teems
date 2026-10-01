@@ -48,6 +48,9 @@
     if (!is.null(a$condest)) {
       paste("-condest", .as01(a$condest))
     },
+    if (!is.null(a$jacdump)) {
+      paste("-jacdump", .as01(a$jacdump))
+    },
     if (!is.null(a$ma48u)) {
       paste("-ma48u", format(a$ma48u, digits = 15))
     },

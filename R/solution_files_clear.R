@@ -5,7 +5,7 @@
   stale <- paste0(sol_prefix, c(
     ".bin", ".est", ".acc", ".var", ".sel", ".set", ".mds",
     ".cof", ".cbin", ".stats.json", ".cbin0", ".xac", ".cols",
-    ".cols.json", ".outputs.json", ".outputs.json.tmp"
+    ".cols.json", ".jac", ".jac.json", ".outputs.json", ".outputs.json.tmp"
   ))
   unlink(stale[file.exists(stale)])
   return(invisible(NULL))

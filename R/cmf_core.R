@@ -3,8 +3,8 @@
 #' @noRd
 .cmf_core <- function(input_files,
                       model_file,
-                      closure_file,
-                      shock_file,
+                      closure_file = NULL,
+                      shock_file = NULL,
                       model_dir) {
 
   write_dir <- normalizePath(model_dir, "/")
@@ -42,8 +42,12 @@
 
   cmf_comp <- c(
     paste("tabfile", paste0("\"", files$model_file, "\"", ";")),
-    paste("closure", paste0("\"", files$closure_file, "\"", ";")),
-    paste("shock", paste0("\"", files$shock_file, "\"", ";"))
+    if (!is.null(files$closure_file)) {
+      paste("closure", paste0("\"", files$closure_file, "\"", ";"))
+    },
+    if (!is.null(files$shock_file)) {
+      paste("shock", paste0("\"", files$shock_file, "\"", ";"))
+    }
   )
 
   var_output <- paste("soldata", '"SolFiles"', paste0(

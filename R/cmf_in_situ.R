@@ -5,8 +5,8 @@
 .in_situ_cmf <- function(input_files,
                          model_file,
                          model_dir,
-                         shock_file,
-                         closure_file,
+                         shock_file = NULL,
+                         closure_file = NULL,
                          ignore_condense = FALSE,
                          call) {
   input_files <- .check_named_dots(input_files)
@@ -32,17 +32,21 @@
     call = call
   )
 
-  shock_file <- .check_input(
-    file = shock_file,
-    valid_ext = "shf",
-    call = call
-  )
+  if (!is.null(shock_file)) {
+    shock_file <- .check_input(
+      file = shock_file,
+      valid_ext = "shf",
+      call = call
+    )
+  }
 
-  closure_file <- .check_input(
-    file = closure_file,
-    valid_ext = "cls",
-    call = call
-  )
+  if (!is.null(closure_file)) {
+    closure_file <- .check_input(
+      file = closure_file,
+      valid_ext = "cls",
+      call = call
+    )
+  }
 
   cmf <- .cmf_core(
     input_files = input_files,

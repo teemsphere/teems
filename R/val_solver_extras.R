@@ -14,7 +14,7 @@
       )
     }
   }
-  for (nme in c("postsim", "inmemory", "fastrefac", "gpzerodivide", "withmc66", "nowrites", "condest")) {
+  for (nme in c("postsim", "inmemory", "fastrefac", "gpzerodivide", "withmc66", "nowrites", "condest", "jacdump")) {
     x <- a[[nme]]
     if (!is.null(x) && (!is.logical(x) || length(x) != 1L || is.na(x))) {
       bad_arg <- nme

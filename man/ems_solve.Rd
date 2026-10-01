@@ -187,7 +187,11 @@ composition) and \code{condest} (per-solve quality diagnostics on the
 scaled condition numbers via HSL MA60/MC71, logged per linear
 solve with run maxima recorded under \code{condest} in
 \code{sol.stats.json}; diagnostic-only — solutions are unchanged —
-and informative only for nonzero shocks), and \code{ma48u} (MA48/HSL_MP48
+and informative only for nonzero shocks), \code{jacdump} (logical:
+write the base-point Jacobian of the condensed system over every
+variable element, before the first step, to \code{sol.jac} with its
+row map in \code{sol.jac.json}; the run then solves as asked), and
+\code{ma48u} (MA48/HSL_MP48
 pivot threshold \code{CNTL(2)}, numeric in (0, 1]; absent = each
 library's default, MA48 0.1 and MP48 0.01 — a calibration knob,
 not a tuning recommendation). Effective values of recorded flags

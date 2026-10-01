@@ -61,7 +61,9 @@
     coeff_names_sel <- v$which[v$which %in% avail_coeffs]
   }
 
-  compose_variable <- select_all || length(var_names_sel) > 0
+  has_solution <- file.exists(paste0(v$sol_prefix, "bin"))
+  compose_variable <- (select_all && has_solution) ||
+    length(var_names_sel) > 0
   compose_coefficient <- (select_all && length(avail_coeffs) > 0) ||
     length(coeff_names_sel) > 0
 

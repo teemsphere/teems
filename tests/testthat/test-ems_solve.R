@@ -1132,4 +1132,19 @@ test_that("ems_solve examples work", {
             n_tasks = 6), "tbl_df")
 })
 
+test_that("a run with -jacdump leaves a Jacobian that its solution satisfies (e2e)", {
+  nest_temp("solve_jacdump", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("aoall", 5))
+  ems_solve(cmf_path, solution_method = "Johansen", suppress_outputs = TRUE, jacdump = TRUE)
+  sol <- file.path(dirname(cmf_path), "out", "variables", "bin", "sol.")
+  jac <- .parse_jacobian(sol)
+  expect_false(is.null(jac))
+  x <- readBin(paste0(sol, "bin"), "double", n = jac$ncol, size = 8L, endian = "little")
+  cx <- tapply(jac$value * x[jac$col + 1L], jac$row, sum)
+  mag <- tapply(abs(jac$value * x[jac$col + 1L]), jac$row, sum)
+  expect_length(cx, jac$nrow)
+  expect_lt(max(abs(cx) / pmax(mag, .Machine$double.xmin)), 1e-9)
+  expect_identical(sum(jac$equations$nrows), jac$nrow)
+})
+
 unlink(write_dir, recursive = TRUE)

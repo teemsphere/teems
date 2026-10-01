@@ -438,6 +438,19 @@ test_that("a misspelt TAB keyword maps to the model-specification abort", {
   expect_error(check_log(paths), "11.1.1")
 })
 
+test_that("a data program asked for a Jacobian maps to the model-specification abort", {
+  paths <- local_solver_log(
+    "Error: -jacdump needs a simulation, and this run has none (the TAB has no equations); drop -jacdump or give the TAB its equations and a closure"
+  )
+  expect_error(check_log(paths), "rejected the model specification")
+  expect_error(check_log(paths), "5.1.2")
+  mapped <- .map_solver_errors(c(
+    "-jacdump must be 0 (off) or 1 (write <solfiles>.jac), got 2",
+    "subtotals (manual 29) are not available with -solmed nosim, which runs no simulation; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
+  ))
+  expect_identical(mapped$class, c("interface", "subtotal"))
+})
+
 test_that("shock-group subtotal errors map to the subtotal abort", {
   paths <- local_solver_log(
     "Error: element mars is not in set reg (in pop; subtotal \"bad\"; subtotals file)"

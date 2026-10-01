@@ -1,7 +1,8 @@
 #' @keywords internal
 #' @noRd
 .implement_solve <- function(args_list,
-                             call) {
+                             call,
+                             nosim = FALSE) {
 
   .check_docker(
     image_name = "teems",
@@ -20,6 +21,10 @@
     call = call,
     timeID = timeID
   )
+  if (nosim) {
+    v$solmed <- "nosim"
+    v$n_subintervals <- 1
+  }
 
   lock_path <- NULL
   if (!isTRUE(v$terminal_run)) {

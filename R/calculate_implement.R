@@ -32,7 +32,7 @@
   output <- .implement_solve(
     args_list = args_list,
     call = call,
-    nosim = TRUE
+    solmed = "nosim"
   )
   output <- output[output$type != "postsim", ]
   return(output)

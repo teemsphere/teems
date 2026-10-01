@@ -445,7 +445,7 @@ test_that("a data program asked for a Jacobian maps to the model-specification a
   expect_error(check_log(paths), "rejected the model specification")
   expect_error(check_log(paths), "5.1.2")
   mapped <- .map_solver_errors(c(
-    "-jacdump must be 0 (off) or 1 (write <solfiles>.jac), got 2",
+    "-jacdump must be 0 (off), 1 (write <solfiles>.jac) or 2 (write it and stop before the solve), got 3",
     "subtotals (manual 29) are not available with -solmed nosim, which runs no simulation; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
   ))
   expect_identical(mapped$class, c("interface", "subtotal"))

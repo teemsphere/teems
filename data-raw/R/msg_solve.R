@@ -1,5 +1,22 @@
 build_solve_err <- function() {
   list(
+    # test-ems_homogeneity.R: "a deployment without VPQ types cannot be checked"
+    homog_no_types = c(
+      "This deployment carries no VPQ types.",
+      "Deploy the model with this version of teems; {.fun teems::ems_homogeneity}
+      reads the types {.fun teems::ems_model} found in the model file."
+    ),
+    # test-ems_homogeneity.R: "a deployment without VPQ types cannot be checked"
+    homog_untyped = c(
+      "No variable in the model file has a VPQ type, so there is nothing to check.",
+      "Declare types with {.code VPQType=} qualifiers, {.code (begins <prefix>
+      default VPQType <type>)} rules or {.code (Name <variable> VPQType <type>)}
+      statements (GEMPACK manual 57.2)."
+    ),
+    # not in tests: the solver run succeeded but listed no Jacobian export
+    homog_no_jacobian = "The solver run for the homogeneity check left no
+    Jacobian export ({.file sol.jac}); see its log in the {.file _homogeneity}
+    copy of the deployment.",
     # .solve_lock_acquire()
     # test-ems_solve.R: "a second solve in one deploy directory is refused by name"
     lock_held = c(

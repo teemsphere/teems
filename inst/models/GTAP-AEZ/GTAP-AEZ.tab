@@ -409,6 +409,69 @@ Formula
 >!
 
 !<  Domestic intermediate purchases by firms at basic prices >!
+! VPQ types for homogeneity testing (GEMPACK manual 57.2; teems ems_homogeneity()): prefix rules, then named exceptions; variables not typed here are Unspecified !
+Variable (Name LANDCOVER_L VPQType Quantity);
+Variable (Name LANDCOVER_R VPQType Quantity);
+Variable (Name LANDCOVER_W VPQType Quantity);
+Variable (Name HARVSTAREA_L VPQType Quantity);
+Variable (Name PRODUCTION VPQType Quantity);
+Variable (Name p_UNMGLANDF VPQType Quantity);
+Variable (Name lcoveraez VPQType Quantity);
+Variable (Name lcovercom VPQType Quantity);
+Variable (Name xlcoveraez VPQType Quantity);
+Variable (Name harvstaez VPQType Quantity);
+Variable (Name harvstcom VPQType Quantity);
+Variable (Name globaloutput VPQType Quantity);
+Variable (Name regouput VPQType Quantity);
+Variable (Name RENTCOVER VPQType Price);
+Variable (Name RENTCOVERAV VPQType Price);
+Variable (Name RENTCROP VPQType Price);
+Variable (Name RENTCROPAV VPQType Price);
+Variable (Name p_YIELD VPQType None);
+Variable (Name YIELDGL VPQType None);
+Variable (Name harvstslack VPQType None);
+Variable (Name hareaslackreg VPQType None);
+Variable (begins p default VPQType Price);
+Variable (begins q default VPQType Quantity);
+Variable (begins v default VPQType Value);
+Variable (begins y default VPQType Value);
+Variable (begins t default VPQType None);
+Variable (begins a default VPQType None);
+Variable (begins dp default VPQType None);
+Variable (begins u default VPQType None);
+Variable (begins ror default VPQType None);
+Variable (Name pop VPQType Quantity);
+Variable (Name kb VPQType Quantity);
+Variable (Name ke VPQType Quantity);
+Variable (Name globalcgds VPQType Quantity);
+Variable (Name walras_sup VPQType Value);
+Variable (Name walras_dem VPQType Value);
+Variable (Name rental VPQType Price);
+Variable (Name fincome VPQType Value);
+Variable (Name expand VPQType None);
+Variable (Name pr VPQType None);
+Variable (Name pfactreal VPQType None);
+Variable (Name pebfactreal VPQType None);
+Variable (Name pefactreal VPQType None);
+Variable (Name endwslack VPQType None);
+Variable (Name profitslack VPQType None);
+Variable (Name incomeslack VPQType None);
+Variable (Name tradslack VPQType None);
+Variable (Name cgdslack VPQType None);
+Variable (Name psaveslack VPQType None);
+Variable (Name walraslack VPQType None);
+Variable (Name qsaveev VPQType Unspecified);
+Variable (Name qpev VPQType Unspecified);
+Variable (Name yev VPQType Unspecified);
+Variable (Name ypev VPQType Unspecified);
+Variable (Name ygev VPQType Unspecified);
+Variable (Name ysaveev VPQType Unspecified);
+Variable (Name ugev VPQType Unspecified);
+Variable (Name upev VPQType Unspecified);
+Variable (Name uelasev VPQType Unspecified);
+Variable (Name ueprivev VPQType Unspecified);
+Variable (Name dpavev VPQType Unspecified);
+
 Variable (orig_level=1.0)(all,c,COMM)(all,r,REG) 
     pds(c,r) # price of domestically supplied commodity c in region r #;
 Variable (orig_level=VDFB)(all,c,COMM)(all,a,ACTS)(all,r,REG)

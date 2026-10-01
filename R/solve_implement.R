@@ -2,7 +2,8 @@
 #' @noRd
 .implement_solve <- function(args_list,
                              call,
-                             nosim = FALSE) {
+                             solmed = NULL,
+                             extra_flags = NULL) {
 
   .check_docker(
     image_name = "teems",
@@ -21,8 +22,8 @@
     call = call,
     timeID = timeID
   )
-  if (nosim) {
-    v$solmed <- "nosim"
+  if (!is.null(solmed)) {
+    v$solmed <- solmed
     v$n_subintervals <- 1
   }
 
@@ -59,7 +60,7 @@
     laA = v$laA,
     laD = v$laD,
     laDi = v$laDi,
-    extra_flags = .extra_cli_flags(v)
+    extra_flags = paste(c(.extra_cli_flags(v), extra_flags), collapse = " ")
   )
   .clear_solution_files(run_dir = paths$run)
 

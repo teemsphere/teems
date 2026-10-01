@@ -96,3 +96,24 @@ test_that("a variable divided by a coefficient keeps the division when serialize
   expect_equal(.fac_text(c("P", "Q"), c("*", "/")), "P/Q")
   expect_equal(.fac_text(character(), character()), "")
 })
+
+test_that("powers, braces, IF terms and word conditions parse (MEL43AUX E_ta, manual 11.4.6)", {
+  vl <- list(d_rev = "d_rev", p_tsd = "p_tsd")
+  # a coefficient raised to a power inside braces
+  terms <- .parse_linear_side("C_REV(c)/{[C_PT(c) - C_REV(c)]^2}*[C_PT(c)*p_tsd(c) - 100*d_rev(c)]", vl)
+  expect_length(terms, 2L)
+  expect_match(.serialize_linear(terms), "]^2", fixed = TRUE)
+  expect_error(.parse_linear_side("[p_tsd(c)]^2", vl), "power of a variable-bearing expression")
+  # an IF around variable terms multiplies each term by IF[cond, 1]
+  iff <- .parse_linear_side("IF[C_PT(c) > 0 and C_REV(c) > 0, 2*p_tsd(c) + d_rev(c)]", vl)
+  expect_length(iff, 2L)
+  expect_match(.serialize_linear(iff), "IF[C_PT(c)>0 and C_REV(c)>0, 1]", fixed = TRUE)
+  # an IF around a coefficient stays one factor
+  coef <- .parse_linear_side("IF[C_PT(c) > 0, C_REV(c)] * p_tsd(c)", vl)
+  expect_length(coef, 1L)
+  expect_match(.serialize_linear(coef), "IF[C_PT(c)>0, C_REV(c)]", fixed = TRUE)
+  expect_error(.parse_linear_side("IF[p_tsd(c) > 0, d_rev(c)]", vl), "variable reference inside an IF condition")
+  # word operators in a sum condition keep their blanks
+  wc <- .parse_linear_side("sum{s,REG: s <> r and s <> \"usa\", X(s)*p_tsd(s)}", vl)
+  expect_equal(wc[[1]]$quants[[1]]$cond, ": s<>r and s<>\"usa\"")
+})

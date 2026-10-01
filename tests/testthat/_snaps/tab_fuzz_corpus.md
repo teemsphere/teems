@@ -27,7 +27,7 @@
       read_terminal.tab: x Read from terminal is not supported; read from a file instead: "Read SCLR from terminal"
       read_undeclared.tab: x Read target "notdecl" not declared as a coefficient.
       set_ele_empty.tab: x Malformed element list for set SEL: "(x1,)" contains empty elements.
-      set_ele_range.tab: x Element range abbreviation in set SRG: "s1 - s5". i The `(first - last)` form is not supported; list the elements explicitly.
+      set_ele_range.tab: x Element range "s5 - s1" in set SRG cannot be expanded: it runs from a larger number to a smaller one. i A range names two elements with the same stem and a number at the end, `grain1 - grain4` or `ind008 - ind112` (GEMPACK manual 11.2.2).
       set_header_len.tab: x Header longer than 4 characters in the declaration of set REG: "TOOLONG".
       set_self_eq.tab: x Set SSE is defined as equal to itself (GEMPACK manual 10.1.2.1).
       set_self_ref.tab: x Set BADS references itself in its defining expression: "BADS + COMM". i Define a set from other sets and quoted elements only (GEMPACK manual 10.1.1.1).

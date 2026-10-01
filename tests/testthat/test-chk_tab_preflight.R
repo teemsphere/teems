@@ -185,8 +185,46 @@ test_that("set self-equality aborts", {
   expect_preflight_error("Set SSE = SSE;")
 })
 
-test_that("element range abbreviations abort", {
-  expect_preflight_error("Set SRG (s1 - s5);")
+test_that("element ranges expand (manual 11.2.2)", {
+  model <- quiet_pivot(.process_tablo(
+    tab_file = mutate_tab(paste(
+      "Set SRG (s9 - s11, x, ind008 - ind010);",
+      "Set (intertemporal) TQ (p0 - p2);",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  sets <- model[model$type == "Set", ]
+  expect_identical(
+    sets$definition[sets$name == "SRG"][[1]],
+    c("s9", "s10", "s11", "x", "ind008", "ind009", "ind010")
+  )
+  # fixed elements: an ordinary set to R, the qualifier kept for the solver
+  expect_identical(sets$definition[sets$name == "TQ"][[1]], c("p0", "p1", "p2"))
+  expect_identical(sets$qualifier_list[sets$name == "TQ"], "(non_intertemporal)")
+  expect_match(sets$tab[sets$name == "TQ"], "(intertemporal)", fixed = TRUE)
+})
+
+test_that("a set name glued to = and a DOS end-of-file mark parse", {
+  model <- quiet_pivot(.process_tablo(
+    tab_file = mutate_tab(paste0(
+      "Set GLUED=(all,r,REG: VDB(\"food\",r) > 0);\n",
+      "Set GLUE2=(all,c,COMM: VDFB(c,\"food\",\"usa\") > 0);\n",
+      "\x1a"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  sets <- model[model$type == "Set", ]
+  expect_true(all(c("GLUED", "GLUE2") %in% sets$name))
+})
+
+test_that("malformed element ranges abort", {
+  expect_preflight_error("Set SRG (s1 - t5);")
+  expect_preflight_error("Set SRG (ind01 - ind123);")
+  expect_preflight_error("Set SRG (s5 - s1);")
+  expect_preflight_error("Set SRG (s1 - s2 - s3);")
 })
 
 test_that("malformed element lists abort", {
@@ -464,9 +502,10 @@ test_that("an IF over a scalar coefficient in an Equation lowers to a scalar ind
   fi <- paste0(tolower(fr), "i")
   expect_match(tab, sprintf("Formula (all,%s,%s: SWP = 1) ", fi, fr), fixed = TRUE, all = FALSE)
   expect_match(tab, sprintf("Formula %s = sum(%s,%s,", ind[1], fi, fr), fixed = TRUE, all = FALSE)
+  # a levels equation keeps its IF terms: the solver linearizes them
+  # (d IF[c, A] = IF[c, dA], manual 11.4.6)
   lev <- tab[grepl("^Equation \\(levels\\) E_LSW ", tab)]
-  expect_match(lev, paste(ind[1], "* LSW"), fixed = TRUE)
-  expect_match(lev, paste(ind[2], "* 2*LSW"), fixed = TRUE)
+  expect_match(lev, "IF[SWP = 1, LSW] + IF[SWP = 0, 2*LSW]", fixed = TRUE)
   expect_false(any(grepl("\\bIF\\s*[({]", tab[grepl("^(Equation|Formula)", tab)])))
 })
 

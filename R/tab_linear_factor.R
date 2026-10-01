@@ -1,11 +1,26 @@
 #' @keywords internal
 #' @noRd
 .pe_factor <- function(st, var_lookup) {
+  node <- .pe_primary(st, var_lookup)
+  while (.pk(st) %=% "^") {
+    .adv(st)
+    ex <- .pe_primary(st, var_lookup)
+    if (!node$kind %=% "coeff" || !ex$kind %=% "coeff") {
+      stop(model_err$linear_reason$power, call. = FALSE)
+    }
+    node <- .coeff_node(paste0(node$text, "^", ex$text))
+  }
+  return(node)
+}
+
+#' @keywords internal
+#' @noRd
+.pe_primary <- function(st, var_lookup) {
   tok <- .pk(st)
 
   if (tok %in% c("+", "-")) {
     .adv(st)
-    node <- .pe_factor(st, var_lookup)
+    node <- .pe_primary(st, var_lookup)
     if (tok %=% "-") {
       if (node$kind %=% "coeff") {
         node$text <- paste0("-", node$text)
@@ -16,9 +31,9 @@
     return(node)
   }
 
-  if (tok %in% c("(", "[")) {
+  if (tok %in% c("(", "[", "{")) {
     .adv(st)
-    close <- ifelse(tok %=% "(", ")", "]")
+    close <- switch(tok, "(" = ")", "[" = "]", "{" = "}")
     node <- .pe_expr(st, var_lookup)
     .expect(st, close)
     if (node$kind %=% "coeff") {
@@ -42,6 +57,25 @@
   }
 
   .adv(st)
+
+  if (tolower(tok) %=% "if" && .pk(st) %in% c("{", "(", "[")) {
+    open <- .adv(st)
+    close <- switch(open, "{" = "}", "(" = ")", "[" = "]")
+    cond <- .pe_if_cond(st, var_lookup)
+    .expect(st, ",")
+    node <- .pe_expr(st, var_lookup)
+    .expect(st, close)
+    if (node$kind %=% "coeff") {
+      node <- .coeff_node(paste0("IF[", cond, ", ", node$text, "]"))
+      return(node)
+    }
+    node$terms <- lapply(node$terms, \(t) {
+      t$fac <- c(t$fac, paste0("IF[", cond, ", 1]"))
+      t$ops <- c(t$ops, "*")
+      t
+    })
+    return(node)
+  }
 
   if (tolower(tok) %=% "sum" && .pk(st) %in% c("{", "(", "[")) {
     open <- .adv(st)

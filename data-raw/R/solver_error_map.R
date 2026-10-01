@@ -76,7 +76,7 @@ build_solver_error_map <- function() {
     c("strong comment", "tab", "11.1.5"),
     c("(LOOP|BREAK|CYCLE) statements are not supported", "tab", "11.18"),
     c("numeric constant .* is out of the supported range", "tab", "11.4.9"),
-    c("after (expanding exponent-notation|bracketing signed powers)", "tab", NA),
+    c("after (expanding exponent-notation|bracketing signed (powers|operands))", "tab", NA),
     c("product Update of", "tab", "11.12.4"),
     # left-hand sides and index offsets (formula.c lhs_args_bind,
     # offset_range_check, parse_index_leadlag; recursion order)

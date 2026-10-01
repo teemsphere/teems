@@ -3,10 +3,7 @@
 .narrow <- function(cond_info, if_cond, q_idx, quant, synth, call) {
   at <- match(tolower(cond_info$idx), tolower(q_idx))
   if (is.na(at)) {
-    .cli_action(model_err$invalid_if_cond,
-      action = c("abort", "inform"),
-      call = call
-    )
+    .if_native()
   }
   range_set <- quant[[at]]$set
   operand <- if (cond_info$kind %=% "in_set") {
@@ -97,11 +94,7 @@
   is_if <- !purrr::map_lgl(parsed, is.null)
 
   if (any(grepl(if_pattern, terms$body[!is_if]))) {
-    if_statement <- stmt
-    .cli_action(model_err$invalid_if_placement,
-      action = c("abort", "inform"),
-      call = call
-    )
+    .if_native()
   }
 
   base_rhs <- paste(
@@ -125,10 +118,7 @@
     if_cond <- parsed[[k]]$cond
     cond_info <- .classify_if_cond(if_cond)
     if (is.null(cond_info)) {
-      .cli_action(model_err$invalid_if_cond,
-        action = c("abort", "inform"),
-        call = call
-      )
+      .if_native()
     }
     cond_info <- .if_index_cond(cond_info, quant, q_idx, synth, if_cond, call)
     if (cond_info$kind %=% "expr") {
@@ -139,10 +129,7 @@
     if (cond_info$kind %in% c("in_set", "elem")) {
       if (cond_info$kind %=% "in_set" &&
         toupper(cond_info$set) %in% toupper(q_idx[!is.na(q_idx)])) {
-        .cli_action(model_err$invalid_if_cond,
-          action = c("abort", "inform"),
-          call = call
-        )
+        .if_native()
       }
       narrowed <- .narrow(cond_info, if_cond, q_idx, quant, synth, call)
       pre <- c(pre, narrowed$pre)
@@ -152,16 +139,17 @@
       free <- !is.na(q_idx) & !purrr::map_lgl(quant, \(q) isTRUE(q$cond))
       last_q <- max(which(free), -Inf)
       if (is.infinite(last_q)) {
-        .cli_action(model_err$invalid_if_cond,
-          action = c("abort", "inform"),
-          call = call
-        )
+        .if_native()
+      }
+      cond_text <- if (cond_info$kind %=% "compound") {
+        cond_info$cond
+      } else {
+        paste(cond_info$ref, cond_info$op, cond_info$num)
       }
       q2 <- quant
       q2[[last_q]]$text <- sprintf(
-        "(all,%s,%s: %s %s %s)",
-        quant[[last_q]]$idx, quant[[last_q]]$set,
-        cond_info$ref, cond_info$op, cond_info$num
+        "(all,%s,%s: %s)",
+        quant[[last_q]]$idx, quant[[last_q]]$set, cond_text
       )
       header2 <- paste0(label, paste0(purrr::map_chr(q2, "text"), collapse = ""))
     }

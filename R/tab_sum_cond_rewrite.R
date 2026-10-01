@@ -88,11 +88,12 @@
     body <- substring(inner, commas[2] + 1L)
     colon <- regexpr(":", setcond, fixed = TRUE)
     set <- trimws(if (colon > 0L) substr(setcond, 1L, colon - 1L) else setcond)
-    cond <- if (colon > 0L) trimws(substring(setcond, colon + 1L)) else NA_character_
+    cond <- if (colon > 0L) .cond_unwrap(substring(setcond, colon + 1L)) else NA_character_
     inner_scope <- c(scope, stats::setNames(set, idx))
     body <- .sum_cond_walk(body, inner_scope, synth)
     if (!is.na(cond) && !.is_map_cond(cond, idx, synth$maps) &&
-      !(isTRUE(synth$native) && .is_native_cond(cond))) {
+      !(isTRUE(synth$native) && .is_native_cond(cond)) &&
+      !(length(.cond_logic_ops(cond)) > 0L && .is_index_cond(cond, inner_scope, synth$maps))) {
       ref <- .sum_cond_indicator(cond, inner_scope, synth)
       new_inner <- paste0(idx, ",", set, ", ", ref, "*[", body, "]")
     } else {

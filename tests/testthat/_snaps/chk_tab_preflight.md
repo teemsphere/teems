@@ -96,10 +96,25 @@
 
     x Set SSE is defined as equal to itself (GEMPACK manual 10.1.2.1).
 
-# element range abbreviations abort
+# malformed element ranges abort
 
-    x Element range abbreviation in set SRG: "s1 - s5".
-    i The `(first - last)` form is not supported; list the elements explicitly.
+    x Element range "s1 - t5" in set SRG cannot be expanded: the two ends do not share a stem followed by a number.
+    i A range names two elements with the same stem and a number at the end, `grain1 - grain4` or `ind008 - ind112` (GEMPACK manual 11.2.2).
+
+---
+
+    x Element range "ind01 - ind123" in set SRG cannot be expanded: a zero-padded range needs the same number of digits at both ends.
+    i A range names two elements with the same stem and a number at the end, `grain1 - grain4` or `ind008 - ind112` (GEMPACK manual 11.2.2).
+
+---
+
+    x Element range "s5 - s1" in set SRG cannot be expanded: it runs from a larger number to a smaller one.
+    i A range names two elements with the same stem and a number at the end, `grain1 - grain4` or `ind008 - ind112` (GEMPACK manual 11.2.2).
+
+---
+
+    x Element range "s1 - s2 - s3" in set SRG cannot be expanded: it is not two element names joined by one dash.
+    i A range names two elements with the same stem and a number at the end, `grain1 - grain4` or `ind008 - ind112` (GEMPACK manual 11.2.2).
 
 # malformed element lists abort
 

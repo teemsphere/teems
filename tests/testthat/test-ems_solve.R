@@ -530,6 +530,71 @@ test_that("expression IF conditions solve identically to a hand-staged helper (L
   expect_equal(cf_expr, cf_hand)
 })
 
+test_that("AND/OR/NOT and index conditions solve identically to hand-staged indicators (manual 11.4.5, 11.4.11)", {
+  nest_temp("solve_cond_compound", write_dir)
+  cond_file <- write_modified_model(
+    static_model_file,
+    paste(
+      "Coefficient (all,c,COMM)(all,r,REG) CPX(c,r) # compound IF #;",
+      "Formula (initial) (all,c,COMM)(all,r,REG) CPX(c,r) = IF[VDB(c,r) > 20*VMPB(c,r) and not VDB(c,r) > 4*VDPB(c,r), VDB(c,r)];",
+      "Coefficient (all,c,COMM)(all,r,REG) OTH(c,r) # index condition in a sum #;",
+      "Formula (initial) (all,c,COMM)(all,r,REG) OTH(c,r) = sum{s,REG: s <> r, VDB(c,s)};",
+      "Variable (all,c,COMM)(all,r,REG) othv(c,r) # index compound over a variable #;",
+      "Equation E_othv (all,c,COMM)(all,r,REG) othv(c,r) = sum{s,REG: [s <> r] and not [s = \"usa\"], VDB(c,s)*pds(c,s)};",
+      "Variable (all,c,COMM)(all,r,REG) cmpv(c,r) # compound IF in an equation #;",
+      "Equation E_cmpv (all,c,COMM)(all,r,REG) cmpv(c,r) = IF[VDB(c,r) > 20*VMPB(c,r) or r = \"usa\", pds(c,r)];",
+      sep = "\n"
+    )
+  )
+  cond_model <- ems_model(cond_file, static_closure_file, ignore_condense = TRUE)
+  expect_true(any(grepl("sum{s,REG: [s <> r] and not [s = \"usa\"], VDB(c,s)*pds(c,s)}", cond_model$tab, fixed = TRUE)))
+  cond_cmf <- ems_deploy(static_data, cond_model, real_shock)
+  cond_out <- ems_solve(cond_cmf)
+
+  nest_temp("solve_cond_hand", write_dir)
+  hand_file <- write_modified_model(
+    static_model_file,
+    paste(
+      "Coefficient (all,c,COMM)(all,r,REG) CPX(c,r) # hand-staged #;",
+      "Formula (initial) (all,c,COMM)(all,r,REG) CPX(c,r) = 0;",
+      "Formula (initial) (all,c,COMM)(all,r,REG: VDB(c,r) > 20*VMPB(c,r)) CPX(c,r) = VDB(c,r);",
+      "Formula (initial) (all,c,COMM)(all,r,REG: VDB(c,r) > 4*VDPB(c,r)) CPX(c,r) = 0;",
+      "Coefficient (all,c,COMM)(all,r,REG) OTH(c,r) # hand-staged #;",
+      "Formula (initial) (all,c,COMM)(all,r,REG) OTH(c,r) = sum{s,REG, VDB(c,s)} - VDB(c,r);",
+      "Coefficient (all,r,REG)(all,s,REG) HOS(r,s) # hand-staged #;",
+      "Formula (all,r,REG)(all,s,REG) HOS(r,s) = 1;",
+      "Formula (all,r,REG)(all,s,REG: $POS(s) = $POS(r)) HOS(r,s) = 0;",
+      "Formula (all,r,REG)(all,s,REG: $POS(s) = $POS(\"usa\",REG)) HOS(r,s) = 0;",
+      "Variable (all,c,COMM)(all,r,REG) othv(c,r) # hand-staged #;",
+      "Equation E_othv (all,c,COMM)(all,r,REG) othv(c,r) = sum{s,REG, HOS(r,s)*VDB(c,s)*pds(c,s)};",
+      "Coefficient (all,c,COMM)(all,r,REG) HCM(c,r) # hand-staged #;",
+      "Formula (all,c,COMM)(all,r,REG) HCM(c,r) = 0;",
+      "Formula (all,c,COMM)(all,r,REG: VDB(c,r) > 20*VMPB(c,r)) HCM(c,r) = 1;",
+      "Formula (all,c,COMM)(all,r,REG: $POS(r) = $POS(\"usa\",REG)) HCM(c,r) = 1;",
+      "Variable (all,c,COMM)(all,r,REG) cmpv(c,r) # hand-staged #;",
+      "Equation E_cmpv (all,c,COMM)(all,r,REG) cmpv(c,r) = HCM(c,r)*pds(c,r);",
+      sep = "\n"
+    )
+  )
+  hand_model <- ems_model(hand_file, static_closure_file, ignore_condense = TRUE)
+  hand_cmf <- ems_deploy(static_data, hand_model, real_shock)
+  hand_out <- ems_solve(hand_cmf)
+
+  for (v in c("othv", "cmpv", "pds", "qgdp")) {
+    expect_equal(cond_out$dat[[which(cond_out$name == v)]], hand_out$dat[[which(hand_out$name == v)]])
+  }
+  othv <- cond_out$dat[[which(cond_out$name == "othv")]]
+  cmpv <- cond_out$dat[[which(cond_out$name == "cmpv")]]
+  expect_true(any(othv$Value != 0) && any(cmpv$Value != 0) && any(cmpv$Value == 0))
+  cpx <- ems_compose(cond_cmf, "CPX")$dat[[1]]
+  expect_equal(cpx, ems_compose(hand_cmf, "CPX")$dat[[1]])
+  expect_true(any(cpx$Value != 0) && any(cpx$Value == 0))
+  # the hand form subtracts its own term from the full sum: equal to
+  # single-precision rounding, not bit for bit
+  oth <- ems_compose(cond_cmf, "OTH")$dat[[1]]
+  expect_equal(oth, ems_compose(hand_cmf, "OTH")$dat[[1]], tolerance = 1e-6)
+})
+
 test_that("IF formulas solve identically to their hand adaptations", {
   nest_temp("solve_if_base", write_dir)
   cmf_base <- ems_deploy(static_data, static_model)

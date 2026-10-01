@@ -328,6 +328,8 @@ build_model_err <- function() {
     linear_reason = list(
       product = "product of two variable-bearing expressions (nonlinear)",
       division = "division by a variable-bearing expression (nonlinear)",
+      power = "power of a variable-bearing expression (nonlinear)",
+      if_cond = "variable reference inside an IF condition",
       expected = "expected `%s` but found `%s`",
       unbalanced = "unbalanced parentheses in a reference",
       sum_cond_unterminated = "unterminated sum condition",
@@ -503,12 +505,24 @@ build_model_err <- function() {
     # test-chk_tab_preflight.R: "set self-equality aborts"
     set_self_eq = "Set {.field {bad_set}} is defined as equal to
     itself (GEMPACK manual 10.1.2.1).",
-    # test-chk_tab_preflight.R: "element range abbreviations abort"
+    # test-chk_tab_preflight.R: "malformed element ranges abort"
     set_ele_range = c(
-      "Element range abbreviation in set {.field {bad_set}}:
-      {.val {bad_ele}}.",
-      "The {.code (first - last)} form is not supported; list the
-      elements explicitly."
+      "Element range {.val {bad_ele}} in set {.field {bad_set}} cannot
+      be expanded: {range_reason}",
+      "A range names two elements with the same stem and a number at
+      the end, {.code grain1 - grain4} or {.code ind008 - ind112}
+      (GEMPACK manual 11.2.2)."
+    ),
+    # injected into set_ele_range as {range_reason};
+    # test-chk_tab_preflight.R: "malformed element ranges abort"
+    set_ele_range_reason = list(
+      form = "it is not two element names joined by one dash.",
+      stem = "the two ends do not share a stem followed by a number.",
+      width = paste0(
+        "a zero-padded range needs the same number of digits at both ",
+        "ends."
+      ),
+      backwards = "it runs from a larger number to a smaller one."
     ),
     # test-chk_tab_preflight.R: "malformed element lists abort"
     set_ele_list = "Malformed element list for set
@@ -536,15 +550,15 @@ build_model_err <- function() {
       "Check the {.field Subset} statement and the aggregation
       mappings that build both sets."
     ),
-    # test-ems_model.R: "unsupported IF placement"
-    invalid_if_placement = c(
-      "Unsupported {.field IF} placement detected: {.field {if_statement}}.",
-      "{.field IF} terms must enter {.field Formula} and {.field Equation} statements additively at the top level of an expression."
+    # test-ems_model.R: "IF takes a condition and one value"
+    if_args = c(
+      "{.field IF} term {.field {if_term}} has more than a condition and one value.",
+      "An {.field IF} takes two arguments, {.code IF[condition, value]} (GEMPACK manual 11.4.6)."
     ),
-    # test-ems_model.R: "expression IF conditions (LULC shape, manual 11.4.5/11.4.6)"
-    invalid_if_cond = c(
-      "Unsupported {.field IF} condition detected: {.field {if_cond}}.",
-      "Supported forms: {.field <index> in <set>}, {.field <index> = \"<element>\"}, and {.field <expression> <op> <expression>} over coefficients (no AND/OR/NOT compounds)."
+    # test-ems_model.R: "IN conditions stay single (manual 11.4.7 rule 5)"
+    if_in_compound = c(
+      "{.field IF} condition {.field {if_cond}} combines an {.code index IN set} test with AND, OR or NOT.",
+      "An {.code IN} condition cannot be combined with AND, OR or NOT (GEMPACK manual 11.4.7 rule 5); nest the IF instead."
     ),
     # test-ems_model.R: "index, element and mapping IF comparisons"
     invalid_if_index_cond = c(
@@ -555,11 +569,6 @@ build_model_err <- function() {
     if_cond_variable = c(
       "{.field IF} condition references {cli::qty(bad_vars)}variable{?s} {.val {bad_vars}}: {.field {if_statement}}.",
       "Conditions are evaluated from coefficient values only (GEMPACK manual 11.4.6/11.4.8)."
-    ),
-    # test-ems_model.R: "multiple membership IF conditions in an equation"
-    invalid_if_multi = c(
-      "Set-membership or element {.field IF} conditions on different indices detected in one {.field Equation}: {.field {if_statement}}.",
-      "An {.field Equation} supports any number of such conditions on one index (they partition the equation domain); comparison conditions are unrestricted."
     ),
     # test-ems_model.R: "invalid set qualifier"
     invalid_set_qual = "Invalid set qualifier detected: {.field {invalid_qual}}.",

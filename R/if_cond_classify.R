@@ -1,6 +1,11 @@
 #' @keywords internal
 #' @noRd
 .classify_if_cond <- function(cond) {
+  cond <- .cond_unwrap(cond)
+  if (length(.cond_logic_ops(cond)) > 0L) {
+    cond <- list(kind = "compound", cond = trimws(cond))
+    return(cond)
+  }
   m <- regmatches(cond, regexec(
     "^([A-Za-z_][A-Za-z0-9_@]*)\\s+[Ii][Nn]\\s+([A-Za-z_][A-Za-z0-9_@]*)$",
     cond

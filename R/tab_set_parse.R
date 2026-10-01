@@ -7,8 +7,6 @@
 
   sets <- .parse_set_fields(sets, call = call)
 
-  .chk_set_ele_lists(sets, call = call)
-
   sets$remainder <- .advance_remainder(
     remainder = sets$remainder,
     pattern = sets$definition
@@ -21,6 +19,16 @@
       .internal = TRUE
     )
   }
+
+  sets <- .expand_set_ranges(sets, call = call)
+
+  fixed_int <- tolower(sets$qualifier_list) %in% "(intertemporal)" &
+    !is.na(sets$definition) &
+    grepl("^\\s*\\(", sets$definition) &
+    !grepl("[", sets$definition, fixed = TRUE)
+  sets$qualifier_list[fixed_int] <- "(non_intertemporal)"
+
+  .chk_set_ele_lists(sets, call = call)
 
   builders <- .parse_set_builders(sets, call = call)
   sets <- builders$sets

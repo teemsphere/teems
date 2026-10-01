@@ -30,6 +30,9 @@
     if (length(idx_sets) == 0L) {
       next
     }
+    rebound <- .if_in_rebind(text)
+    text <- rebound$text
+    idx_sets <- c(idx_sets, rebound$extra)
     refs <- regmatches(text, gregexpr(ref_pattern, text, perl = TRUE))[[1]]
     for (ref in refs) {
       nm <- tolower(sub("\\s*\\(.*$", "", ref))
@@ -53,8 +56,8 @@
         if (tolower(s) %in% closure[[tolower(d[[k]])]]) {
           next
         }
-        bad_idx <- args[[k]]
-        bad_ref <- gsub("\\s+", "", ref)
+        bad_idx <- sub("@in[0-9]+$", "", args[[k]])
+        bad_ref <- gsub("@in[0-9]+", "", gsub("\\s+", "", ref))
         stmt_name <- if (tolower(extract$type[[n]]) %=% "equation") {
           regmatches(text, regexpr("[A-Za-z_][A-Za-z0-9_@]*", text))
         } else {

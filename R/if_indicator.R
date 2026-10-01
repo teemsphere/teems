@@ -20,10 +20,7 @@
     return(indicator)
   }
   if (anyNA(at)) {
-    .cli_action(model_err$invalid_if_cond,
-      action = c("abort", "inform"),
-      call = call
-    )
+    .if_native()
   }
   dims <- args[is_idx]
   sets <- purrr::map_chr(quant[at], "set")

@@ -55,6 +55,7 @@
   sets$name <- ifelse(grepl("\\s", sets$name),
                       purrr::map_chr(strsplit(sets$name, "\\s"), 1),
                       sets$name)
+  sets$name <- trimws(sub("=.*$", "", sets$name))
 
   sets$remainder <- .advance_remainder(
     remainder = sets$remainder,

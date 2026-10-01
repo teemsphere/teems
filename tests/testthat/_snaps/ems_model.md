@@ -108,11 +108,6 @@
     x IF condition references variable "PDS": Equation E_ifbad (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifbad(c,r,t) = IF[VDB(c,r,t)*pds(c,r,t) > 0, pds(c,r,t)].
     i Conditions are evaluated from coefficient values only (GEMPACK manual 11.4.6/11.4.8).
 
----
-
-    x Unsupported IF condition detected: VDB(c,r,t) > 0 and VST(c,r,t) > 0.
-    i Supported forms: <index> in <set>, <index> = "<element>", and <expression> <op> <expression> over coefficients (no AND/OR/NOT compounds).
-
 # index, element and mapping IF comparisons take the $POS route (manual 11.4.11)
 
     x Unsupported IF condition detected: r > 3.
@@ -128,15 +123,20 @@
     x Unsupported IF condition detected: r < s.
     i Ordered comparisons (< <= > >=) of indices need an intertemporal set; REG is not one, so only EQ/NE apply (GEMPACK manual 11.4.11.2).
 
-# unsupported IF placement
+# IF takes a condition and one value
 
-    x Unsupported IF placement detected: Formula (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) = 2 * IF[r in REG, VTRPROV(r,t)].
-    i IF terms must enter Formula and Equation statements additively at the top level of an expression.
+    x IF term IF[VTRPROV(r,t) > 0, 1, 2] has more than a condition and one value.
+    i An IF takes two arguments, `IF[condition, value]` (GEMPACK manual 11.4.6).
 
-# multiple membership IF conditions in an equation
+# IN conditions stay single (manual 11.4.7 rule 5)
 
-    x Set-membership or element IF conditions on different indices detected in one Equation: Equation E_iftest # bad # (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) = IF[c in MARG, qst(c,r,t)] + IF[r in REG, pds(c,r,t)].
-    i An Equation supports any number of such conditions on one index (they partition the equation domain); comparison conditions are unrestricted.
+    x IF condition c in MARG and VDB(c,r,t) > 0 combines an `index IN set` test with AND, OR or NOT.
+    i An `IN` condition cannot be combined with AND, OR or NOT (GEMPACK manual 11.4.7 rule 5); nest the IF instead.
+
+# IF in a levels equation and a variable in an equation condition
+
+    x IF condition references variable "PGDP": Equation E_ifvc (all,r,REG)(all,t,ALLTIME) ifvc(r,t) = IF[pgdp(r,t) > 0, pgdp(r,t)].
+    i Conditions are evaluated from coefficient values only (GEMPACK manual 11.4.6/11.4.8).
 
 # netcut inflation warning (roadmap 6.5 E1)
 

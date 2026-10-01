@@ -37,7 +37,7 @@
   for (k in seq_along(dims)) {
     canon <- gsub(
       paste0("(^|[^A-Za-z0-9_@])", dims[k], "([^A-Za-z0-9_@]|$)"),
-      paste0("\\1<", sets[k], ">\\2"),
+      paste0("\\1<", k, ":", sets[k], ">\\2"),
       canon,
       ignore.case = TRUE
     )

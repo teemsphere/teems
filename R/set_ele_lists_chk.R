@@ -11,14 +11,6 @@
     inner <- sub("^\\s*\\(", "", sub("\\)\\s*$", "", trimws(sets$definition[i])))
     bad_def <- trimws(sets$definition[i])
     eles <- trimws(strsplit(inner, ",", fixed = TRUE)[[1]])
-    ranged <- grepl("-", eles, fixed = TRUE)
-    if (any(ranged)) {
-      bad_ele <- eles[ranged][1]
-      .cli_action(model_err$set_ele_range,
-        action = c("abort", "inform"),
-        call = call
-      )
-    }
     collapsed <- gsub("[[:space:]]", "", inner)
     empty <- !nzchar(collapsed) || grepl("^,|,,|,$", collapsed)
     malformed <- any(grepl("[[:space:]]", eles))

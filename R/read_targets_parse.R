@@ -8,6 +8,7 @@
                       "from file",
                       r$remainder,
                       ignore.case = TRUE)
+  r$remainder <- gsub("\\bheader\\s*\"", "header \"", r$remainder, ignore.case = TRUE, perl = TRUE)
 
   r$remainder <- .advance_remainder(
     remainder = r$remainder,

@@ -574,18 +574,39 @@ test_that("expression IF conditions (LULC shape, manual 11.4.5/11.4.6)", {
     ),
     closure_file
   ))
-  # compounds stay named
-  expect_snapshot_error(ems_model(
-    write_modified_model(
-      model_file,
-      paste(
-        "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFBAD(c,r,t) # bad #;",
-        "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFBAD(c,r,t) = IF[VDB(c,r,t) > 0 and VST(c,r,t) > 0, VDB(c,r,t)];",
-        sep = "\n"
-      )
-    ),
-    closure_file
-  ))
+})
+
+test_that("AND/OR/NOT conditions reach the solver as conditions (manual 11.4.5)", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFCMP(c,r,t) # compound IF #;",
+      "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFCMP(c,r,t) = IF[VDB(c,r,t) > 0 and not VDPB(c,r,t) > 0, VDB(c,r,t)];",
+      "Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifcv(c,r,t) # compound IF in an equation #;",
+      "Equation E_ifcv (all,c,COMM)(all,r,REG)(all,t,ALLTIME) ifcv(c,r,t) = IF[VDB(c,r,t) > 0 or r = \"usa\", pds(c,r,t)];",
+      "Set BLOC (blk1, blk2);",
+      "Mapping (onto) RTOB from REG to BLOC;",
+      "Read (by_elements) RTOB from file GTAPSETS header \"MBLC\";",
+      "Variable (all,b,BLOC)(all,s,REG)(all,t,ALLTIME) blocv(b,s,t) # index compound in a sum #;",
+      "Equation E_blocv (all,b,BLOC)(all,s,REG)(all,t,ALLTIME) blocv(b,s,t) = sum{r,REG: [RTOB(r) = b] and [r <> s], VTRPROV(r,t)*pds(\"food\",r,t)};",
+      "Coefficient (all,b,BLOC)(all,t,ALLTIME) BLOCC(b,t) # coefficient compound in a sum #;",
+      "Formula (all,b,BLOC)(all,t,ALLTIME) BLOCC(b,t) = sum{r,REG: [RTOB(r) = b] or [VTRPROV(r,t) > 0], VTRPROV(r,t)};",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  tab <- model$tab
+  # a Formula IF: the compound becomes the last quantifier's condition
+  expect_true(any(grepl("(all,t,ALLTIME: VDB(c,r,t) > 0 and not VDPB(c,r,t) > 0) IFCMP(c,r,t) = IFCMP(c,r,t) + [VDB(c,r,t)]", tab, fixed = TRUE)))
+  # an Equation IF: an indicator set by the compound condition
+  ind <- sub("^.*= (IFC[0-9]+)\\(c,r,t\\) \\* pds\\(c,r,t\\);.*$", "\\1", grep("E_ifcv", tab, fixed = TRUE, value = TRUE))
+  expect_match(ind, "^IFC[0-9]+$")
+  expect_true(any(grepl(paste0("(all,t,ALLTIME: VDB(c,r,t) > 0 or r = \"usa\") ", ind, "(c,r,t) = 1"), tab, fixed = TRUE)))
+  # comparisons of indices and mappings only: the sum keeps its condition
+  expect_true(any(grepl("sum{r,REG: [RTOB(r) = b] and [r <> s], VTRPROV(r,t)*pds(\"food\",r,t)}", tab, fixed = TRUE)))
+  # a coefficient leaf: the sum-condition indicator route
+  expect_true(any(grepl("(all,r,REG: [RTOB(r) = b] or [VTRPROV(r,t) > 0])", tab, fixed = TRUE)))
+  expect_false(any(grepl("BLOCC(b,t) = sum{r,REG:", tab, fixed = TRUE)))
 })
 
 test_that("index, element and mapping IF comparisons take the $POS route (manual 11.4.11)", {
@@ -676,16 +697,93 @@ test_that("levels variables may enter an IF condition, linear ones may not (manu
   expect_true(any(grepl("(all,t,ALLTIME: LVIF(r,t) > 3) IFLV(r,t)", model$tab, fixed = TRUE)))
 })
 
-test_that("unsupported IF placement", {
+test_that("IF placements the rewrite cannot take reach the solver as written", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,r,REG)(all,t,ALLTIME) IFMUL(r,t) # scaled if #;",
+      "Formula (all,r,REG)(all,t,ALLTIME) IFMUL(r,t) = 2 * IF[r in REG, VTRPROV(r,t)];",
+      "Coefficient (all,t,ALLTIME) IFSUM(t) # if inside a sum #;",
+      "Formula (all,t,ALLTIME) IFSUM(t) = sum{r,REG, IF[VTRPROV(r,t) > 0, VTRPROV(r,t)]};",
+      "Variable (all,r,REG)(all,t,ALLTIME) ifeqm(r,t) # if times a variable #;",
+      "Equation E_ifeqm (all,r,REG)(all,t,ALLTIME) ifeqm(r,t) = IF[VTRPROV(r,t) > 0, 2] * pgdp(r,t);",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  expect_true(any(grepl("IFMUL(r,t) = 2 * IF[r in REG, VTRPROV(r,t)]", model$tab, fixed = TRUE)))
+  expect_true(any(grepl("sum{r,REG, IF[VTRPROV(r,t) > 0, VTRPROV(r,t)]}", model$tab, fixed = TRUE)))
+  expect_true(any(grepl("ifeqm(r,t) = IF[VTRPROV(r,t) > 0, 2] * pgdp(r,t)", model$tab, fixed = TRUE)))
+})
+
+test_that("IF takes a condition and one value", {
   err_model <- write_modified_model(
     model_file,
     paste(
-      "Coefficient (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) # bad if #;",
-      "Formula (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) = 2 * IF[r in REG, VTRPROV(r,t)];",
+      "Coefficient (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) # three arguments #;",
+      "Formula (all,r,REG)(all,t,ALLTIME) IFBAD(r,t) = IF[VTRPROV(r,t) > 0, 1, 2];",
       sep = "\n"
     )
   )
   expect_snapshot_error(ems_model(err_model, closure_file))
+})
+
+test_that("IN conditions stay single (manual 11.4.7 rule 5)", {
+  err_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFBAD(c,r,t) # in with and #;",
+      "Formula (all,c,COMM)(all,r,REG)(all,t,ALLTIME) IFBAD(c,r,t) = IF[c in MARG and VDB(c,r,t) > 0, 1];",
+      sep = "\n"
+    )
+  )
+  expect_snapshot_error(ems_model(err_model, closure_file))
+})
+
+test_that("IF in a levels equation and a variable in an equation condition", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Variable (levels) (all,r,REG)(all,t,ALLTIME) LVA(r,t) # levels operand #;",
+      "Formula (initial) (all,r,REG)(all,t,ALLTIME) LVA(r,t) = 1;",
+      "Variable (levels) (all,r,REG)(all,t,ALLTIME) LVB(r,t) # levels result #;",
+      "Formula (initial) (all,r,REG)(all,t,ALLTIME) LVB(r,t) = 1;",
+      "Equation (levels) E_LVB (all,r,REG)(all,t,ALLTIME) LVB(r,t) = IF[LVA(r,t) > 0, LVA(r,t)];",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  # the solver linearizes the IF; no indicator coefficient enters a
+  # levels equation
+  expect_true(any(grepl("LVB(r,t) = IF[LVA(r,t) > 0, LVA(r,t)]", model$tab, fixed = TRUE)))
+  # a plain comparison on a linear variable is named, not indicator-ized
+  expect_snapshot_error(ems_model(
+    write_modified_model(
+      model_file,
+      paste(
+        "Variable (all,r,REG)(all,t,ALLTIME) ifvc(r,t) # condition on a variable #;",
+        "Equation E_ifvc (all,r,REG)(all,t,ALLTIME) ifvc(r,t) = IF[pgdp(r,t) > 0, pgdp(r,t)];",
+        sep = "\n"
+      )
+    ),
+    closure_file
+  ))
+})
+
+test_that("index comparisons in either order keep their own helpers", {
+  ok_model <- write_modified_model(
+    model_file,
+    paste(
+      "Coefficient (all,t,ALLTIME)(all,u,ALLTIME) IFORD(t,u) # both orders #;",
+      "Formula (all,t,ALLTIME)(all,u,ALLTIME) IFORD(t,u) = IF[$POS(t) < $POS(u), 1] + IF[$POS(u) >= $POS(t), 10];",
+      sep = "\n"
+    )
+  )
+  model <- ems_model(ok_model, closure_file)
+  helpers <- model$tab[grepl("^Formula \\(all,t,ALLTIME\\)\\(all,u,ALLTIME\\) IFX[0-9]+\\(t,u\\) =", model$tab)]
+  expect_length(helpers, 2L)
+  expect_true(any(grepl("= [$POS(t)] - [$POS(u)]", helpers, fixed = TRUE)))
+  expect_true(any(grepl("= [$POS(u)] - [$POS(t)]", helpers, fixed = TRUE)))
 })
 
 test_that("coefficient-vs-coefficient IF conditions parse", {
@@ -719,16 +817,17 @@ test_that("IF in equation RHS (GEMPACK manual 11.4.7)", {
   expect_true(all(c("E_iftestA", "E_iftestB", "IFC1") %in% model$name))
 })
 
-test_that("multiple membership IF conditions in an equation", {
-  err_model <- write_modified_model(
+test_that("membership IF conditions on different indices in an equation reach the solver", {
+  ok_model <- write_modified_model(
     model_file,
     paste(
       "Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) # if test var #;",
-      "Equation E_iftest # bad # (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) = IF[c in MARG, qst(c,r,t)] + IF[r in REG, pds(c,r,t)];",
+      "Equation E_iftest # two indices # (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) = IF[c in MARG, qst(c,r,t)] + IF[r in REG, pds(c,r,t)];",
       sep = "\n"
     )
   )
-  expect_snapshot_error(ems_model(err_model, closure_file))
+  model <- ems_model(ok_model, closure_file)
+  expect_true(any(grepl("iftest(c,r,t) = IF[c in MARG, qst(c,r,t)] + IF[r in REG, pds(c,r,t)]", model$tab, fixed = TRUE)))
 })
 
 test_that("same-index membership IF partition in an equation (GTAPv7 E_CNTqfr shape)", {

@@ -127,7 +127,7 @@
       sprintf("Coefficient (all,%s,%s) %s(%s) # indicator of set %s #", m[2], m[3], coef, m[2], owner),
       sprintf('Read %s from file %s header "%s"', coef, data_file, hdr)
     )
-    tab[r] <- sprintf("%s= (all,%s,%s: %s(%s) > 0.5)", head, m[2], m[3], coef, m[2])
+    tab[r] <- sprintf("%s = (all,%s,%s: %s(%s) > 0.5)", sub("\\s+$", "", head), m[2], m[3], coef, m[2])
     builders[[coef]] <- list(
       set = owner, coef = coef, header = hdr, idx = m[2], src = m[3],
       cond = trimws(m[4])

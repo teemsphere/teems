@@ -15,18 +15,10 @@
     if (is.na(at_m) || isTRUE(quant[[at_m]]$cond) ||
       (cond_info$kind %=% "in_set" &&
         toupper(cond_info$set) %in% toupper(q_idx[!is.na(q_idx)]))) {
-      if_cond <- m$if_cond
-      .cli_action(model_err$invalid_if_cond,
-        action = c("abort", "inform"),
-        call = call
-      )
+      .if_native()
     }
     if (!is.na(at) && at_m != at) {
-      if_statement <- stmt
-      .cli_action(model_err$invalid_if_multi,
-        action = c("abort", "inform"),
-        call = call
-      )
+      .if_native()
     }
     at <- at_m
     range_set <- quant[[at]]$set

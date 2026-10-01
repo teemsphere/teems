@@ -23,6 +23,14 @@
 #'   (`sol.cof`/`sol.cbin`), selectively for named coefficients;
 #'   the per-coefficient CSV files (see `write_coefficients` in
 #'   [`ems_deploy()`]) are used only when the dump is absent.
+#' @details Every variable whose pre-simulation level is known
+#'   gains the columns `PreLevel` and `PostLevel`, plus `Change` (the ordinary
+#'   change) for a percent-change variable or `PercentChange` for a
+#'   change variable (GEMPACK levels results, manual 11.6.5). The
+#'   level is known for a variable declared with `ORIG_LEVEL=` (a
+#'   coefficient over exactly the variable's sets, or a number) and
+#'   for a levels variable; pre-simulation values come from the
+#'   solver's `sol.cbin0`.
 #' @seealso [`ems_solve()`] for solving the CGE model.
 #' @examples
 #' \dontrun{

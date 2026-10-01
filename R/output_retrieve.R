@@ -2,6 +2,7 @@
 #' @noRd
 .retrieve_output <- function(var_tbl,
                              var_data,
+                             var_levels = NULL,
                              cof_tbl = NULL,
                              cof_data = NULL,
                              type,
@@ -20,6 +21,7 @@
       data_dt = var_data,
       var_extract = comp_extract$variable,
       vars = var_tbl,
+      levels = var_levels,
       sets = sets,
       time_steps = time_steps,
       call = call

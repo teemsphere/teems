@@ -21,6 +21,9 @@
 
   tab <- .canonical_names(tab)
 
+  tab <- .resolve_vpqtype(tab, call = call)
+  vpqtype <- attr(tab, "vpqtype")
+
   sb_rewrite <- .rewrite_set_builders(tab)
   tab <- sb_rewrite$tab
 
@@ -74,6 +77,12 @@
   coeff_extract <- .parse_tab_obj(
     extract = extract$model,
     obj_type = "coefficient",
+    call = call
+  )
+
+  .check_orig_level(
+    var_extract = var_extract,
+    coeff_extract = coeff_extract,
     call = call
   )
 
@@ -153,6 +162,7 @@
   }
 
   attr(tab, "tab_file") <- basename(tab_file)
+  attr(tab, "vpqtype") <- vpqtype
   attr(tab, "omit_vars") <- condensed$omit_vars
   if (length(sb_rewrite$builders) > 0L) {
     attr(tab, "set_builders") <- sb_rewrite$builders

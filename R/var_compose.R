@@ -6,6 +6,7 @@
 .compose_var <- function(data_dt,
                          var_extract,
                          vars,
+                         levels = NULL,
                          sets,
                          time_steps,
                          call) {
@@ -109,6 +110,9 @@
     sets <- vars$dt[[nm]]
     dt_data <- data_dt[data_dt$var == nm, ]
     dt <- cbind(sets, dt_data[, -c("r_idx", "var")])
+    if (!is.null(levels[[nm]])) {
+      dt <- .add_levels(dt, levels[[nm]])
+    }
     return(dt)
   })
 
@@ -119,11 +123,12 @@
     var_extract$ls_upper_idx
   )
 
+  value_cols <- c("Value", "error_estimate", "PreLevel", "PostLevel", "Change", "PercentChange")
   lax_check <- all(unlist(purrr::map2(
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
     \(check, parsed) {
-      all(is.element(tolower(check), tolower(parsed[!parsed %in% c("Value", "error_estimate")])))
+      all(is.element(tolower(check), tolower(parsed[!parsed %in% value_cols])))
     }
   )))
   if (!lax_check) {
@@ -138,7 +143,7 @@
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),
     \(check, parsed) {
-      all(tolower(check) == tolower(parsed[!parsed %in% c("Value", "error_estimate")]))
+      all(tolower(check) == tolower(parsed[!parsed %in% value_cols]))
     }
   )))
   if (!strict_check) {
@@ -161,10 +166,7 @@
     var_extract$ls_mixed_idx,
     \(dt, mixed_col) {
       if (mixed_col %!=% NA_character_) {
-        new_names <- c(mixed_col, "Value")
-        if (has_acc) {
-          new_names <- c(new_names, "error_estimate")
-        }
+        new_names <- c(mixed_col, colnames(dt)[colnames(dt) %in% value_cols])
         data.table::setnames(dt, new = new_names)
         data.table::setkeyv(dt, cols = mixed_col)
       } else {

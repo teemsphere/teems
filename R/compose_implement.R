@@ -129,6 +129,11 @@
       sol_prefix = v$sol_prefix,
       var_names  = var_names_sel
     )
+    bins$levels <- .var_presim_levels(
+      sol_prefix = v$sol_prefix,
+      var_tbl = bins$var_union,
+      var_extract = comp_extract$variable
+    )
   } else {
     bins <- list(var_union = NULL, xc = NULL)
   }
@@ -145,6 +150,7 @@
   output <- .retrieve_output(
     var_tbl      = bins$var_union,
     var_data     = bins$xc,
+    var_levels   = bins$levels,
     cof_tbl      = cof_bins$cof_union,
     cof_data     = cof_bins$xc,
     type         = type,

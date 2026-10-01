@@ -574,6 +574,38 @@ build_model_err <- function() {
     # not in tests: unreachable failsafe
     entry_type = "The following closure entries have not been classified properly: {invalid_entry}.",
     # test-ems_model.R: "closure missing exo/endo spec"
+    # test-tab_vpqtype.R: "an unknown VPQ type aborts"
+    vpqtype_unknown = c(
+      "Unknown VPQ type {.val {vpq_value}}.",
+      "A VPQ type is one of {.val Value}, {.val Price}, {.val Quantity},
+      {.val None} or {.val Unspecified} (GEMPACK manual 57.2)."
+    ),
+    # test-tab_vpqtype.R: "conflicting VPQ types for one variable abort"
+    vpqtype_conflict = "Variable {.field {vpq_var}} is given more than one VPQ
+    type by its {.code VPQType=} qualifier and {.code (Name ... VPQType ...)}
+    statements (GEMPACK manual 57.2).",
+    # test-tab_vpqtype.R: "a malformed VPQ type statement aborts"
+    vpqtype_statement = c(
+      "Malformed VPQ type statement: {.code {vpq_stmt}}.",
+      "The forms are {.code Variable (begins <prefix> default VPQType <type>);},
+      {.code Variable (begins <prefix> VPQType default OFF);} and
+      {.code Variable (Name <variable> VPQType <type>);} (GEMPACK manual 57.2)."
+    ),
+    # test-chk_orig_level.R: "an ORIG_LEVEL naming an undeclared coefficient aborts"
+    orig_level_unknown = "{.code ORIG_LEVEL={orig_coeff}} on variable
+    {.field {orig_var}} names no declared coefficient (GEMPACK manual 11.6.5).",
+    # test-chk_orig_level.R: "an integer ORIG_LEVEL coefficient aborts"
+    orig_level_integer = "{.code ORIG_LEVEL={orig_coeff}} on variable
+    {.field {orig_var}} names an integer coefficient; it must be real
+    (GEMPACK manual 11.6.5).",
+    # test-chk_orig_level.R: "an ORIG_LEVEL coefficient over other sets aborts"
+    orig_level_sets = c(
+      "{.code ORIG_LEVEL={orig_coeff}} on variable {.field {orig_var}}:
+      the coefficient ranges over {.val {coeff_sets}}, the variable over
+      {.val {var_sets}}.",
+      "The coefficient must range over exactly the variable's sets, in the
+      same order (GEMPACK manual 11.6.5)."
+    ),
     missing_specification = "The closure must contain both {.val Exogenous} and {.val Rest Endogenous} entries. The inverse approach is not supported.",
     # test-ems_model.R: "ems_model errors when invalid closure mixed entry present preswap"
     mixed_invalid = "{n_invalid_entries} closure entry element{?s} in {.field {cls_entry}} do not belong to the respective variable sets: {invalid_entries}.",
@@ -628,6 +660,9 @@ build_model_wrn <- function() {
       "Backsolving {.field {var_name}} using {.field {eq_name}} divides by the coefficient expression {.field {pivot_expr}}.",
       "Ensure this expression can never be zero; a zero value will surface as a solver error."
     ),
+    # test-tab_vpqtype.R: "a Name statement for an undeclared variable warns"
+    vpqtype_orphan = "{.code (Name ... VPQType ...)} for undeclared
+    variable{?s} {.field {orphan}} ignored (GEMPACK manual 57.2).",
     # test-ems_model.R: "netcut inflation warning"
     netcut_inflation = c(
       "Multidimensional {.field {offenders}} referenced with a lead or lag in {.field {lag_eqs}}.",

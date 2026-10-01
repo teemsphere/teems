@@ -248,4 +248,53 @@ test_that("ems_compose errors when model run has not taken place", {
                   error = TRUE, transform = scrub_paths)
 })
 
+test_that("variables with an ORIG_LEVEL carry their pre- and post-simulation levels", {
+  nest_temp("compose_levels_null", write_dir)
+  null_cmf <- ems_deploy(dat, model)
+  out <- ems_solve(null_cmf, solution_method = "Johansen")
+  vars <- out[out$type == "variable", ]
+  qfd <- vars$dat[["qfd"]]
+  expect_true(all(c("PreLevel", "PostLevel", "Change") %in% names(qfd)))
+  vdfb <- out$dat[[which(out$name == "VDFB" & out$type == "coefficient")]]
+  keys <- setdiff(names(vdfb), c("Value", "Year"))
+  joined <- merge(qfd, vdfb, by = keys, suffixes = c("", ".coef"))
+  expect_equal(nrow(joined), nrow(qfd))
+  expect_equal(joined$PreLevel, joined$Value.coef, tolerance = 1e-6)
+  expect_true(all(vars$dat[["pds"]]$PreLevel == 1))
+  expect_false("PreLevel" %in% names(vars$dat[["del_taxrgc"]]))
+})
+
+test_that("levels follow the solution in a shocked run", {
+  nest_temp("compose_levels_shock", write_dir)
+  shocked <- ems_deploy(dat, model, ems_uniform_shock("aoall", 2))
+  out <- ems_solve(shocked, solution_method = "Johansen")
+  for (nm in c("qfd", "pds", "qgdp")) {
+    d <- out$dat[[nm]]
+    expect_equal(d$PostLevel, d$PreLevel * (1 + d$Value / 100), tolerance = 1e-9, label = nm)
+    expect_equal(d$Change, d$PostLevel - d$PreLevel, tolerance = 1e-9, label = nm)
+    expect_true(any(d$Value != 0), label = nm)
+  }
+})
+
+test_that("a model typed with all three VPQType forms deploys and solves", {
+  nest_temp("compose_vpqtype", write_dir)
+  text <- readLines(model_file)
+  first_var <- grep("^Variable", text)[1]
+  text <- c(
+    text[seq_len(first_var - 1L)],
+    "Variable (begins p default VPQType Price);",
+    "Variable (begins q default VPQType Quantity);",
+    "Variable (Name pop VPQType Quantity);",
+    text[first_var:length(text)]
+  )
+  text <- sub("^Variable \\(orig_level=1.0\\)", "Variable (orig_level=1.0, VPQType=Price)", text)
+  typed_file <- file.path(write_dir, "compose_vpqtype", "typed.tab")
+  writeLines(text, typed_file)
+  typed <- ems_model(typed_file, closure_file, ignore_condense = TRUE)
+  vpq <- attr(typed, "vpqtype")
+  expect_identical(unname(vpq[c("pds", "qfd", "pop")]), c("price", "quantity", "quantity"))
+  out <- ems_solve(ems_deploy(dat, typed), solution_method = "Johansen")
+  expect_s3_class(out, "tbl_df")
+})
+
 unlink(write_dir, recursive = TRUE)

@@ -37,6 +37,16 @@ cumulative solution error, \verb{|delta| / max(1, |Value|)}.
 from a solved model run. Data validation and consistency
 checks are performed during composition.
 }
+\details{
+Every variable whose pre-simulation level is known
+gains the columns \code{PreLevel} and \code{PostLevel}, plus \code{Change} (the ordinary
+change) for a percent-change variable or \code{PercentChange} for a
+change variable (GEMPACK levels results, manual 11.6.5). The
+level is known for a variable declared with \verb{ORIG_LEVEL=} (a
+coefficient over exactly the variable's sets, or a number) and
+for a levels variable; pre-simulation values come from the
+solver's \code{sol.cbin0}.
+}
 \examples{
 \dontrun{
 # The following examples require that a model run has taken

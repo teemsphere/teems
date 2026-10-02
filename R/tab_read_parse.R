@@ -8,6 +8,10 @@
   reads <- extract[tolower(extract$type) %in% "read", ]
   qual <- .read_qualifier(reads$remainder)
   reads$remainder <- .strip_read_qualifier(reads$remainder)
+  part <- grepl("^\\s*\\(\\s*all\\s*,", reads$remainder, ignore.case = TRUE)
+  part_set <- rep(NA_character_, nrow(reads))
+  part_set[part] <- trimws(sub("^\\s*\\(\\s*all\\s*,[^,]*,([^)]*)\\).*$", "\\1", reads$remainder[part], ignore.case = TRUE))
+  reads$remainder[part] <- sub("^\\s*\\([^)]*\\)\\s*([^ (]+)\\s*\\([^)]*\\)", "\\1", reads$remainder[part])
   if (any(grepl("\\(", reads$remainder))) {
     .cli_action(model_err$invalid_read,
       action = "abort",
@@ -47,7 +51,7 @@
   reads$ls_mixed_idx <- NA
   reads$definition <- NA
   reads$subsets <- NA
-  reads$comp1 <- NA
+  reads$comp1 <- part_set
   reads$comp2 <- NA
 
   reads <- reads[, c(

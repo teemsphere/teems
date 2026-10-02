@@ -24,6 +24,7 @@ options_class <- R6::R6Class(
     range_test_updated = NULL,
     random_seed = NULL,
     refine = NULL,
+    convergence_rule = NULL,
 
     initialize = function(verbose = NULL,
                           tempdir = NULL,
@@ -39,7 +40,8 @@ options_class <- R6::R6Class(
                           range_test_initial = NULL,
                           range_test_updated = NULL,
                           random_seed = NULL,
-                          refine = NULL) {
+                          refine = NULL,
+                          convergence_rule = NULL) {
       self$verbose <- verbose
       self$tempdir <- tempdir
       self$ndigits <- ndigits
@@ -55,6 +57,7 @@ options_class <- R6::R6Class(
       self$range_test_updated <- range_test_updated
       self$random_seed <- random_seed
       self$refine <- refine
+      self$convergence_rule <- convergence_rule
     },
 
     export = function() {
@@ -73,7 +76,8 @@ options_class <- R6::R6Class(
         range_test_initial = self$get_range_test_initial(),
         range_test_updated = self$get_range_test_updated(),
         random_seed = self$get_random_seed(),
-        refine = self$get_refine()
+        refine = self$get_refine(),
+        convergence_rule = self$get_convergence_rule()
       )
     },
 
@@ -93,6 +97,7 @@ options_class <- R6::R6Class(
       self$set_range_test_updated(list$range_test_updated)
       self$set_random_seed(list$random_seed)
       self$set_refine(list$refine)
+      self$set_convergence_rule(list$convergence_rule)
     },
 
     reset = function() {
@@ -111,6 +116,7 @@ options_class <- R6::R6Class(
       self$range_test_updated <- NULL
       self$random_seed <- NULL
       self$refine <- NULL
+      self$convergence_rule <- NULL
     },
 
     get_verbose = function() {
@@ -171,6 +177,10 @@ options_class <- R6::R6Class(
 
     get_refine = function() {
       self$refine %|||% "on"
+    },
+
+    get_convergence_rule = function() {
+      self$convergence_rule %|||% "off"
     },
 
     set_verbose = function(verbose, call = rlang::caller_env()) {
@@ -246,6 +256,11 @@ options_class <- R6::R6Class(
     set_refine = function(refine, call = rlang::caller_env()) {
       self$validate_refine(refine, call = call)
       self$refine <- refine
+    },
+
+    set_convergence_rule = function(convergence_rule, call = rlang::caller_env()) {
+      self$validate_convergence_rule(convergence_rule, call = call)
+      self$convergence_rule <- convergence_rule
     },
 
     validate_verbose = function(verbose, call = rlang::caller_env()) {
@@ -344,6 +359,13 @@ options_class <- R6::R6Class(
       }
     },
 
+    validate_convergence_rule = function(convergence_rule, call = rlang::caller_env()) {
+      if (!is.character(convergence_rule) || length(convergence_rule) != 1L ||
+        !convergence_rule %in% c("on", "off")) {
+        cli::cli_abort(gen_err$opt_convergence_rule, call = call)
+      }
+    },
+
     validate = function() {
       self$validate_verbose(self$get_verbose())
       self$validate_tempdir(self$get_tempdir())
@@ -359,6 +381,7 @@ options_class <- R6::R6Class(
       self$validate_range_test_initial(self$get_range_test_initial())
       self$validate_range_test_updated(self$get_range_test_updated())
       self$validate_refine(self$get_refine())
+      self$validate_convergence_rule(self$get_convergence_rule())
     }
   )
 )

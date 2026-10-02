@@ -42,6 +42,17 @@ test_that("set difference rejects elements absent from the minuend", {
   )
 })
 
+test_that("the relative complement skips absent elements", {
+  # SET4 = SET1 \ SET2 with d5 absent from SET1 (GEMPACK manual 11.7.4)
+  el <- \(x) data.table::data.table(origin = x, mapping = x, key = c("origin", "mapping"))
+  mappings <- list(SET1 = el(paste0("c", 1:5)), SET2 = el(c("c3", "c1", "d5")))
+  out <- .eval_set_expr(d = "= SET1 \\ SET2", mappings = mappings, owner = "SET4", call = NULL)
+  expect_identical(sort(unique(out$mapping)), c("c2", "c4", "c5"))
+  out <- .eval_set_expr(d = "= SET1 \\ SET2 \\ \"c5\"", mappings = mappings, owner = "SET5", call = NULL)
+  expect_identical(sort(unique(out$mapping)), c("c2", "c4"))
+  expect_identical(.set_expr_info("= SET1 \\ SET2")$complement_of, "SET1")
+})
+
 test_that("set union rejects element-level overlap with disjoint origins", {
   # the same aggregated element carried by different origin rows used
   # to slip past the row-level disjointness test

@@ -11,6 +11,10 @@
     i_data[purrr::map_lgl(i_data, is.character)],
     \(h) tolower(trimws(unclass(h)))
   )
+  int_raw <- lapply(
+    i_data[purrr::map_lgl(i_data, \(h) is.integer(h) && is.null(dimnames(h)))],
+    \(h) as.vector(unclass(h))
+  )
   nm_order <- names(i_data)
   is_arr <- purrr::map_lgl(i_data, \(x) {
     inherits(x, "dat") && is.numeric(x) &&
@@ -69,6 +73,7 @@
   attr(i_data, "metadata") <- metadata
   attr(i_data, "call") <- call
   attr(i_data, "set_raw") <- set_raw
+  attr(i_data, "int_raw") <- int_raw
   if ("time_steps" %in% names(attributes(set_mappings))) {
     attr(i_data, "time_steps") <- attr(set_mappings, "time_steps")
   }

@@ -24,21 +24,22 @@
     grepl("by_elements", model$qualifier_list[reads], ignore.case = TRUE)
   tgt_all <- tolower(model$name[reads])
 
-  bad_targets <- unique(tgt_all[byele & !tgt_all %in% map_names])
+  all_maps <- tolower(model$name[typ == "mapping"])
+  bad_targets <- unique(tgt_all[byele & !tgt_all %in% all_maps])
   if (length(bad_targets) > 0L) {
     .cli_action(model_err$byele_nonmap,
       action = "abort",
       call = call
     )
   }
-  bad_targets <- unique(tgt_all[!byele & tgt_all %in% map_names])
-  if (length(bad_targets) > 0L) {
-    .cli_action(model_err$map_read_plain,
+  part <- !is.na(model$comp1[reads])
+  if (any(part & !tgt_all %in% all_maps)) {
+    .cli_action(model_err$invalid_read,
       action = "abort",
       call = call
     )
   }
-  bad_maps <- unique(map_names[!map_names %in% tgt_all[byele]])
+  bad_maps <- unique(map_names[!map_names %in% tgt_all])
   if (length(bad_maps) > 0L) {
     .cli_action(model_err$map_read_missing,
       action = "abort",
@@ -46,7 +47,7 @@
     )
   }
 
-  ord_reads <- reads[!model$postsim[reads] & !byele]
+  ord_reads <- reads[!model$postsim[reads] & !byele & !tgt_all %in% all_maps]
   tgt <- tolower(model$name[ord_reads])
   undecl <- !is.na(tgt) & nzchar(tgt) & !tgt %in% declared
   if (any(undecl)) {

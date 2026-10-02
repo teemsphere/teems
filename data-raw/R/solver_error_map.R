@@ -37,6 +37,8 @@ build_solver_error_map <- function() {
     c("is not declared \\(in ", "closure", NA),
     c("which is endogenous; only exogenous components", "closure", "24.14.1"),
     c("specified more than once", "closure", "68.1.1"),
+    c("which Gragg's method cannot take", "closure", "30.2"),
+    c("a percentage change below -100 would make", "closure", "30.2"),
     c("names no variable: .*manual 9\\.2\\.2\\): ", "tab", "9.2.2"),
     c("names no variable", "closure", "9.2.2"),
     c("has no exogenous components, so it cannot be shocked", "closure", "24.6.3"),

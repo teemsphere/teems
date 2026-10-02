@@ -20,6 +20,12 @@
 #'   Recommended whenever accuracy matters. See also:
 #'   \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
 #'   solution methods}
+#'   * `"Midpoint"`: The midpoint method, Gragg's method without
+#'   the terminal smoothing pass (N passes for N steps), combined
+#'   by Richardson extrapolation over `steps` like `"Gragg"`. It
+#'   never takes the exogenous variables past their end point, so
+#'   it suits shocks of exactly `-100%`, which Gragg's final pass
+#'   cannot take (GEMPACK manual 30.2).
 #'   * `"Johansen"`: The one-step Johansen method is fast however it
 #'   should only be used as a rough approximation due to handling of
 #'   nonlinear equations. See:
@@ -71,14 +77,17 @@
 #'   large shock magnitudes.
 #' @param steps Integer (default is `NULL`, resolved per method:
 #'   `c(2L, 4L, 8L)` for the extrapolating methods, `4L` for the
-#'   Runge-Kutta methods). `"Gragg"`, `"Johansen"` and `"Euler"`
-#'   take a vector of length 3: the three counts must increase for
-#'   `"Gragg"` and `"Euler"`, and must be all even or all odd for
-#'   `"Gragg"` (even counts are recommended). `"Gragg"` and
-#'   `"Euler"` also take a single count, a single multi-step run
+#'   Runge-Kutta methods). `"Gragg"`, `"Midpoint"`, `"Johansen"` and
+#'   `"Euler"` take a vector of length 3: the three counts must
+#'   increase for `"Gragg"`, `"Midpoint"` and `"Euler"`, and must be
+#'   all even or all odd for `"Gragg"` and `"Midpoint"` (even counts
+#'   are recommended). `"Gragg"`, `"Midpoint"` and `"Euler"` also
+#'   take a single count, a single multi-step run
 #'   without Richardson extrapolation (GEMPACK's single Euler
-#'   N-step run, as used by recursive-dynamic models); no
-#'   extrapolation accuracy estimate is then available.
+#'   N-step run, as used by recursive-dynamic models), or two
+#'   increasing counts, extrapolated from two solutions (GEMPACK's
+#'   `steps = 2 4;`); no extrapolation accuracy estimate is then
+#'   available.
 #'   `"RK2"`, `"Heun"`, `"RK4"`, `"BoSha32"` and `"DoPri54"` take a
 #'   single count of 1 or more. A larger number of steps may
 #'   improve accuracy for some model runs.
@@ -246,7 +255,7 @@
 #'           n_tasks = 6)
 #' }
 ems_solve <- function(cmf_path,
-                      solution_method = c("Gragg", "Johansen", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
+                      solution_method = c("Gragg", "Midpoint", "Johansen", "Euler", "RK2", "Heun", "RK4", "BoSha32", "DoPri54"),
                       matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
                       n_subintervals = 1L,
                       steps = NULL,

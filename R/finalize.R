@@ -100,13 +100,21 @@
     call = call,
     model_call = model_call
   )
-  .data <- c(.data, .finalize_map_data(
+  map_data <- .finalize_map_data(
     model = v$model,
     sets = sets,
     set_raw = attr(args_list$.data, "set_raw"),
+    int_raw = attr(args_list$.data, "int_raw") %|||% list(),
     call = call,
     data_call = data_call
-  ))
+  )
+  int_headers <- toupper(attr(map_data, "int_headers"))
+  if (length(int_headers) > 0L) {
+    .data <- .data[!toupper(names(.data)) %in% int_headers]
+    int_rows <- v$model$type == "Read" & toupper(v$model$header) %in% int_headers
+    v$model$tab[int_rows] <- sub("^\\s*read\\b", "Read (by_elements)", v$model$tab[int_rows], ignore.case = TRUE)
+  }
+  .data <- c(.data, map_data)
   map_names <- v$model$name[v$model$type == "Mapping"]
   metadata$mapped_equations <- length(map_names) > 0L &&
     any(grepl(

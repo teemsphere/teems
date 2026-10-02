@@ -19,7 +19,7 @@
     "NDBBD" = 3
   )
 
-  if (a$solution_method %in% c("Gragg", "Euler") || is_rk) {
+  if (a$solution_method %in% c("Gragg", "Midpoint", "Euler") || is_rk) {
     a$solmed <- a$solution_method
   } else {
     a$solmed <- "Johansen"

@@ -6,7 +6,7 @@
                                call) {
   for (i in which(is_expr & !is_set_eq)) {
     toks <- .set_expr_tokens(sets$definition[[i]])
-    named <- toks[!toks %in% c("+", "-", "^", "&", "*", "(", ")") &
+    named <- toks[!toks %in% c("+", "-", "%", "^", "&", "*", "(", ")") &
       !grepl('^"', toks)]
     bad_refs <- character(0)
     for (tk in unique(named)) {

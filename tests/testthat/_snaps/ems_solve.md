@@ -6,30 +6,35 @@
 
     x `n_tasks` must be integer-like.
 
-# ems_solve errors when steps is not length 1 or 3
+# ems_solve errors when steps is not one to three whole numbers
 
-    x `steps` must be one or three positive whole numbers.
-    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated.
+    x `steps` must be one, two or three positive whole numbers.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated, and three also give an accuracy estimate.
 
 ---
 
-    x `steps` must be one or three positive whole numbers.
-    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated.
+    x `steps` must be one, two or three positive whole numbers.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated, and three also give an accuracy estimate.
 
 # ems_solve errors when Gragg steps mix parity
 
     x `steps` must be all even or all odd when `solution_method` is "Gragg".
-    i Richardson extrapolation of Gragg solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended.
+    i Richardson extrapolation of Gragg and midpoint solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended.
+
+# the midpoint method solves and extrapolates
+
+    x `steps` must be all even or all odd when `solution_method` is "Midpoint".
+    i Richardson extrapolation of Gragg and midpoint solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended.
 
 # ems_solve errors when steps are not increasing
 
     x `steps` must be strictly increasing for `solution_method` "Gragg".
-    i Richardson extrapolation combines three solutions computed with distinct, increasing step counts.
+    i Richardson extrapolation combines solutions computed with distinct, increasing step counts.
 
 ---
 
     x `steps` must be strictly increasing for `solution_method` "Euler".
-    i Richardson extrapolation combines three solutions computed with distinct, increasing step counts.
+    i Richardson extrapolation combines solutions computed with distinct, increasing step counts.
 
 # ems_solve errors on invalid Runge-Kutta arguments
 

@@ -462,10 +462,35 @@ test_that("unbalanced parentheses abort", {
 test_that("subsets by numbers abort", {
   expect_snapshot_error(
     ems_model(
-      mutate_tab("Subset (by numbers) MARG is subset of COMM;", "by_numbers.tab"),
+      mutate_tab("Subset (by_numbers) MARG is subset of COMM;", "by_numbers.tab"),
       model_files[["closure_file"]]
     )
   )
+})
+
+test_that("tab characters are blanks", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab("Coefficient\t(all,r,REG) TBX(r);\nFormula\t(all,r,REG)\tTBX(r) =\t2\n\t\t+ 1;"),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true("TBX" %in% model$name)
+})
+
+test_that("subsets by elements parse", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Set SMALL (food, crops);",
+      "Subset (by_elements) SMALL is subset of COMM;",
+      "Set SETA (c1 - c5);",
+      "Set SETB (c3, c1, d5);",
+      "Set SETC = SETA \\ SETB;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true(all(c("SMALL", "SETC") %in% model$name))
 })
 
 test_that("a qualifier list that never closes aborts", {

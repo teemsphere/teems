@@ -25,13 +25,13 @@
 
     x `Read (by_elements)` target "pop" is not a declared mapping (GEMPACK manual 11.9.3).
 
-# plain read of a mapping aborts
+# partial reads of a coefficient abort
 
-    x Mapping "regtobloc" must be read with the `(by_elements)` qualifier (GEMPACK manual 11.9.3).
+    x Partial Read statements are not supported.
 
 # mapping without a read aborts
 
-    x Mapping "regtobloc" has no `Read (by_elements)` statement assigning its values.
+    x Mapping "regtobloc" has no `Read` or `Formula` assigning its values (GEMPACK manual 11.9.1).
 
 # partial reads still abort with by_elements allowed
 
@@ -46,6 +46,15 @@
 
     x No header "MBLC" found in the input data for mapping "REGTOBLOC".
     i `Read (by_elements)` data must be supplied as a character header in the `teems::ems_data()` inputs.
+
+# integer mapping values outside the codomain abort
+
+    x Mapping "REGTOBLOC" header "MBLI" holds a value that is not an element number of the codomain set BLOC (1 to 2; GEMPACK manual 11.9.1): 3.
+
+# integer mapping header missing from the data aborts
+
+    x No integer header "MBLI" found in the input data for mapping "REGTOBLOC".
+    i A `Read` of a mapping without `(by_elements)` takes element numbers of the codomain, supplied as an integer header in the `teems::ems_data()` inputs (GEMPACK manual 11.9.1).
 
 # mapping header count mismatch aborts
 

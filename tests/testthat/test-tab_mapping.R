@@ -156,13 +156,29 @@ test_that("by_elements read of a non-mapping aborts", {
   )
 })
 
-test_that("plain read of a mapping aborts", {
-  expect_preflight_error(paste(
-    "Set BLOC (blk1, blk2);",
-    "Mapping REGTOBLOC from REG to BLOC;",
-    "Read REGTOBLOC from file GTAPSETS header \"MBLC\";",
-    sep = "\n"
+test_that("integer and partial reads of a mapping parse", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Set BLOC (blk1, blk2);",
+      "Mapping REGTOBLOC from REG to BLOC;",
+      "Read REGTOBLOC from file GTAPSETS header \"MBLI\";",
+      "Mapping MARGTOBLOC from COMM to BLOC;",
+      "Read (by_elements) (all,m,MARG_COMM) MARGTOBLOC(m) from file GTAPSETS header \"MBLM\";",
+      "Formula (all,c,NMRG_COMM) MARGTOBLOC(c) = \"blk1\";",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
   ))
+  rd <- model[model$type == "Read" & model$name %in% c("REGTOBLOC", "MARGTOBLOC"), ]
+  expect_identical(rd$header, c("MBLI", "MBLM"))
+  expect_identical(rd$comp1, c(NA, "MARG_COMM"))
+})
+
+test_that("partial reads of a coefficient abort", {
+  expect_preflight_error(
+    "Read (all,r,REG) POP(r) from file GTAPDATA header \"POP\";"
+  )
 })
 
 test_that("mapping without a read aborts", {
@@ -288,6 +304,58 @@ deploy_error <- function(d, tf = tab_file, ...) {
 test_that("mapping header missing from the data aborts", {
   quiet_pivot(expect_snapshot_error(
     deploy_error(map_data(NULL), swap_in = "vbloc")
+  ))
+})
+
+int_data <- function(mbli_vals) {
+  s <- conv$set
+  class(mbli_vals) <- c("MBLI", "set", "GTAPv7", "integer")
+  s[["MBLI"]] <- mbli_vals
+  suppressMessages(ems_data(
+    dat_input = conv$dat,
+    par_input = conv$par,
+    set_input = s,
+    REG = "big3",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  ))
+}
+
+int_tab <- function() {
+  mutate_tab(sub(byele_read, "Read REGTOBLOC from file GTAPSETS header \"MBLI\";",
+    mapping_block,
+    fixed = TRUE
+  ), name = "mapped_int.tab")
+}
+
+test_that("an integer mapping read composes under aggregation", {
+  nest_temp("map_compose_int", write_dir)
+  d <- int_data(ifelse(reg_agg == "usa", 2L, 1L))
+  quiet_pivot(model <- ems_model(int_tab(), closure_file))
+  cmf_path <- ems_deploy(d, model, swap_in = "vbloc")
+  run_dir <- dirname(cmf_path)
+  gtapsets <- readLines(file.path(run_dir, "GTAPSETS.txt"))
+  lead <- grep("\"MBLI\"", gtapsets)
+  expect_identical(
+    gtapsets[lead],
+    "3 Strings Length 4 Header \"MBLI\" LongName \"REGTOBLOC mapping\";"
+  )
+  expect_identical(gtapsets[lead + 1:3], c("blk1", "blk1", "blk2"))
+  tab <- readLines(list.files(run_dir, pattern = "\\.tab$", full.names = TRUE)[1])
+  expect_true(any(grepl("Read (by_elements) REGTOBLOC", tab, fixed = TRUE)))
+})
+
+test_that("integer mapping values outside the codomain abort", {
+  quiet_pivot(model <- ems_model(int_tab(), closure_file))
+  quiet_pivot(expect_snapshot_error(
+    ems_deploy(int_data(rep(3L, length(reg_src))), model, swap_in = "vbloc")
+  ))
+})
+
+test_that("integer mapping header missing from the data aborts", {
+  quiet_pivot(model <- ems_model(int_tab(), closure_file))
+  quiet_pivot(expect_snapshot_error(
+    ems_deploy(map_data(NULL), model, swap_in = "vbloc")
   ))
 })
 

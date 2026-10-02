@@ -84,15 +84,15 @@ build_solve_err <- function() {
     ),
     # test-solver_switches.R: "numeric-knob validation aborts"
     invalid_length = "{.arg {arg}} must be an integer-like numeric of length 1.",
-    # test-ems_solve.R: "ems_solve errors when Gragg steps mix parity"
+    # test-ems_solve.R: "ems_solve errors when Gragg steps mix parity", "the midpoint method solves and extrapolates"
     step_parity = c(
-      "{.arg steps} must be all even or all odd when {.arg solution_method} is {.val Gragg}.",
-      "Richardson extrapolation of Gragg solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended."
+      "{.arg steps} must be all even or all odd when {.arg solution_method} is {.val {solution_method}}.",
+      "Richardson extrapolation of Gragg and midpoint solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended."
     ),
-    # test-ems_solve.R: "ems_solve errors when steps is not length 1 or 3"
+    # test-ems_solve.R: "ems_solve errors when steps is not one to three whole numbers"
     step_length = c(
-      "{.arg steps} must be one or three positive whole numbers.",
-      "One count (e.g. {.code steps = 8L}) is a single multi-step run without extrapolation; three increasing counts (e.g. {.code c(2L, 4L, 8L)}) are extrapolated."
+      "{.arg steps} must be one, two or three positive whole numbers.",
+      "One count (e.g. {.code steps = 8L}) is a single multi-step run without extrapolation; two or three increasing counts (e.g. {.code c(2L, 4L, 8L)}) are extrapolated, and three also give an accuracy estimate."
     ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
     step_single_rk = c(
@@ -150,7 +150,7 @@ build_solve_err <- function() {
     # test-ems_solve.R: "ems_solve errors when steps are not increasing"
     step_increasing = c(
       "{.arg steps} must be strictly increasing for {.arg solution_method} {.val {solution_method}}.",
-      "Richardson extrapolation combines three solutions computed with distinct, increasing step counts."
+      "Richardson extrapolation combines solutions computed with distinct, increasing step counts."
     ),
     # test-ems_solve.R: "ems_solve errors when SBBD used with static model"
     invalid_method = "{.arg matrix_method} {.val {matrix_method}} only applicable to intertemporal model runs.",
@@ -240,7 +240,7 @@ build_solve_err <- function() {
     solver_subtotal = c(
       "The solver rejected the subtotal (shock-group) request with {n_err} error{?s}:",
       "{err_preview}",
-      "A subtotal names shocked exogenous components under a unique label, and needs {.code matrix_method} LU, SBBD or DBBD with the Johansen, Euler or Gragg method (GEMPACK manual section 29).",
+      "A subtotal names shocked exogenous components under a unique label, and needs {.code matrix_method} LU, SBBD or DBBD with the Johansen, Euler, midpoint or Gragg method (GEMPACK manual section 29).",
       "Full log: {.path {diag_out}}."
     ),
     # not in tests: not simulated (Docker absent or misconfigured)

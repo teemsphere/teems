@@ -10,7 +10,7 @@
       formula_no_equals.tab: x Formula statement without `=`: "Formula NOEQ 1" i Either the statement is malformed or its leading token is an unrecognized keyword that was read as an implicit Formula continuation.
       index_not_subset.tab: x Index "a" of `qo(a,r)` in Equation E_qlnd ranges over set "LANDACTS", which is not "ACTS" (the declared set at that argument position) or a declared subset of it. i GEMPACK requires the relation to be declared (manual 10.1.2): add `Subset LANDACTS is subset of ACTS;`. Without it the solver would address the wrong elements of "ACTS".
       mapping_malformed.tab: x Malformed Mapping statement: "Mapping REGTOBLOC of REG onto BLOC" i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 11.9.1).
-      mapping_no_read.tab: x Mapping "regtobloc" has no `Read (by_elements)` statement assigning its values.
+      mapping_no_read.tab: x Mapping "regtobloc" has no `Read` or `Formula` assigning its values (GEMPACK manual 11.9.1).
       mapping_undeclared_set.tab: x Set "BLOC" in the Mapping declaration of "REGTOBLOC" is not declared in the model.
       name_c_prefix.tab: x Coefficient "c_pop" has the name of the linear variable of a levels variable (`c_X` for a change, `p_X` for a percentage-change levels variable `X`; GEMPACK manual 9.2.2); rename the coefficient.
       name_coef_set_clash.tab: x Name declared as both a coefficient and a set: "reg". i TABLO names are case-insensitive and must be unique (GEMPACK manual 11.2.1).

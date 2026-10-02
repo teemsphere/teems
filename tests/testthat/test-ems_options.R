@@ -188,6 +188,18 @@ test_that("the refine option is validated, stored and reset", {
   expect_identical(ems_option_get("refine"), "on")
 })
 
+test_that("the convergence_rule option is validated, stored and reset", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("convergence_rule"), "off")
+  ems_option_set(convergence_rule = "on")
+  expect_identical(ems_option_get("convergence_rule"), "on")
+  expect_identical(ems_option_get()$convergence_rule, "on")
+  expect_identical(.o_convergence_rule(), "on")
+  expect_snapshot_error(ems_option_set(convergence_rule = TRUE))
+  ems_option_reset()
+  expect_identical(ems_option_get("convergence_rule"), "off")
+})
+
 test_that("ems_option_reset restores default version_check", {
   ems_option_set(version_check = "off")
   ems_option_reset()

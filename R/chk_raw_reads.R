@@ -16,6 +16,11 @@
     reads,
     ignore.case = TRUE
   )
+  maps <- grep("^\\s*mapping\\b", statements, ignore.case = TRUE, value = TRUE)
+  maps <- tolower(sub("^\\s*mapping\\s*(\\([^)]*\\))?\\s*([^ (]+).*$", "\\2", maps, ignore.case = TRUE))
+  part <- grepl("^\\s*read\\s*\\(\\s*all\\s*,", reads_nq, ignore.case = TRUE)
+  part_tgt <- tolower(sub("^\\s*read\\s*\\([^)]*\\)\\s*([^ (]+).*$", "\\1", reads_nq, ignore.case = TRUE))
+  reads_nq <- reads_nq[!(part & part_tgt %in% maps)]
   if (any(grepl("\\(", reads_nq))) {
     .cli_action(model_err$invalid_read,
       action = "abort",

@@ -102,3 +102,10 @@
   refine <- ems_option_get("refine")
   return(refine)
 }
+
+#' @noRd
+#' @keywords internal
+.o_convergence_rule <- function() {
+  convergence_rule <- ems_option_get("convergence_rule")
+  return(convergence_rule)
+}

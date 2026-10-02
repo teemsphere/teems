@@ -2,7 +2,7 @@
 #' @noRd
 .set_expr_info <- function(d) {
   toks <- .set_expr_tokens(d)
-  is_op <- toks %in% c("+", "-", "^", "&", "*")
+  is_op <- toks %in% c("+", "-", "%", "^", "&", "*")
   is_paren <- toks %in% c("(", ")")
   is_quote <- grepl('^"', toks)
   named <- toks[!is_op & !is_paren & !is_quote]
@@ -23,7 +23,7 @@
   }
   top_ops <- toks[is_op & depth == 0]
   complement_of <- NA_character_
-  if (length(top_ops) > 0L && all(top_ops %=% "-") && length(toks) > 0L &&
+  if (length(top_ops) > 0L && all(top_ops %in% c("-", "%")) && length(toks) > 0L &&
     !toks[1] %in% c("(", ")") && !grepl('^"', toks[1])) {
     complement_of <- toks[1]
   }

@@ -1,6 +1,6 @@
 # ems_option_get errors on invalid name
 
-    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", "range_test_updated", "random_seed", and "refine", not "not_an_option".
+    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", "range_test_updated", "random_seed", "refine", and "convergence_rule", not "not_an_option".
 
 # ems_option errors when write_dir does not exist
 
@@ -69,6 +69,10 @@
 # the refine option is validated, stored and reset
 
     `refine` must be "on" or "off".
+
+# the convergence_rule option is validated, stored and reset
+
+    `convergence_rule` must be "on" or "off".
 
 # docker tag auto-selection
 

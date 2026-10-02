@@ -70,10 +70,15 @@
   )
   solver_param <- paste(
     "-matsol", matsol,
-    if (solmed %in% c("Gragg", "Euler") && length(steps) == 1L) {
+    if (solmed %in% c("Gragg", "Midpoint", "Euler") && length(steps) == 1L) {
       paste("-step1", steps[1], "-single_run 1")
-    } else if (solmed %in% c("Gragg", "Euler")) {
-      paste("-step1", steps[1], "-step2", steps[2], "-step3", steps[3])
+    } else if (solmed %in% c("Gragg", "Midpoint", "Euler") && length(steps) == 2L) {
+      paste("-step1", steps[1], "-step2", steps[2], "-two_run 1")
+    } else if (solmed %in% c("Gragg", "Midpoint", "Euler")) {
+      paste0(
+        paste("-step1", steps[1], "-step2", steps[2], "-step3", steps[3]),
+        if (.o_convergence_rule() %=% "on") " -convrule 1" else ""
+      )
     },
     if (solmed %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")) {
       paste("-step1", steps[1])

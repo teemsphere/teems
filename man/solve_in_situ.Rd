@@ -11,8 +11,8 @@ solve_in_situ(
   closure_file,
   shock_file,
   ignore_condense = FALSE,
-  solution_method = c("Gragg", "Johansen", "Euler", "RK2", "Heun", "RK4", "BoSha32",
-    "DoPri54"),
+  solution_method = c("Gragg", "Midpoint", "Johansen", "Euler", "RK2", "Heun", "RK4",
+    "BoSha32", "DoPri54"),
   matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
   steps = NULL,
@@ -79,6 +79,12 @@ plus an accuracy estimate from the agreement between levels.
 Recommended whenever accuracy matters. See also:
 \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
 solution methods}
+\item \code{"Midpoint"}: The midpoint method, Gragg's method without
+the terminal smoothing pass (N passes for N steps), combined
+by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
+never takes the exogenous variables past their end point, so
+it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
+cannot take (GEMPACK manual 30.2).
 \item \code{"Johansen"}: The one-step Johansen method is fast however it
 should only be used as a rough approximation due to handling of
 nonlinear equations. See:
@@ -136,14 +142,17 @@ large shock magnitudes.}
 
 \item{steps}{Integer (default is \code{NULL}, resolved per method:
 \code{c(2L, 4L, 8L)} for the extrapolating methods, \code{4L} for the
-Runge-Kutta methods). \code{"Gragg"}, \code{"Johansen"} and \code{"Euler"}
-take a vector of length 3: the three counts must increase for
-\code{"Gragg"} and \code{"Euler"}, and must be all even or all odd for
-\code{"Gragg"} (even counts are recommended). \code{"Gragg"} and
-\code{"Euler"} also take a single count, a single multi-step run
+Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"} and
+\code{"Euler"} take a vector of length 3: the three counts must
+increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and must be
+all even or all odd for \code{"Gragg"} and \code{"Midpoint"} (even counts
+are recommended). \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"} also
+take a single count, a single multi-step run
 without Richardson extrapolation (GEMPACK's single Euler
-N-step run, as used by recursive-dynamic models); no
-extrapolation accuracy estimate is then available.
+N-step run, as used by recursive-dynamic models), or two
+increasing counts, extrapolated from two solutions (GEMPACK's
+\verb{steps = 2 4;}); no extrapolation accuracy estimate is then
+available.
 \code{"RK2"}, \code{"Heun"}, \code{"RK4"}, \code{"BoSha32"} and \code{"DoPri54"} take a
 single count of 1 or more. A larger number of steps may
 improve accuracy for some model runs.}

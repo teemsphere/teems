@@ -46,6 +46,8 @@ build_gen_err <- function() {
     opt_range_test_updated = "{.arg range_test_updated} must be one of {.val fatal}, {.val warn} or {.val off}.",
     # test-ems_options.R: "the refine option is validated, stored and reset"
     opt_refine = "{.arg refine} must be {.val on} or {.val off}.",
+    # test-ems_options.R: "the convergence_rule option is validated, stored and reset"
+    opt_convergence_rule = "{.arg convergence_rule} must be {.val on} or {.val off}.",
     # one-line internal aborts
     # test-ems_compose.R: "ems_compose errors when cmf_path is missing"
     missing_arg = "argument {.arg {arg}} is missing, with no default",
@@ -56,7 +58,7 @@ build_gen_err <- function() {
     # not in tests: internal assert
     ele_swap_internal = "Internal error on an ele to ele swap-out.",
     # test-chk_tab_preflight.R: "subsets by numbers abort"
-    subset_by_numbers = "Subset '(by numbers)' argument not supported.",
+    subset_by_numbers = "{.code Subset (by_numbers)} is obsolete and not supported; list the subset's elements by name (GEMPACK manual 10.2).",
     # test-solve_in_situ.R: "solve_in_situ errors when ignore_condense is not a single TRUE or FALSE"
     logical_flag = "{.arg {bad_arg}} must be {.val TRUE} or {.val FALSE}."
   )

@@ -78,10 +78,9 @@
     c(.o_n_timestep_header(), .o_timestep_header())
   )
 
-  byele <- a$model$type == "Read" &
-    !is.na(a$model$qualifier_list) &
-    grepl("by_elements", a$model$qualifier_list, ignore.case = TRUE)
-  non_int_req <- setdiff(non_int_req, a$model$header[byele])
+  map_read <- a$model$type == "Read" &
+    tolower(a$model$name) %in% tolower(a$model$name[a$model$type == "Mapping"])
+  non_int_req <- setdiff(non_int_req, a$model$header[map_read])
 
   optional <- a$model$type == "Read" &
     !is.na(a$model$qualifier_list) &

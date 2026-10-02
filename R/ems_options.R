@@ -76,6 +76,15 @@
 #'   the block factorizations through each solve, so it raises peak
 #'   memory; the memory estimate counts it. Other matrix methods are
 #'   not refined.
+#' @param convergence_rule Character length 1, `"off"` (default) or
+#'   `"on"`. With `"on"`, [`ems_solve()`] applies GEMPACK's treatment
+#'   of poorly converging results (GEMPACK manual 26.2.5) to a run
+#'   extrapolated from three multi-step solutions: a component whose
+#'   three solutions lie very close together or near zero reports their
+#'   average, one whose solutions do not converge cleanly reports the
+#'   solution with the most steps, and the rest are extrapolated. The
+#'   manual does not publish its thresholds; teems-solver's follow
+#'   Pearson (1991). Not available with subtotals.
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -101,7 +110,8 @@ ems_option_set <- function(verbose = NULL,
                            range_test_initial = NULL,
                            range_test_updated = NULL,
                            random_seed = NULL,
-                           refine = NULL) {
+                           refine = NULL,
+                           convergence_rule = NULL) {
   call <- match.call()
   if (!is.null(verbose)) {
     ems_options$set_verbose(verbose, call = call)
@@ -147,6 +157,9 @@ ems_option_set <- function(verbose = NULL,
   }
   if (!is.null(refine)) {
     ems_options$set_refine(refine, call = call)
+  }
+  if (!is.null(convergence_rule)) {
+    ems_options$set_convergence_rule(convergence_rule, call = call)
   }
   invisible(NULL)
 }
@@ -201,6 +214,9 @@ ems_option_set <- function(verbose = NULL,
 #'   * `"refine"` Character. `"on"` (the default) or `"off"`: one
 #'     refinement step per `"DBBD"` solve (see
 #'     [`ems_option_set()`]).
+#'   * `"convergence_rule"` Character. `"off"` (the default) or
+#'     `"on"`: GEMPACK's treatment of poorly converging results (see
+#'     [`ems_option_set()`]).
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
@@ -235,7 +251,8 @@ ems_option_get <- function(name = NULL) {
          range_test_initial = ems_options$get_range_test_initial(),
          range_test_updated = ems_options$get_range_test_updated(),
          random_seed        = ems_options$get_random_seed(),
-         refine             = ems_options$get_refine()
+         refine             = ems_options$get_refine(),
+         convergence_rule   = ems_options$get_convergence_rule()
   )
 }
 

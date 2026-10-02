@@ -51,6 +51,9 @@ is \code{1}).
 \item \code{"refine"} Character. \code{"on"} (the default) or \code{"off"}: one
 refinement step per \code{"DBBD"} solve (see
 \code{\link[=ems_option_set]{ems_option_set()}}).
+\item \code{"convergence_rule"} Character. \code{"off"} (the default) or
+\code{"on"}: GEMPACK's treatment of poorly converging results (see
+\code{\link[=ems_option_set]{ems_option_set()}}).
 }}
 }
 \value{

@@ -57,7 +57,7 @@
 .eval_expr <- function(st, mappings, owner, call) {
   acc <- .term(st, mappings, owner, call)
   acc_name <- st$term_name
-  while (isTRUE(.peek(st) %in% c("+", "-", "^", "&", "*"))) {
+  while (isTRUE(.peek(st) %in% c("+", "-", "%", "^", "&", "*"))) {
     op <- .peek(st)
     st$pos <- st$pos + 1L
     rhs <- .term(st, mappings, owner, call)
@@ -100,6 +100,8 @@
         )
       }
       acc <- acc[!acc$mapping %in% rhs_ele, ]
+    } else if (op %=% "%") {
+      acc <- acc[!acc$mapping %in% unique(rhs$mapping), ]
     } else if (op %=% "^") {
       acc <- data.table::funion(acc, rhs)
     } else {

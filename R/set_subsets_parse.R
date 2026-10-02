@@ -21,13 +21,14 @@
                                is_set_eq,
                                call) {
   subsets <- extract[tolower(extract$type) %in% "subset",]
-  if (any(grepl(pattern = "\\(by numbers\\)", subsets$remainder))) {
+  if (any(grepl("\\(\\s*by[_ ]numbers\\s*\\)", subsets$remainder, ignore.case = TRUE))) {
     .cli_action(
       msg = gen_err$subset_by_numbers,
       action = "abort",
       call = call
     )
   }
+  subsets$remainder <- trimws(sub("^\\s*\\(\\s*by_elements\\s*\\)\\s*", "", subsets$remainder, ignore.case = TRUE))
 
   subsets$subset <- purrr::map_chr(subsets$remainder, \(s) {
     strsplit(s, " ")[[1]][1]

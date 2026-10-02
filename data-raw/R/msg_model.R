@@ -229,14 +229,10 @@ build_model_err <- function() {
     byele_nonmap = "{cli::qty(bad_targets)}{.code Read (by_elements)}
     target{?s} {.val {bad_targets}} {?is/are} not {?a declared
     mapping/declared mappings} (GEMPACK manual 11.9.3).",
-    # test-tab_mapping.R: "plain read of a mapping aborts"
-    map_read_plain = "{cli::qty(bad_targets)}Mapping{?s}
-    {.val {bad_targets}} must be read with the
-    {.code (by_elements)} qualifier (GEMPACK manual 11.9.3).",
     # test-tab_mapping.R: "mapping without a read aborts"
     map_read_missing = "{cli::qty(bad_maps)}Mapping{?s}
-    {.val {bad_maps}} {?has/have} no {.code Read (by_elements)}
-    statement assigning {?its/their} values.",
+    {.val {bad_maps}} {?has/have} no {.code Read} or {.code Formula}
+    assigning {?its/their} values (GEMPACK manual 11.9.1).",
     # Complementarity statements (GEMPACK manual 10.17/11.14; solver
     # counterparts in tab_complementarity_transform, teems-solver C1)
     # test-tab_complementarity.R: "malformed complementarity aborts"
@@ -416,6 +412,7 @@ build_model_err <- function() {
     # test-ems_model.R: "ems_model rejects invalid coefficient arguments"
     invalid_coeff = "{.arg {nme}} is not declared in the model.",
     # test-ems_model.R: "partial read statement"
+    # test-tab_mapping.R: "partial reads of a coefficient abort"
     invalid_read = "Partial {.field Read} statements are not supported.",
     # test-ems_model.R: "a value for a coefficient that is neither read nor assigned aborts"
     invalid_mod = "{.arg {nme}} is neither read in nor assigned on the LHS of a formula in the model.",

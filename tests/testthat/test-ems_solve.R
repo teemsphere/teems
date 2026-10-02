@@ -82,10 +82,10 @@ test_that("ems_solve errors when n_tasks is not integerish", {
   expect_snapshot_error(ems_solve(cmf_path, n_tasks = 1.5))
 })
 
-test_that("ems_solve errors when steps is not length 1 or 3", {
+test_that("ems_solve errors when steps is not one to three whole numbers", {
   nest_temp("solve_err_steps", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
-  expect_snapshot_error(ems_solve(cmf_path, steps = c(2L, 4L)))
+  expect_snapshot_error(ems_solve(cmf_path, steps = c(2L, 4L, 6L, 8L)))
   expect_snapshot_error(ems_solve(cmf_path, solution_method = "Euler", steps = 2.5))
 })
 
@@ -137,6 +137,56 @@ test_that("single multi-step runs and odd Gragg step counts solve", {
   expect_match(cmd$solve, "-step1 16 -single_run 1", fixed = TRUE)
   expect_false(grepl("-step2", cmd$solve, fixed = TRUE))
   expect_false(grepl("-random_seed", cmd$solve, fixed = TRUE))
+})
+
+test_that("the midpoint method solves and extrapolates", {
+  nest_temp("solve_midpoint", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model, real_shock)
+  qgdp <- \(o) o$dat[[match("qgdp", o$name)]]$Value
+  ref <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
+  mid <- ems_solve(cmf_path, solution_method = "Midpoint", steps = c(2L, 4L, 8L))
+  expect_equal(qgdp(mid), qgdp(ref), tolerance = 1e-4)
+  single <- ems_solve(cmf_path, solution_method = "Midpoint", steps = 16L)
+  expect_equal(qgdp(single), qgdp(ref), tolerance = 1e-2)
+  cmd <- .construct_cmd(
+    paths = list(run = "/r", docker_cmf = "/c", docker_run = "/d", cmf = cmf_path),
+    terminal_run = FALSE, timeID = "t", n_tasks = 1L, n_subintervals = 1L,
+    solmed = "Midpoint", matsol = 0L, steps = c(2L, 4L, 8L),
+    assertions = .o_assertions(),
+    range_test_initial = .o_range_test_initial(),
+    range_test_updated = .o_range_test_updated()
+  )
+  expect_match(cmd$solve, "-step1 2 -step2 4 -step3 8", fixed = TRUE)
+  expect_match(cmd$solve, "-solmed Midpoint", fixed = TRUE)
+  expect_snapshot_error(
+    ems_solve(cmf_path, solution_method = "Midpoint", steps = c(2L, 3L, 4L))
+  )
+})
+
+test_that("two-solution runs and the convergence rule solve", {
+  nest_temp("solve_two_run", write_dir)
+  withr::defer(ems_option_set(convergence_rule = "off"))
+  cmf_path <- ems_deploy(static_data, static_model, real_shock)
+  qgdp <- \(o) o$dat[[match("qgdp", o$name)]]$Value
+  ref <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
+  cmd <- function(steps) {
+    .construct_cmd(
+      paths = list(run = "/r", docker_cmf = "/c", docker_run = "/d", cmf = cmf_path),
+      terminal_run = FALSE, timeID = "t", n_tasks = 1L, n_subintervals = 1L,
+      solmed = "Gragg", matsol = 0L, steps = steps,
+      assertions = .o_assertions(),
+      range_test_initial = .o_range_test_initial(),
+      range_test_updated = .o_range_test_updated()
+    )$solve
+  }
+  expect_match(cmd(c(2L, 4L)), "-step1 2 -step2 4 -two_run 1", fixed = TRUE)
+  expect_false(grepl("-convrule", cmd(c(2L, 4L, 8L)), fixed = TRUE))
+  two <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L))
+  expect_equal(qgdp(two), qgdp(ref), tolerance = 1e-3)
+  ems_option_set(convergence_rule = "on")
+  expect_match(cmd(c(2L, 4L, 8L)), "-step3 8 -convrule 1", fixed = TRUE)
+  ruled <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
+  expect_equal(qgdp(ruled), qgdp(ref), tolerance = 1e-4)
 })
 
 test_that("ems_solve errors when steps are not increasing", {

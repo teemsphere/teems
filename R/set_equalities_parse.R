@@ -42,7 +42,7 @@
   lapply(sets$definition[!is_set_eq & !is_builder], \(entry) {
     if (!is.na(entry)) {
       if (!any(grepl(
-        '\\+|\\-|\\^|&|\\*|\\(|\\)|"|union|intersect|\\s[xX]\\s',
+        '\\+|\\-|\\\\|\\^|&|\\*|\\(|\\)|"|union|intersect|\\s[xX]\\s',
         entry,
         ignore.case = TRUE
       ))) {

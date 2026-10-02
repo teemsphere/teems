@@ -80,6 +80,20 @@ build_deploy_err <- function() {
       "{.code Read (by_elements)} data must be supplied as a character
       header in the {.fun teems::ems_data} inputs."
     ),
+    # test-tab_mapping.R: "integer mapping header missing from the data aborts"
+    map_data_missing_int = c(
+      "No integer header {.val {header}} found in the input data for
+      mapping {.val {map_name}}.",
+      "A {.code Read} of a mapping without {.code (by_elements)} takes
+      element numbers of the codomain, supplied as an integer header in
+      the {.fun teems::ems_data} inputs (GEMPACK manual 11.9.1)."
+    ),
+    # test-tab_mapping.R: "integer mapping values outside the codomain abort"
+    map_data_pos = "Mapping {.val {map_name}} header {.val {header}}
+    holds {cli::qty(length(bad_pos))}{?a value/values} that {?is/are} not
+    {?an element number/element numbers} of the codomain set
+    {.field {cod}} (1 to {n_cod}; GEMPACK manual 11.9.1):
+    {.val {bad_pos}}.",
     # test-tab_mapping.R: "mapping header count mismatch aborts"
     map_data_count = "Mapping {.val {map_name}} header {.val {header}}
     holds {.val {n_vals}} value{?s}; the domain set {.field {dom}} has

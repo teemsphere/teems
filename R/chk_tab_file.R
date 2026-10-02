@@ -22,6 +22,7 @@
 .tab_to_utf8 <- function(tab) {
   tab <- sub("^\xEF\xBB\xBF", "", tab, useBytes = TRUE)
   tab <- gsub("\x1A", " ", tab, fixed = TRUE, useBytes = TRUE)
+  tab <- gsub("[\t\f\v]", " ", tab, useBytes = TRUE)
   if (!validUTF8(tab)) {
     tab <- iconv(tab, from = "latin1", to = "UTF-8", sub = "")
   }

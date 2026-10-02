@@ -3,6 +3,7 @@
 .finalize_map_data <- function(model,
                                sets,
                                set_raw,
+                               int_raw = list(),
                                call,
                                data_call) {
   map_rows <- model[model$type == "Mapping", ]
@@ -10,39 +11,65 @@
     map_data <- list()
     return(map_data)
   }
-  byele <- model$type == "Read" &
-    !is.na(model$qualifier_list) &
-    grepl("by_elements", model$qualifier_list, ignore.case = TRUE)
-  reads <- model[byele, ]
+  reads <- model[model$type == "Read" & tolower(model$name) %in% tolower(map_rows$name), ]
 
-  out <- vector("list", nrow(map_rows))
-  names(out) <- character(nrow(map_rows))
+  out <- vector("list", nrow(reads))
+  names(out) <- character(nrow(reads))
+  int_headers <- character(0)
 
-  for (i in seq_len(nrow(map_rows))) {
-    map_name <- map_rows$name[i]
-    dom <- map_rows$comp1[i]
-    cod <- map_rows$comp2[i]
-    onto <- isTRUE(grepl("onto", map_rows$qualifier_list[i], ignore.case = TRUE))
-    rd <- reads[tolower(reads$name) == tolower(map_name), ]
-    if (nrow(rd) == 0L) {
-      next
-    }
-    rd <- rd[1, ]
+  for (i in seq_len(nrow(reads))) {
+    rd <- reads[i, ]
+    m <- match(tolower(rd$name), tolower(map_rows$name))
+    map_name <- map_rows$name[m]
+    dom <- if (is.na(rd$comp1)) map_rows$comp1[m] else rd$comp1
+    cod <- map_rows$comp2[m]
+    onto <- is.na(rd$comp1) &&
+      isTRUE(grepl("onto", map_rows$qualifier_list[m], ignore.case = TRUE))
+    byele <- !is.na(rd$qualifier_list) &&
+      grepl("by_elements", rd$qualifier_list, ignore.case = TRUE)
     header <- rd$header
-
-    raw_idx <- match(toupper(header), toupper(names(set_raw)))
-    if (is.na(raw_idx)) {
-      .cli_action(deploy_err$map_data_missing,
-        action = c("abort", "inform"),
-        call = data_call
-      )
-    }
-    vals <- set_raw[[raw_idx]]
 
     dom_idx <- match(tolower(dom), tolower(sets$name))
     cod_idx <- match(tolower(cod), tolower(sets$name))
     dom_map <- sets$mapping[[dom_idx]]
     cod_map <- sets$mapping[[cod_idx]]
+
+    if (byele) {
+      raw_idx <- match(toupper(header), toupper(names(set_raw)))
+      if (is.na(raw_idx)) {
+        .cli_action(deploy_err$map_data_missing,
+          action = c("abort", "inform"),
+          call = data_call
+        )
+      }
+      vals <- set_raw[[raw_idx]]
+    } else {
+      raw_idx <- match(toupper(header), toupper(names(int_raw)))
+      if (is.na(raw_idx)) {
+        .cli_action(deploy_err$map_data_missing_int,
+          action = c("abort", "inform"),
+          call = data_call
+        )
+      }
+      cod_header <- sets$header[cod_idx]
+      cod_raw_idx <- match(toupper(cod_header), toupper(names(set_raw)))
+      cod_orig <- if (!is.na(cod_header) && !is.na(cod_raw_idx)) {
+        set_raw[[cod_raw_idx]]
+      } else {
+        unique(cod_map$origin)
+      }
+      pos <- int_raw[[raw_idx]]
+      bad_pos <- unique(pos[is.na(pos) | pos < 1 | pos > length(cod_orig) | pos != round(pos)])
+      if (length(bad_pos) > 0L) {
+        n_cod <- length(cod_orig)
+        .cli_action(deploy_err$map_data_pos,
+          action = "abort",
+          call = data_call
+        )
+      }
+      vals <- cod_orig[pos]
+      int_headers <- c(int_headers, header)
+    }
 
     for (side in c("domain", "codomain")) {
       side_map <- if (side == "domain") {
@@ -114,5 +141,7 @@
     out[[i]] <- entry
     names(out)[i] <- header
   }
-  return(out[nzchar(names(out))])
+  map_data <- out[nzchar(names(out))]
+  attr(map_data, "int_headers") <- int_headers
+  return(map_data)
 }

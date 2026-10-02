@@ -234,7 +234,7 @@
 
 # subsets by numbers abort
 
-    x Subset '(by numbers)' argument not supported.
+    x `Subset (by_numbers)` is obsolete and not supported; list the subset's elements by name (GEMPACK manual 10.2).
 
 # a qualifier list that never closes aborts
 

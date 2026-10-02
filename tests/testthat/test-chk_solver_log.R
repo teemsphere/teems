@@ -296,6 +296,15 @@ test_that(".map_solver_errors classifies the levels linear-name fatals", {
   expect_identical(mapped$manual, rep("9.2.2", 7))
 })
 
+test_that(".map_solver_errors classifies the -100 percent shock fatals", {
+  mapped <- .map_solver_errors(c(
+    "pxx is shocked by -100 percent, which Gragg's method cannot take: its final pass carries the variable past its end point, through zero (manual 30.2); use the midpoint or Euler method",
+    "pxx is shocked by -120 percent; a percentage change below -100 would make its levels value negative (manual 30.2; shock file)"
+  ))
+  expect_identical(mapped$class, c("closure", "closure"))
+  expect_identical(mapped$manual, c("30.2", "30.2"))
+})
+
 test_that("condest diagnostic lines do not trip the generic scans", {
   paths <- local_solver_log(c(
     "solver banner",

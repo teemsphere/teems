@@ -19,7 +19,8 @@ ems_option_set(
   range_test_initial = NULL,
   range_test_updated = NULL,
   random_seed = NULL,
-  refine = NULL
+  refine = NULL,
+  convergence_rule = NULL
 )
 }
 \arguments{
@@ -109,6 +110,16 @@ accuracy to that of \code{"LU"}. Refinement holds the system matrix and
 the block factorizations through each solve, so it raises peak
 memory; the memory estimate counts it. Other matrix methods are
 not refined.}
+
+\item{convergence_rule}{Character length 1, \code{"off"} (default) or
+\code{"on"}. With \code{"on"}, \code{\link[=ems_solve]{ems_solve()}} applies GEMPACK's treatment
+of poorly converging results (GEMPACK manual 26.2.5) to a run
+extrapolated from three multi-step solutions: a component whose
+three solutions lie very close together or near zero reports their
+average, one whose solutions do not converge cleanly reports the
+solution with the most steps, and the rest are extrapolated. The
+manual does not publish its thresholds; teems-solver's follow
+Pearson (1991). Not available with subtotals.}
 }
 \value{
 \code{invisible(NULL)}, called for its side effects.

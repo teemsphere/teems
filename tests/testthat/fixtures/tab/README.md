@@ -19,11 +19,10 @@ input, not just clean strings.
 | name_coef_set_clash | N2 | coefficient/set name clash |
 | name_reserved | N6 | reserved intrinsic name declared |
 | name_dup | N4 | duplicate coefficient declaration |
-| name_c_prefix | N7 | `c_X` coefficient beside a variable `X` |
+| name_c_prefix | N7 | `c_X` coefficient beside a change levels variable `X` |
 | name_overlength | N9 | 300-char identifier (fuzz class) |
 | qual_unknown | Q1 | mistyped declaration qualifier |
 | qual_empty | Q4 | empty `()` qualifier list |
-| qual_linear_name | Q3 | `linear_name=` qualifier |
 | bound_dup | B1 | duplicate lower bound |
 | default_coef_bound | D | `Coefficient (default=lower_bound ...)` |
 | default_eq_homotopy | D1 | `Equation (default=add_homotopy)` |

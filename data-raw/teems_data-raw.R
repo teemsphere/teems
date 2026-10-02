@@ -71,7 +71,7 @@ tab_reserved_words <- c(
 # "token=value" forms; bounds (ge/gt/le/lt <number>) are handled
 # separately
 tab_var_qualifiers <- c("change", "percent_change", "linear", "levels")
-tab_var_qualifier_prefixes <- c("orig_level=", "vpqtype=")
+tab_var_qualifier_prefixes <- c("orig_level=", "vpqtype=", "linear_name=", "linear_var=")
 tab_coef_qualifiers <- c("real", "integer", "parameter", "non_parameter")
 # Default-statement value vocabulary: cmf_io.c tab_defaults_validate
 # (manual 10.19); values outside these lists are individually

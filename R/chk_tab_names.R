@@ -83,8 +83,9 @@
     )
   }
 
-  c_coef <- coef[grepl("^c_", coef, ignore.case = TRUE)]
-  bad_names <- c_coef[tolower(substring(c_coef, 3)) %in% var_l]
+  lv <- .levels_linear_names(model[typ == "variable" & !is.na(model$name), ])
+  lv_lin <- tolower(lv$linear[lv$kind == "plain"])
+  bad_names <- coef[tolower(coef) %in% lv_lin]
   if (length(bad_names) > 0L) {
     .cli_action(model_err$name_c_prefix,
       action = "abort",
@@ -92,13 +93,11 @@
     )
   }
 
-  pre <- var_l[grepl("^[pc]_", var_l)]
-  base <- substring(pre, 3)
-  hit <- base %in% var_l
+  hit <- var_l %in% lv_lin
   if (any(hit)) {
-    clash <- paste0(base[hit], "/", pre[hit])
+    clash <- var[hit]
     .cli_action(model_err$name_prefix_clash,
-      action = c("abort", "inform"),
+      action = "abort",
       call = call
     )
   }

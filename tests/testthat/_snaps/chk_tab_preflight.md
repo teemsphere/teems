@@ -21,14 +21,17 @@
 
     x Declaration name "max" is a reserved word (GEMPACK manual 11.2.1).
 
-# c_X coefficients abort when a variable X exists
+# coefficients named for a levels variable's linear variable abort
 
-    x Coefficient "c_qgdp" collides with the change column `c_X` of a variable `X`; rename the coefficient.
+    x Coefficient "c_LCH" has the name of the linear variable of a levels variable (`c_X` for a change, `p_X` for a percentage-change levels variable `X`; GEMPACK manual 9.2.2); rename the coefficient.
 
-# p_/c_ variable-pair clashes abort
+---
 
-    x Variable pair sharing a base name: "qgdp/p_qgdp".
-    i A variable X cannot coexist with a variable p_X/c_X: the reference token `p_X` is ambiguous. Rename one of each pair (a coefficient X paired with a variable p_X is fine -- the hand-linearized pair idiom).
+    x Coefficient "p_LPC" has the name of the linear variable of a levels variable (`c_X` for a change, `p_X` for a percentage-change levels variable `X`; GEMPACK manual 9.2.2); rename the coefficient.
+
+# variables named for a levels variable's linear variable abort
+
+    x Variable "p_LPV" has the name of the linear variable of a levels variable (`c_X` for a change, `p_X` for a percentage-change levels variable `X`; GEMPACK manual 9.2.2); rename the variable.
 
 # over-length names abort
 
@@ -39,13 +42,9 @@
     x Unknown declaration qualifier: "foo".
     i See GEMPACK manual 10.3/10.4 for the recognized variable and coefficient qualifiers.
 
-# no_split and linear_name qualifiers abort
+# no_split qualifier aborts
 
     x The variable qualifier `no_split` (full shock at every step) is not supported: "Variable (no_split) dummyvar"
-
----
-
-    x The variable qualifiers `linear_name=` and `linear_var=` are not supported; use the default `p_`/`c_` linear name: "Variable (levels, linear_name=xlin) dummyvar"
 
 # empty qualifiers abort
 

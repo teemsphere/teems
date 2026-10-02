@@ -282,6 +282,20 @@ test_that(".map_solver_errors classifies the Tier A solver fatals", {
   )
 })
 
+test_that(".map_solver_errors classifies the levels linear-name fatals", {
+  mapped <- .map_solver_errors(c(
+    "coefficient c_lc has the name of the linear variable of levels variable lc (manual 9.2.2); rename the coefficient",
+    "variable p_zl has the name of the linear variable of levels variable zl (manual 9.2.2); rename it",
+    "p_x refers to linear variable x; a linear variable is named by itself (p_/c_ names belong to levels variables, manual 9.2.2): equation e_y (all,r,reg) y(r) = p_x(r);",
+    "p_lc: levels variable lc is a change variable; its linear variable is c_lc (manual 9.2.2): equation e_y (all,r,reg) y(r) = p_lc(r);",
+    "LINEAR_VAR=nope of levels variable xl: no linear variable nope is declared before it (manual 9.2.2)",
+    "p_ln names no variable: the linear variable of levels variable ln is xpc (LINEAR_NAME/LINEAR_VAR, manual 9.2.2): equation e_ln (all,r,reg) p_ln(r) = x(r);",
+    "p_y names no variable: y is a linear variable, named y (manual 9.2.2)"
+  ))
+  expect_identical(mapped$class, c(rep("tab", 6), "closure"))
+  expect_identical(mapped$manual, rep("9.2.2", 7))
+})
+
 test_that("condest diagnostic lines do not trip the generic scans", {
   paths <- local_solver_log(c(
     "solver banner",

@@ -2,14 +2,10 @@
 #' @noRd
 .levels_linear_alias <- function(names,
                                  var_extract) {
-  qual <- var_extract[["qualifier_list"]]
-  lev <- !is.na(qual) & grepl("\\blevels\\b", qual, ignore.case = TRUE)
-  chg <- lev & grepl("(^|[(,\\s])change\\b", qual, ignore.case = TRUE, perl = TRUE)
-  alias <- c(
-    paste0("c_", var_extract$name[chg], recycle0 = TRUE),
-    paste0("p_", var_extract$name[lev & !chg], recycle0 = TRUE)
-  )
-  target <- c(var_extract$name[chg], var_extract$name[lev & !chg])
+  lv <- .levels_linear_names(var_extract)
+  to_decl <- lv$kind != "var"
+  alias <- c(lv$linear[to_decl], lv$decl[!to_decl])
+  target <- c(lv$decl[to_decl], lv$linear[!to_decl])
   hit <- match(tolower(names), tolower(alias))
   names[!is.na(hit)] <- target[hit[!is.na(hit)]]
   declared <- match(tolower(names), tolower(var_extract$name))

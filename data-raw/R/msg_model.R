@@ -38,19 +38,18 @@ build_model_err <- function() {
     name_reserved = "{cli::qty(res_names)}Declaration name{?s}
     {.val {res_names}} {?is a reserved word/are reserved words} (GEMPACK
     manual 11.2.1).",
-    # test-chk_tab_preflight.R: "c_X coefficients abort when a variable X exists"
+    # test-chk_tab_preflight.R: "coefficients named for a levels variable's linear variable abort"
     name_c_prefix = "{cli::qty(bad_names)}Coefficient{?s} {.val {bad_names}}
-    {?collides/collide} with the change column {.code c_X} of a variable
-    {.code X}; rename the coefficient{?s}.",
-    # test-chk_tab_preflight.R: "p_/c_ variable-pair clashes abort"
-    name_prefix_clash = c(
-      "{cli::qty(clash)}Variable pair{?s} sharing a base name:
-      {.val {clash}}.",
-      "A variable X cannot coexist with a variable p_X/c_X: the
-      reference token {.code p_X} is ambiguous. Rename one of each
-      pair (a coefficient X paired with a variable p_X is fine -- the
-      hand-linearized pair idiom)."
-    ),
+    {?has/have} the name of the linear variable of a levels variable
+    ({.code c_X} for a change, {.code p_X} for a percentage-change levels
+    variable {.code X}; GEMPACK manual 9.2.2); rename the
+    coefficient{?s}.",
+    # test-chk_tab_preflight.R: "variables named for a levels variable's linear variable abort"
+    name_prefix_clash = "{cli::qty(clash)}Variable{?s} {.val {clash}}
+    {?has/have} the name of the linear variable of a levels variable
+    ({.code c_X} for a change, {.code p_X} for a percentage-change levels
+    variable {.code X}; GEMPACK manual 9.2.2); rename the
+    variable{?s}.",
     # test-chk_tab_preflight.R: "over-length names abort"
     name_too_long = "{cli::qty(long_names)}Declaration name{?s} longer
     than {max_len} characters: {.val {long_names}}.",
@@ -61,13 +60,9 @@ build_model_err <- function() {
       "See GEMPACK manual 10.3/10.4 for the recognized variable and
       coefficient qualifiers."
     ),
-    # test-chk_tab_preflight.R: "no_split and linear_name qualifiers abort"
+    # test-chk_tab_preflight.R: "no_split qualifier aborts"
     qual_no_split = "The variable qualifier {.code no_split} (full shock
     at every step) is not supported: {.val {bad_stmt}}",
-    # test-chk_tab_preflight.R: "no_split and linear_name qualifiers abort"
-    qual_linear_name = "The variable qualifiers {.code linear_name=} and
-    {.code linear_var=} are not supported; use the default
-    {.code p_}/{.code c_} linear name: {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "empty qualifiers abort"
     qual_empty = "Empty qualifier {.code ()} in declaration:
     {.val {bad_stmt}}",

@@ -96,6 +96,7 @@
     type = type,
     call = call
   )
+  comp_extract$variable <- .levels_linear_expand(comp_extract$variable)
 
   timesteps <- NULL
   metadata <- !is.null(paths$metadata)

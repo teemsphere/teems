@@ -40,9 +40,29 @@ test_that("reserved words abort", {
   expect_preflight_error("Coefficient (all,r,REG) MAX(r);")
 })
 
-test_that("c_X coefficients abort when a variable X exists", {
-  # qgdp is a declared GTAPv7 variable
-  expect_preflight_error("Coefficient c_qgdp;")
+test_that("coefficients named for a levels variable's linear variable abort", {
+  expect_preflight_error(paste(
+    "Variable (levels,change) LCH;",
+    "Formula (initial) LCH = 1;",
+    "Coefficient c_LCH;",
+    sep = "\n"
+  ))
+  expect_preflight_error(paste(
+    "Variable (levels) LPC;",
+    "Formula (initial) LPC = 1;",
+    "Coefficient p_LPC;",
+    sep = "\n"
+  ))
+})
+
+test_that("p_X and c_X coefficients beside a linear variable X parse", {
+  # qgdp is a declared GTAPv7 linear variable (GEMPACK manual 9.2.2)
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab("Coefficient c_qgdp;\nCoefficient p_qgdp;"),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true(all(c("c_qgdp", "p_qgdp") %in% model$name))
 })
 
 test_that("c_ prefixed coefficients without a variable of the tail name parse", {
@@ -54,10 +74,28 @@ test_that("c_ prefixed coefficients without a variable of the tail name parse", 
   expect_true("C_EMIS_HAr" %in% model$name)
 })
 
-test_that("p_/c_ variable-pair clashes abort", {
-  # qgdp is a declared GTAPv7 variable: p_qgdp cannot coexist (the
-  # reference token p_qgdp is ambiguous)
-  expect_preflight_error("Variable (all,r,REG) p_qgdp(r);")
+test_that("variables named for a levels variable's linear variable abort", {
+  expect_preflight_error(paste(
+    "Variable (levels) LPV;",
+    "Formula (initial) LPV = 1;",
+    "Variable p_LPV;",
+    sep = "\n"
+  ))
+})
+
+test_that("p_X variables beside a linear or change levels X parse", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (all,r,REG) p_qgdp(r);",
+      "Variable (levels,change) LCV;",
+      "Formula (initial) LCV = 1;",
+      "Variable p_LCV;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true(all(c("p_qgdp", "p_LCV") %in% model$name))
 })
 
 test_that("the hand-linearized pair idiom parses", {
@@ -85,9 +123,24 @@ test_that("unknown qualifiers abort", {
   expect_preflight_error("Variable (foo) dummyvar;")
 })
 
-test_that("no_split and linear_name qualifiers abort", {
+test_that("no_split qualifier aborts", {
   expect_preflight_error("Variable (no_split) dummyvar;")
-  expect_preflight_error("Variable (levels, linear_name=xlin) dummyvar;")
+})
+
+test_that("linear_name and linear_var qualifiers parse", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (levels, linear_name=xlin) LNM;",
+      "Formula (initial) LNM = 1;",
+      "Variable (all,r,REG) xlv(r);",
+      "Variable (levels, linear_var=xlv) (all,r,REG) LVR(r);",
+      "Formula (initial) (all,r,REG) LVR(r) = 1;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true(all(c("LNM", "LVR") %in% model$name))
 })
 
 test_that("empty qualifiers abort", {

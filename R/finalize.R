@@ -10,6 +10,8 @@
   var_extract <- args_list$model[
     args_list$model$type == "Variable" & is.na(args_list$model$condense),
   ]
+  lv <- .levels_linear_names(var_extract)
+  var_extract <- var_extract[!var_extract$name %in% lv$decl[lv$kind == "var"], ]
   sets <- .finalize_sets(
     sets = args_list$.data[purrr::map_lgl(args_list$.data, inherits, "set")],
     set_extract = args_list$model[args_list$model$type == "Set", ],

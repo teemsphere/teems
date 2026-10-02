@@ -210,3 +210,45 @@ test_that("levels equations solve to pinned values (e2e)", {
   expect_equal(pin("CC"), 1.5, tolerance = 1e-6)
   expect_equal(pin("LW2"), 3, tolerance = 1e-6)
 })
+
+test_that("linear_name and linear_var levels variables solve by either name (e2e)", {
+  nest_temp("levels_linear_e2e", write_dir)
+  skip_if_no_levels_e2e()
+  # LM = LN*XL with LN's linear variable named xpc (LINEAR_NAME) and
+  # XL's linear variable the declared xvl (LINEAR_VAR); xpc shocked 10
+  # by its linear name and XL 5 by its levels name -> p_lm = 15.5
+  # exactly, and the percent-change equation yq = 2*xpc compounds to
+  # yq = 1.1^2 - 1 = 21 (GEMPACK manual 9.2.2, 24.13)
+  d <- lv_data()
+  block <- paste(
+    "Variable (levels, linear_name=xpc) (all,r,REG) LN(r);",
+    "Formula (initial) (all,r,REG) LN(r) = 2;",
+    "Variable (all,r,REG) xvl(r);",
+    "Variable (levels, linear_var=xvl) (all,r,REG) XL(r);",
+    "Formula (initial) (all,r,REG) XL(r) = 4;",
+    "Variable (levels) (all,r,REG) LM(r);",
+    "Formula (initial) (all,r,REG) LM(r) = 8;",
+    "Equation (levels) E_LM (all,r,REG) LM(r) = LN(r) * XL(r);",
+    "Variable (all,r,REG) yq(r);",
+    "Equation E_yq (all,r,REG) yq(r) = 2 * xpc(r);",
+    sep = "\n"
+  )
+  quiet_pivot(model <- ems_model(mutate_tab(block, name = "linear.tab"), closure_file))
+  cmf_path <- ems_deploy(
+    d,
+    model,
+    shock = list(
+      ems_uniform_shock(var = "xpc", value = 10),
+      ems_uniform_shock(var = "XL", value = 5)
+    ),
+    swap_in = c("LN", "xvl")
+  )
+  out <- suppressMessages(ems_solve(cmf_path))
+  pin <- function(nm) {
+    as.numeric(out[tolower(out$name) == tolower(nm), ]$dat[[1]][["Value"]])
+  }
+  expect_equal(pin("xpc"), rep(10, 3), tolerance = 1e-6)
+  expect_equal(pin("xvl"), rep(5, 3), tolerance = 1e-6)
+  expect_equal(pin("LM"), rep(15.5, 3), tolerance = 1e-4)
+  expect_equal(pin("yq"), rep(21, 3), tolerance = 1e-4)
+})

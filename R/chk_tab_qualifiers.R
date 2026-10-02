@@ -48,12 +48,6 @@
             call = call
           )
         }
-        if (is_variable && grepl("^linear_(name|var)=", tok)) {
-          .cli_action(model_err$qual_linear_name,
-            action = "abort",
-            call = call
-          )
-        }
         if (grepl("^(ge|gt|le|lt)[-+0-9.]", tok)) {
           if (grepl("^g", tok)) {
             n_lower <- n_lower + 1L

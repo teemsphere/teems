@@ -291,7 +291,7 @@ active_block <- paste(
   "Variable (change,levels) ATQ # power of the quota tariff #;",
   "Formula (initial) ATQ = 1;",
   "Variable (change) ASH # exogenous driver #;",
-  "Equation E_AIM  p_AIM = p_ASH - p_ATQ;",
+  "Equation E_AIM  c_AIM = ASH - c_ATQ;",
   "Complementarity (variable = ATQ, lower_bound = 1) CMPF 10 - AIM;",
   "Assertion (postsim) # Quota Binds Low # AIM > 9.99;",
   "Assertion (postsim) # Quota Binds High # AIM < 10.01;",

@@ -85,7 +85,7 @@ writeChar(paste0(base_txt, "\n", paste(
   "Variable (change,levels) ATQ # power of the quota tariff #;",
   "Formula (initial) ATQ = 1;",
   "Variable (change) ASH # exogenous driver #;",
-  "Equation E_AIM  p_AIM = p_ASH - p_ATQ;",
+  "Equation E_AIM  c_AIM = ASH - c_ATQ;",
   "Complementarity (variable = ATQ, lower_bound = 1) CMPF 10 - AIM;",
   sep = "\n"
 ), "\n"), active_tab, eos = NULL)

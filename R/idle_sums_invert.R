@@ -38,7 +38,7 @@
 
   expr <- .fac_text(term$fac, term$ops)
   for (q in rev(term$quants[idle])) {
-    expr <- paste0("sum{", q$idx, ",", q$set, ", ", expr, "}")
+    expr <- paste0("sum{", q$idx, ",", q$set, q$cond %|||% "", ", ", expr, "}")
   }
 
   keep <- term$quants[!idle]

@@ -1,4 +1,4 @@
-#' @importFrom rlang is_integerish arg_match
+#' @importFrom rlang is_integerish is_bool
 #' @keywords internal
 #' @noRd
 .validate_solver_scalars <- function(a,
@@ -77,6 +77,26 @@
       action = "abort",
       call = call
     )
+  }
+
+  for (bad_arg in c("n_tasks", "n_subintervals")) {
+    if (is.na(a[[bad_arg]]) || a[[bad_arg]] < 1) {
+      requirement <- solve_err$requirement$positive_int
+      .cli_action(solve_err$comp_arg_type,
+        action = "abort",
+        call = call
+      )
+    }
+  }
+
+  for (bad_arg in c("suppress_outputs", "terminal_run")) {
+    if (!rlang::is_bool(a[[bad_arg]])) {
+      requirement <- solve_err$requirement$logical_flag
+      .cli_action(solve_err$comp_arg_type,
+        action = "abort",
+        call = call
+      )
+    }
   }
 
   {

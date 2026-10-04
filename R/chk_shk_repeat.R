@@ -30,7 +30,8 @@
 .shk_input_tuples <- function(input) {
   key_cols <- setdiff(colnames(input), "Value")
   if (length(key_cols) %=% 0L) {
-    return(data.table::data.table(V1 = rep("", nrow(input))))
+    blank <- data.table::data.table(V1 = rep("", nrow(input)))
+    return(blank)
   }
   keys <- data.table::as.data.table(lapply(input[, key_cols, with = FALSE], \(k) tolower(as.character(k))))
   data.table::setnames(keys, paste0("V", seq_along(keys)))
@@ -43,7 +44,8 @@
                                 sets) {
   ls_upper <- shk$ls_upper
   if (length(ls_upper) %=% 0L || anyNA(ls_upper) || ls_upper %=% "null_set") {
-    return(data.table::data.table(V1 = ""))
+    blank <- data.table::data.table(V1 = "")
+    return(blank)
   }
   dims <- lapply(seq_along(ls_upper), \(i) {
     ss <- shk$subset[[shk$ls_mixed[[i]]]]

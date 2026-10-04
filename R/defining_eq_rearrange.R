@@ -20,7 +20,7 @@
       body <- .fac_text(t$fac, t$ops)
     }
     for (q in rev(t$quants)) {
-      body <- paste0("sum{", q$idx, ",", q$set, ", ", body, "}")
+      body <- paste0("sum{", q$idx, ",", q$set, q$cond %|||% "", ", ", body, "}")
     }
     body
   })

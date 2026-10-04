@@ -9,15 +9,6 @@
 
 build_auto_thresholds <- function() {
   list(
-    # ---- probe policy -------------------------------------------------
-    # plain static: the probe costs 2.3-2.9x a Johansen solve at
-    # 346k-534k eq (9-11 s) but 10.7-15x at 1.41M and 27-50x from 3.46M
-    # (more than the whole Gragg solve it would inform), super-linear
-    # in size; above this it is skipped and the metadata rule decides
-    probe_plain_max = 1e6,
-    # condensed static: always cheap (3.7-44 s to 230k condensed eq,
-    # 0.3-1.1x a Johansen), so it always runs when a bordered method
-    # is a candidate; intertemporal: never (SBBD is fixed by structure)
     # ---- static crossovers --------------------------------------------
     # plain static: DBBD beats LU at every rung 346k-7.69M under Gragg
     # (DBBD/LU 0.62 -> 0.30) and ties or wins under Johansen (ties below

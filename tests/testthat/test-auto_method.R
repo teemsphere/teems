@@ -247,6 +247,8 @@ test_that("resources auto follows the measured rank and thread rules", {
   expect_identical(split(.resolve_resources("DBBD", box)), c(8L, 4L))
   # memory pulls the DBBD rank count back (S-full 40.5M: 8 ranks 122 GB, 4 ranks 78 GB)
   expect_identical(split(.resolve_resources("DBBD", box, plain_size = 40.5e6)), c(4L, 8L))
+  # an odd rank count halves to two, never to a one-rank DBBD
+  expect_identical(.resolve_resources("DBBD", list(cores = 12L, mem_gb = 30), plain_size = 40.5e6)$n_tasks, 2L)
   # LU: one rank, threads for the condensed factorization
   expect_identical(split(.resolve_resources("LU", laptop8)), c(1L, 8L))
   expect_identical(split(.resolve_resources("LU", box)), c(1L, 8L))

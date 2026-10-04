@@ -273,6 +273,20 @@ test_that("a set name glued to = and a DOS end-of-file mark parse", {
   expect_true(all(c("GLUED", "GLUE2") %in% sets$name))
 })
 
+test_that("a Read with its header glued to the quote parses", {
+  model <- quiet_pivot(.process_tablo(
+    tab_file = mutate_tab(paste0(
+      "Coefficient (all,r,REG) GLH(r) # glued header #;\n",
+      "Read GLH from file GTAPDATA header\"GLHD\";\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  rd <- model[model$type == "Read" & model$name %in% "GLH", ]
+  expect_identical(rd$header, "GLHD")
+  expect_identical(rd$file, "GTAPDATA")
+})
+
 test_that("malformed element ranges abort", {
   expect_preflight_error("Set SRG (s1 - t5);")
   expect_preflight_error("Set SRG (ind01 - ind123);")
@@ -620,4 +634,21 @@ test_that("condensation keeps a quantifier index whose case differs from its use
     paste0("Formula (all,c,COMM)(all,r,REG) ", csub, "(c,r) = sum{d,REG, VFOB(c,r,d)}"),
     fixed = TRUE, all = FALSE
   )
+})
+
+test_that("an IN condition rebinds its index whatever the case it is written in", {
+  r <- .if_in_rebind("x(r) = IF(R in SUB, V(r) + W(R))")
+  expect_identical(r$text, "x(r) = IF(R in SUB, V(R@in1) + W(R@in1))")
+  expect_identical(unname(r$extra), "SUB")
+})
+
+test_that("the raw-TAB subset closure reads Subset (by_elements) and the relative complement", {
+  sup <- .tab_subset_closure(c(
+    "Subset (by_elements) A is subset of B",
+    "Set C = B \\ A",
+    "Set D = B - A"
+  ))
+  expect_identical(sup$A, "B")
+  expect_identical(sup$C, "B")
+  expect_identical(sup$D, "B")
 })

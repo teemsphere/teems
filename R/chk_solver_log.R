@@ -51,7 +51,7 @@
   if (length(err_lines) > 0L) {
     err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
     mapped <- .map_solver_errors(err_lines)
-    sel <- intersect(c("interface", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
+    sel <- intersect(c("interface", "system", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -65,6 +65,7 @@
       manual_secs <- unique(mapped$manual[mapped$class == sel & !is.na(mapped$manual)])
       msg_name <- switch(sel,
         interface = "solver_interface",
+        system = "solver_system",
         tab = "solver_tab",
         closure = "solver_closure",
         subtotal = "solver_subtotal",
@@ -90,7 +91,9 @@
     )
   }
 
-  if (any(grepl(pattern = "singular", scan_log, ignore.case = TRUE))) {
+  fatal_log <- scan_log[!grepl("^\\s*Warning:", scan_log) &
+    !grepl("^Step [0-9]+: .*, retrying with step size", scan_log)]
+  if (any(grepl(pattern = "singular", fatal_log, ignore.case = TRUE))) {
     viol_lines <- grep("has an updated value", scan_log, value = TRUE, fixed = TRUE)
     if (length(viol_lines) > 0L) {
       n_viol <- length(viol_lines)
@@ -105,7 +108,7 @@
       call = call
     )
   }
-  if (any(grepl("error", scan_log, ignore.case = TRUE))) {
+  if (any(grepl("error", fatal_log, ignore.case = TRUE))) {
     .cli_action(solve_err$solution_err,
       action = "abort",
       call = call

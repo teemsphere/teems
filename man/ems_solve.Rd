@@ -250,10 +250,11 @@ name with the estimate, the limit and the remedies; one inside
 the band is warned about. The memory model is peak GB per
 plain-equivalent equation (the solved system plus the backsolved
 elements, since condensation cuts equations twentyfold but not
-peak memory): LU about 0.9 kB, DBBD 0.85 + 0.27 per rank kB
+peak memory): LU about 0.9 kB (1.2 times that when condensed),
+DBBD 0.85 + 0.27 per rank kB plus 0.2 kB for its refinement step
 (1.55 times that when condensed), SBBD 0.36 + 0.02 per rank kB,
-NDBBD 0.15 per rank kB; measured on whole containers under Gragg,
-conservative by up to a quarter on small systems.
+NDBBD 0.15 per rank + 0.05 kB; measured on whole containers under
+Gragg, conservative by up to a quarter on small systems.
 
 Condensation interacts with that choice. Backsolving (see the
 \code{backsolve} argument of \code{\link[=ems_model]{ems_model()}}) substitutes variables

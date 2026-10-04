@@ -7,8 +7,9 @@
   pattern <- "\"[^\"]*\"|[A-Za-z_][A-Za-z0-9_@]*"
   m <- gregexpr(pattern, text, perl = TRUE)
   tokens <- regmatches(text, m)[[1]]
-  hit <- !grepl("^\"", tokens) & tokens %in% names(map)
-  tokens[hit] <- map[tokens[hit]]
+  at <- match(tolower(tokens), tolower(names(map)))
+  hit <- !grepl("^\"", tokens) & !is.na(at)
+  tokens[hit] <- map[at[hit]]
   regmatches(text, m)[[1]] <- tokens
   return(text)
 }

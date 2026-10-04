@@ -136,6 +136,7 @@ GTAPv7_weights <- list(
   ESBI = c("VDIP", "VMIP"),
   ETRQ = "MAKS",
   ESBQ = "MAKB",
+  ETRE = "EVOS",
   EFVE = c("EVFP", "VDFP[COMM=COME]", "VMFP[COMM=COME]"),
   EAEZ = "EVFP[ENDW=AEZS]"
 )

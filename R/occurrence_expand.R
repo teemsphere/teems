@@ -8,15 +8,15 @@
                                used,
                                csub) {
   base_map <- stats::setNames(t$var$args, def_args)
-  base_map <- base_map[names(base_map) != base_map]
+  base_map <- base_map[tolower(names(base_map)) != tolower(base_map)]
   out <- list()
 
   for (s in solution) {
     fresh_map <- character()
     for (q in s$quants) {
-      if (q$idx %in% used || q$idx %in% t$var$args) {
+      if (tolower(q$idx) %in% tolower(c(used, t$var$args))) {
         candidate_pool <- paste0(q$idx, seq_len(99L))
-        fresh <- candidate_pool[!candidate_pool %in% used][[1]]
+        fresh <- candidate_pool[!tolower(candidate_pool) %in% tolower(used)][[1]]
         fresh_map[[q$idx]] <- fresh
         used <- c(used, fresh)
       }

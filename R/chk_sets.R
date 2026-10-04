@@ -40,8 +40,9 @@
       sets$intertemp,
       sets$ele,
       \(int, e) {
-        if (int %=% 1L) {
-          e <- as.numeric(e)
+        num <- suppressWarnings(as.numeric(e))
+        if (int %=% 1L && !anyNA(num)) {
+          e <- num
           attr(e, "intertemporal") <- TRUE
         }
         return(e)

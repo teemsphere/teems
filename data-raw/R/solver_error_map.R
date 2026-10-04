@@ -22,6 +22,19 @@ build_solver_error_map <- function() {
     # export; any other value than 0/1 is an interface mismatch
     c("needs a simulation, and this run has none", "tab", "5.1.2"),
     c("-jacdump must be 0 \\(off\\)", "interface", NA),
+    # run-control options teems validates before the call: a refusal
+    # means the image and the package disagree on what is accepted
+    c("^unknown -solmed ", "interface", NA),
+    c("^-(convrule|two_run|single_run|step1|nsubints|random_seed)\\b", "interface", NA),
+    # the run environment: output or scratch files that cannot be
+    # written, and memory the solver could not get (above "cannot
+    # open" in the data block, which these share)
+    c("for writing", "system", NA),
+    c("^cannot write ", "system", NA),
+    c("scratch file", "system", NA),
+    c("cannot open the kept (SBBD|DBBD) factor", "system", NA),
+    c("^cannot rename ", "system", NA),
+    c("out of memory", "system", NA),
     # shock groups for subtotals (tab_parse.c subtotals_read, main.c
     # method checks, solve_drivers.c extra solves): above the closure
     # and data rows, whose "is not in set"/"cannot open" wording the
@@ -30,7 +43,6 @@ build_solver_error_map <- function() {
     c("subtotals \\(manual 29\\) are not available", "subtotal", "29"),
     c("cannot keep (its factorization|yet)", "subtotal", NA),
     c("subtotal solves found no kept factorization", "subtotal", NA),
-    c("kept (SBBD|DBBD) factor", "subtotal", NA),
     # closure / shock files (closure_read wording: "(in <var>)";
     # shocks_read wording: "(shock file)")
     c("is not in set .* \\(in ", "closure", NA),
@@ -44,6 +56,8 @@ build_solver_error_map <- function() {
     c("has no exogenous components, so it cannot be shocked", "closure", "24.6.3"),
     c("exogenous of [0-9]+ components", "closure", "24.14.1"),
     c("shock file", "closure", NA),
+    c("^shock statement for variable", "closure", "24.4"),
+    c("at line [0-9]+ of the .* file \\(expected", "closure", NA),
     c("closure file", "closure", NA),
     c("initial closure check", "closure", "23.2.7"),
     c("^variable [^ ]+ is not declared", "closure", NA),
@@ -51,6 +65,13 @@ build_solver_error_map <- function() {
     c("header .* not found", "data", NA),
     c("not found in the data file", "data", NA),
     c("cannot open", "data", NA),
+    c("check the element counts the data-file headers declare", "data", NA),
+    c("declares [0-9]+ elements, above the [0-9]+ limit", "data", NA),
+    c("(header name in data file|element label for header) .*exceeds", "data", NA),
+    c("in the data for mapping", "data", "11.9.2"),
+    c("for mapping .* supplies [0-9]+ values for the", "data", "11.9.1"),
+    c("is declared over a set with no elements; its values cannot be read", "data", NA),
+    c(" for .* is (missing|empty|not a number|not a finite number|out of range)", "data", NA),
     # factorization workspace / memory limits (solve_drivers.c
     # ma48_grow_la + ma48_alloc_fail, block_solve.c/block_order.c
     # growth loops); sits above the numeric block, whose "did not
@@ -75,6 +96,7 @@ build_solver_error_map <- function() {
     c("has an? (updated )?value (at or )?(above|below) its declared", "numeric", "25.4.4"),
     c("fractional power of a negative number", "numeric", NA),
     c("zero pivot", "numeric", "14.1.10"),
+    c("^Complementarity .*(post-simulation state|lies outside the bounds)", "numeric", "51.5.4"),
     # statement surface (Tier A: strong comments, loop keywords,
     # constants, signed powers, product updates)
     c("strong comment", "tab", "11.1.5"),
@@ -82,6 +104,22 @@ build_solver_error_map <- function() {
     c("numeric constant .* is out of the supported range", "tab", "11.4.9"),
     c("after (expanding exponent-notation|bracketing signed (powers|operands))", "tab", NA),
     c("product Update of", "tab", "11.12.4"),
+    c("has no operand after it", "tab", "11.4.1"),
+    # PROD/MAXS/MINS (11.4.4), conditions (11.4.5-11.4.11), mappings
+    # (10.13, 11.9) and set builders (10.1.2), Tier C
+    c("inside PROD, MAXS or MINS", "tab", "11.4.4"),
+    c("AND, OR and NOT|AND, OR or NOT", "tab", "11.4.5"),
+    c("IF (condition|takes a condition)", "tab", "11.4.6"),
+    c("\"index IN set\"|\" is not active where the IF stands", "tab", "11.4.7"),
+    c("(a condition|the condition) .*compares|compares two elements|has no comparison", "tab", "11.4.11"),
+    c("(sum|quantifier|IF) condition|condition too long|cannot evaluate the .*condition|condition %s is too long", "tab", "11.4.11"),
+    c("is not an element of set .* \\(manual 11\\.4\\.11\\)", "tab", "11.4.11"),
+    c("(Formula|Formula \\(by_elements\\)) for mapping", "tab", "10.13.1"),
+    c("mapping .* (is used|is written|has values for)", "tab", "11.9.1"),
+    c("for mapping .* (has no file clause|its argument must be|needs a header)", "tab", "11.9.1"),
+    c("Read \\(by_elements\\) target|statement for mapping|unknown mapping", "tab", "11.9.1"),
+    c("^set builder ", "tab", "10.1.2"),
+    c("Subset \\(by_numbers\\)", "tab", "10.2"),
     # left-hand sides and index offsets (formula.c lhs_args_bind,
     # offset_range_check, parse_index_leadlag; recursion order)
     c("backward recursion", "tab", "16.5"),
@@ -119,7 +157,7 @@ build_solver_error_map <- function() {
     c("defined as equal to itself", "tab", "10.1.2.1"),
     c("set difference subtracts a larger set", "tab", NA),
     c("intertemporal set", "tab", NA),
-    c("element range abbreviation", "tab", NA),
+    c("element range|expanding element ranges", "tab", "11.2.2"),
     c("more elements than", "tab", "10.1.1.1"),
     c("in the definition of", "tab", "10.1.1.1"),
     c("set .* is not declared", "tab", NA),
@@ -134,7 +172,6 @@ build_solver_error_map <- function() {
     c("negative size in TAB file", "tab", NA),
     c("elements of set .* are not in set", "tab", NA),
     # intrinsics / formula compilation
-    c("POS function is not supported", "tab", "11.5.6"),
     c("takes exactly 2 arguments", "tab", "11.5"),
     c("takes at least 2 arguments", "tab", "11.5.1"),
     c("arguments? in an intrinsic function call", "tab", "11.5"),
@@ -157,7 +194,12 @@ build_solver_error_map <- function() {
     c("malformed (partial )?Read statement", "tab", "10.6"),
     # condensation / backsolve
     c("backsolv", "tab", "14.1"),
-    c("must not reach the solver", "tab", NA)
+    c("must not reach the solver", "tab", NA),
+    # statement shape: the generic TAB fatals, last so that every
+    # specific row above wins
+    c("in a sum is neither a quantifier index|in an equation is neither a quantifier index|is repeated in .* argument positions", "tab", NA),
+    c("too long|too complex|exceeds [0-9]+ char|malformed|unbalanced|unterminated|has no top-level '='|has no left-hand side|renaming sum index", "tab", NA),
+    c("superset size exceeded|too many levels variables", "tab", NA)
   )
   map <- as.data.frame(
     do.call(rbind, rows),

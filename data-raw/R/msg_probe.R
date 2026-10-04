@@ -9,9 +9,12 @@ build_probe_err <- function() {
       "Unknown argument{?s} {.arg {unknown_args}} passed to {.arg ...}.",
       "{.arg ...} accepts the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
-      flags ({.arg fastrefac}, {.arg gpzerodivide}, {.arg cntl_3},
-      {.arg cntl_6}, {.arg nsbbdblocks}, {.arg withmc66},
-      {.arg smllthreads}, {.arg tempdir}, {.arg nowrites})."
+      flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
+      {.arg gpzerodivide}, {.arg cntl_3}, {.arg cntl_6},
+      {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
+      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg ma48u}, and the Runge-Kutta run controls, which a probe
+      ignores)."
     ),
     # test-ems_probe.R: "probe report errors when the report is absent"
     no_report = c(

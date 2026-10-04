@@ -12,7 +12,8 @@
 #' @keywords internal
 #' @noRd
 .sbx_val <- function(v, idx = character(0), ele = list()) {
-  return(list(v = v, idx = idx, ele = ele))
+  val <- list(v = v, idx = idx, ele = ele)
+  return(val)
 }
 
 #' @keywords internal
@@ -42,7 +43,8 @@
   }
   ele <- ele[idx]
   vs <- lapply(xs, .sbx_expand, idx = idx, ele = ele)
-  return(list(vs = vs, idx = idx, ele = ele))
+  joined <- list(vs = vs, idx = idx, ele = ele)
+  return(joined)
 }
 
 #' @keywords internal
@@ -57,7 +59,8 @@
 #' @keywords internal
 #' @noRd
 .sbx_reason <- function(key, ...) {
-  return(sprintf(deploy_err$set_builder_reason[[key]], ...))
+  reason <- sprintf(deploy_err$set_builder_reason[[key]], ...)
+  return(reason)
 }
 
 #' @keywords internal
@@ -106,13 +109,14 @@
     }
     same <- tolower(as.character(va)) == tolower(as.character(vb))
     v <- as.numeric(if (node$op == "eq") same else !same)
-    return(.sbx_val(v, j$idx, j$ele))
+    val <- .sbx_val(v, j$idx, j$ele)
+    return(val)
   }
   v <- switch(node$op,
     `+` = va + vb,
     `-` = va - vb,
     `*` = va * vb,
-    `/` = ifelse(vb == 0, 0, va / ifelse(vb == 0, 1, vb)),
+    `/` = ifelse(vb == 0, ctx$zdiv, va / ifelse(vb == 0, 1, vb)),
     `^` = va^vb,
     and = as.numeric(va != 0 & vb != 0),
     or = as.numeric(va != 0 | vb != 0),
@@ -121,7 +125,8 @@
   if (cmp) {
     v[is.na(v)] <- 0
   }
-  return(.sbx_val(v, j$idx, j$ele))
+  val <- .sbx_val(v, j$idx, j$ele)
+  return(val)
 }
 
 #' @importFrom stats setNames
@@ -152,7 +157,8 @@
   arr_k <- matrix(as.vector(aperm(array(keep, dims), perm)), nrow = n_other)
   if (node$op == "sum") {
     out <- rowSums(ifelse(arr_k, arr_v, 0))
-    return(.sbx_val(as.vector(out), others, j$ele[others]))
+    val <- .sbx_val(as.vector(out), others, j$ele[others])
+    return(val)
   }
   out <- vapply(seq_len(n_other), \(r) {
     x <- arr_v[r, arr_k[r, ]]
@@ -162,7 +168,8 @@
       mins = if (length(x)) min(x) else 0
     )
   }, numeric(1))
-  return(.sbx_val(out, others, j$ele[others]))
+  val <- .sbx_val(out, others, j$ele[others])
+  return(val)
 }
 
 #' @importFrom stats dnorm pnorm dlnorm plnorm
@@ -198,7 +205,8 @@
     gperf = 2 * stats::pnorm(x * sqrt(2)) - 1,
     gperfc = 2 * stats::pnorm(-x * sqrt(2))
   )
-  return(.sbx_val(v, j$idx, j$ele))
+  val <- .sbx_val(v, j$idx, j$ele)
+  return(val)
 }
 
 #' @keywords internal
@@ -234,13 +242,15 @@
   if (is.null(node$args)) {
     b <- binds[[nm]]
     if (!is.null(b)) {
-      return(.sbx_val(b$ele, nm, stats::setNames(list(b$ele), nm)))
+      val <- .sbx_val(b$ele, nm, stats::setNames(list(b$ele), nm))
+      return(val)
     }
     arr <- .sbx_coef(nm, ctx)
     if (length(dim(arr)) > 0L) {
       .sbx_fail(.sbx_reason("args", nm))
     }
-    return(.sbx_val(as.vector(arr)))
+    val <- .sbx_val(as.vector(arr))
+    return(val)
   }
   args <- lapply(node$args, \(a) .sbx_eval(a, binds, ctx))
   map <- .sbx_mapping(nm, ctx)
@@ -268,7 +278,8 @@
   } else {
     arr[pos]
   }
-  return(.sbx_val(v, j$idx, j$ele))
+  val <- .sbx_val(v, j$idx, j$ele)
+  return(val)
 }
 
 #' @keywords internal
@@ -290,7 +301,9 @@
     if (is.null(ele)) {
       .sbx_fail("", defer = TRUE)
     }
-    return(tolower(ele))
+    ele <- tolower(ele)
+    return(ele)
   }
-  return(tolower(unique(m$mapping)))
+  ele <- tolower(unique(m$mapping))
+  return(ele)
 }

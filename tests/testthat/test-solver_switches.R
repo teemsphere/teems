@@ -241,3 +241,12 @@ test_that("the DBBD refinement option reaches the solver and the record (e2e)", 
   expect_s3_class(off, "data.frame")
   expect_s3_class(lu, "data.frame")
 })
+
+test_that("the intertemporal switch reads the (intertemporal) qualifier in any case, not (non_intertemporal)", {
+  tab <- withr::local_tempfile(fileext = ".tab")
+  cmf <- structure("unused.cmf", tab_path = tab)
+  writeLines("Set (INTERTEMPORAL) TT (p0 - p3);", tab)
+  expect_true(.solver_enable_time(list(cmf = cmf)))
+  writeLines("Set (non_intertemporal) TT (p0 - p3);", tab)
+  expect_false(.solver_enable_time(list(cmf = cmf)))
+})

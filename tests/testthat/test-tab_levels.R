@@ -252,3 +252,21 @@ test_that("linear_name and linear_var levels variables solve by either name (e2e
   expect_equal(pin("LM"), rep(15.5, 3), tolerance = 1e-4)
   expect_equal(pin("yq"), rep(21, 3), tolerance = 1e-4)
 })
+
+test_that("a sum condition in a levels equation reaches the solver as written", {
+  block <- paste(
+    "Variable (change,levels) (all,r,REG) LS(r) # summed operand #;",
+    "Formula (initial) (all,r,REG) LS(r) = 1;",
+    "Variable (change,levels) LT # conditional total #;",
+    "Formula (initial) LT = 2;",
+    "Equation (levels) E_LT LT = sum{r,REG: r <> \"usa\", LS(r)};",
+    sep = "\n"
+  )
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(block),
+    quiet = TRUE,
+    call = NULL
+  ))
+  tab <- .finalize_tab(model)
+  expect_match(tab, "Equation (levels) E_LT LT = sum{r,REG: r <> \"usa\", LS(r)}", fixed = TRUE)
+})

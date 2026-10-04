@@ -4,8 +4,9 @@
 .rename_term <- function(term, map) {
   term$fac <- purrr::map_chr(term$fac, .rename_expr_tokens, map = map)
   term$quants <- lapply(term$quants, \(q) {
-    if (q$idx %in% names(map)) {
-      q$idx <- unname(map[[q$idx]])
+    at <- match(tolower(q$idx), tolower(names(map)))
+    if (!is.na(at)) {
+      q$idx <- unname(map[[at]])
     }
     if (!is.null(q$cond)) {
       q$cond <- .rename_expr_tokens(q$cond, map = map)

@@ -11,14 +11,14 @@
   id <- "[A-Za-z_][A-Za-z0-9_@]*"
   acc <- new.env(parent = emptyenv())
   acc$rel <- list()
-  op_re <- "\\+|-|&|(^|[^A-Za-z0-9_@])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_@]|$)|(^|[^A-Za-z0-9_@])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_@]|$)"
+  op_re <- "\\+|-|\\\\|&|(^|[^A-Za-z0-9_@])[Uu][Nn][Ii][Oo][Nn]([^A-Za-z0-9_@]|$)|(^|[^A-Za-z0-9_@])[Ii][Nn][Tt][Ee][Rr][Ss][Ee][Cc][Tt]([^A-Za-z0-9_@]|$)"
   for (st in tab) {
     m <- regmatches(st, regexec(
-      paste0("^\\s*[Ss][Uu][Bb][Ss][Ee][Tt]\\s+(", id, ")\\s+[Ii][Ss]\\s+[Ss][Uu][Bb][Ss][Ee][Tt]\\s+[Oo][Ff]\\s+(", id, ")"),
+      paste0("^\\s*[Ss][Uu][Bb][Ss][Ee][Tt]\\s*(\\([^)]*\\)\\s*)?(", id, ")\\s+[Ii][Ss]\\s+[Ss][Uu][Bb][Ss][Ee][Tt]\\s+[Oo][Ff]\\s+(", id, ")"),
       st
     ))[[1]]
     if (length(m) > 0L) {
-      .add(acc, m[2], m[3])
+      .add(acc, m[3], m[4])
       next
     }
     if (!grepl("^\\s*[Ss][Ee][Tt]\\b", st)) {
@@ -56,7 +56,7 @@
       for (pt in parts) .add(acc, pt, nm)
     } else if (all(ops %in% c("&", "INTERSECT"))) {
       for (pt in parts) .add(acc, nm, pt)
-    } else if (all(ops %=% "-")) {
+    } else if (all(ops %in% c("-", "\\"))) {
       .add(acc, nm, parts[1])
     }
   }

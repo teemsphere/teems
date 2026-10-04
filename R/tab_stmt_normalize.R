@@ -65,7 +65,8 @@
       }
     }
   }
-  return(paste(chars, collapse = ""))
+  normalized <- paste(chars, collapse = "")
+  return(normalized)
 }
 
 #' @keywords internal
@@ -132,7 +133,8 @@
   }
   ordered <- c(groups[kinds == "qualifier"], groups[kinds == "quantifier"])
   tail <- substr(rest, pos, n)
-  return(paste0(head, paste(ordered, collapse = " "), " ", tail))
+  normalized <- paste0(head, paste(ordered, collapse = " "), " ", tail)
+  return(normalized)
 }
 
 #' @importFrom purrr map_chr

@@ -8,6 +8,7 @@
   reads <- extract[tolower(extract$type) %in% "read", ]
   qual <- .read_qualifier(reads$remainder)
   reads$remainder <- .strip_read_qualifier(reads$remainder)
+  reads$remainder <- gsub("\\bheader\\s*\"", "header \"", reads$remainder, ignore.case = TRUE)
   part <- grepl("^\\s*\\(\\s*all\\s*,", reads$remainder, ignore.case = TRUE)
   part_set <- rep(NA_character_, nrow(reads))
   part_set[part] <- trimws(sub("^\\s*\\(\\s*all\\s*,[^,]*,([^)]*)\\).*$", "\\1", reads$remainder[part], ignore.case = TRUE))

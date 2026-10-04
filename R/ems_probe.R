@@ -138,7 +138,17 @@ ems_probe <- function(cmf_path,
     fine = fine,
     extra = xtr_args
   )
-  .run_solver_cmd(probe_cmd)
+  .clear_solution_files(run_dir = paths$run)
+  status <- .run_solver_cmd(probe_cmd)
+  if (!identical(as.integer(status), 0L) && file.exists(paths$diag_out)) {
+    .check_solver_log(
+      elapsed_time = NULL,
+      solve_cmd = probe_cmd,
+      paths = paths,
+      call = call,
+      status = status
+    )
+  }
   probe <- .collect_probe(
     paths = paths,
     call = call

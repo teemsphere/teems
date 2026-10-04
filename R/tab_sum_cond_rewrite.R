@@ -3,7 +3,7 @@
 .rewrite_sum_conditions <- function(tab,
                                     call) {
   has_cond <- grepl("(?<![A-Za-z0-9_@])sum\\s*[\\[({][^:]*:", tab, ignore.case = TRUE, perl = TRUE)
-  is_eq <- grepl("^\\s*equation\\b", tab, ignore.case = TRUE) & has_cond
+  is_eq <- grepl("^\\s*equation\\b", tab, ignore.case = TRUE) & has_cond & !.eq_is_levels(tab)
   is_fml <- grepl("^\\s*formula\\b", tab, ignore.case = TRUE) & has_cond
   if (!any(is_eq | is_fml)) {
     return(tab)
@@ -180,3 +180,19 @@
   ), cond)
   return(native)
 }
+
+#' @keywords internal
+#' @noRd
+.eq_is_levels <- function(tab) {
+  is_eq <- grepl("^\\s*equation\\b", tab, ignore.case = TRUE)
+  head <- tolower(gsub("\\s", "", sub("^\\s*equation\\s*((\\([^)]*\\)\\s*)*).*$", "\\1", tab, ignore.case = TRUE)))
+  default <- ifelse(grepl("default=levels", head), "levels", ifelse(grepl("default=linear", head), "linear", NA_character_))
+  is_default <- is_eq & !is.na(default)
+  state <- cumsum(is_default)
+  current <- c("linear", default[is_default])[state + 1L]
+  qual_levels <- grepl("[(,]levels[,)]", head)
+  qual_linear <- grepl("[(,]linear[,)]", head)
+  levels <- is_eq & !is_default & (qual_levels | (!qual_linear & current == "levels"))
+  return(levels)
+}
+

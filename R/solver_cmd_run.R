@@ -2,18 +2,18 @@
 #' @noRd
 .run_solver_cmd <- function(cmd) {
   if (Sys.info()[["sysname"]] %=% "Windows") {
-    captured <- character(0)
-    captured <- system(cmd, intern = TRUE)
+    captured <- suppressWarnings(system(cmd, intern = TRUE))
     if (.o_verbose()) {
       cat(captured, sep = "\n")
     }
+    status <- attr(captured, "status") %|||% 0L
   } else if (.o_verbose()) {
-    system(cmd)
+    status <- system(cmd)
   } else {
-    system(cmd,
+    status <- system(cmd,
       ignore.stdout = TRUE,
       ignore.stderr = TRUE
     )
   }
-  return(invisible(NULL))
+  return(invisible(status))
 }

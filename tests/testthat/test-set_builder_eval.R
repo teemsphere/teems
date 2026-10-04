@@ -184,3 +184,30 @@ test_that("the set-condition evaluator reads sums, IF, functions and $POS", {
   expect_setequal(.sbx_names(node, "i"), c("x", "y", "IND"))
   expect_setequal(.sbx_names(.sbx_parse("sum{j,S:m(j)=i, c(j)}"), "i"), c("S", "m", "c"))
 })
+
+order_builder_fixture <- function() {
+  model <- .process_tablo(test_path("fixtures", "builders", "order_builders.tab"), call = NULL)
+  dat <- function(hdr, v) {
+    dt <- data.table::data.table(COM = c("c1", "c2", "c3"), Value = v)
+    class(dt) <- c(hdr, "dat", class(dt))
+    dt
+  }
+  list(
+    model = model,
+    mappings = list(COM = data.table::data.table(origin = c("c1", "c2", "c3"), mapping = c("c1", "c2", "c3"))),
+    coeff_data = list(XDAT = dat("XDAT", c(1, 2, 3)), ZDAT = dat("ZDAT", c(0, 0, 0)), YDAT = dat("YDAT", c(5, 15, 20))),
+    set_raw = list()
+  )
+}
+
+test_that("set conditions see coefficients as the statements before them leave them", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  maps <- eval_formula_builders(order_builder_fixture())
+  ele <- \(s) maps[[s]]$mapping
+  expect_identical(ele("ORD"), "c3")
+  expect_identical(ele("MOD"), c("c2", "c3"))
+  expect_identical(ele("ZD"), c("c1", "c2", "c3"))
+  expect_identical(ele("ACC"), "c3")
+})
+

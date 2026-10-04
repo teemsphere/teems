@@ -317,7 +317,7 @@ test_that("aggregation conserves every data header total", {
   dat_headers <- names(agg_data)[vapply(agg_data, inherits, TRUE, "dat")]
   expect_true(length(dat_headers) > 20L)
   expect_setequal(dat_headers, names(full_data)[vapply(full_data, inherits, TRUE, "dat")])
-  # DPSM passes its value through to each region rather than summing
+  # DPSM is averaged over the regions an aggregate absorbs, not summed
   dat_headers <- setdiff(dat_headers, "DPSM")
   # 1e-6: HAR values are single precision, so the two summation orders
   # differ by float32 accumulation (XTRV measures 2.4e-8)
@@ -563,7 +563,11 @@ test_that("par_weights selects the share or value weights per parameter", {
     ENDW = "labor_agg",
     par_weights = c(ESBM = "value")
   )
-  expect_true(all(attr(agg_data, "metadata")$par_weights == "share"))
+  share_w <- attr(agg_data, "metadata")$par_weights
+  # the CDE parameters have no share nest and are recorded as value weighted
+  expect_true(all(share_w[c("INCP", "SUBP")] == "value"))
+  expect_true(all(share_w[setdiff(names(share_w), c("INCP", "SUBP"))] == "share"))
+  expect_true(all(names(share_w) %in% names(agg_data)))
   expect_true(all(attr(value_data, "metadata")$par_weights == "value"))
   expect_equal(unname(attr(mixed_data, "metadata")$par_weights["ESBM"]), "value")
   # China's livestock imports are half wool (ESBM 12.9), nearly all from

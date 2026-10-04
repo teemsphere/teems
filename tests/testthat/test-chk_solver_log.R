@@ -229,7 +229,7 @@ test_that(".map_solver_errors classifies representative catalog lines", {
     "only (linear) or (levels) may qualify an equation under Equation (default=levels)",
     "PostSim Formula assigns variable psave; simulation results cannot be changed (manual 12.2.2)",
     "set nmrg references itself in a set expression",
-    "the $POS function is not supported yet: $POS(r)",
+    "element range 'g5 - g2' in set badb runs backwards (manual 11.2.2)",
     "Read without a header is not supported (use 'Read X from file <log> header \"H\"')",
     "variable qq is not declared",
     "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
@@ -493,3 +493,53 @@ test_that("shock-group subtotal errors map to the subtotal abort", {
   ))
   expect_identical(mapped$class, c("subtotal", "subtotal", "subtotal", "subtotal", "interface"))
 })
+
+test_that("a state/bound downgrade warning does not abort the run", {
+  paths <- local_solver_log(c(
+    "solver banner",
+    "Warning: 3 complementarity state/bound error(s) after the accurate run (treated as warnings per -comp_sberr_warn; check the log carefully, manual 51.6)"
+  ))
+  expect_no_error(suppressMessages(check_log(paths)))
+})
+
+test_that("an adaptive Runge-Kutta step retried after a singular stage is not a singularity", {
+  paths <- local_solver_log(c(
+    "solver banner",
+    "Step 3: the Jacobian was singular at a stage state, retrying with step size 0.125"
+  ))
+  expect_no_error(suppressMessages(check_log(paths)))
+})
+
+test_that("an unwritable output or scratch file maps to the system abort", {
+  paths <- local_solver_log(
+    "Error: cannot open /opt/teems/out/variables/bin/sol.xac for writing: Permission denied (the solver runs as uid 1000)"
+  )
+  expect_error(check_log(paths), "could not get the disk or memory")
+  paths <- local_solver_log(
+    "Error: short write on scratch file /tmp/_temp0.bin (No space left on device); the scratch filesystem is likely full - free space there or point -tempdir at a larger filesystem"
+  )
+  expect_error(check_log(paths), "could not get the disk or memory")
+})
+
+test_that(".map_solver_errors classifies the Tier C solver fatals", {
+  mapped <- .map_solver_errors(c(
+    "unknown -solmed Mid (valid: Gragg, Midpoint, Euler, RK2, Heun, RK4, BoSha32, DoPri54, Johansen, probe, nosim)",
+    "-convrule 1 applies to a run extrapolating from three solutions without subtotals (manual 26.2.5)",
+    "-nsubints must be at least 1 (got 0)",
+    "linear variables are not permitted inside PROD, MAXS or MINS (manual 11.4.4): prod(c,COMM, x(c))",
+    "malformed condition 's<>r and' (AND, OR and NOT join comparisons; at most 16 comparisons; manual 11.4.5) in sum",
+    "the condition r=s compares two elements (manual 11.4.11) in Formula",
+    "Formula for mapping c2g gives element g9, which is not an element of its codomain grp (manual 11.9.12)",
+    "set builder rb: element x of source set reg is not in v's dimension set comm",
+    "set reg declares 40000 elements, above the 30000 limit; check the element count in its data-file header",
+    "value 9 in the data for mapping c2g is not an element number of set grp (1 to 2; manual 11.9.1c, 11.9.2)",
+    "the refinement step found no kept DBBD factorization for this solve"
+  ))
+  expect_identical(
+    mapped$class,
+    c("interface", "interface", "interface", "tab", "tab", "tab", "tab", "tab", "data", "data", NA)
+  )
+  expect_identical(mapped$manual[4], "11.4.4")
+  expect_identical(mapped$manual[10], "11.9.2")
+})
+

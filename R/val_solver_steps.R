@@ -6,10 +6,10 @@
   is_rk <- .solver_is_rk(a$solution_method)
   is_rk_embedded <- .solver_is_rk_embedded(a$solution_method)
   if (is_rk) {
-    if (!all(
-      is.numeric(a$steps), length(a$steps) == 1,
+    if (!isTRUE(all(
+      is.numeric(a$steps), length(a$steps) == 1, !anyNA(a$steps),
       rlang::is_integerish(a$steps), a$steps >= 1
-    )) {
+    ))) {
       solution_method <- a$solution_method
       .cli_action(solve_err$step_single_rk,
         action = c("abort", "inform"),
@@ -37,10 +37,17 @@
       )
     }
   } else {
-    if (!all(
-      is.numeric(a$steps), length(a$steps) %in% c(1L, 2L, 3L),
+    if (a$adaptive %!=% "no") {
+      adaptive <- a$adaptive
+      .cli_action(solve_err$adaptive_method,
+        action = c("abort", "inform"),
+        call = call
+      )
+    }
+    if (!isTRUE(all(
+      is.numeric(a$steps), length(a$steps) %in% c(1L, 2L, 3L), !anyNA(a$steps),
       rlang::is_integerish(a$steps), a$steps >= 1
-    )) {
+    ))) {
       .cli_action(solve_err$step_length,
         action = c("abort", "inform"),
         call = call

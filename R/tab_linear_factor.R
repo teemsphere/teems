@@ -107,11 +107,12 @@
 
   args <- NULL
   open <- "("
-  if (.pk(st) %in% c("(", "[")) {
+  reduction <- tolower(tok) %in% c("prod", "maxs", "mins")
+  if (.pk(st) %in% c("(", "[") || (reduction && .pk(st) %=% "{")) {
     open <- .adv(st)
     args <- .pe_args(st)
   }
-  close <- ifelse(open %=% "[", "]", ")")
+  close <- switch(open, "[" = "]", "{" = "}", ")")
 
   canonical <- var_lookup[[tolower(tok)]]
   if (!is.null(canonical)) {

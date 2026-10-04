@@ -49,8 +49,12 @@
   if (is.null(b)) {
     return(FALSE)
   }
-  if (b$form == "mapsum" || tolower(b$coef) %in% read_names) {
+  if (b$form == "mapsum") {
     return(TRUE)
+  }
+  if (tolower(b$coef) %in% read_names) {
+    simple <- length(formula_rows) == 0L
+    return(simple)
   }
   fake <- data.frame(
     type = rep("Formula", length(formula_rows)),
@@ -72,7 +76,8 @@
   }
   read_rows <- tab[kw == "read"]
   read_names <- tolower(vapply(read_rows, .stmt_target, character(1), keyword = "read", USE.NAMES = FALSE))
-  formula_rows <- tab[kw == "formula"]
+  formula_at <- which(kw == "formula")
+  formula_rows <- tab[formula_at]
   formula_names <- tolower(vapply(formula_rows, .stmt_target, character(1), keyword = "formula", USE.NAMES = FALSE))
   map_names <- tolower(vapply(tab[kw == "mapping"], .stmt_target, character(1), keyword = "mapping", USE.NAMES = FALSE))
   set_names <- tolower(vapply(tab[kw == "set"], .stmt_target, character(1), keyword = "set", USE.NAMES = FALSE))
@@ -94,7 +99,7 @@
     eq <- regexpr("=\\s*\\(\\s*all\\s*,", st, ignore.case = TRUE)
     d <- substring(st, eq)
     b <- .parse_set_builder(d)
-    if (.builder_simple_ok(b, read_names, formula_rows[formula_names %in% tolower(b$coef)])) {
+    if (.builder_simple_ok(b, read_names, formula_rows[formula_at < r & formula_names %in% tolower(b$coef)])) {
       next
     }
     inner <- sub("^=\\s*\\(", "", sub("\\)\\s*$", "", trimws(d)))
@@ -140,5 +145,6 @@
   for (r in seq_along(tab)) {
     out <- c(out, insert[[as.character(r)]], tab[r])
   }
-  return(list(tab = out, builders = builders))
+  rewritten <- list(tab = out, builders = builders)
+  return(rewritten)
 }

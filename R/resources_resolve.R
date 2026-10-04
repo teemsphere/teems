@@ -39,7 +39,7 @@
         min(th$ranks_dbbd_max, max(2L, cores %/% 4L))
       }
       n_tasks <- .cap_blocks(min(n_tasks, cores), n_blocks)
-      while (n_tasks > 2L && !.resources_fits(n_tasks, method, plain_size, condensed, th, limit)) n_tasks <- n_tasks %/% 2L
+      while (n_tasks > 2L && !.resources_fits(n_tasks, method, plain_size, condensed, th, limit)) n_tasks <- max(2L, n_tasks %/% 2L)
       solve_info$rationale$DBBD
     },
     NDBBD = {

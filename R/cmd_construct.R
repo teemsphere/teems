@@ -53,6 +53,7 @@
   } else {
     "/opt/teems-solver/solver/teems-solver"
   }
+  n_tasks <- format(n_tasks, scientific = FALSE, trim = TRUE)
   exec_preamble <- paste(
     docker_preamble,
     '"set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec',
@@ -62,6 +63,8 @@
   )
 
   docker_diagnostic_out <- file.path(paths$docker_run, "out", paste0("solver_out", "_", timeID, ".txt"))
+  steps <- format(steps, scientific = FALSE, trim = TRUE)
+  n_subintervals <- format(n_subintervals, scientific = FALSE, trim = TRUE)
   la <- .resolve_la_args(
     laA = laA,
     laD = laD,

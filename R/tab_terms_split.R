@@ -9,6 +9,12 @@
   expo <- idx > 2L & chs[pmax(idx - 1L, 1L)] %in% c("e", "E") &
     grepl("[0-9.]", chs[pmax(idx - 2L, 1L)])
   idx <- idx[!expo]
+  nonblank <- which(chs != " ")
+  prev <- vapply(idx, \(i) {
+    before <- nonblank[nonblank < i]
+    if (length(before) == 0L) "" else chs[before[length(before)]]
+  }, character(1))
+  idx <- idx[!prev %in% c("*", "/", "^", "+", "-", "=", "<", ">", ",")]
   first_char <- which(chs != " ")[1]
   lead_sign <- !is.na(first_char) && chs[first_char] %in% c("+", "-")
   idx <- idx[!idx %in% first_char]

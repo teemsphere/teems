@@ -5,7 +5,8 @@
                                var_extract) {
   if (is.null(var_extract) || nrow(var_extract) == 0L ||
     !.has_coefficient_dump(sol_prefix, presim = TRUE)) {
-    return(list())
+    pre <- list()
+    return(pre)
   }
   decl <- tolower(var_extract$name)
   quals <- tolower(var_extract$qualifier_list)
@@ -15,12 +16,17 @@
   names(target) <- decl
   target <- target[!is.na(target)]
   if (length(target) == 0L) {
-    return(list())
+    pre <- list()
+    return(pre)
   }
+  is_change <- grepl("\\bchange\\b", quals)
+  names(is_change) <- decl
   lookup <- function(v) {
     hit <- target[v]
-    if (is.na(hit) && grepl("^[pc]_", v)) {
-      hit <- target[sub("^[pc]_", "", v)]
+    base <- sub("^[pc]_", "", v)
+    if (is.na(hit) && base != v && !v %in% decl && base %in% decl &&
+      is_levels[match(base, decl)] && startsWith(v, "c_") == is_change[[base]]) {
+      hit <- target[base]
     }
     unname(hit)
   }

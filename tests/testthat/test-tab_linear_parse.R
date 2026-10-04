@@ -117,3 +117,36 @@ test_that("powers, braces, IF terms and word conditions parse (MEL43AUX E_ta, ma
   wc <- .parse_linear_side("sum{s,REG: s <> r and s <> \"usa\", X(s)*p_tsd(s)}", vl)
   expect_equal(wc[[1]]$quants[[1]]$cond, ": s<>r and s<>\"usa\"")
 })
+
+test_that("a leading unary minus binds tighter than ^, as in the solver (manual 11.4.1)", {
+  vl <- list(ps = "ps")
+  t1 <- .parse_linear_side("-TX^2*ps(i)", vl)
+  expect_equal(t1[[1]]$sign, 1L)
+  expect_equal(t1[[1]]$fac, "-TX^2")
+  t2 <- .parse_linear_side("A*ps(i) - -TX^2*ps(i)", vl)
+  expect_equal(t2[[2]]$sign, -1L)
+  expect_equal(t2[[2]]$fac, "-TX^2")
+  t3 <- .parse_linear_side("-B*ps(i)", vl)
+  expect_equal(t3[[1]]$sign, -1L)
+  expect_equal(t3[[1]]$fac, "B")
+})
+
+test_that("a unary sign after * / ^ does not split a term", {
+  terms <- .split_tab_terms("A*-B*[C+IF(D>0,D)] - E^-2 + F/-G")
+  expect_identical(terms$body, c("A*-B*[C+IF(D>0,D)]", "E^-2", "F/-G"))
+  expect_identical(terms$sign, c("+", "-", "+"))
+  d <- .distribute_if_factors(.split_tab_terms("A*-B*[C+IF(D>0,D)]"), "(^|[^A-Za-z0-9_@])[Ii][Ff]\\s*[][({]")
+  expect_identical(d$body, c("A*-B * [C]", "if[D>0, A*-B * [D]]"))
+})
+
+test_that("function arguments keep the spaces around word operators", {
+  t <- .parse_linear_side("ABS(sum{s,REG: s <> r and s ne \"x\", TX(s)})*ps(r)", list(ps = "ps"))
+  expect_match(t[[1]]$fac, "r and s ne", fixed = TRUE)
+  expect_false(grepl("rands", t[[1]]$fac, fixed = TRUE))
+})
+
+test_that("PROD, MAXS and MINS take braces like SUM (manual 11.4.4)", {
+  t <- .parse_linear_side("MAXS{j,S, A(j)}*ps(i) + PROD{j,S, B(j)}*ps(i)", list(ps = "ps"))
+  expect_identical(t[[1]]$fac, "MAXS{j,S,A(j)}")
+  expect_identical(t[[2]]$fac, "PROD{j,S,B(j)}")
+})

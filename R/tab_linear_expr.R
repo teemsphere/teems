@@ -7,8 +7,19 @@
 
   repeat {
     sign <- 1L
+    if (length(nodes) > 0L && .adv(st) %=% "-") {
+      sign <- -1L
+    }
+    unary_at <- st$pos
     while (.pk(st) %in% c("+", "-")) {
-      if (.adv(st) %=% "-") {
+      .adv(st)
+    }
+    if (st$pos > unary_at) {
+      after <- st$pos
+      .pe_primary(st, var_lookup)
+      tight <- .pk(st) %=% "^"
+      st$pos <- if (tight) unary_at else after
+      if (!tight && sum(unlist(st$tokens[unary_at:(after - 1L)]) == "-") %% 2L == 1L) {
         sign <- -sign
       }
     }

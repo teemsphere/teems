@@ -6,7 +6,8 @@
   top <- scan$depth_before == 0L & !scan$in_quote
   hits <- gregexpr("(?<![A-Za-z0-9_@.])(and|or|not)(?![A-Za-z0-9_@])", cond, ignore.case = TRUE, perl = TRUE)[[1]]
   if (hits[1] < 0L) {
-    return(integer(0))
+    cuts <- integer(0)
+    return(cuts)
   }
   len <- attr(hits, "match.length")
   keep <- top[hits]

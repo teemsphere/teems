@@ -8,31 +8,55 @@
   ctx$set_raw <- set_raw
   ctx$limit_row <- limit_row
   ctx$cache <- list()
-  ctx$active <- character(0)
   lhs <- rep(NA_character_, nrow(model))
   is_f <- model$type %in% "Formula" & !is.na(model$comp1)
   lhs[is_f] <- tolower(trimws(sub("[[({].*$", "", model$comp1[is_f])))
   ctx$lhs <- lhs
+  ctx$zdiv <- .sbx_zdiv(limit_row, ctx)
   return(ctx)
+}
+
+#' @keywords internal
+#' @noRd
+.sbx_zdiv <- function(row, ctx) {
+  model <- ctx$model
+  prior <- seq_len(min(row, nrow(model) + 1L) - 1L)
+  zd <- 0
+  for (z in prior[tolower(model$type[prior]) %in% "zerodivide"]) {
+    txt <- model$tab[z]
+    if (!grepl("\\bdefault\\b", txt, ignore.case = TRUE)) {
+      next
+    }
+    v <- trimws(sub("^.*\\bdefault\\s+([^;]*).*$", "\\1", txt, ignore.case = TRUE))
+    num <- suppressWarnings(as.numeric(v))
+    zd <- if (!is.na(num)) {
+      num
+    } else {
+      outer <- ctx$limit_row
+      ctx$limit_row <- z - 1L
+      val <- .sbx_coef(v, ctx)
+      ctx$limit_row <- outer
+      as.vector(val)[1]
+    }
+  }
+  return(zd)
 }
 
 #' @keywords internal
 #' @noRd
 .sbx_coef <- function(name, ctx) {
   key <- tolower(name)
-  if (!is.null(ctx$cache[[key]])) {
-    return(ctx$cache[[key]])
-  }
-  if (key %in% ctx$active) {
-    .sbx_fail(.sbx_reason("cycle", name))
-  }
   model <- ctx$model
+  upto <- min(ctx$limit_row, nrow(model))
+  ckey <- paste0(key, "@", upto)
+  if (!is.null(ctx$cache[[ckey]])) {
+    return(ctx$cache[[ckey]])
+  }
   ci <- which(model$type %in% "Coefficient" & tolower(model$name) == key)
   if (length(ci) == 0L) {
     .sbx_fail(.sbx_reason("unknown", name))
   }
   ci <- ci[[1]]
-  ctx$active <- c(ctx$active, key)
   sets <- model$ls_upper_idx[[ci]]
   if (length(sets) == 1L && is.na(sets)) {
     sets <- character(0)
@@ -43,7 +67,7 @@
   } else {
     0
   }
-  rows <- seq_len(min(ctx$limit_row, nrow(model)))
+  rows <- seq_len(upto)
   src <- rows[(model$type[rows] %in% "Read" & tolower(model$name[rows]) == key) |
     (!is.na(ctx$lhs[rows]) & ctx$lhs[rows] == key)]
   if (length(src) == 0L) {
@@ -56,8 +80,7 @@
       arr <- .sbx_formula(arr, r, ctx)
     }
   }
-  ctx$active <- setdiff(ctx$active, key)
-  ctx$cache[[key]] <- arr
+  ctx$cache[[ckey]] <- arr
   return(arr)
 }
 
@@ -147,6 +170,13 @@
 #' @noRd
 .sbx_formula <- function(arr, r, ctx) {
   model <- ctx$model
+  outer <- list(limit_row = ctx$limit_row, zdiv = ctx$zdiv)
+  on.exit({
+    ctx$limit_row <- outer$limit_row
+    ctx$zdiv <- outer$zdiv
+  })
+  ctx$zdiv <- .sbx_zdiv(r, ctx)
+  ctx$limit_row <- r - 1L
   quants <- .sbx_quantifiers(model$tab[r])
   lhs <- .sbx_parse(model$comp1[r])
   rhs <- .sbx_parse(model$comp2[r])

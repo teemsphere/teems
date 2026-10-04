@@ -1,5 +1,3 @@
-#' @importFrom data.table data.table
-#' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
 .implement_homogeneity <- function(cmf_path,
@@ -109,7 +107,8 @@
   files <- files[!dir.exists(files) & !startsWith(basename(files), "_temp_")]
   file.copy(files, work)
   .out_mkdir(write_dir = work)
-  return(file.path(work, basename(cmf_path)))
+  work_cmf <- file.path(work, basename(cmf_path))
+  return(work_cmf)
 }
 
 #' @keywords internal
@@ -190,7 +189,8 @@
     off <- cols[k] - start[v]
     size <- vars$size[v]
     if (size == 0L) {
-      return(tolower(vars$cofname[v]))
+      pick <- tolower(vars$cofname[v])
+      return(pick)
     }
     ids <- as.integer(strsplit(vars$setid[v], ",", fixed = TRUE)[[1]][seq_len(size)])
     dims <- sets$size[ids + 1L]

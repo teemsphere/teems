@@ -1,6 +1,3 @@
-#' @importFrom data.table setkey setkeyv setnames .SD
-#' @importFrom purrr pluck
-#' @importFrom rlang is_integerish
 #' @keywords internal
 #' @noRd
 .aggregate_data <- function(dt,
@@ -68,7 +65,7 @@
       fallback <- !is.finite(dt$Value)
       dt$Value[fallback] <- dt$sigma_v[fallback] / dt$omega_v[fallback]
     }
-    dt[is.nan(Value), let(Value = 1)]
+    dt[is.nan(Value), let(Value = 0)]
     data.table::set(dt, j = intersect(weight_col, colnames(dt)), value = NULL)
   } else {
     sets <- setdiff(colnames(dt), "Value")

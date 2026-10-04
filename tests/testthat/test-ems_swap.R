@@ -252,11 +252,59 @@ test_that("two swaps in on one tuple abort with no valid order", {
   expect_snapshot_error(ems_deploy(dat, model, swap_in = swap_in, swap_out = swap_out))
 })
 
+test_that("a tuple swapped out twice aborts with no valid order", {
+  nest_temp("reconcile_out_twice", write_dir)
+  swap_out <- list(
+    ems_swap("tfd", COMMc = "food", REGr = "usa"),
+    ems_swap("tfd", COMMc = "food", REGr = "usa")
+  )
+  swap_in <- ems_swap("qfd", COMMc = "food", REGr = "usa")
+  expect_snapshot_error(ems_deploy(dat, model, swap_in = swap_in, swap_out = swap_out))
+})
+
 test_that("swaps blocking one another abort with no valid order", {
   nest_temp("reconcile_blocked", write_dir)
   swap_in <- ems_swap("qe", ENDWMSe = "ENDWC")
   swap_out <- ems_swap("qe", ENDWMSe = "ENDWC")
   expect_snapshot_error(ems_deploy(dat, model, swap_in = swap_in, swap_out = swap_out))
+})
+
+subset_closure_model <- function(entries) {
+  cls_dir <- file.path(write_dir, "subset_closure")
+  dir.create(cls_dir, showWarnings = FALSE)
+  cls_file <- file.path(cls_dir, basename(closure_file))
+  cls <- readLines(closure_file)
+  i <- which(trimws(cls) == "tfd")
+  writeLines(c(cls[seq_len(i - 1L)], entries, cls[-seq_len(i)]), cls_file)
+  ems_model(model_file, cls_file, ignore_condense = TRUE)
+}
+
+test_that("a partial swap-out of a subset-named entry keeps the subset", {
+  nest_temp("subset_entry", write_dir)
+  m <- subset_closure_model(c("tfd(NMRG,ACTS,REG,ALLTIME)", "tfd(MARG,ACTS,REG,ALLTIME)"))
+  cls <- cls_lines(ems_deploy(dat, m,
+    swap_in = ems_swap("qfd", COMMc = "NMRG", REGr = "chn"),
+    swap_out = ems_swap("tfd", COMMc = "NMRG", REGr = "chn")
+  ))
+  expect_setequal(
+    grep("^tfd", cls, value = TRUE),
+    c("tfd(MARG,ACTS,REG,ALLTIME)", "tfd(NMRG,ACTS,\"row\",ALLTIME)", "tfd(NMRG,ACTS,\"usa\",ALLTIME)")
+  )
+})
+
+test_that("a partial swap-out of a mixed entry keeps its subset", {
+  nest_temp("mixed_entry", write_dir)
+  m <- subset_closure_model(c(
+    "tfd(NMRG,ACTS,\"chn\",ALLTIME)", "tfd(NMRG,ACTS,\"usa\",ALLTIME)",
+    "tfd(NMRG,ACTS,\"row\",ALLTIME)", "tfd(MARG,ACTS,REG,ALLTIME)"
+  ))
+  cls <- cls_lines(ems_deploy(dat, m,
+    swap_in = ems_swap("qfd", COMMc = "food", REGr = "chn"),
+    swap_out = ems_swap("tfd", COMMc = "food", REGr = "chn")
+  ))
+  expect_true(all(c("tfd(NMRG,ACTS,\"usa\",ALLTIME)", "tfd(NMRG,ACTS,\"row\",ALLTIME)") %in% cls))
+  expect_false(any(grepl("^tfd\\(\"food\",ACTS,\"chn\"", cls)))
+  expect_false(any(grepl("^tfd\\(COMM", cls)))
 })
 
 test_that("ems_swap examples work", {

@@ -52,12 +52,15 @@
 
   orig_names <- attr(preswap, "sets")
   unique_names <- colnames(attr(preswap, "ele"))
-  name_map <- stats::setNames(orig_names, unique_names)
 
   mixed_comp <- integer(0)
   if (inherits(preswap, "mixed")) {
-    mixed_comp <- which(preswap_comp != orig_names)
+    mixed_comp <- attr(preswap, "ele_pos") %|||% which(preswap_comp != orig_names)
   }
+  entry_sets <- orig_names
+  set_comp <- !seq_along(preswap_comp) %in% mixed_comp
+  entry_sets[set_comp] <- preswap_comp[set_comp]
+  name_map <- stats::setNames(entry_sets, unique_names)
 
   diff_dt <- data.table::fsetdiff(full_dt, swap_ele)
 

@@ -28,3 +28,17 @@ test_that("a weight entry restricted to a set keeps only its elements", {
   expect_snapshot_error(.weight_restrict(weight = arr, entry = entry, sets = list()))
   expect_snapshot_error(.weight_restrict(weight = dt[, .(Value)], entry = entry, sets = sets))
 })
+
+test_that("a parameter whose aggregate has no weight is 0, as FlexAgg writes it", {
+  dt <- data.table::data.table(
+    ACTS = c("a1", "a2", "a3"),
+    Value = c(-5, 2, 4),
+    omega = c(0, 0, 1),
+    sigma = c(0, 0, 4)
+  )
+  class(dt) <- c("ETRQ", "par", class(dt))
+  sets <- list(ACTS = data.table::data.table(origin = c("a1", "a2", "a3"), mapping = c("z", "z", "y")))
+  out <- .aggregate_data.par(dt, sets = sets, ndigits = 6L)
+  expect_equal(out[ACTS == "z", Value], 0)
+  expect_equal(out[ACTS == "y", Value], 4)
+})

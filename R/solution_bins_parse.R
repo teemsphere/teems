@@ -14,7 +14,7 @@
     antidims    = raw$var$antidims,
     matsize     = raw$var$matsize,
     level_par   = raw$var$level_par,
-    change_real = raw$var$change_real,
+    change_real = as.logical(raw$var$change_real),
     suplval     = raw$var$suplval,
     gltype      = raw$var$gltype,
     glval       = raw$var$glval,

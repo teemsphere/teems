@@ -66,7 +66,8 @@
     }
     keep <- gregexpr(pattern, st, perl = TRUE)[[1]]
     if (keep[1] == -1L) {
-      return(.canonical_segment(st, canon, skip))
+      segment <- .canonical_segment(st, canon, skip)
+      return(segment)
     }
     starts <- as.integer(keep)
     ends <- starts + attr(keep, "match.length") - 1L

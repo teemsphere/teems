@@ -114,3 +114,13 @@ test_that("a coefficient dimensioned on an unknown set aborts", {
     )
   )
 })
+
+test_that("a fixed-element intertemporal set keeps its element names", {
+  sets <- data.frame(setname = c("ALLTIME", "TT"), begadd = c(0L, 3L), size = c(3L, 4L), intertemp = c(1L, 1L))
+  set_ele <- data.table::data.table(mapped_ele = c("0", "1", "2", "p0", "p1", "p2", "p3"))
+  ele <- .check_sets(sets, set_ele, model_dir = NULL, set_path = character(0), call = NULL)
+  expect_identical(as.vector(ele$ALLTIME), c(0, 1, 2))
+  expect_true(isTRUE(attr(ele$ALLTIME, "intertemporal")))
+  expect_identical(ele$TT, c("p0", "p1", "p2", "p3"))
+  expect_null(attr(ele$TT, "intertemporal"))
+})

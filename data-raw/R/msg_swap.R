@@ -51,7 +51,10 @@ build_swap_err <- function() {
     no_order_parity = "%s swapped in %d and out %d time(s) while initially %s: %s",
     no_order_blocked_in = "%s cannot swap in, already exogenous: %s",
     no_order_blocked_out = "%s cannot swap out, not exogenous: %s",
+    # see swap_err$no_order; test-ems_swap.R: "two swaps in on one tuple abort with no valid order"
     no_order_more = "%s and %d more",
+    # see swap_err$no_order; endo in test-ems_swap.R: "two swaps in on one tuple abort with no valid order",
+    # exo in "a tuple swapped out twice aborts with no valid order"
     no_order_status = list(
       exo = "exogenous",
       endo = "endogenous"

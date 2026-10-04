@@ -11,6 +11,9 @@
     i_data[purrr::map_lgl(i_data, is.character)],
     \(h) tolower(trimws(unclass(h)))
   )
+  map_raw <- lapply(metadata$map_raw, tolower)
+  set_raw <- c(set_raw, map_raw[!names(map_raw) %in% names(set_raw)])
+  metadata$map_raw <- NULL
   int_raw <- lapply(
     i_data[purrr::map_lgl(i_data, \(h) is.integer(h) && is.null(dimnames(h)))],
     \(h) as.vector(unclass(h))
@@ -45,7 +48,11 @@
       methods = methods,
       data_format = metadata$data_format
     )
-    metadata$par_weights <- methods
+    present <- vapply(dt_data, \(h) class(h)[1], character(1))
+    applied <- methods[names(methods) %in% present]
+    no_share <- !names(applied) %in% names(param_weights$share[[metadata$data_format]])
+    applied[applied == "share" & no_share] <- "value"
+    metadata$par_weights <- applied
   }
 
   ndigits <- .o_ndigits()

@@ -10,6 +10,8 @@
     length(e) > 0L && !anyDuplicated(e)
   })
   keep <- !is_char | is_set
+  is_map <- is_char & !is_history & !is_set
+  metadata$map_raw <- lapply(dat_input[is_map], \(h) trimws(as.vector(h)))
   i_data <- dat_input[keep]
   for (nme in names(i_data)[is_set[keep]]) {
     e <- trimws(as.vector(i_data[[nme]]))
@@ -25,7 +27,6 @@
   return(i_data)
 }
 
-#' @importFrom rlang current_env
 #' @keywords internal
 #' @noRd
 .inform_generic <- function(metadata) {

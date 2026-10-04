@@ -1,4 +1,4 @@
-#' @importFrom data.table setattr setcolorder setDT
+#' @importFrom data.table setattr setDT
 #' @keywords internal
 #' @noRd
 .dimension_positional <- function(dt,

@@ -1,5 +1,5 @@
 #' @importFrom stats setNames
-#' @importFrom rlang caller_env trace_back
+#' @importFrom rlang caller_env
 #' @importFrom purrr map2
 #' @importFrom utils URLencode
 #' @importFrom cli cli_abort cli_inform cli_warn

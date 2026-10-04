@@ -28,13 +28,15 @@
         paste0("(^|[^A-Za-z0-9_@])", idx, "([^A-Za-z0-9_@]|$)"),
         paste0("\\1", fresh, "\\2"),
         substring(inner, comma[1] + 1L),
-        perl = TRUE
+        perl = TRUE,
+        ignore.case = TRUE
       )
       value <- gsub(
         paste0("(^|[^A-Za-z0-9_@])", idx, "([^A-Za-z0-9_@]|$)"),
         paste0("\\1", fresh, "\\2"),
         value,
-        perl = TRUE
+        perl = TRUE,
+        ignore.case = TRUE
       )
       extra[[tolower(fresh)]] <- cm[3]
       text <- paste0(substr(text, 1L, open), substr(inner, 1L, comma[1]), value, substring(text, close))

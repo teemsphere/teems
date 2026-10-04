@@ -121,10 +121,11 @@ build_solve_err <- function() {
       {.arg rk_guard}; see
       {.fun ems_RK}), the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
-      flags ({.arg fastrefac}, {.arg gpzerodivide}, {.arg cntl_3},
-      {.arg cntl_6}, {.arg nsbbdblocks}, {.arg withmc66},
-      {.arg smllthreads}, {.arg tempdir}, {.arg nowrites},
-      {.arg condest})."
+      flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
+      {.arg gpzerodivide}, {.arg cntl_3}, {.arg cntl_6},
+      {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
+      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg ma48u})."
     ),
     # test-solver_dots.R: "solve_in_situ solver_args must be a fully named allowlisted list"
     solver_args_list = c(
@@ -138,10 +139,11 @@ build_solve_err <- function() {
       "Unknown argument{?s} {.arg {unknown_args}} in {.arg solver_args}.",
       "Accepted: the MA48 workspace initial guesses ({.arg laA},
       {.arg laD}, {.arg laDi}), the expert solver flags
-      ({.arg fastrefac}, {.arg gpzerodivide}, {.arg cntl_3},
-      {.arg cntl_6}, {.arg nsbbdblocks}, {.arg withmc66},
-      {.arg smllthreads}, {.arg tempdir}, {.arg nowrites},
-      {.arg condest}) and the Runge-Kutta run controls
+      ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
+      {.arg gpzerodivide}, {.arg cntl_3}, {.arg cntl_6},
+      {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
+      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg ma48u}) and the Runge-Kutta run controls
       ({.arg rk_chart}, {.arg rk_norm}, {.arg rk_controller},
       {.arg rk_scope}, {.arg rk_h0}, {.arg rk_guard}). The
       Runge-Kutta step controls are formal arguments of
@@ -173,7 +175,7 @@ build_solve_err <- function() {
     # (the run completed; the verdict is the modeller's to act on)
     condest_nearsing = c(
       "The {.code condest} diagnostic reports the linear system as numerically near-singular (kappa_w2 {kappa_w2}): solutions are unreliable.",
-      "The structural probe may pass -- look for near-zero data flows carried by the closure, or re-solve with {.code precision = \"f64\"}. See {.path {paths$diag_out}}."
+      "The structural probe may pass -- look for near-zero data flows carried by the closure, or re-solve with {.code precision = \"double\"}. See {.path {paths$diag_out}}."
     ),
     # test-chk_solver_log.R: "TAB errors map to the model-specification abort"
     # lines 2-4 filled by .check_solver_log; line 3 dropped when no
@@ -232,6 +234,15 @@ build_solve_err <- function() {
       "The solver image does not accept {n_err} input{?s} that teems sent:",
       "{err_preview}",
       "teems and its solver image are released together: use the image that matches this version of teems (the {.arg docker_tag} option of {.fun teems::ems_option_set} names the image in use).",
+      "Full log: {.path {diag_out}}."
+    ),
+    # test-chk_solver_log.R: "an unwritable output or scratch file maps to the system abort"
+    # the run environment, not the model: a directory the solver cannot
+    # write, a full scratch filesystem, memory it could not get
+    solver_system = c(
+      "The solver could not get the disk or memory it needs, with {n_err} error{?s}:",
+      "{err_preview}",
+      "Check that the run directory and the scratch directory ({.arg tempdir}) are writable and have free space, and that Docker has the memory {.fun teems::ems_probe} estimates for this model.",
       "Full log: {.path {diag_out}}."
     ),
     # test-chk_solver_log.R: "shock-group subtotal errors map to the subtotal abort"

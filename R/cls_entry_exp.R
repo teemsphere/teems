@@ -94,6 +94,7 @@
                                  call) {
   entry_mixed <- sub(")", "", purrr::pluck(strsplit(cls_entry, "\\("), 1, 2))
   entry_mixed <- strsplit(entry_mixed, ",")[[1]]
+  attr(cls_entry, "ele_pos") <- which(grepl("\"", entry_mixed))
   var_name <- attr(cls_entry, "var_name")
   var_sets <- purrr::pluck(var_extract, "ls_upper_idx", var_name)
   idx_sets <- purrr::pluck(var_extract, "ls_mixed_idx", var_name)

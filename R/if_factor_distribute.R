@@ -53,9 +53,11 @@
   out <- vapply(inner_terms$body, \(t) {
     p <- .parse_if_term(t)
     if (is.null(p)) {
-      return(wrap(t))
+      wrapped <- wrap(t)
+      return(wrapped)
     }
-    return(sprintf("if[%s, %s]", p$cond, wrap(p$value)))
+    wrapped <- sprintf("if[%s, %s]", p$cond, wrap(p$value))
+    return(wrapped)
   }, character(1), USE.NAMES = FALSE)
   distributed <- list(sign = inner_terms$sign, body = out)
   return(distributed)

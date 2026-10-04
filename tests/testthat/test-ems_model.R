@@ -1587,3 +1587,32 @@ test_that("xSet and xSubset lines in the closure file define sets", {
 
 unlink(write_dir, recursive = TRUE)
 
+
+cndns_tab <- function(def_eq) {
+  f <- withr::local_tempfile(fileext = ".tab", .local_envir = parent.frame())
+  writeLines(c(
+    "File INFILE # data #;",
+    "Set REG # regions # (chn, usa, x);",
+    "Set COMM # commodities # (c1, c2);",
+    "Coefficient (all,i,COMM)(all,s,REG) TX(i,s) # data #;",
+    'Read TX from file INFILE header "TX";',
+    "Variable (all,i,COMM)(all,r,REG) pm(i,r) # price #;",
+    "Variable (all,i,COMM)(all,r,REG) ps(i,r) # supply price #;",
+    "Variable (all,i,COMM)(all,r,REG)(all,s,REG) pms(i,r,s) # bilateral #;",
+    def_eq,
+    "Equation E_pms (all,i,COMM)(all,r,REG)(all,s,REG) pms(i,r,s) = pm(i,s) + ps(i,r);",
+    "Backsolve pm using E_pm;"
+  ), f)
+  m <- .process_tablo(f, call = NULL, quiet = TRUE)
+  m$tab
+}
+
+test_that("condensation keeps the condition of a hoisted conditional sum", {
+  tab <- cndns_tab('Equation E_pm (all,i,COMM)(all,r,REG) pm(i,r) = sum{s,REG: s <> r AND s <> "x", TX(i,s)*ps(i,r)};')
+  expect_true(any(grepl('CSUB1(i,s) = sum{s1,REG: s1<>s AND s1<>"x", TX(i,s1)}', tab, fixed = TRUE)))
+})
+
+test_that("condensation renames indices whatever their case", {
+  tab <- cndns_tab("Equation E_pm (all,i,COMM)(all,R,REG) pm(i,R) = TX(i,r)*ps(i,R);")
+  expect_true(any(grepl("pms(i,r,s) = TX(i,s)*ps(i,s) + ps(i,r);", tab, fixed = TRUE)))
+})

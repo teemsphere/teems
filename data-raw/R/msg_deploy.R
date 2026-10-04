@@ -21,7 +21,6 @@ build_deploy_err <- function() {
       args = "%s is used with a number of arguments that does not match its declaration",
       element = "%s is referenced at an element outside its declared sets",
       unknown = "%s is not a declared coefficient, mapping or set",
-      cycle = "%s depends on itself",
       no_source = "%s is neither Read nor assigned by a Formula before the Set statement",
       no_data = "%s is Read from header \"%s\", which is not in the loaded data",
       free_index = "the condition depends on index %s, which it does not bind",

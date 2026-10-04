@@ -5,10 +5,12 @@
                           type,
                           ndigits) {
   if (type %=% "Integer") {
-    return(as.integer(x))
+    typed <- as.integer(x)
+    return(typed)
   }
   if (rlang::is_integerish(x)) {
     return(x)
   }
-  return(.round_digits(x, ndigits))
+  typed <- .round_digits(x, ndigits)
+  return(typed)
 }

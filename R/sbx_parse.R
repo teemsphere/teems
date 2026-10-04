@@ -83,9 +83,11 @@
 .sbx_not <- function(st) {
   if (tolower(.sbx_peek(st)) == "not") {
     .sbx_next(st)
-    return(list(t = "un", op = "not", x = .sbx_not(st)))
+    node <- list(t = "un", op = "not", x = .sbx_not(st))
+    return(node)
   }
-  return(.sbx_cmp(st))
+  node <- .sbx_cmp(st)
+  return(node)
 }
 
 #' @keywords internal
@@ -135,9 +137,11 @@
     if (op == "+") {
       return(x)
     }
-    return(list(t = "un", op = "neg", x = x))
+    node <- list(t = "un", op = "neg", x = x)
+    return(node)
   }
-  return(.sbx_pow(st))
+  node <- .sbx_pow(st)
+  return(node)
 }
 
 #' @keywords internal
@@ -179,10 +183,12 @@
     return(x)
   }
   if (grepl('^"', t)) {
-    return(list(t = "str", v = tolower(gsub('"', "", t))))
+    node <- list(t = "str", v = tolower(gsub('"', "", t)))
+    return(node)
   }
   if (grepl("^[0-9.]", t)) {
-    return(list(t = "num", v = as.numeric(t)))
+    node <- list(t = "num", v = as.numeric(t))
+    return(node)
   }
   if (!grepl("^\\$?[A-Za-z_@]", t)) {
     stop("unexpected ", t, call. = FALSE)
@@ -202,7 +208,8 @@
     .sbx_expect(st, ",")
     body <- .sbx_or(st)
     .sbx_expect(st, c(")", "]", "}"))
-    return(list(t = "agg", op = low, idx = idx, set = set, cond = cond, body = body))
+    node <- list(t = "agg", op = low, idx = idx, set = set, cond = cond, body = body)
+    return(node)
   }
   if (low == "if" && opens) {
     .sbx_next(st)
@@ -210,11 +217,13 @@
     .sbx_expect(st, ",")
     body <- .sbx_or(st)
     .sbx_expect(st, c(")", "]", "}"))
-    return(list(t = "if", cond = cond, body = body))
+    node <- list(t = "if", cond = cond, body = body)
+    return(node)
   }
   if (low == "$pos" && opens) {
     .sbx_next(st)
-    return(list(t = "pos", args = .sbx_args(st)))
+    node <- list(t = "pos", args = .sbx_args(st))
+    return(node)
   }
   fun <- c(
     "abs", "max", "min", "sqrt", "exp", "loge", "log10", "id01", "id0v", "round", "trunc0", "truncb",
@@ -222,20 +231,24 @@
   )
   if (low %in% fun && opens) {
     .sbx_next(st)
-    return(list(t = "fun", name = low, args = .sbx_args(st)))
+    node <- list(t = "fun", name = low, args = .sbx_args(st))
+    return(node)
   }
   if (opens) {
     .sbx_next(st)
-    return(list(t = "id", name = t, args = .sbx_args(st)))
+    node <- list(t = "id", name = t, args = .sbx_args(st))
+    return(node)
   }
-  return(list(t = "id", name = t, args = NULL))
+  node <- list(t = "id", name = t, args = NULL)
+  return(node)
 }
 
 #' @keywords internal
 #' @noRd
 .sbx_names <- function(node, bound = character(0)) {
   if (!is.list(node) || is.null(node$t)) {
-    return(character(0))
+    args <- character(0)
+    return(args)
   }
   rec <- \(x) .sbx_names(x, bound)
   out <- switch(node$t,

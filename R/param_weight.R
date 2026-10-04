@@ -65,7 +65,7 @@
   return(restricted)
 }
 
-#' @importFrom data.table let
+#' @importFrom data.table rbindlist
 #' @keywords internal
 #' @noRd
 .weight_value <- function(entries,
@@ -100,7 +100,7 @@
   return(w)
 }
 
-#' @importFrom data.table let rbindlist setnames
+#' @importFrom data.table rbindlist setnames
 #' @keywords internal
 #' @noRd
 .weight_nest <- function(nest,
@@ -156,7 +156,7 @@
   return(nest_w)
 }
 
-#' @importFrom data.table copy let rbindlist setnames
+#' @importFrom data.table rbindlist setnames
 #' @keywords internal
 #' @noRd
 .weight_param <- function(i_data,

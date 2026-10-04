@@ -74,7 +74,8 @@
                         var_extract,
                         call) {
   if (is.null(swaps)) {
-    return(list())
+    none <- list()
+    return(none)
   }
   swaps <- .classify_cls(
     closure = swaps,
@@ -130,7 +131,8 @@
 #' @noRd
 .swap_label <- function(swap) {
   if (is.null(attr(swap, "call"))) {
-    return(as.character(swap))
+    label <- as.character(swap)
+    return(label)
   }
   paste(deparse(attr(swap, "call")), collapse = "")
 }
@@ -139,7 +141,8 @@
 #' @noRd
 .swap_tuple_list <- function(keys) {
   if (length(keys) > 5L) {
-    return(sprintf(swap_err$no_order_more, paste(keys[1:5], collapse = ", "), length(keys) - 5L))
+    listed <- sprintf(swap_err$no_order_more, paste(keys[1:5], collapse = ", "), length(keys) - 5L)
+    return(listed)
   }
   paste(keys, collapse = ", ")
 }
@@ -159,8 +162,9 @@
   }))
   initial_exo <- unlist(lapply(unique(mentions$var_name), \(v) .exo_keys(initial, v)))
   tuples <- unique(mentions$key)
-  n_in <- vapply(tuples, \(k) sum(mentions$key == k & mentions$direction == "in"), integer(1))
-  n_out <- vapply(tuples, \(k) sum(mentions$key == k & mentions$direction == "out"), integer(1))
+  at <- match(mentions$key, tuples)
+  n_in <- tabulate(at[mentions$direction == "in"], nbins = length(tuples))
+  n_out <- tabulate(at[mentions$direction == "out"], nbins = length(tuples))
   exo <- tuples %in% initial_exo
   net <- ifelse(exo, n_out - n_in, n_in - n_out)
   list(
@@ -280,7 +284,8 @@
       }
     }
     attr(swap, "direction") <- NULL
-    return(c(closure, list(swap)))
+    closure <- c(closure, list(swap))
+    return(closure)
   }
 
   if (length(var_entries) %=% 0L) {

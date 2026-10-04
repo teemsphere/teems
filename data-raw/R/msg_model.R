@@ -607,6 +607,7 @@ build_model_err <- function() {
       "The coefficient must range over exactly the variable's sets, in the
       same order (GEMPACK manual 11.6.5)."
     ),
+    # test-ems_model.R: "closure missing exo/endo spec"
     missing_specification = "The closure must contain both {.val Exogenous} and {.val Rest Endogenous} entries. The inverse approach is not supported.",
     # test-ems_model.R: "ems_model errors when invalid closure mixed entry present preswap"
     mixed_invalid = "{n_invalid_entries} closure entry element{?s} in {.field {cls_entry}} do not belong to the respective variable sets: {invalid_entries}.",

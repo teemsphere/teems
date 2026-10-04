@@ -103,7 +103,6 @@
 }
 
 #' @importFrom data.table fread is.data.table as.data.table copy
-#' @importFrom purrr pluck map_lgl
 #' @keywords internal
 #' @noRd
 #' @export

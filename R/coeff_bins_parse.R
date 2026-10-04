@@ -1,5 +1,3 @@
-#' @importFrom tibble as_tibble
-#' @importFrom data.table data.table
 #' @keywords internal
 #' @noRd
 .has_coefficient_dump <- function(sol_prefix, presim = FALSE) {

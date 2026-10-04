@@ -10,6 +10,6 @@
     )
     tab <- readLines(tab)
   }
-  enable_time <- any(grepl(pattern = "(intertemporal)", tab))
+  enable_time <- any(grepl(pattern = "\\(\\s*intertemporal\\s*\\)", tab, ignore.case = TRUE))
   return(enable_time)
 }

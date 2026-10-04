@@ -110,7 +110,11 @@ mappings <- process_mappings(
 
 # parameters
 # "value" weights, those of the FlexAgg aggregation programs (aggpar.tab,
-# aggpar_e.tab, aggpar_p.tab); a parameter absent here is averaged.
+# aggpar_e.tab, aggpar_p.tab); a parameter absent here is averaged. ETRE
+# is absent on purpose: FlexAgg passes it through unweighted, and an
+# endowment supply weight is 0 wherever a region has none of the
+# endowment (AEZ land), which would zero a CET the model asserts negative.
+# An aggregate whose weights sum to 0 is the plain mean of its members.
 # "-H" negates header H; "H[DIM=SET]" keeps the elements of H's DIM
 # that belong to the set header SET. ESUBAEZ is not weighted by FlexAgg
 # (it writes the constant 20): the land rents it is weighted by here
@@ -136,7 +140,6 @@ GTAPv7_weights <- list(
   ESBI = c("VDIP", "VMIP"),
   ETRQ = "MAKS",
   ESBQ = "MAKB",
-  ETRE = "EVOS",
   EFVE = c("EVFP", "VDFP[COMM=COME]", "VMFP[COMM=COME]"),
   EAEZ = "EVFP[ENDW=AEZS]"
 )
@@ -184,7 +187,6 @@ GTAPv7_share <- list(
   ESBI = list(list(inputs = list(c("VDIP", "VMIP")), over = "COMM")),
   ETRQ = list(list(inputs = list("MAKS"), over = "COMM")),
   ESBQ = list(list(inputs = list("MAKB"), over = "ACTS")),
-  ETRE = list(list(inputs = list("EVOS"), over = "ACTS")),
   EFVE = list(list(inputs = list("EVFP", c("VDFP[COMM=COME]", "VMFP[COMM=COME]")))),
   EAEZ = list(list(inputs = list("EVFP[ENDW=AEZS]"), over = "ENDW"))
 )

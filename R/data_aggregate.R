@@ -59,14 +59,17 @@
 
   if (all(c("sigma", "omega") %in% colnames(dt))) {
     sum_col <- intersect(c("Value", weight_col), colnames(dt))
-    dt <- dt[, lapply(.SD, FUN = sum), .SDcols = sum_col, by = xval_col]
+    dt <- dt[, c(lapply(.SD, FUN = sum), list(mean_v = mean(Value))),
+      .SDcols = sum_col, by = xval_col
+    ]
     dt$Value <- dt$sigma / dt$omega
     if ("omega_v" %in% colnames(dt)) {
       fallback <- !is.finite(dt$Value)
       dt$Value[fallback] <- dt$sigma_v[fallback] / dt$omega_v[fallback]
     }
-    dt[is.nan(Value), let(Value = 0)]
-    data.table::set(dt, j = intersect(weight_col, colnames(dt)), value = NULL)
+    fallback <- !is.finite(dt$Value)
+    dt$Value[fallback] <- dt$mean_v[fallback]
+    data.table::set(dt, j = c(intersect(weight_col, colnames(dt)), "mean_v"), value = NULL)
   } else {
     sets <- setdiff(colnames(dt), "Value")
     if (sets %!=% character(0)) {

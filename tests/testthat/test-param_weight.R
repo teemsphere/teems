@@ -29,16 +29,32 @@ test_that("a weight entry restricted to a set keeps only its elements", {
   expect_snapshot_error(.weight_restrict(weight = dt[, .(Value)], entry = entry, sets = sets))
 })
 
-test_that("a parameter whose aggregate has no weight is 0, as FlexAgg writes it", {
+test_that("a parameter whose aggregate has no weight is the mean of its members", {
+  # an activity absent from a region has no output to weight ETRQ by;
+  # a zero would fail the model's ETRAQ lt 0 assertion
   dt <- data.table::data.table(
     ACTS = c("a1", "a2", "a3"),
-    Value = c(-5, 2, 4),
+    Value = c(-5, -3, 4),
     omega = c(0, 0, 1),
     sigma = c(0, 0, 4)
   )
   class(dt) <- c("ETRQ", "par", class(dt))
   sets <- list(ACTS = data.table::data.table(origin = c("a1", "a2", "a3"), mapping = c("z", "z", "y")))
   out <- .aggregate_data.par(dt, sets = sets, ndigits = 6L)
-  expect_equal(out[ACTS == "z", Value], 0)
+  expect_equal(out[ACTS == "z", Value], -4)
   expect_equal(out[ACTS == "y", Value], 4)
+  expect_equal(colnames(out), c("ACTS", "Value"))
+  # the share weight falls back to the value weight before the mean
+  dt <- data.table::data.table(
+    ACTS = c("a1", "a2"),
+    Value = c(2, 6),
+    omega = c(0, 0),
+    sigma = c(0, 0),
+    omega_v = c(3, 1),
+    sigma_v = c(6, 6)
+  )
+  class(dt) <- c("ESBM", "par", class(dt))
+  sets <- list(ACTS = data.table::data.table(origin = c("a1", "a2"), mapping = c("z", "z")))
+  out <- .aggregate_data.par(dt, sets = sets, ndigits = 6L)
+  expect_equal(out$Value, 3)
 })

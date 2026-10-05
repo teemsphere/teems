@@ -56,12 +56,7 @@
     )
   }
 
-  has_acc <- "error_estimate" %in% colnames(data_dt)
-  if (has_acc) {
-    data.table::setnames(data_dt, new = c("r_idx", "Value", "error_estimate"))
-  } else {
-    data.table::setnames(data_dt, new = c("r_idx", "Value"))
-  }
+  data.table::setnames(data_dt, old = 1:2, new = c("r_idx", "Value"))
 
   data_dt$var <- rep(vars$cofname, vars$matsize)
 
@@ -123,7 +118,7 @@
     var_extract$ls_upper_idx
   )
 
-  value_cols <- c("Value", "error_estimate", "PreLevel", "PostLevel", "Change", "PercentChange")
+  value_cols <- c("Value", "error_estimate", "Pass1", "Pass2", "Pass3", "Accuracy", "PreLevel", "PostLevel", "Change", "PercentChange")
   lax_check <- all(unlist(purrr::map2(
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),

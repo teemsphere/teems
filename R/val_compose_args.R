@@ -10,7 +10,8 @@
 
   checklist <- list(
     cmf_path = "character",
-    which    = "character"
+    which    = "character",
+    passes   = "logical"
   )
 
   .check_arg_class(

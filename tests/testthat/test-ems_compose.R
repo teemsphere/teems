@@ -50,6 +50,10 @@ test_that("ems_compose errors when invalid which", {
   expect_snapshot_error(ems_compose(cmf_path, which = "not_a_var"))
 })
 
+test_that("ems_compose errors when passes is not logical", {
+  expect_snapshot_error(ems_compose(cmf_path, passes = "yes"))
+})
+
 test_that("ems_compose returns tibble for which = 'all'", {
   result <- ems_compose(cmf_path)
   expect_s3_class(result, "tbl")
@@ -274,6 +278,33 @@ test_that("levels follow the solution in a shocked run", {
     expect_equal(d$Change, d$PostLevel - d$PreLevel, tolerance = 1e-9, label = nm)
     expect_true(any(d$Value != 0), label = nm)
   }
+})
+
+test_that("passes = TRUE adds the three separate solutions, which extrapolate to Value", {
+  nest_temp("compose_passes", write_dir)
+  shocked <- ems_deploy(dat, model, ems_uniform_shock("aoall", 2))
+  steps <- c(2L, 4L, 6L)
+  ems_solve(shocked, solution_method = "Gragg", steps = steps, suppress_outputs = TRUE)
+  out <- ems_compose(shocked, c("qgdp", "qfd"), passes = TRUE)
+  x <- 1 / steps^2
+  w <- vapply(1:3, \(i) prod(x[-i] / (x[-i] - x[i])), numeric(1))
+  for (nm in c("qgdp", "qfd")) {
+    d <- out$dat[[nm]]
+    expect_true(all(c("Pass1", "Pass2", "Pass3", "Accuracy") %in% names(d)), label = nm)
+    expect_true(all(d$Accuracy %in% 1:6), label = nm)
+    expect_true(any(d$Pass1 != d$Value), label = nm)
+    extrapolated <- w[1] * d$Pass1 + w[2] * d$Pass2 + w[3] * d$Pass3
+    expect_equal(extrapolated, d$Value, tolerance = 1e-9, label = nm)
+  }
+  plain <- ems_compose(shocked, "qgdp")
+  expect_false(any(c("Pass1", "Accuracy") %in% names(plain$dat$qgdp)))
+})
+
+test_that("passes = TRUE on a run without separate solutions aborts", {
+  nest_temp("compose_passes_johansen", write_dir)
+  johansen <- ems_deploy(dat, model)
+  ems_solve(johansen, solution_method = "Johansen", suppress_outputs = TRUE)
+  expect_snapshot_error(ems_compose(johansen, "qgdp", passes = TRUE))
 })
 
 test_that("a model typed with all three VPQType forms deploys and solves", {

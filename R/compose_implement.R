@@ -130,6 +130,19 @@
       sol_prefix = v$sol_prefix,
       var_names  = var_names_sel
     )
+    if (isTRUE(v$passes)) {
+      xac <- .parse_solution_xac(
+        sol_prefix = v$sol_prefix,
+        var_tbl = bins$var_union
+      )
+      if (is.null(xac)) {
+        .cli_action(compose_err$no_passes,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
+      bins$xc <- cbind(bins$xc, xac)
+    }
     bins$levels <- .var_presim_levels(
       sol_prefix = v$sol_prefix,
       var_tbl = bins$var_union,

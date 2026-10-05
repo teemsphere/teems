@@ -4,7 +4,7 @@
 \alias{ems_compose}
 \title{Compose model results into structured data objects}
 \usage{
-ems_compose(cmf_path, which = "all")
+ems_compose(cmf_path, which = "all", passes = FALSE)
 }
 \arguments{
 \item{cmf_path}{Character length 1, path to the CMF file
@@ -22,6 +22,18 @@ are read from the solver's binary coefficient dump
 (\code{sol.cof}/\code{sol.cbin}), selectively for named coefficients;
 the per-coefficient CSV files (see \code{write_coefficients} in
 \code{\link[=ems_deploy]{ems_deploy()}}) are used only when the dump is absent.}
+
+\item{passes}{Logical length 1 (default \code{FALSE}). When \code{TRUE},
+each variable's data.table gains the separate solutions that a
+three-pass \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run extrapolates
+from (GEMPACK's SSL, manual 26.8.1): \code{Pass1}, \code{Pass2} and \code{Pass3}
+for the solutions with the fewest to the most steps, in the
+units of \code{Value}, and \code{Accuracy}, the number of significant
+figures to which the passes agree (6 for six or more, 1 for one
+or none; manual 26.2.3). With subintervals each pass is that
+pass over the last subinterval, compounded onto the
+extrapolated result of the earlier ones. An error is raised for
+a run that wrote no separate solutions.}
 }
 \value{
 A tibble with columns "name", "label", "type", and
@@ -57,6 +69,9 @@ outputs <- ems_compose(cmf_path)
 
 # Return specific variables and/or coefficients by name
 outputs <- ems_compose(cmf_path, c("qfd", "EVFP"))
+
+# Add the three separate solutions of a Gragg run
+outputs <- ems_compose(cmf_path, "qgdp", passes = TRUE)
 }
 }
 \seealso{

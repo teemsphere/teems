@@ -23,6 +23,11 @@ build_compose_err <- function() {
     missing_sets = "Set information missing from binary outputs: {.field {x_sets}}.",
     # test-ems_compose.R: "ems_compose errors when invalid which"
     invalid_name = "{.field {name}} is not present in output variables or coefficients.",
+    # test-ems_compose.R: "passes = TRUE on a run without separate solutions aborts"
+    no_passes = c(
+      "This run wrote no separate pass solutions, so {.arg passes} cannot add them.",
+      "They are written for a three-pass {.val Gragg}, {.val Midpoint} or {.val Euler} run (three step counts); a {.val Johansen} or Runge-Kutta run, or one with fewer passes, has none."
+    ),
     # test-ems_compose.R: "a run without a coefficient dump or CSVs warns and returns variables only"
     no_coefficients = c(
       "No coefficient outputs found for this run; only variables are returned.",

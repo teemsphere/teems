@@ -23,6 +23,17 @@
 #'   (`sol.cof`/`sol.cbin`), selectively for named coefficients;
 #'   the per-coefficient CSV files (see `write_coefficients` in
 #'   [`ems_deploy()`]) are used only when the dump is absent.
+#' @param passes Logical length 1 (default `FALSE`). When `TRUE`,
+#'   each variable's data.table gains the separate solutions that a
+#'   three-pass `"Gragg"`, `"Midpoint"` or `"Euler"` run extrapolates
+#'   from (GEMPACK's SSL, manual 26.8.1): `Pass1`, `Pass2` and `Pass3`
+#'   for the solutions with the fewest to the most steps, in the
+#'   units of `Value`, and `Accuracy`, the number of significant
+#'   figures to which the passes agree (6 for six or more, 1 for one
+#'   or none; manual 26.2.3). With subintervals each pass is that
+#'   pass over the last subinterval, compounded onto the
+#'   extrapolated result of the earlier ones. An error is raised for
+#'   a run that wrote no separate solutions.
 #' @details Every variable whose pre-simulation level is known
 #'   gains the columns `PreLevel` and `PostLevel`, plus `Change` (the ordinary
 #'   change) for a percent-change variable or `PercentChange` for a
@@ -42,9 +53,13 @@
 #'
 #' # Return specific variables and/or coefficients by name
 #' outputs <- ems_compose(cmf_path, c("qfd", "EVFP"))
+#'
+#' # Add the three separate solutions of a Gragg run
+#' outputs <- ems_compose(cmf_path, "qgdp", passes = TRUE)
 #' }
 ems_compose <- function(cmf_path,
-                        which = "all"
+                        which = "all",
+                        passes = FALSE
 ) {
 if (missing(cmf_path)) {
   .cli_missing(cmf_path)

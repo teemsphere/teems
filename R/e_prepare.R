@@ -23,7 +23,7 @@
   new_sets <- new_sets[!names(new_sets) %in% nm]
 
   i_data <- .layer_reclass_blocs(i_data, spec, fmt)
-  i_data <- .layer_promote_cde(i_data, spec, call = call)
+  i_data <- .layer_cde(i_data, spec, topp = elements$TOPP, call = call)
   prepared <- .layer_finish(i_data, new_sets, attrs = attrs, flag = spec$flag)
   return(prepared)
 }

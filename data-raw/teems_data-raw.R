@@ -115,6 +115,8 @@ mappings <- process_mappings(
 # endowment supply weight is 0 wherever a region has none of the
 # endowment (AEZ land), which would zero a CET the model asserts negative.
 # An aggregate whose weights sum to 0 is the plain mean of its members.
+# ESDC/ESMC are the v12 CEPII-based Armington set, carried with the
+# ESBD/ESBM weights as aggpar.tab does; no shipped model reads them.
 # "-H" negates header H; "H[DIM=SET]" keeps the elements of H's DIM
 # that belong to the set header SET. ESUBAEZ is not weighted by FlexAgg
 # (it writes the constant 20): the land rents it is weighted by here
@@ -131,6 +133,8 @@ GTAPv6_weights <- list(
 GTAPv7_weights <- list(
   ESBD = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP", "VDIP", "VMIP"),
   ESBM = c("VMPP", "VMGP", "VMFP", "VMIP"),
+  ESDC = c("VDPP", "VMPP", "VMGP", "VDGP", "VDFP", "VMFP", "VDIP", "VMIP"),
+  ESMC = c("VMPP", "VMGP", "VMFP", "VMIP"),
   ESBT = c("VDFP", "VMFP", "EVFP"),
   ESBV = "EVFP",
   INCP = c("VDPP", "VMPP"),
@@ -177,6 +181,16 @@ GTAPv7_share <- list(
     list(inputs = list("VDIP", "VMIP"))
   ),
   ESBM = list(list(
+    inputs = list("VMSB"), over = "SRC", map = "REG",
+    dims = c("COMM", "SRC", "REG")
+  )),
+  ESDC = list(
+    list(inputs = list("VDFP", "VMFP")),
+    list(inputs = list("VDPP", "VMPP")),
+    list(inputs = list("VDGP", "VMGP")),
+    list(inputs = list("VDIP", "VMIP"))
+  ),
+  ESMC = list(list(
     inputs = list("VMSB"), over = "SRC", map = "REG",
     dims = c("COMM", "SRC", "REG")
   )),

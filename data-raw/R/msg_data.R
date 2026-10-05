@@ -63,11 +63,6 @@ build_data_err <- function(layer_spec) {
     ),
     # test-layer_prepare.R: "GTAP-E preparation on a synthetic layer"
     e_incomplete = layer_incomplete("e"),
-    # test-layer_prepare.R: "GTAP-E preparation on a synthetic layer"
-    e_topp_dim = c(
-      "GTAP-E parameter {.field {e_header}} is dimensioned on {.val {e_dim}}, not {.val TOPP}.",
-      "{.field {e_header}} supplies the CDE parameters the model reads over {.val TOPP}; a different dimension would bind the wrong values."
-    ),
     # test-GTAP_convert.R: "GTAP_convert GTAP-E and GTAP-EP targets reject a v6-format database"
     ep_v6_format = c(
       "The {.val GTAP-EP} target prepares the GTAPv7-format GTAP-Power layer (GTAP 11c/12a Power databases); the input is in the v6.2 format.",
@@ -81,9 +76,14 @@ build_data_err <- function(layer_spec) {
       "The split is read from the {.val BL} and {.val P} name suffixes; the long labels are inconsistent and cannot stand in for them."
     ),
     # test-layer_prepare.R: "GTAP-E preparation on a synthetic layer"
+    cde_dim = c(
+      "CDE parameter {.field {e_header}} is dimensioned on {.val {e_dim}}, not {.val COMM}.",
+      "The CDE parameters the model reads over {.val TOPP} are built from the {.val COMM} ones, the energy node as their private-consumption-weighted mean over the energy commodities."
+    ),
+    # test-layer_prepare.R: "GTAP-E preparation on a synthetic layer"
     cde_range = c(
       "The CDE substitution parameter {.field {e_header}} reaches {.val {e_max}}, so {.code ALPHA = 1 - SUBPAR} would be negative.",
-      "The {.val eny} row of the 11c releases is an un-normalised sum over the energy commodities rather than a share-weighted parameter; the 12a releases carry it correctly."
+      "A GTAP parameter file holds {.field {e_header}} in (0, 1]."
     ),
     # test-layer_prepare.R: "a COMM weight is recast onto TOPP"
     e_topp_weight = c(
@@ -134,10 +134,9 @@ build_data_info <- function(layer_spec) {
   cde <- function(spec) {
     paste0(
       "the CDE parameters ",
-      paste(names(spec$cde$pairs), collapse = "/"), " bound to ",
-      paste(vapply(spec$cde$pairs, function(p) p$to, character(1)),
-        collapse = "/"
-      )
+      paste(names(spec$cde$pars), collapse = "/"), " rebuilt over ",
+      spec$cde$dim, " (energy node weighted by ",
+      paste(spec$cde$weight, collapse = "+"), ")"
     )
   }
   aez <- layer_spec$aez

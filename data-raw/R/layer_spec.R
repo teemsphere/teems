@@ -78,8 +78,8 @@ build_layer_spec <- function() {
       ),
       required = list(
         set = c("COMM", "ACTS", "REG", "COME", "FUEL"),
-        par = c("SUBE", "INCE"),
-        dat = character()
+        par = c("SUBP", "INCP"),
+        dat = c("VDPP", "VMPP")
       ),
       # natural_resource: the sector-specific endowment (the .tab's
       # ENDWF), whose cost share recalibrates ELFVAEN for fossil mining
@@ -93,12 +93,16 @@ build_layer_spec <- function() {
         TOPP = list(group = "top", user_set = FALSE)
       ),
       reclass = c(TRBL = FALSE, MAPB = TRUE),
+      # the CDE parameters the model reads over TOPP are rebuilt from the
+      # COMM-level ones as FlexAgg's aggpar_e.tab does: the energy node
+      # is the private-consumption-weighted mean over the energy
+      # commodities. The database's own TOPP headers (a plain mean in
+      # 12a, un-normalised in 11c) are dropped
       cde = list(
         dim = "TOPP",
-        pairs = list(
-          SUBE = list(to = "SUBP", max = 1),
-          INCE = list(to = "INCP", max = NA)
-        )
+        weight = c("VDPP", "VMPP"),
+        pars = list(SUBP = list(max = 1), INCP = list(max = NA)),
+        drop = c("SUBE", "INCE")
       ),
       # TOPP is computed in the .tab (ENY + NENYP), never read; the R
       # side still needs it to dimension the promoted CDE parameters
@@ -117,8 +121,8 @@ build_layer_spec <- function() {
       ),
       required = list(
         set = c("COMM", "ACTS", "REG", "COME", "FUEL", "ELEC", "ELEA"),
-        par = c("SUBE", "INCE"),
-        dat = character()
+        par = c("SUBP", "INCP"),
+        dat = c("VDPP", "VMPP")
       ),
       vocab = list(
         energy_top = "eny",
@@ -151,10 +155,9 @@ build_layer_spec <- function() {
       reclass = c(TRBL = FALSE, MAPB = TRUE),
       cde = list(
         dim = "TOPP",
-        pairs = list(
-          SUBE = list(to = "SUBP", max = 1),
-          INCE = list(to = "INCP", max = NA)
-        )
+        weight = c("VDPP", "VMPP"),
+        pars = list(SUBP = list(max = 1), INCP = list(max = NA)),
+        drop = c("SUBE", "INCE")
       ),
       r_only = "TOPP",
       owns = "^(ELE|ELY|EGN|EBL|EPL|ENY)[FGIP]$"

@@ -26,13 +26,15 @@ synthetic_e <- function() {
     ACTS = mk_set("ACTS", comm),
     FUEL = mk_set("FUEL", fuel),
     COME = mk_set("COME", come),
-    SUBP = mk_arr("SUBP", "par", list(COMM = comm, REG = reg), 0.5),
+    SUBP = mk_arr("SUBP", "par", list(COMM = comm, REG = reg), seq(0.1, 0.8, by = 0.1)),
     INCP = mk_arr("INCP", "par", list(COMM = comm, REG = reg), 1.2),
     SUBE = mk_arr("SUBE", "par", list(TOPP = topp, REG = reg), 0.6),
     INCE = mk_arr("INCE", "par", list(TOPP = topp, REG = reg), 1.4),
     TRBL = mk_bloc("TRBL", reg),
     MAPB = mk_bloc("MAPB", reg),
-    VDFB = mk_arr("VDFB", "dat", list(COMM = comm, ACTS = comm, REG = reg))
+    VDFB = mk_arr("VDFB", "dat", list(COMM = comm, ACTS = comm, REG = reg)),
+    VDPP = mk_arr("VDPP", "dat", list(COMM = comm, REG = reg), c(1, 3, 0, 1, 0, 1, 0, 5)),
+    VMPP = mk_arr("VMPP", "dat", list(COMM = comm, REG = reg), c(1, 1, 0, 0, 0, 1, 0, 5))
   )
   attr(i_data, "metadata") <- list(data_format = fmt, database_version = "GTAPv12")
   class(i_data) <- c(fmt, "list")
@@ -65,14 +67,21 @@ test_that("GTAP-E preparation on a synthetic layer", {
     expect_true(isTRUE(attr(out[[h]], "user_set")))
   }
 
-  # SUBE/INCE bound to the names the model reads, the COMM-dimensioned
-  # incumbents dropped, the bloc headers reclassed as sets
+  # SUBP/INCP rebuilt over TOPP from the COMM-level values: the energy
+  # node is the VDPP+VMPP-weighted mean over the energy commodities
+  # (coa 0.2 x 4, oil 0.3 x 0, gas 0.4 x 1, p_c 0.5 x 0, ely 0.6 x 2,
+  # gdt 0.7 x 0), the other rows carried over; the database's own
+  # TOPP headers dropped, the bloc headers reclassed as sets
   expect_equal(sum(names(out) == "SUBP"), 1L)
   expect_equal(sum(names(out) == "INCP"), 1L)
   expect_false(any(c("SUBE", "INCE") %in% names(out)))
   expect_equal(names(dimnames(out$SUBP)), c("TOPP", "REG"))
+  expect_equal(dimnames(out$SUBP)$TOPP, topp)
   expect_equal(class(out$SUBP)[1:2], c("SUBP", "par"))
-  expect_equal(unique(as.vector(out$INCP)), 1.4)
+  expect_equal(unname(out$SUBP["eny", ]), rep((0.2 * 4 + 0.4 * 1 + 0.6 * 2) / 7, 2))
+  expect_equal(unname(out$SUBP["pdr", ]), c(0.1, 0.1))
+  expect_equal(unname(out$SUBP["mnfcs", ]), c(0.8, 0.8))
+  expect_equal(unique(as.vector(out$INCP)), 1.2)
   expect_true(inherits(out$TRBL, "set"))
   expect_null(attr(out$TRBL, "user_set"))
   expect_true(inherits(out$MAPB, "set"))
@@ -83,17 +92,28 @@ test_that("GTAP-E preparation on a synthetic layer", {
   expect_equal(names(out), c(
     "REG", "COMM", "ACTS", "FUEL", "COME",
     "DCOM", "MCOM", "DELY", "EGY", "ENYP", "ENYG", "ENYI", "TOPP",
-    "SUBP", "INCP", "TRBL", "MAPB", "VDFB"
+    "SUBP", "INCP", "TRBL", "MAPB", "VDFB", "VDPP", "VMPP"
   ))
 
+  # a region with no energy consumption averages the energy rows; a
+  # database without the TOPP headers (or with the un-normalised 11c
+  # row) prepares the same way
+  no_use <- i_data
+  no_use$VDPP[come, "row"] <- 0
+  no_use$VMPP[come, "row"] <- 0
+  no_use$SUBE["eny", ] <- 5.078
+  out <- .prepare_e(no_use[!names(no_use) %in% "INCE"], call = NULL)
+  expect_equal(unname(out$SUBP["eny", ]), c((0.2 * 4 + 0.4 * 1 + 0.6 * 2) / 7, mean(seq(0.2, 0.7, by = 0.1))))
+  expect_false("SUBE" %in% names(out))
+
   # named aborts: an incomplete layer, a mis-dimensioned CDE parameter,
-  # the un-normalised 11c row
+  # a substitution parameter above 1
   expect_snapshot_error(.prepare_e(i_data[names(i_data) != "FUEL"], call = NULL))
   bad_dim <- i_data
-  bad_dim$SUBE <- mk_arr("SUBE", "par", list(COMM = comm, REG = reg), 0.6)
+  bad_dim$SUBP <- mk_arr("SUBP", "par", list(TOPP = topp, REG = reg), 0.6)
   expect_snapshot_error(.prepare_e(bad_dim, call = NULL))
   bad_row <- i_data
-  bad_row$SUBE["eny", ] <- 5.078
+  bad_row$SUBP["gas", ] <- 5.078
   expect_snapshot_error(.prepare_e(bad_row, call = NULL))
 })
 
@@ -117,7 +137,9 @@ test_that("GTAP-EP preparation on a synthetic layer", {
     INCP = mk_arr("INCP", "par", list(COMM = p_comm, REG = reg), 1.2),
     SUBE = mk_arr("SUBE", "par", list(TOPP = p_topp, REG = reg), 0.6),
     INCE = mk_arr("INCE", "par", list(TOPP = p_topp, REG = reg), 1.4),
-    VDFB = mk_arr("VDFB", "dat", list(COMM = p_comm, ACTS = p_comm, REG = reg))
+    VDFB = mk_arr("VDFB", "dat", list(COMM = p_comm, ACTS = p_comm, REG = reg)),
+    VDPP = mk_arr("VDPP", "dat", list(COMM = p_comm, REG = reg)),
+    VMPP = mk_arr("VMPP", "dat", list(COMM = p_comm, REG = reg))
   )
   attr(i_data, "metadata") <- list(data_format = fmt, database_version = "GTAPv12")
   class(i_data) <- c(fmt, "list")
@@ -150,6 +172,8 @@ test_that("GTAP-EP preparation on a synthetic layer", {
     expect_true(isTRUE(attr(out[[paste0("ELE", agent)]], "user_set")))
   }
   expect_equal(names(dimnames(out$SUBP)), c("TOPP", "REG"))
+  expect_equal(dimnames(out$SUBP)$TOPP, p_topp)
+  expect_equal(unique(as.vector(out$SUBP)), 0.5)
   expect_false(any(c("SUBE", "INCE") %in% names(out)))
   expect_equal(which(names(out) == "DCOM"), 9L)
   expect_true(inherits(out$VDFB, "dat"))

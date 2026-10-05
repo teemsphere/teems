@@ -449,25 +449,26 @@ test_that("GTAP_convert GTAP-EP target (v12a Power, v7 format)", {
   expect_lte(max(ep$par$SUBP), 1)
 })
 
-test_that("GTAP_convert refuses the 11c energy releases by name", {
+test_that("GTAP_convert prepares the 11c energy releases", {
+  # the 11c SUBE row is an un-normalised sum; the TOPP parameters are
+  # rebuilt from the commodity-level ones, so the row is never read
   skip_if(!nzchar(Sys.getenv("GTAP11cE_dat")), "GTAP11cE_* inputs not set")
-  expect_error(
-    GTAP_convert(
-      Sys.getenv("GTAP11cE_dat"),
-      Sys.getenv("GTAP11cE_par"),
-      Sys.getenv("GTAP11cE_set"),
-      "GTAP-E"
-    ),
-    "un-normalised"
+  e <- GTAP_convert(
+    Sys.getenv("GTAP11cE_dat"),
+    Sys.getenv("GTAP11cE_par"),
+    Sys.getenv("GTAP11cE_set"),
+    "GTAP-E"
   )
+  expect_equal(names(dimnames(e$par$SUBP))[[1]], "TOPP")
+  expect_false(any(c("SUBE", "INCE") %in% names(e$par)))
+  expect_true(all(e$par$SUBP > 0 & e$par$SUBP <= 1))
   skip_if(!nzchar(Sys.getenv("GTAP11cP_dat")), "GTAP11cP_* inputs not set")
-  expect_error(
-    GTAP_convert(
-      Sys.getenv("GTAP11cP_dat"),
-      Sys.getenv("GTAP11cP_par"),
-      Sys.getenv("GTAP11cP_set"),
-      "GTAP-EP"
-    ),
-    "un-normalised"
+  ep <- GTAP_convert(
+    Sys.getenv("GTAP11cP_dat"),
+    Sys.getenv("GTAP11cP_par"),
+    Sys.getenv("GTAP11cP_set"),
+    "GTAP-EP"
   )
+  expect_equal(names(dimnames(ep$par$SUBP))[[1]], "TOPP")
+  expect_true(all(ep$par$SUBP > 0 & ep$par$SUBP <= 1))
 })

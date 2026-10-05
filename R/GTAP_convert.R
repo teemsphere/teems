@@ -32,9 +32,8 @@
 #'   corresponding model, adding the sets and parameters the model
 #'   reads that the database does not ship. These targets do not
 #'   convert between data formats: a v6-format database (the GTAP
-#'   10a layers) is refused, as are the GTAP 11c E and Power
-#'   releases. [`ems_data()`] applies the same preparation on its
-#'   own when it detects one of these databases.
+#'   10a layers) is refused. [`ems_data()`] applies the same
+#'   preparation on its own when it detects one of these databases.
 #' @seealso [`ems_data()`] for loading and preparing converted
 #'   data for a model run.
 #' @examples

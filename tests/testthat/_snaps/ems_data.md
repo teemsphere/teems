@@ -91,5 +91,5 @@
 # ems_data rejects a par_weights parameter the format does not weight
 
     x `par_weights` names "ESBX", which "GTAPv7" data does not weight.
-    i Weighted parameters: "ESBD", "ESBM", "ESBT", "ESBV", "INCP", "SUBP", "ESBC", "ESBG", "ESBI", "ETRQ", "ESBQ", "EFVE", and "EAEZ".
+    i Weighted parameters: "ESBD", "ESBM", "ESDC", "ESMC", "ESBT", "ESBV", "INCP", "SUBP", "ESBC", "ESBG", "ESBI", "ETRQ", "ESBQ", "EFVE", and "EAEZ".
 

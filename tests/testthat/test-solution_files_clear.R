@@ -1,13 +1,14 @@
-test_that("a previous run's solution files are cleared and the probe record survives", {
+test_that("a previous run's solution files and probe record are cleared", {
   run_dir <- withr::local_tempdir()
   bin_dir <- file.path(run_dir, "out", "variables", "bin")
   dir.create(bin_dir, recursive = TRUE)
   stale <- file.path(bin_dir, paste0("sol", c(
     ".bin", ".est", ".acc", ".var", ".sel", ".set", ".mds",
     ".cof", ".cbin", ".stats.json", ".cbin0", ".xac", ".cols",
-    ".cols.json", ".jac", ".jac.json", ".outputs.json", ".outputs.json.tmp"
+    ".cols.json", ".jac", ".jac.json", ".outputs.json", ".outputs.json.tmp",
+    ".probe.json", ".probe.pattern"
   )))
-  kept <- file.path(bin_dir, "sol.probe.json")
+  kept <- file.path(bin_dir, "notes.txt")
   for (f in c(stale, kept)) {
     writeLines("stale", f)
   }

@@ -104,10 +104,11 @@ test_that("a scalar variable shock is written without sets or uniform", {
   expect_true(any(grepl("Shock pfactwld = 1;", unlist(lapply(shf, readLines)), fixed = TRUE)))
   outputs <- ems_solve(cmf_path, solution_method = "Johansen")
   expect_equal(outputs$dat[[match("pfactwld", outputs$name)]]$Value, 1, tolerance = 1e-6)
-  for (shock in c("Shock pfactwld = 1;\n", "Shock pfactwld = uniform 1;\n")) {
+  shocks <- c(plain = "Shock pfactwld = 1;\n", uniform = "Shock pfactwld = uniform 1;\n")
+  for (form in names(shocks)) {
     shf <- tempfile(fileext = ".shf")
-    cat(shock, file = shf)
-    nest_temp("solve_scalar_shock_file", write_dir)
+    cat(shocks[[form]], file = shf)
+    nest_temp(paste0("solve_scalar_shock_file_", form), write_dir)
     cmf_path <- ems_deploy(static_data, static_model, shock_file = shf)
     outputs <- ems_solve(cmf_path, solution_method = "Johansen")
     expect_equal(outputs$dat[[match("pfactwld", outputs$name)]]$Value, 1, tolerance = 1e-6)
@@ -1116,16 +1117,27 @@ test_that("Runge-Kutta methods solve consistently and expose accuracy metrics (r
   # it measures nothing about method agreement
   # the PostSim report tables (sums of the same $-million welfare
   # contributions) are excluded for the same reason
+  # coefficients are stored in float32, so a small element that is the
+  # difference of large ones (DPTAX -7.6 beside 7e5) carries a rounding
+  # step of the header's largest value: coefficient differences are
+  # scaled by that, variable differences element by element
   rk_metric <- function(a, b) {
     keep <- !grepl("^(ev|wev|cnt|del_)", a$name, ignore.case = TRUE) &
       a$name != "u" & a$type != "postsim"
-    g <- unlist(lapply(a$dat[keep], function(d) d$Value))
-    r <- unlist(lapply(b$dat[keep], function(d) d$Value))
-    max(abs(g - r) / pmax(1, abs(g)))
+    gaps <- mapply(function(g, r, type) {
+      scale <- if (type == "coefficient") {
+        max(1, abs(g$Value))
+      } else {
+        pmax(1, abs(g$Value))
+      }
+      max(abs(g$Value - r$Value) / scale)
+    }, a$dat[keep], b$dat[keep], a$type[keep])
+    max(gaps)
   }
-  # 2e-3: measured 4.9e-4 (XTAXD) for both RK4 and DoPri54 against
-  # Gragg 2-4-8 under aoall +5 on big3; Johansen sits at 2.45, so the
-  # bound separates a method defect from extrapolation noise
+  # 2e-3: under share weights on big3 with aoall +5, RK4 and DoPri54
+  # agree with Gragg 2-4-8 to 1.6e-5 and 8.5e-6 on the variables, while
+  # unscaled DPTAX/XTAXD rounding steps reach 4.1e-3; Johansen sits at
+  # 2.37, so the bound separates a method defect from extrapolation noise
   expect_lt(rk_metric(gragg, rk4), 2e-3)
 
   # fixed-step explicit runs carry no accuracy metrics

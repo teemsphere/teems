@@ -294,8 +294,6 @@ Variable (Name fincome VPQType Value);
 Variable (Name expand VPQType None);
 Variable (Name pr VPQType None);
 Variable (Name pfactreal VPQType None);
-Variable (Name pebfactreal VPQType None);
-Variable (Name pefactreal VPQType None);
 Variable (Name endwslack VPQType None);
 Variable (Name profitslack VPQType None);
 Variable (Name incomeslack VPQType None);

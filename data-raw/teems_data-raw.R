@@ -205,9 +205,18 @@ GTAPv7_share <- list(
   EAEZ = list(list(inputs = list("EVFP[ENDW=AEZS]"), over = "ENDW"))
 )
 
+# region-generic parameters: FlexAgg weights these with world totals and
+# writes one value to every region (their per-region means go to the
+# SBDR/SBMR/SBCR/SBVR headers no model reads), so the "value" method
+# does the same; the "share" method weights every parameter with the
+# region's own nest. The v6-format headers carry no REG dimension and
+# are world-weighted as they stand
+GTAPv7_generic <- c("ESBD", "ESBM", "ESDC", "ESMC", "ESBC", "ESBV")
+
 param_weights <- list(
   value = list(GTAPv6 = GTAPv6_weights, GTAPv7 = GTAPv7_weights),
-  share = list(GTAPv6 = GTAPv6_share, GTAPv7 = GTAPv7_share)
+  share = list(GTAPv6 = GTAPv6_share, GTAPv7 = GTAPv7_share),
+  generic = list(GTAPv6 = character(), GTAPv7 = GTAPv7_generic)
 )
 set_conversion <- data.frame(
   GTAPv6name = c(

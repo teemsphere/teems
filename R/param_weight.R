@@ -166,10 +166,11 @@
                           methods,
                           data_format) {
 
-  omega <- omega_v <- Value <- TOPP <- NULL
+  omega <- omega_v <- Value <- TOPP <- sigma <- NULL
 
   value_map <- param_weights$value[[data_format]]
   share_map <- param_weights$share[[data_format]]
+  generic <- param_weights$generic[[data_format]]
 
   is_topp <- vapply(i_data, \(h) {
     is.data.frame(h) && "TOPP" %in% colnames(h)
@@ -228,6 +229,13 @@
     } else if (!is.null(w_value)) {
       h <- merge(h, w_value, h_sets)
       h[, let(sigma = Value * omega)]
+      if (p %in% generic && "REG" %in% h_sets) {
+        h[, let(
+          Value = if (sum(omega) > 0) sum(sigma) / sum(omega) else mean(Value),
+          omega = sum(omega)
+        ), by = setdiff(h_sets, "REG")]
+        h[, let(sigma = Value * omega)]
+      }
     }
     return(h)
   })

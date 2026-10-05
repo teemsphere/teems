@@ -58,3 +58,36 @@ test_that("a parameter whose aggregate has no weight is the mean of its members"
   out <- .aggregate_data.par(dt, sets = sets, ndigits = 6L)
   expect_equal(out$Value, 3)
 })
+
+test_that("a region-generic parameter is world-weighted under the value method", {
+  # ESBD a: 2 in r1, 4 in r2; b: 6 everywhere. Household purchases a:
+  # 1 in r1, 3 in r2; b: 1 in each; nothing else. FlexAgg's world
+  # weights are a 4, b 2, and a's world mean is 3.5, so the aggregate
+  # c = (3.5 * 4 + 6 * 2) / 6 in both regions. The share method keeps
+  # the region's own weights (every nest share is 1, so it falls back
+  # to the region's value weights: r1 (2 + 6) / 2, r2 (4 * 3 + 6) / 4)
+  comm <- c("a", "b")
+  reg <- c("r1", "r2")
+  esbd <- data.table::data.table(
+    COMM = rep(comm, each = 2), REG = rep(reg, 2), Value = c(2, 4, 6, 6)
+  )
+  class(esbd) <- c("ESBD", "par", class(esbd))
+  mk <- function(v) array(v, dim = c(2L, 2L), dimnames = list(COMM = comm, REG = reg))
+  weights <- list(VDPP = mk(c(1, 1, 3, 1)))
+  for (h in c("VMPP", "VMGP", "VDGP", "VDFP", "VMFP", "VDIP", "VMIP")) {
+    weights[[h]] <- mk(0)
+  }
+  maps <- list(
+    COMM = data.table::data.table(origin = comm, mapping = c("c", "c")),
+    REG = data.table::data.table(origin = reg, mapping = reg)
+  )
+  agg <- function(method) {
+    w <- .weight_param(
+      i_data = list(ESBD = data.table::copy(esbd)), weights = weights, sets = list(),
+      set_mappings = maps, methods = c(ESBD = method), data_format = "GTAPv7"
+    )
+    .aggregate_data.par(w$ESBD, sets = maps, ndigits = 6L)
+  }
+  expect_equal(agg("value")$Value, rep((3.5 * 4 + 6 * 2) / 6, 2), tolerance = 1e-6)
+  expect_equal(agg("share")$Value, c(4, 4.5))
+})

@@ -572,12 +572,15 @@ test_that("par_weights selects the share or value weights per parameter", {
   expect_equal(unname(attr(mixed_data, "metadata")$par_weights["ESBM"]), "value")
   # China's livestock imports are half wool (ESBM 12.9), nearly all from
   # one aggregated source: its sourcing can barely shift, so share
-  # weights keep wool from dominating the aggregate as value weights do
-  livestock <- \(d, h) d[[h]][COMM == "livestock" & REG == "chn", Value]
+  # weights keep wool from dominating the aggregate. Value weights are
+  # FlexAgg's: world import totals, one value for every region
+  livestock <- \(d, h, r = "chn") d[[h]][COMM == "livestock" & REG == r, Value]
   expect_equal(livestock(agg_data, "ESBM"), 3.010618, tolerance = 1e-5)
-  expect_equal(livestock(value_data, "ESBM"), 7.64888, tolerance = 1e-5)
+  expect_equal(livestock(value_data, "ESBM"), 3.980415, tolerance = 1e-5)
+  expect_equal(livestock(value_data, "ESBM", "usa"), 3.980415, tolerance = 1e-5)
   # ESBD pools one domestic/imported nest per agent
   expect_equal(livestock(agg_data, "ESBD"), 2.451707, tolerance = 1e-5)
+  expect_equal(livestock(value_data, "ESBD"), 2.115725, tolerance = 1e-5)
   expect_equal(mixed_data$ESBM, value_data$ESBM)
   expect_equal(mixed_data$ESBD, agg_data$ESBD)
   # the CDE parameters are value weighted under either method

@@ -50,7 +50,10 @@ the members' response to a small relative price change.
 Members whose input shares cannot move (for example a
 commodity that is never imported) carry no weight.
 \item \code{"value"}: each member is weighted by the value of its
-nest, as the FlexAgg aggregation programs do.
+nest, as the FlexAgg aggregation programs do; the Armington,
+intermediate-input and value-added elasticities are weighted
+with world totals and take one value in every region, as
+FlexAgg writes them.
 }
 
 An unnamed element sets the method for every weighted

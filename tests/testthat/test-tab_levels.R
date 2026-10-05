@@ -138,6 +138,83 @@ test_that("c_-leading levels variable name aborts", {
   ))
 })
 
+test_that("ADD_HOMOTOPY qualifiers and defaults declare their homotopy variables (manual 26.7.5)", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (levels,change) HA1;",
+      "Formula (initial) HA1 = 1;",
+      "Variable (levels,change) HA2;",
+      "Formula (initial) HA2 = 1;",
+      "Variable (levels,change) HA3;",
+      "Formula (initial) HA3 = 1;",
+      "Variable (levels,change) HA4;",
+      "Formula (initial) HA4 = 1;",
+      "Equation (default=add_homotopy=homo1);",
+      "Equation (levels) E_HA1 HA1 = 2;",
+      "Equation (levels, add_homotopy=homo2) E_HA2 HA2 = 3;",
+      "Equation (default=not_add_homotopy);",
+      "Equation (levels, add_homotopy) E_HA3 HA3 = 4;",
+      "Equation (levels) E_HA4 HA4 = 1;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  eq <- model[model$type == "Equation" & model$name %in% c("E_HA1", "E_HA2", "E_HA3", "E_HA4"), ]
+  expect_identical(gsub(" ", "", eq$qualifier_list[match(c("E_HA1", "E_HA2", "E_HA3", "E_HA4"), eq$name)], fixed = TRUE),
+    c("(levels,add_homotopy=homo1)", "(levels,add_homotopy=homo2)", "(levels,add_homotopy)", "(levels)"))
+  hv <- model[model$type == "Variable" & tolower(model$name) %in% c("homo1", "homo2", "homotopy"), ]
+  expect_setequal(tolower(hv$name), c("homo1", "homo2", "homotopy"))
+  expect_true(all(hv$qualifier_list == "(levels,change)"))
+  tab <- .finalize_tab(model)
+  expect_match(tab, "Formula (initial) homo1 = -1", fixed = TRUE)
+  expect_match(tab, "Formula (initial) HOMOTOPY = -1", fixed = TRUE)
+})
+
+test_that("a homotopy variable the model declares is not declared again", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (levels,change) HOMOTOPY # declared by the model #;",
+      "Formula (initial) HOMOTOPY = -1;",
+      "Variable (levels,change) HB1;",
+      "Formula (initial) HB1 = 1;",
+      "Equation (levels, add_homotopy) E_HB1 HB1 = 2;",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_identical(sum(model$type == "Variable" & tolower(model$name) == "homotopy"), 1L)
+})
+
+test_that("compositions, offsets on mapped indices and LHS mappings parse (manual 11.9.6-11.9.8)", {
+  quiet_pivot(model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Set GRP (g1, g2);",
+      "Set HH (h1, h2);",
+      "Mapping R2G from REG to GRP;",
+      "Read (by_elements) R2G from file GTAPDATA header \"R2G\";",
+      "Mapping G2H from GRP to HH;",
+      "Read (by_elements) G2H from file GTAPDATA header \"G2H\";",
+      "Coefficient (all,h,HH) CHH(h);",
+      "Formula (all,h,HH) CHH(h) = $pos(h);",
+      "Coefficient (all,r,REG) CRR(r);",
+      "Formula (all,r,REG) CRR(r) = CHH(G2H(R2G(r)));",
+      "Coefficient (all,h,HH) CGL(h);",
+      "Formula (all,h,HH) CGL(h) = 0;",
+      "Formula (all,g,GRP) CGL(G2H(g)) = 5;",
+      "Variable (all,h,HH) xhh(h);",
+      "Variable (all,r,REG) yrr(r);",
+      "Equation E_yrr (all,r,REG) yrr(r) = xhh(G2H(R2G(r)));",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  ))
+  expect_true(all(c("CRR", "CGL") %in% model$name[model$type == "Coefficient"]))
+  expect_true("E_yrr" %in% model$name[model$type == "Equation"])
+})
+
 # --- e2e solve legs (need a teems image with the C0 levels solver,
 # --- teems-solver 126698d+; run with ems_option_set(docker_tag =
 # --- "dev") against a current rebuild) --------------------------------
@@ -269,4 +346,54 @@ test_that("a sum condition in a levels equation reaches the solver as written", 
   ))
   tab <- .finalize_tab(model)
   expect_match(tab, "Equation (levels) E_LT LT = sum{r,REG: r <> \"usa\", LS(r)}", fixed = TRUE)
+})
+
+solver_has_homotopy <- function() {
+  img <- paste0("teems:", .resolve_docker_tag())
+  if (!.docker_image_present(img)) {
+    return(FALSE)
+  }
+  out <- suppressWarnings(system2(
+    "docker",
+    c(
+      "run", "--rm", img, "/bin/bash", "-c",
+      shQuote("grep -c 'ADD_HOMOTOPY' /opt/teems-solver/solver/teems-solver")
+    ),
+    stdout = TRUE,
+    stderr = FALSE
+  ))
+  length(out) > 0L && !is.na(suppressWarnings(as.integer(out[1]))) &&
+    as.integer(out[1]) > 0L
+}
+
+test_that("ADD_HOMOTOPY takes the data onto a levels equation (manual 26.7.1, e2e)", {
+  nest_temp("levels_homotopy_e2e", write_dir)
+  skip_if(!solver_has_homotopy(), "teems image predates ADD_HOMOTOPY")
+  # V2 = V1 + K holds at the start (Formula & Equation); V1^2 + V2^2 = 5
+  # does not, until HOMOTOPY moves from -1 to 0: the roots reached from
+  # V1 = K + 2 are 1, (-4 + sqrt(24))/4 and -1 for K = 1, 2, 3
+  d <- lv_data()
+  block <- paste(
+    "Variable (levels,change) (all,r,REG) HV1(r);",
+    "Variable (levels,change) (all,r,REG) HV2(r);",
+    "Coefficient (parameter) (all,r,REG) HK(r);",
+    "Formula (initial) (all,r,REG) HK(r) = $pos(r);",
+    "Formula (initial) (all,r,REG) HV1(r) = $pos(r) + 2;",
+    "Formula & Equation E_HV2 (all,r,REG) HV2(r) = HV1(r) + HK(r);",
+    "Equation (levels, add_homotopy) E_HV1 (all,r,REG) HV1(r)^2 + HV2(r)^2 = 5;",
+    sep = "\n"
+  )
+  quiet_pivot(model <- ems_model(mutate_tab(block, name = "homotopy.tab"), closure_file))
+  cmf_path <- ems_deploy(
+    d,
+    model,
+    shock = ems_uniform_shock(var = "HOMOTOPY", value = 1),
+    swap_in = "HOMOTOPY"
+  )
+  out <- suppressMessages(ems_solve(cmf_path, solution_method = "Gragg", steps = c(20L, 40L, 80L)))
+  hv1 <- out$dat[[which(out$name == "HV1")]]
+  expect_equal(hv1$Value, c(-2, (-4 + sqrt(24)) / 4 - 4, -6), tolerance = 1e-3)
+  expect_equal(hv1$PostLevel, c(1, (-4 + sqrt(24)) / 4, -1), tolerance = 1e-3)
+  homo <- out$dat[[which(out$name == "HOMOTOPY")]]
+  expect_equal(homo$PostLevel, 0, tolerance = 1e-6)
 })

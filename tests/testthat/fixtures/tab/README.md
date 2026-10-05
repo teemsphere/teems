@@ -25,7 +25,7 @@ input, not just clean strings.
 | qual_empty | Q4 | empty `()` qualifier list |
 | bound_dup | B1 | duplicate lower bound |
 | default_coef_bound | D | `Coefficient (default=lower_bound ...)` |
-| default_eq_homotopy | D1 | `Equation (default=add_homotopy)` |
+| default_eq_homotopy | D1 | `Equation (default=add_homotopy=)` (no name) |
 | read_no_header | U3 | headerless Read |
 | read_terminal | U2 | Read from terminal |
 | read_undeclared | U4 | Read into undeclared name |

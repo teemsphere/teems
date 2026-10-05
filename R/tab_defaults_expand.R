@@ -18,6 +18,9 @@
     if (is_def[i]) {
       val <- sub("^[^(]*\\(\\s*default\\s*=?\\s*([^);]*).*$", "\\1", no_label[i], ignore.case = TRUE)
       val <- tolower(gsub("[[:space:]]", "", val))
+      if (kw[i] == "Equation" && grepl("^(not_)?add_homotopy", val)) {
+        state[["homotopy"]] <- val
+      }
       for (cl in seq_along(classes)) {
         if (val %in% classes[[cl]]) {
           state[[paste(kw[i], cl)]] <- val
@@ -33,6 +36,10 @@
       if (!is.null(v) && !any(toks %in% classes[[cl]])) {
         add <- c(add, v)
       }
+    }
+    if (kw[i] == "Equation" && "levels" %in% c(toks, add) && !any(grepl("^(not_)?add_homotopy", toks)) &&
+      startsWith(state[["homotopy"]] %|||% "", "add_homotopy")) {
+      add <- c(add, state[["homotopy"]])
     }
     if (length(add) > 0L) {
       statements[i] <- .add_leading_qualifiers(statements[i], add)

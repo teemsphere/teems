@@ -85,6 +85,7 @@
   statements <- .drop_set_writes(statements)
   statements <- .canonical_keywords(statements)
   statements <- .expand_tab_defaults(statements, call = call)
+  statements <- .declare_homotopy(statements)
   return(statements)
 }
 

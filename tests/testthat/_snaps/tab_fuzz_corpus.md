@@ -5,7 +5,7 @@
     Output
       bound_dup.tab: x Duplicate lower bound in declaration: "Coefficient (ge 0, ge 1) (all,r,REG) BNDP(r) # duplicate lower bound #" i One lower (`ge`/`gt`) and one upper (`le`/`lt`) bound are allowed per declaration (GEMPACK manual 10.19.1).
       default_coef_bound.tab: x Coefficient bound defaults are not supported (GEMPACK manual 10.19): "Coefficient (default=lower_bound ge 0)"
-      default_eq_homotopy.tab: x Equation `(default=add_homotopy)` is not supported (GEMPACK manual 10.19): "Equation (default=add_homotopy)"
+      default_eq_homotopy.tab: x Unknown Equation default "add_homotopy=" (GEMPACK manual 10.19): "Equation (default=add_homotopy=)"
       formula_and_equation.tab: x Malformed `Formula & Equation` statement: expected `Formula [(initial)] & Equation [(levels)] name [quantifiers] lhs = rhs` (GEMPACK manual 10.9.1): "Formula & Equation E_ppl # malformed: no equals # (all,r,REG) PPL(r)"
       formula_no_equals.tab: x Formula statement without `=`: "Formula NOEQ 1" i Either the statement is malformed or its leading token is an unrecognized keyword that was read as an implicit Formula continuation.
       index_not_subset.tab: x Index "a" of `qo(a,r)` in Equation E_qlnd ranges over set "LANDACTS", which is not "ACTS" (the declared set at that argument position) or a declared subset of it. i GEMPACK requires the relation to be declared (manual 10.1.2): add `Subset LANDACTS is subset of ACTS;`. Without it the solver would address the wrong elements of "ACTS".

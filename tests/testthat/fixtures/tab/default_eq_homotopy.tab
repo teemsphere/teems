@@ -4,4 +4,4 @@ Coefficient (all,r,REG) PPL(r) # population #;
 Read PPL from file GTAPDATA header "POP";
 Variable (all,r,REG) pop(r) # population growth #;
 Equation E_pop # identity # (all,r,REG) pop(r) = pop(r);
-Equation (default=add_homotopy);
+Equation (default=add_homotopy=);

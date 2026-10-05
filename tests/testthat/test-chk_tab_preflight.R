@@ -159,7 +159,7 @@ test_that("invalid Default statements abort", {
   expect_preflight_error("Coefficient (default=lower_bound ge 0);")
   expect_preflight_error("Variable (default=foo);")
   expect_preflight_error("Update (default=always);")
-  expect_preflight_error("Equation (default=add_homotopy);")
+  expect_preflight_error("Equation (default=add_homotopy=);")
 })
 
 test_that("Default statements apply positionally to the declarations that follow", {

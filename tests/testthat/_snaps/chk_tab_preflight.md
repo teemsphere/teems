@@ -69,7 +69,7 @@
 
 ---
 
-    x Equation `(default=add_homotopy)` is not supported (GEMPACK manual 10.19): "Equation (default=add_homotopy)"
+    x Unknown Equation default "add_homotopy=" (GEMPACK manual 10.19): "Equation (default=add_homotopy=)"
 
 # self-referential set expressions abort
 

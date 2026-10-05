@@ -114,9 +114,6 @@ build_model_err <- function() {
       manual 10.19.1)."
     ),
     # test-chk_tab_preflight.R: "invalid Default statements abort"
-    default_homotopy = "Equation {.code (default=add_homotopy)} is not
-    supported (GEMPACK manual 10.19): {.val {bad_stmt}}",
-    # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_bound = "Coefficient bound defaults are not supported
     (GEMPACK manual 10.19): {.val {bad_stmt}}",
     # test-chk_tab_preflight.R: "invalid Default statements abort"

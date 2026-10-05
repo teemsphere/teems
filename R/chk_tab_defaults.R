@@ -20,14 +20,11 @@
     if (bad_val %in% tab_default_values[[kw]]) {
       next
     }
+    if (kw == "equation" && grepl("^add_homotopy(=[a-z][a-z0-9_]*)?$", bad_val)) {
+      next
+    }
     if (kw == "coefficient" && grepl("^(lower|upper)_bound", bad_val)) {
       .cli_action(model_err$default_bound,
-        action = "abort",
-        call = call
-      )
-    }
-    if (kw == "equation" && grepl("^add_homotopy", bad_val)) {
-      .cli_action(model_err$default_homotopy,
         action = "abort",
         call = call
       )

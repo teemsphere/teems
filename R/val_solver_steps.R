@@ -2,6 +2,7 @@
 #' @keywords internal
 #' @noRd
 .validate_solver_steps <- function(a,
+                                   paths,
                                    call) {
   is_rk <- .solver_is_rk(a$solution_method)
   is_rk_embedded <- .solver_is_rk_embedded(a$solution_method)
@@ -24,11 +25,14 @@
       )
     }
     if (a$n_subintervals != 1) {
-      solution_method <- a$solution_method
-      .cli_action(solve_err$rk_subintervals,
-        action = c("abort", "inform"),
-        call = call
-      )
+      n_comp_active <- .deploy_metadata(cmf_path = paths$cmf)$n_comp_active %|||% 0
+      if (n_comp_active == 0 || isFALSE(a$complementarity$do_acc_run)) {
+        solution_method <- a$solution_method
+        .cli_action(solve_err$rk_subintervals,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
     }
     if (!all(is.numeric(a$eps_tolerance), length(a$eps_tolerance) == 1, a$eps_tolerance > 0)) {
       .cli_action(solve_err$epstol_range,

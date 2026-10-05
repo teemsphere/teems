@@ -73,6 +73,7 @@
   metadata$vpqtype <- attr(v$model, "vpqtype")
   metadata$system_size <- size_metadata$system_size
   metadata$n_var_ele <- size_metadata$n_var_ele
+  metadata$n_comp_active <- n_comp_active
   metadata$n_exo_ele <- size_metadata$n_exo_ele
   metadata$n_reg <- size_metadata$n_reg
   time_steps <- attr(args_list$.data, "time_steps")

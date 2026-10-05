@@ -53,8 +53,8 @@
 
 ---
 
-    x `n_subintervals` must be 1 when `solution_method` is "BoSha32".
-    i Subintervals restart the integrator and only benefit the extrapolating methods; increase `steps` (or use `adaptive`) instead.
+    x `n_subintervals` must be 1 when `solution_method` is "BoSha32", except in a complementarity run with an accurate run.
+    i Elsewhere subintervals restart the integrator and only benefit the extrapolating methods; increase `steps` (or use `adaptive`) instead. In a complementarity run each subinterval re-predicts the states (an approximate and an accurate run), with `steps` steps in each.
 
 ---
 

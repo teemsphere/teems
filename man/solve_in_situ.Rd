@@ -138,7 +138,10 @@ prints the call to paste (see Details).
 \item{n_subintervals}{Integer length 1 (default is \code{1L}),
 number of subintervals for the applied shock. More
 subintervals may alleviate accuracy issues stemming from
-large shock magnitudes.}
+large shock magnitudes. In a model with active
+complementarities each subinterval runs its own approximate
+and accurate run; the Runge-Kutta methods take subintervals
+only there.}
 
 \item{steps}{Integer (default is \code{NULL}, resolved per method:
 \code{c(2L, 4L, 8L)} for the extrapolating methods, \code{4L} for the

@@ -105,9 +105,10 @@ build_solve_err <- function() {
       "Only the embedded pairs provide the per-step error estimate the adaptive controller acts on."
     ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
+    # test-val_solver_steps.R: "Runge-Kutta subintervals pass only in a complementarity run with an accurate run"
     rk_subintervals = c(
-      "{.arg n_subintervals} must be 1 when {.arg solution_method} is {.val {solution_method}}.",
-      "Subintervals restart the integrator and only benefit the extrapolating methods; increase {.arg steps} (or use {.arg adaptive}) instead."
+      "{.arg n_subintervals} must be 1 when {.arg solution_method} is {.val {solution_method}}, except in a complementarity run with an accurate run.",
+      "Elsewhere subintervals restart the integrator and only benefit the extrapolating methods; increase {.arg steps} (or use {.arg adaptive}) instead. In a complementarity run each subinterval re-predicts the states (an approximate and an accurate run), with {.arg steps} steps in each."
     ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
     epstol_range = "{.arg eps_tolerance} must be a positive numeric of length 1.",

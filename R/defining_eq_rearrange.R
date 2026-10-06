@@ -66,11 +66,6 @@
       csub = csub
     )
 
-    .cli_action(model_wrn$condense_pivot_zero,
-      action = c("warn", "inform"),
-      call = call
-    )
-
     solution <- lapply(others, \(t) {
       t$fac <- c(t$fac, pivot_ref)
       t$ops <- c(t$ops, "/")

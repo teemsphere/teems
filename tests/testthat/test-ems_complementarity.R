@@ -92,7 +92,7 @@ writeChar(paste0(base_txt, "\n", paste(
 
 test_that("ems_solve rejects a non-spec complementarity", {
   nest_temp("comp_spec_reject", write_dir)
-  quiet_pivot(model <- ems_model(active_tab, model_files[["closure_file"]]))
+  model <- ems_model(active_tab, model_files[["closure_file"]])
   cmf_path <- ems_deploy(
     cp_data,
     model,
@@ -131,7 +131,7 @@ test_that("controls reach the solver and the run records them (e2e)", {
     !solver_has_record(),
     "teems image absent or predates the effective-options record"
   )
-  quiet_pivot(model <- ems_model(active_tab, model_files[["closure_file"]]))
+  model <- ems_model(active_tab, model_files[["closure_file"]])
   cmf_path <- ems_deploy(
     cp_data,
     model,

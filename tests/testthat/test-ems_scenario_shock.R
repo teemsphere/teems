@@ -106,7 +106,7 @@ test_that("ems_scenario_shock errors when used with a static model", {
   static_model_files <- ems_example("GTAPv7", write_dir)
   static_model_file <- static_model_files[["model_file"]]
   static_closure_file <- static_model_files[["closure_file"]]
-  quiet_pivot(static_model <- ems_model(static_model_file, static_closure_file))
+  static_model <- ems_model(static_model_file, static_closure_file)
   shock <- data.frame(REGr = "a", Year = 2017, Value = 2)
   shock <- ems_scenario_shock("pop", shock)
   nest_temp("scen_static", write_dir)

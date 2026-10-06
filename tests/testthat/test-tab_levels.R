@@ -35,7 +35,7 @@ mutate_tab <- function(text, name = "mut.tab") {
 
 expect_preflight_error <- function(text) {
   expect_snapshot_error(
-    quiet_pivot(.process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL))
+    .process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL)
   )
 }
 
@@ -64,11 +64,11 @@ levels_block <- paste(
 # --- model stage -------------------------------------------------------
 
 test_that("levels statements parse", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(levels_block),
     quiet = TRUE,
     call = NULL
-  ))
+  )
 
   lz <- model[model$type == "Equation" & model$name %in% "E_LZ", ]
   expect_identical(nrow(lz), 1L)
@@ -85,11 +85,11 @@ test_that("levels statements parse", {
 })
 
 test_that("Formula&Equation expands into its two 10.9.1 halves", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(levels_block),
     quiet = TRUE,
     call = NULL
-  ))
+  )
 
   eq <- model[model$type == "Equation" & model$name %in% "E_LW2", ]
   expect_identical(nrow(eq), 1L)
@@ -118,7 +118,7 @@ test_that("malformed Formula & Equation aborts", {
 })
 
 test_that("p_-leading levels variable name parses (C1a gen_lv rename)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (levels) p_ok # carried by the solver's pair rename #;",
       "Formula (initial) p_ok = 1;",
@@ -126,7 +126,7 @@ test_that("p_-leading levels variable name parses (C1a gen_lv rename)", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true("p_ok" %in% model$name[model$type == "Variable"])
 })
 
@@ -139,7 +139,7 @@ test_that("c_-leading levels variable name aborts", {
 })
 
 test_that("ADD_HOMOTOPY qualifiers and defaults declare their homotopy variables (manual 26.7.5)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (levels,change) HA1;",
       "Formula (initial) HA1 = 1;",
@@ -159,7 +159,7 @@ test_that("ADD_HOMOTOPY qualifiers and defaults declare their homotopy variables
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   eq <- model[model$type == "Equation" & model$name %in% c("E_HA1", "E_HA2", "E_HA3", "E_HA4"), ]
   expect_identical(gsub(" ", "", eq$qualifier_list[match(c("E_HA1", "E_HA2", "E_HA3", "E_HA4"), eq$name)], fixed = TRUE),
     c("(levels,add_homotopy=homo1)", "(levels,add_homotopy=homo2)", "(levels,add_homotopy)", "(levels)"))
@@ -172,7 +172,7 @@ test_that("ADD_HOMOTOPY qualifiers and defaults declare their homotopy variables
 })
 
 test_that("a homotopy variable the model declares is not declared again", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (levels,change) HOMOTOPY # declared by the model #;",
       "Formula (initial) HOMOTOPY = -1;",
@@ -183,12 +183,12 @@ test_that("a homotopy variable the model declares is not declared again", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_identical(sum(model$type == "Variable" & tolower(model$name) == "homotopy"), 1L)
 })
 
 test_that("compositions, offsets on mapped indices and LHS mappings parse (manual 11.9.6-11.9.8)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Set GRP (g1, g2);",
       "Set HH (h1, h2);",
@@ -210,7 +210,7 @@ test_that("compositions, offsets on mapped indices and LHS mappings parse (manua
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true(all(c("CRR", "CGL") %in% model$name[model$type == "Coefficient"]))
   expect_true("E_yrr" %in% model$name[model$type == "Equation"])
 })
@@ -267,7 +267,7 @@ test_that("levels equations solve to pinned values (e2e)", {
   # change product CC = CA*CB with c_ca shocked 0.5 -> c_cc = 1.5;
   # F&E sum LW2 over big3 REG with c_lv shocked 1 -> c_lw2 = 3
   d <- lv_data()
-  quiet_pivot(model <- ems_model(mutate_tab(levels_block, name = "levels.tab"), closure_file))
+  model <- ems_model(mutate_tab(levels_block, name = "levels.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,
@@ -310,7 +310,7 @@ test_that("linear_name and linear_var levels variables solve by either name (e2e
     "Equation E_yq (all,r,REG) yq(r) = 2 * xpc(r);",
     sep = "\n"
   )
-  quiet_pivot(model <- ems_model(mutate_tab(block, name = "linear.tab"), closure_file))
+  model <- ems_model(mutate_tab(block, name = "linear.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,
@@ -339,11 +339,11 @@ test_that("a sum condition in a levels equation reaches the solver as written", 
     "Equation (levels) E_LT LT = sum{r,REG: r <> \"usa\", LS(r)};",
     sep = "\n"
   )
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(block),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   tab <- .finalize_tab(model)
   expect_match(tab, "Equation (levels) E_LT LT = sum{r,REG: r <> \"usa\", LS(r)}", fixed = TRUE)
 })
@@ -383,7 +383,7 @@ test_that("ADD_HOMOTOPY takes the data onto a levels equation (manual 26.7.1, e2
     "Equation (levels, add_homotopy) E_HV1 (all,r,REG) HV1(r)^2 + HV2(r)^2 = 5;",
     sep = "\n"
   )
-  quiet_pivot(model <- ems_model(mutate_tab(block, name = "homotopy.tab"), closure_file))
+  model <- ems_model(mutate_tab(block, name = "homotopy.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,

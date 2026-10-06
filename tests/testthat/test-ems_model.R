@@ -252,7 +252,7 @@ test_that("loops and sets without named elements pass ems_model", {
     "Loop (END);",
     sep = "\n"
   ))
-  model <- quiet_pivot(ems_model(loop_model, closure_file))
+  model <- ems_model(loop_model, closure_file)
   expect_identical(sum(model$type == "Loop"), 2L)
   expect_identical(sum(model$type == "Break"), 1L)
   expect_identical(sum(model$type == "Cycle"), 1L)
@@ -1033,7 +1033,7 @@ test_that("ems_model errors dots passed without names", {
 test_that("ems_model examples run", {
   # Simple static model retrieval and load
   GTAPv7 <- ems_example("GTAPv7", write_dir)
-  quiet_pivot(model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]]))
+  model <- ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
   
   # Retrieve intertemporal model
   GTAP_RE <- ems_example("GTAP-RE", write_dir)
@@ -1119,8 +1119,8 @@ test_that("substitution inverts idle sums onto synthesized coefficients", {
   expect_match(csub_formula, "CSUB1(t) = sum{r,REG, GDP(r,t)}", fixed = TRUE)
 })
 
-test_that("backsolve through a coefficient pivot synthesizes a reciprocal and warns", {
-  expect_snapshot_warning(
+test_that("backsolve through a coefficient pivot synthesizes a reciprocal", {
+  expect_no_warning(
     model <- ems_model(model_file, closure_file, backsolve = "qgdp")
   )
   csub_rows <- model$tab[model$type == "Formula" & grepl("CSUB", model$tab)]
@@ -1144,7 +1144,7 @@ test_that("a mutually referencing backsolve pair divides by the combined pivot",
     sep = "\n"
   )
   pair_model <- write_modified_model(model_file, pair_graft)
-  model <- suppressWarnings(ems_model(pair_model, closure_file))
+  model <- ems_model(pair_model, closure_file)
   eqs <- stats::setNames(model$tab, model$name)
   pivot <- regmatches(eqs[["E_zc"]], regexpr("CSUB[0-9]+", eqs[["E_zc"]]))
   expect_true(any(grepl(paste0("Formula +", pivot, " = 1 \\+ 2\\*0.05;"), model$tab)))

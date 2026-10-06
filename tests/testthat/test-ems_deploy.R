@@ -258,7 +258,7 @@ test_that("ems_deploy errors when timesteps provided to static model", {
   model_files <- ems_example("GTAPv7", write_dir)
   model_file <- model_files[["model_file"]]
   closure_file <- model_files[["closure_file"]]
-  quiet_pivot(model <- ems_model(model_file, closure_file))
+  model <- ems_model(model_file, closure_file)
   nest_temp("deploy_static_ts", write_dir)
   expect_snapshot_error(ems_deploy(dat, model))
 })
@@ -369,7 +369,7 @@ test_that("ems_deploy errors when aggregated inputs are incomplete", {
   SAVE <- mod_data$SAVE[!.N, ]
   SAVE$ALLTIMEt <- 0
   colnames(SAVE)[1] <- "REGr"
-  quiet_pivot(model <- ems_model(model_file, closure_file, SAVE = SAVE))
+  model <- ems_model(model_file, closure_file, SAVE = SAVE)
   nest_temp("deploy_incomplete", write_dir)
   expect_snapshot_error(ems_deploy(mod_data, model))
 })

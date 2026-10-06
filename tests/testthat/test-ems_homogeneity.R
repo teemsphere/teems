@@ -17,7 +17,7 @@ withr::defer(ems_option_reset(), teardown_env())
 static_files <- ems_example("GTAPv7", write_dir)
 static_data <- ems_data(dat_input, par_input, set_input,
                         REG = "big3", ACTS = "macro_sector", ENDW = "labor_agg")
-static_model <- quiet_pivot(ems_model(static_files[["model_file"]], static_files[["closure_file"]]))
+static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
 
 test_that("GTAPv7 is nominally and really homogeneous", {
   nest_temp("homogeneity_v7", write_dir)
@@ -57,7 +57,7 @@ test_that("a deployment without VPQ types cannot be checked", {
   text <- text[!grepl("VPQType", text)]
   untyped_file <- file.path(write_dir, "homogeneity_untyped", "untyped.tab")
   writeLines(text, untyped_file)
-  cmf_path <- ems_deploy(static_data, quiet_pivot(ems_model(untyped_file, static_files[["closure_file"]])))
+  cmf_path <- ems_deploy(static_data, ems_model(untyped_file, static_files[["closure_file"]]))
   expect_snapshot_error(ems_homogeneity(cmf_path))
   meta <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))
   meta$vpqtype <- NULL

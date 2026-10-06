@@ -36,7 +36,7 @@ mutate_tab <- function(text, name = "mut.tab") {
 
 expect_preflight_error <- function(text, ...) {
   expect_snapshot_error(
-    quiet_pivot(.process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL, ...))
+    .process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL, ...)
   )
 }
 
@@ -50,11 +50,11 @@ comp_block <- paste(
 )
 
 test_that("complementarity statements classify and pass through", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(comp_block),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true("Complementarity" %in% model$type)
   tab <- .finalize_tab(model)
   expect_match(tab, "Complementarity (variable = CX, lower_bound = 0) CMPA CY - 3;",
@@ -63,7 +63,7 @@ test_that("complementarity statements classify and pass through", {
 })
 
 test_that("three-dimensional complementarity parses (bounds forms)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (change,levels) (all,i,COMM)(all,r,REG)(all,s,REG) NM(i,r,s);",
       "Formula (initial) (all,i,COMM)(all,r,REG)(all,s,REG) NM(i,r,s) = 0;",
@@ -83,7 +83,7 @@ test_that("three-dimensional complementarity parses (bounds forms)", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_identical(sum(model$type == "Complementarity"), 2L)
 })
 
@@ -161,14 +161,14 @@ test_that("quantifier count mismatch aborts", {
 })
 
 test_that("condensed complementarity variable aborts", {
-  quiet_pivot(expect_snapshot_error(
+  expect_snapshot_error(
     .process_tablo(
       tab_file = mutate_tab(paste(comp_block, "Equation E_CX CX = CY;", sep = "\n")),
       backsolve = "CX",
       quiet = TRUE,
       call = NULL
     )
-  ))
+  )
 })
 
 # --- deploy-time inert-mode guard (no docker needed) -----------------
@@ -198,7 +198,7 @@ comp_e2e_block <- paste(
 test_that("endogenous complementarity variable deploys (C2 active mode)", {
   nest_temp("comp_guard", write_dir)
   d <- cp_data()
-  quiet_pivot(model <- ems_model(mutate_tab(comp_block, name = "comp1.tab"), closure_file))
+  model <- ems_model(mutate_tab(comp_block, name = "comp1.tab"), closure_file)
   # CX stays endogenous: the component is ACTIVE (solver C2 state
   # machinery); its E_$comp row squares the count, so the deploy that
   # aborted at C1 now writes files
@@ -213,7 +213,7 @@ test_that("endogenous complementarity variable deploys (C2 active mode)", {
 test_that("active complementarity components join the squaring count", {
   nest_temp("comp_square", write_dir)
   d <- cp_data()
-  quiet_pivot(model <- ems_model(mutate_tab(comp_block, name = "comp1b.tab"), closure_file))
+  model <- ems_model(mutate_tab(comp_block, name = "comp1b.tab"), closure_file)
   # neither CX nor CY exogenized: two endogenous elements against the
   # single E_$comp row of the active component -- not square
   expect_snapshot_error(
@@ -227,7 +227,7 @@ test_that("active complementarity components join the squaring count", {
 test_that("fully exogenous complementarity variable deploys", {
   nest_temp("comp_deploy", write_dir)
   d <- cp_data()
-  quiet_pivot(model <- ems_model(mutate_tab(comp_block, name = "comp2.tab"), closure_file))
+  model <- ems_model(mutate_tab(comp_block, name = "comp2.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,
@@ -269,7 +269,7 @@ test_that("inert complementarity solves with derived values pinned (e2e)", {
   # (2 -> 3), pinned by the (postsim) assertions in the TAB -- a wrong
   # value fails the solve
   d <- cp_data()
-  quiet_pivot(model <- ems_model(mutate_tab(comp_e2e_block, name = "comp3.tab"), closure_file))
+  model <- ems_model(mutate_tab(comp_e2e_block, name = "comp3.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,
@@ -313,7 +313,7 @@ test_that("active complementarity solves the approximate run (e2e)", {
   # pinned by the (postsim) assertions -- a wrong value fails the
   # solve -- and by the composed values here
   d <- cp_data()
-  quiet_pivot(model <- ems_model(mutate_tab(active_block, name = "comp4.tab"), closure_file))
+  model <- ems_model(mutate_tab(active_block, name = "comp4.tab"), closure_file)
   cmf_path <- ems_deploy(
     d,
     model,

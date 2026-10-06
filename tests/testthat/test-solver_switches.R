@@ -104,7 +104,7 @@ test_that("RK retry policy reaches the solver and the record (e2e)", {
     ENDW = "labor_agg"
   ))
   model_files <- ems_example("GTAPv7", write_dir)
-  quiet_pivot(model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]]))
+  model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]])
   cmf_path <- ems_deploy(d, model)
   out <- suppressMessages(ems_solve(
     cmf_path,
@@ -150,7 +150,7 @@ test_that("switches reach the solver and the run records them (e2e)", {
     tab,
     eos = NULL
   )
-  quiet_pivot(model <- ems_model(tab, model_files[["closure_file"]]))
+  model <- ems_model(tab, model_files[["closure_file"]])
   cmf_path <- ems_deploy(d, model)
   ems_option_set(assertions = "warn", range_test_initial = "off")
   out <- suppressMessages(ems_solve(cmf_path, postsim = FALSE))
@@ -207,7 +207,7 @@ test_that("the DBBD refinement option reaches the solver and the record (e2e)", 
     ENDW = "labor_agg"
   ))
   model_files <- ems_example("GTAPv7", write_dir)
-  quiet_pivot(model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]]))
+  model <- ems_model(model_files[["model_file"]], model_files[["closure_file"]])
   cmf_path <- ems_deploy(d, model, ems_uniform_shock("aoall", 5))
   run_dir <- dirname(cmf_path)
   read_stats <- function() {

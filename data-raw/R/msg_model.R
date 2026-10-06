@@ -654,11 +654,6 @@ build_model_info <- function() {
 
 build_model_wrn <- function() {
   list(
-    # test-ems_model.R: "backsolve through a coefficient pivot synthesizes a reciprocal and warns"
-    condense_pivot_zero = c(
-      "Backsolving {.field {var_name}} using {.field {eq_name}} divides by the coefficient expression {.field {pivot_expr}}.",
-      "Ensure this expression can never be zero; a zero value will surface as a solver error."
-    ),
     # test-tab_vpqtype.R: "a Name statement for an undeclared variable warns"
     vpqtype_orphan = "{.code (Name ... VPQType ...)} for undeclared
     variable{?s} {.field {orphan}} ignored (GEMPACK manual 57.2).",

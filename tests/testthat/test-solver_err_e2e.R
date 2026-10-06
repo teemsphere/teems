@@ -67,7 +67,7 @@ skip_if_no_e2e <- function() {
 solve_error_msg <- function(leg, tab_text, cmf_lines = NULL, ...) {
   nest_temp(leg, write_dir)
   tab_file <- write_modified_model(model_file, tab_text)
-  model <- quiet_pivot(ems_model(tab_file, closure_file))
+  model <- ems_model(tab_file, closure_file)
   cmf_path <- ems_deploy(static_data, model)
   if (!is.null(cmf_lines)) {
     cat(cmf_lines, file = cmf_path, sep = "\n", append = TRUE)

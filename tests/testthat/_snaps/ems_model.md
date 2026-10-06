@@ -190,11 +190,6 @@
 
     x Coefficients to modify must be passed as named pairs: `RDLT = 1`.
 
-# backsolve through a coefficient pivot synthesizes a reciprocal and warns
-
-    ! Backsolving qgdp using E_qgdp divides by the coefficient expression GDP(r,t).
-    i Ensure this expression can never be zero; a zero value will surface as a solver error.
-
 # in-TAB Omit statements exogenize the omitted variables
 
     Code

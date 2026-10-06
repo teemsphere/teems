@@ -20,7 +20,7 @@ mutate_tab <- function(text, name = "mut.tab") {
 
 expect_preflight_error <- function(text) {
   expect_snapshot_error(
-    quiet_pivot(.process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL))
+    .process_tablo(tab_file = mutate_tab(text), quiet = TRUE, call = NULL)
   )
 }
 
@@ -57,20 +57,20 @@ test_that("coefficients named for a levels variable's linear variable abort", {
 
 test_that("p_X and c_X coefficients beside a linear variable X parse", {
   # qgdp is a declared GTAPv7 linear variable (GEMPACK manual 9.2.2)
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab("Coefficient c_qgdp;\nCoefficient p_qgdp;"),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true(all(c("c_qgdp", "p_qgdp") %in% model$name))
 })
 
 test_that("c_ prefixed coefficients without a variable of the tail name parse", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab("Coefficient (all,r,REG) C_EMIS_HAr(r);"),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true("C_EMIS_HAr" %in% model$name)
 })
 
@@ -84,7 +84,7 @@ test_that("variables named for a levels variable's linear variable abort", {
 })
 
 test_that("p_X variables beside a linear or change levels X parse", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (all,r,REG) p_qgdp(r);",
       "Variable (levels,change) LCV;",
@@ -94,20 +94,20 @@ test_that("p_X variables beside a linear or change levels X parse", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true(all(c("p_qgdp", "p_LCV") %in% model$name))
 })
 
 test_that("the hand-linearized pair idiom parses", {
   # VKB is a declared GTAPv7 coefficient: coefficient X + variable
   # p_X is the supported pair (solver section-6 naming resolution)
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(
       "Variable (all,r,REG) p_VKB(r) # pair of coefficient VKB #;"
     ),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true("p_VKB" %in% model$name[model$type == "Variable"])
 })
 
@@ -128,7 +128,7 @@ test_that("no_split qualifier aborts", {
 })
 
 test_that("linear_name and linear_var qualifiers parse", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (levels, linear_name=xlin) LNM;",
       "Formula (initial) LNM = 1;",
@@ -139,7 +139,7 @@ test_that("linear_name and linear_var qualifiers parse", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true(all(c("LNM", "LVR") %in% model$name))
 })
 
@@ -163,7 +163,7 @@ test_that("invalid Default statements abort", {
 })
 
 test_that("Default statements apply positionally to the declarations that follow", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (default=levels);",
       "Variable (default=change);",
@@ -189,7 +189,7 @@ test_that("Default statements apply positionally to the declarations that follow
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   stmt <- function(nm) model$tab[model$name %in% nm]
   expect_match(stmt("DFX")[1], "^Variable \\(levels,change\\) DFX")
   expect_match(stmt("DFY")[1], "^Variable \\(percent_change,levels\\) DFY")
@@ -203,7 +203,7 @@ test_that("Default statements apply positionally to the declarations that follow
 })
 
 test_that("statement keywords are case-insensitive (GEMPACK manual 11.1.3)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "COEFFICIENT (all,r,REG) KWC(r);",
       "FORMULA (all,r,REG) KWC(r) = 1;",
@@ -213,7 +213,7 @@ test_that("statement keywords are case-insensitive (GEMPACK manual 11.1.3)", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_identical(model$type[model$name %in% "E_KWV"], "Equation")
   expect_identical(model$type[model$name %in% "KWC"], "Coefficient")
   expect_match(model$tab[model$name %in% "E_KWV"], "^Equation E_KWV")
@@ -239,7 +239,7 @@ test_that("set self-equality aborts", {
 })
 
 test_that("element ranges expand (manual 11.2.2)", {
-  model <- quiet_pivot(.process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Set SRG (s9 - s11, x, ind008 - ind010);",
       "Set (intertemporal) TQ (p0 - p2);",
@@ -247,7 +247,7 @@ test_that("element ranges expand (manual 11.2.2)", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   sets <- model[model$type == "Set", ]
   expect_identical(
     sets$definition[sets$name == "SRG"][[1]],
@@ -260,7 +260,7 @@ test_that("element ranges expand (manual 11.2.2)", {
 })
 
 test_that("a set name glued to = and a DOS end-of-file mark parse", {
-  model <- quiet_pivot(.process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste0(
       "Set GLUED=(all,r,REG: VDB(\"food\",r) > 0);\n",
       "Set GLUE2=(all,c,COMM: VDFB(c,\"food\",\"usa\") > 0);\n",
@@ -268,20 +268,20 @@ test_that("a set name glued to = and a DOS end-of-file mark parse", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   sets <- model[model$type == "Set", ]
   expect_true(all(c("GLUED", "GLUE2") %in% sets$name))
 })
 
 test_that("a Read with its header glued to the quote parses", {
-  model <- quiet_pivot(.process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste0(
       "Coefficient (all,r,REG) GLH(r) # glued header #;\n",
       "Read GLH from file GTAPDATA header\"GLHD\";\n"
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   rd <- model[model$type == "Read" & model$name %in% "GLH", ]
   expect_identical(rd$header, "GLHD")
   expect_identical(rd$file, "GTAPDATA")
@@ -357,9 +357,9 @@ test_that("PostSim reads into PostSim coefficients pass", {
     "File PSDATA;",
     'Read PSREADC from file PSDATA header "PSRD";'
   )
-  quiet_pivot(expect_no_error(
+  expect_no_error(
     .process_tablo(tab_file = mutate_tab(txt), quiet = TRUE, call = NULL)
-  ))
+  )
 })
 
 test_that("PostSim scope violations abort", {
@@ -427,9 +427,9 @@ test_that("internal models pass the pre-flight", {
     system.file("models/GTAP-RE/GTAP-RE.tab", package = "teems")
   )
   for (tab in tabs[nzchar(tabs)]) {
-    quiet_pivot(expect_no_error(
+    expect_no_error(
       .process_tablo(tab_file = tab, quiet = TRUE, call = NULL)
-    ))
+    )
   }
 })
 
@@ -483,16 +483,16 @@ test_that("subsets by numbers abort", {
 })
 
 test_that("tab characters are blanks", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab("Coefficient\t(all,r,REG) TBX(r);\nFormula\t(all,r,REG)\tTBX(r) =\t2\n\t\t+ 1;"),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true("TBX" %in% model$name)
 })
 
 test_that("subsets by elements parse", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Set SMALL (food, crops);",
       "Subset (by_elements) SMALL is subset of COMM;",
@@ -503,7 +503,7 @@ test_that("subsets by elements parse", {
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   expect_true(all(c("SMALL", "SETC") %in% model$name))
 })
 
@@ -533,7 +533,7 @@ test_that("a binary switch in a set definition aborts", {
 })
 
 test_that("an IF in a Formula without quantifiers lowers through a one-element frame", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Coefficient SIFA # scalar IF target #;",
       "Formula SIFA = 1 + IF(sum{r,REG,VKB(r)} > 1, 2) + IF(SIFA = 0, 5);",
@@ -543,7 +543,7 @@ test_that("an IF in a Formula without quantifiers lowers through a one-element f
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   frame <- model$tab[grepl("^Set IFO1 ", model$tab)]
   expect_length(frame, 1L)
   expect_match(frame, "(ifo1e)", fixed = TRUE)
@@ -563,7 +563,7 @@ test_that("an IF in a Formula without quantifiers lowers through a one-element f
 })
 
 test_that("an IF over a scalar coefficient in an Equation lowers to a scalar indicator (SIMPLEv3 SEGMKT)", {
-  quiet_pivot(model <- .process_tablo(
+  model <- .process_tablo(
     tab_file = mutate_tab(paste(
       "Coefficient (parameter) SWP # parameter switch #;",
       "Formula SWP = 1;",
@@ -578,7 +578,7 @@ test_that("an IF over a scalar coefficient in an Equation lowers to a scalar ind
     )),
     quiet = TRUE,
     call = NULL
-  ))
+  )
   tab <- model$tab
   eq <- tab[grepl("^Equation E_zsw ", tab)]
   ind <- regmatches(eq, gregexpr("IFC[0-9]+", eq))[[1]]
@@ -616,7 +616,7 @@ test_that(".tab_coef_is_param reads parameter, integer and non_parameter qualifi
 })
 
 test_that("condensation keeps a quantifier index whose case differs from its uses (GEMPACK manual 11.1.3)", {
-  quiet_pivot(model <- suppressWarnings(.process_tablo(
+  model <- suppressWarnings(.process_tablo(
     tab_file = mutate_tab(paste(
       "Variable (all,c,COMM)(all,r,REG) zqw(c,r);",
       "Equation E_zqw (all,C,COMM)(all,r,REG) zqw(c,r) = sum{d,REG, VFOB(c,r,d)*pfob(c,r,d)};",
@@ -625,7 +625,7 @@ test_that("condensation keeps a quantifier index whose case differs from its use
     backsolve = "pfob",
     quiet = TRUE,
     call = NULL
-  )))
+  ))
   eq <- model$tab[model$name %in% "E_zqw"]
   csub <- regmatches(eq, regexpr("CSUB[0-9]+", eq))
   expect_match(eq, paste0(csub, "(c,r)*pds(c,r)"), fixed = TRUE)

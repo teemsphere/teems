@@ -16,7 +16,7 @@
     num <- "0"
     paste0("[", cond_info$lhs, "] - [", cond_info$rhs, "]")
   }
-  var_names <- .tab_linear_variable_names(synth$tab)
+  var_names <- synth$var_names
   toks <- toupper(unique(regmatches(expr, gregexpr("[A-Za-z_][A-Za-z0-9_@]*", expr))[[1]]))
   toks <- setdiff(toks, toupper(q_idx[!is.na(q_idx)]))
   if (any(toks %in% var_names)) {

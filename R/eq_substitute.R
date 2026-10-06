@@ -9,7 +9,18 @@
   entry <- eqs[[entry_name]]
 
   touched <- FALSE
-  used <- .eq_idents(entry)
+  refs <- FALSE
+  for (t in c(entry$lhs, entry$rhs)) {
+    if (!is.null(t$var) && t$var$name %=% var_name) {
+      refs <- TRUE
+      break
+    }
+  }
+  if (!refs) {
+    return(invisible(entry))
+  }
+  used <- entry$used
+  added <- list()
 
   for (side in c("lhs", "rhs")) {
     new_side <- list()
@@ -29,12 +40,17 @@
       )
       new_side <- c(new_side, expanded$terms)
       used <- expanded$used
+      added <- c(added, expanded$terms)
     }
     entry[[side]] <- new_side
   }
 
   if (touched) {
     entry$dirty <- TRUE
+    entry$used <- unique(c(
+      used,
+      .eq_idents(list(quants = list(), lhs = added, rhs = list()))
+    ))
     eqs[[entry_name]] <- entry
   }
   return(invisible(entry))

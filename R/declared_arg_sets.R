@@ -3,31 +3,28 @@
 .declared_arg_sets <- function(extract) {
   decl_rows <- which(tolower(extract$type) %in% c("coefficient", "variable"))
   out <- list()
-  for (n in decl_rows) {
-    text <- .strip_tab_labels(extract$remainder[[n]])
-    idx_sets <- .stmt_index_sets(text)
-    body <- gsub("\\(\\s*all\\s*,[^)]*\\)", " ", text, ignore.case = TRUE)
-    body <- gsub("\\([^()]*=[^()]*\\)|\\(\\s*(parameter|integer|real|levels|linear|change|percent_change|non_parameter|initial|always|ge|gt|le|lt)\\b[^()]*\\)", " ", body, ignore.case = TRUE)
-    m <- regmatches(body, regexec("([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(([^()]*)\\)", body))[[1]]
-    if (length(m) == 0L) {
+  if (length(decl_rows) == 0L) {
+    return(out)
+  }
+  texts <- .strip_tab_labels(extract$remainder[decl_rows])
+  idx_list <- .stmts_index_sets(texts)
+  body <- gsub("\\(\\s*all\\s*,[^)]*\\)", " ", texts, ignore.case = TRUE)
+  body <- gsub("\\([^()]*=[^()]*\\)|\\(\\s*(parameter|integer|real|levels|linear|change|percent_change|non_parameter|initial|always|ge|gt|le|lt)\\b[^()]*\\)", " ", body, ignore.case = TRUE)
+  m <- regmatches(body, regexec("([A-Za-z_][A-Za-z0-9_@]*)\\s*\\(([^()]*)\\)", body))
+  for (i in seq_along(decl_rows)) {
+    if (length(m[[i]]) == 0L) {
       next
     }
-    args <- trimws(strsplit(m[[3]], ",")[[1]])
+    args <- trimws(strsplit(m[[i]][[3]], ",")[[1]])
     if (length(args) == 0L || any(!nzchar(args))) {
       next
     }
-    sets <- vapply(args, \(a) {
-      a <- tolower(a)
-      if (!is.na(idx_sets[a])) {
-        idx_sets[[a]]
-      } else {
-        NA_character_
-      }
-    }, character(1))
+    idx_sets <- idx_list[[i]]
+    sets <- unname(idx_sets[tolower(args)])
     if (any(is.na(sets))) {
       next
     }
-    out[[tolower(m[[2]])]] <- unname(sets)
+    out[[tolower(m[[i]][[2]])]] <- sets
   }
   return(out)
 }

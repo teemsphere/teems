@@ -92,7 +92,7 @@
 .native_if_stmt <- function(stmt,
                             synth,
                             call) {
-  var_names <- .tab_linear_variable_names(synth$tab)
+  var_names <- synth$var_names
   for (cond in .if_conds(stmt)) {
     cond <- gsub('"[^"]*"', " ", cond)
     toks <- toupper(unique(regmatches(cond, gregexpr("[A-Za-z_][A-Za-z0-9_@]*", cond))[[1]]))

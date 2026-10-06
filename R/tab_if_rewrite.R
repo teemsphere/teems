@@ -11,6 +11,11 @@
   synth <- new.env(parent = emptyenv())
   synth$n <- 0L
   synth$tab <- tab
+  synth$names <- unique(toupper(unlist(regmatches(
+    tab,
+    gregexpr("[A-Za-z_][A-Za-z0-9_@]*", tab, perl = TRUE)
+  ))))
+  synth$var_names <- .tab_linear_variable_names(tab)
 
   out <- vector("list", length(tab))
   for (s in seq_along(tab)) {

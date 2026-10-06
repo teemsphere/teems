@@ -48,6 +48,7 @@
     dirty = FALSE,
     row_id = row$row_id
   )
+  entry$used <- .eq_idents(entry)
   eqs[[key]] <- entry
   return(entry)
 }

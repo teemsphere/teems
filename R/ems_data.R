@@ -50,6 +50,17 @@
 #'   parameter. The CDE parameters (INCP, SUBP) are weighted by
 #'   value under either method. Ignored on the single-file
 #'   route, where nothing is aggregated.
+#'
+#'   On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
+#'   FlexAgg's aggpar programs: coal, oil and gas mining are
+#'   recalibrated to the target supply elasticities (SPLY) and the
+#'   other fuels take 1. Two results are then overridden, reported
+#'   when `verbose` is on, and listed in the metadata: a
+#'   recalibrated value below 0.1, which a natural-resource rent too
+#'   small to carry its target produces, keeps the aggregated member
+#'   value; and an aggregate whose members all carry the database
+#'   placeholder 1e-6 (the technologies without energy inputs) takes
+#'   1.
 #' @param ... A named pairlist assigning set mappings to model
 #'   sets that are explicitly read (not constructed via any set
 #'   operation defined in the model file). Set mappings can be

@@ -17,6 +17,23 @@ test_that("loaded data reports its version, reference year and format", {
   )))
 })
 
+test_that("EFVE overrides are reported", {
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_reset())
+  overrides <- data.table::data.table(
+    ACTS = c("gas", "peakload", "peakload"),
+    REG = c("chn", "chn", "usa"),
+    rule = c("supply", "placeholder", "placeholder"),
+    from = c(0.0105378, 1e-6, 1e-6),
+    to = c(1.182738, 1, 1)
+  )
+  expect_snapshot(.inform_efve(metadata = list(efve_overrides = overrides), call = NULL))
+  expect_no_message(.inform_efve(metadata = list(efve_overrides = overrides[0]), call = NULL))
+  expect_no_message(.inform_efve(metadata = list(), call = NULL))
+  ems_option_set(verbose = FALSE)
+  expect_no_message(.inform_efve(metadata = list(efve_overrides = overrides), call = NULL))
+})
+
 test_that("a finished run reports its elapsed time and accuracy", {
   ems_option_set(verbose = TRUE)
   withr::defer(ems_option_reset())

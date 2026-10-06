@@ -400,6 +400,19 @@ coeff_conversion$GTAPv7set <- strsplit(coeff_conversion$GTAPv7set, ", ")
 # auto-recommendation constants (definitions in data-raw/R/auto_thresholds.R)
 auto_thresholds <- build_auto_thresholds()
 
+# ELFVAEN (EFVE) overrides on the GTAP-E and GTAP-Power layers, applied
+# in .fossil_vaen() after the FlexAgg rules. The database writes 1e-6
+# for the value-added-energy elasticity of the technologies without
+# energy inputs (nuclear, wind, hydro, solar); an aggregate made only
+# of them inherits it, and the price of a factor the nest does not use
+# is then divided by it (peak load on 12a Power: pes natlres 1e118). A
+# fossil mining aggregate whose SPLY recalibration falls below
+# supply_min keeps the weighted member value: gas/chn on 12a Power has
+# a 0.26 % resource rent, which puts the recalibrated value at 0.011
+# and drives the rent through zero under the shipped carbon tax
+# (teems-dev docs/gtap_ep_ctax_accuracy_2026-10-05.md)
+efve_rules <- list(placeholder = 1e-6, supply_min = 0.1)
+
 # messages (definitions in data-raw/R/msg_*.R) -------------------------
 cls_err <- build_cls_err()
 compose_err <- build_compose_err()
@@ -441,6 +454,7 @@ usethis::use_data(
   coeff_conversion,
   layer_spec,
   auto_thresholds,
+  efve_rules,
   cls_err,
   compose_err,
   convert_wrn,

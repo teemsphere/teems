@@ -171,6 +171,16 @@ build_data_info <- function(layer_spec) {
       "Single-file database: {n_sets} set{?s} ({.val {set_names}}) and {n_headers} data headers, loaded at full resolution.",
       "No database version is recorded and set mappings do not apply on this route."
     ),
+    # test-inform_messages.R: "EFVE overrides are reported"
+    efve_supply = c(
+      "EFVE (ELFVAEN) keeps its aggregated value in {.val {e_cells}}: the fossil supply recalibration gives {.val {e_from}}, below {.val {e_min}}.",
+      "A natural-resource rent that small cannot carry the SPLY target; the recalibrated nest would drive the resource price through zero under a moderate shock."
+    ),
+    # test-inform_messages.R: "EFVE overrides are reported"
+    efve_placeholder = c(
+      "EFVE (ELFVAEN) is set to 1 in {.val {e_cells}}: every member of the aggregate carries the database placeholder {.val {e_placeholder}}.",
+      "A value-added-energy nest whose members buy no energy has no substitution to describe; the placeholder would make the price of an unused factor run away."
+    ),
     # test-inform_messages.R: "loaded data reports its version, reference year and format"
     dat = c(
       "GTAP Data Base version: {.field {full_database_version}}",

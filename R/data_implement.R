@@ -59,7 +59,11 @@
     par_weights = v$par_weights,
     call = call
   )
-  
+  .inform_efve(
+    metadata = attr(i_data, "metadata"),
+    call = call
+  )
+
   class(i_data) <- c("ems_data", class(i_data))
   return(i_data)
 }

@@ -68,7 +68,7 @@
   )
   agg_data <- c(dt_agg, arr_agg)[nm_order]
   names(agg_data) <- nm_order
-  i_data <- .fossil_vaen(
+  fossil <- .fossil_vaen(
     agg_data = agg_data,
     i_data = i_data,
     set_raw = set_raw,
@@ -76,7 +76,8 @@
     metadata = metadata,
     ndigits = ndigits
   )
-  i_data <- purrr::compact(i_data)
+  i_data <- purrr::compact(fossil$data)
+  metadata$efve_overrides <- fossil$overrides
   attr(i_data, "metadata") <- metadata
   attr(i_data, "call") <- call
   attr(i_data, "set_raw") <- set_raw

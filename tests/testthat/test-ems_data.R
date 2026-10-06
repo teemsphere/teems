@@ -478,6 +478,9 @@ test_that("ems_data prepares a GTAP-E database in place", {
   expect_equal(efve[ACTS == "gas" & REG == "usa", Value], 1.504764, tolerance = 1e-5)
   expect_equal(efve[ACTS == "coa" & REG == "usa", Value], 3.58521, tolerance = 1e-5)
   expect_true(all(efve[ACTS %in% c("p_c", "gdt"), Value] == 1))
+  # gas/chn clears the 0.1 floor here (0.13), and no energy aggregate is
+  # made of placeholder members alone
+  expect_equal(nrow(md$efve_overrides), 0L)
 })
 
 test_that("ems_data prepares a GTAP-Power database in place", {
@@ -509,12 +512,23 @@ test_that("ems_data prepares a GTAP-Power database in place", {
   expect_false("tnd" %in% ep$SUBP$TOPP)
   expect_true(all(ep$GSHR$Value == 1))
   # the power mapping renames the fuels: gas absorbs gdt and is
-  # recalibrated as mining, oil_pcts holds p_c alone and takes 1; peak
-  # load is weighted towards its near-zero gas and oil technologies
+  # recalibrated as mining, oil_pcts holds p_c alone and takes 1. Two
+  # results are overridden and recorded: peak load is solar alone in
+  # chn and usa on 12a Power and inherits the 1e-6 placeholder, so it
+  # takes 1 (row mixes in seven regions with gas and oil peak plants
+  # and keeps its weighted value); gas/chn has a 0.26 % resource rent,
+  # which puts the SPLY-calibrated value at 0.011, so it keeps the
+  # weighted member value
   efve <- ep$EFVE
   expect_equal(efve[ACTS == "gas" & REG == "usa", Value], 0.938472, tolerance = 1e-5)
+  expect_equal(efve[ACTS == "gas" & REG == "chn", Value], 1.182738, tolerance = 1e-5)
   expect_true(all(efve[ACTS == "oil_pcts", Value] == 1))
-  expect_lt(max(efve[ACTS == "peakload", Value]), 0.02)
+  expect_true(all(efve[ACTS == "peakload" & REG != "row", Value] == 1))
+  expect_lt(efve[ACTS == "peakload" & REG == "row", Value], 0.02)
+  ov <- md$efve_overrides
+  expect_equal(ov[rule == "supply", paste(ACTS, REG)], "gas chn")
+  expect_equal(ov[rule == "supply", from], 0.0105378, tolerance = 1e-4)
+  expect_setequal(ov[rule == "placeholder", paste(ACTS, REG)], c("peakload chn", "peakload usa"))
 })
 
 test_that("ems_data averages DPSM over the regions it aggregates", {

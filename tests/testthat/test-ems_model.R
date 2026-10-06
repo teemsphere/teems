@@ -881,6 +881,27 @@ test_that("same-index membership IF partition in an equation (GTAPv7 E_CNTqfr sh
   expect_match(rem, "= COMM - (IFS", fixed = TRUE)
 })
 
+test_that("a split backsolve equation is reported under verbose only", {
+  bs_model <- write_modified_model(
+    model_file,
+    paste(
+      "Variable (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) # if test var #;",
+      "Equation E_iftest # split by IF # (all,c,COMM)(all,r,REG)(all,t,ALLTIME) iftest(c,r,t) = pds(c,r,t) + IF[c in MARG, qst(c,r,t)];",
+      sep = "\n"
+    )
+  )
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  expect_message(
+    model <- ems_model(bs_model, closure_file, backsolve = c(iftest = "E_iftest")),
+    "split"
+  )
+  expect_true(all(c("E_iftestA", "E_iftestB") %in% model$name))
+  expect_true(is.na(model$condense[model$name %in% "iftest"]))
+  ems_option_set(verbose = FALSE)
+  expect_no_message(ems_model(bs_model, closure_file, backsolve = c(iftest = "E_iftest")))
+})
+
 test_that("netcut inflation warning (roadmap 6.5 E1)", {
   warn_model <- write_modified_model(
     model_file,
@@ -1462,14 +1483,21 @@ test_that("GTAPv6 condenses automatically from its in-TAB statements (gtap.sti)"
 
 test_that("GTAPv7 condenses automatically from its in-TAB statements (gtapv7.sti)", {
   v7 <- ems_example("GTAPv7", write_dir)
-  expect_message(
-    model <- suppressWarnings(ems_model(v7[["model_file"]], v7[["closure_file"]])),
-    "split by the IF rewrite"
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- character(0)
+  model <- withCallingHandlers(
+    suppressWarnings(ems_model(v7[["model_file"]], v7[["closure_file"]])),
+    message = \(m) {
+      msgs <<- c(msgs, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
   )
+  expect_false(any(grepl("IF rewrite split", msgs)))
   vars <- model[model$type == "Variable", ]
   expect_false(any(vars$condense %in% "omit"))
-  # 72 nominations less the four whose defining equations the IF rewrite
-  # partitioned (CNTqfr, CNTqgr, CNTalleffr, CNTtechr)
+  # the four CNT* variables whose defining equations the IF rewrite
+  # partitions carry no Backsolve statement
   expect_identical(sum(vars$condense %in% "backsolve"), 68L)
   expect_true(all(is.na(vars$condense[vars$name %in% c("CNTqfr", "CNTqgr", "CNTalleffr", "CNTtechr")])))
   # the upstream PostSim report blocks ride along: products, $POS mappings

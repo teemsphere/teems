@@ -7,6 +7,8 @@
                                 quiet = FALSE,
                                 call) {
   pairs <- list()
+  skip_var <- character(0)
+  skip_eq <- character(0)
 
   arg_actions <- list()
   if (!is.null(backsolve)) {
@@ -51,15 +53,8 @@
           ignore.case = TRUE
         )]
         if (length(parts) > 0L) {
-          if (!quiet) {
-            skip_var <- bs_var
-            skip_eq <- action$eq
-            skip_parts <- parts
-            .cli_action(model_info$backsolve_partitioned,
-              action = c("inform", "inform"),
-              call = call
-            )
-          }
+          skip_var <- c(skip_var, bs_var)
+          skip_eq <- c(skip_eq, action$eq)
           next
         }
         invalid_eq <- action$eq
@@ -71,6 +66,13 @@
     }
 
     pairs[[length(pairs) + 1L]] <- list(var = bs_var, eq = eq_names[[e_idx]])
+  }
+
+  if (length(skip_var) > 0L && .o_verbose() && !quiet) {
+    .cli_action(model_info$backsolve_partitioned,
+      action = c("inform", "inform"),
+      call = call
+    )
   }
 
   return(pairs)

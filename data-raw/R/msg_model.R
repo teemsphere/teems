@@ -644,9 +644,9 @@ build_model_info <- function() {
     ),
     # test-ems_model.R: "ignore_condense disables in-TAB condensation"
     condense_ignored = "{n_ignored} in-TAB condensation statement{?s} ignored ({.code ignore_condense = TRUE}).",
-    # test-ems_model.R: "GTAPv7 condenses automatically from its in-TAB statements"
+    # test-ems_model.R: "a split backsolve equation is reported under verbose only"
     backsolve_partitioned = c(
-      "Backsolve of {.val {skip_var}} skipped: its defining equation {.val {skip_eq}} was split by the IF rewrite into {.val {skip_parts}}.",
+      "Backsolve of {.val {skip_var}} skipped: the IF rewrite split {?its/their} defining equation{?s} {.val {skip_eq}}.",
       "A variable defined piecewise over set elements stays in the solved system."
     )
   )

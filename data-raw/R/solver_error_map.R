@@ -100,7 +100,7 @@ build_solver_error_map <- function() {
     # statement surface (Tier A: strong comments, loop keywords,
     # constants, signed powers, product updates)
     c("strong comment", "tab", "11.1.5"),
-    c("(LOOP|BREAK|CYCLE) statements are not supported", "tab", "11.18"),
+    c("manual 11\\.18\\)", "tab", "11.18"),
     c("numeric constant .* is out of the supported range", "tab", "11.4.9"),
     c("after (expanding exponent-notation|bracketing signed (powers|operands))", "tab", NA),
     c("product Update of", "tab", "11.12.4"),

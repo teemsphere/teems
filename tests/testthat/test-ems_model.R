@@ -236,6 +236,28 @@ test_that("invalid tab statement", {
                   },)
 })
 
+test_that("loops and sets without named elements pass ems_model", {
+  loop_model <- write_modified_model(model_file, paste(
+    "Set LIT (k1 - k6);",
+    "Set LUN # unnamed # size 4;",
+    "Coefficient (all,k,LIT) LFILL(k);",
+    "Formula (all,k,LIT) LFILL(k) = 0;",
+    "Coefficient LACC;",
+    "Formula LACC = 0;",
+    "Loop (BEGIN, name=outer) (all,k,LIT);",
+    "Formula LACC = LACC + $POS(k);",
+    "Formula LFILL(k) = LACC;",
+    "Cycle (any) (all,u,LUN) LACC < 0;",
+    "Break LFILL(k) = 10;",
+    "Loop (END);",
+    sep = "\n"
+  ))
+  model <- quiet_pivot(ems_model(loop_model, closure_file))
+  expect_identical(sum(model$type == "Loop"), 2L)
+  expect_identical(sum(model$type == "Break"), 1L)
+  expect_identical(sum(model$type == "Cycle"), 1L)
+})
+
 test_that("invalid intertemporal header", {
   err_model <- write_modified_model(model_file, "AYRS",
     .fn = function(x, y) gsub("YEAR", y, x)

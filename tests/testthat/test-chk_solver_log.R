@@ -260,7 +260,7 @@ test_that(".map_solver_errors classifies the Tier A solver fatals", {
     "the shock statement for pop names component pop(usa), which is endogenous; only exogenous components can be shocked (manual 24, 24.14.1; shock file)",
     "some components of pop have been specified more than once (pop(usa) is shocked by two statements; manual 68.1.1; shock file)",
     "initial closure check: 10 endogenous components is not equal to the number of equation rows (11); 20 variable components, 10 exogenous, 0 backsolved -- make 1 more component(s) endogenous (manual 23.2.7)",
-    "LOOP statements are not supported (loops in TAB files, manual 11.18): loop (all,i,com)",
+    "BREAK outside any loop (manual 11.18): break x > 1",
     "a strong comment opened with '![[!' in the TAB file is never closed by '!]]!' (1 still open at the end of the file; manual 11.1.5)",
     "product Update of vfm: the right-hand side must be a product of percentage-change variables v1*v2*...*vn (manual 11.12.4), and 2 is not one; write a (change) Update for any other form: (all,i,com) vfm(i) = 2*p(i)",
     "Formula for x gives a value that is not finite (NaN) at x(usa): a division, LOGE, SQRT or power left its domain or the value overflowed (arithmetic error, manual 34.3): x(r) = loge(y(r))",

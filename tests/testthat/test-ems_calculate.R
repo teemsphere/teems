@@ -75,11 +75,11 @@ test_that("a full model is calculated without a solve, to its null-shock values"
 test_that("ems_calculate requires its input files", {
   expect_snapshot_error(quiet_pivot(ems_calculate(model_file)))
   expect_snapshot_error(quiet_pivot(ems_calculate(model_file, GTAPSETS = inputs$GTAPSETS, model_dir = write_dir)))
-  expect_snapshot_error(quiet_pivot(ems_calculate(model_file,
-                                                  GTAPSETS = inputs$GTAPSETS,
-                                                  GTAPDATA = "not_a_file.txt",
-                                                  GTAPPARM = inputs$GTAPPARM,
-                                                  model_dir = write_dir)))
+  expect_no_warning(expect_snapshot_error(quiet_pivot(ems_calculate(model_file,
+                                                                    GTAPSETS = inputs$GTAPSETS,
+                                                                    GTAPDATA = "not_a_file.txt",
+                                                                    GTAPPARM = inputs$GTAPPARM,
+                                                                    model_dir = write_dir))))
   expect_snapshot_error(ems_calculate(model_file, inputs$GTAPSETS, model_dir = write_dir))
   expect_snapshot_error(ems_calculate(model_file, GTAPSETS = inputs$GTAPSETS,
                                       model_dir = file.path(write_dir, "absent")))

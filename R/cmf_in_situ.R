@@ -48,6 +48,14 @@
     )
   }
 
+  if (!all(purrr::map_lgl(input_files, file.exists))) {
+    nonexist_files <- input_files[!purrr::map_lgl(input_files, file.exists)]
+    .cli_action(solve_err$insitu_no_file,
+      action = "abort",
+      call = call
+    )
+  }
+
   cmf <- .cmf_core(
     input_files = input_files,
     model_file = model_file,
@@ -68,14 +76,6 @@
   if (!all(req_inputs %in% names(input_files))) {
     missing_files <- setdiff(req_inputs, names(input_files))
     .cli_action(solve_err$missing_insitu_inputs,
-      action = "abort",
-      call = call
-    )
-  }
-
-  if (!all(purrr::map_lgl(input_files, file.exists))) {
-    nonexist_files <- input_files[!purrr::map_lgl(input_files, file.exists)]
-    .cli_action(solve_err$insitu_no_file,
       action = "abort",
       call = call
     )

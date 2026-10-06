@@ -252,7 +252,7 @@ test_that("solve_in_situ errors when an input file does not exist", {
   GTAPSETS <- file.path(insitu_dir, "GTAPSETS.txt")
   shock_file <- list.files(insitu_dir, pattern = "shf", full.names = TRUE)
 
-  quiet_pivot(expect_snapshot_error(solve_in_situ(
+  expect_no_warning(quiet_pivot(expect_snapshot_error(solve_in_situ(
     GTAPDATA = GTAPDATA,
     GTAPINT = GTAPINT,
     GTAPPARM = "not_a_file.txt",
@@ -261,7 +261,7 @@ test_that("solve_in_situ errors when an input file does not exist", {
     closure_file = model_files[["closure_file"]],
     model_dir = insitu_dir,
     shock_file = shock_file
-  )))
+  ))))
 })
 
 test_that("solve_in_situ errors when no input files are given", {

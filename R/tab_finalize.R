@@ -41,25 +41,28 @@
     paste0('"', .longname(set_extract$label, set_extract$name), '"', ";")
   )
 
-  coeff_writeout <- if (write_coefficients) {
-    paste(
+  coeff_write <- \(extract) {
+    if (!write_coefficients || nrow(extract) == 0) {
+      return(NULL)
+    }
+    writeout <- paste(
       "File",
       "(new)",
-      coeff_extract$name,
+      extract$name,
       "#",
-      coeff_extract$name,
+      extract$name,
       "output file #;\nWrite",
-      coeff_extract$name,
+      extract$name,
       "to file",
-      coeff_extract$name,
+      extract$name,
       "header",
-      paste0('"', coeff_extract$name, '"'),
+      paste0('"', extract$name, '"'),
       "longname",
-      paste0('"', .longname(coeff_extract$label, coeff_extract$name), '"', ";")
+      paste0('"', .longname(extract$label, extract$name), '"', ";")
     )
-  } else {
-    NULL
+    return(writeout)
   }
+  coeff_writeout <- coeff_write(coeff_extract)
 
   ps_exec <- is_ps &
     tolower(model$type) %in% c("coefficient", "formula", "assertion", "zerodivide")
@@ -68,6 +71,7 @@
     postsim_block <- c(
       "PostSim (Begin);",
       model$tab[ps_exec],
+      coeff_write(model[model$type == "Coefficient" & is_ps, ]),
       "PostSim (End);"
     )
   }

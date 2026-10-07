@@ -38,24 +38,25 @@
       call = call
     )
   } else if (compose_coefficient) {
+    ps_paths <- toupper(sub("\\.csv$", "", basename(paths$coeff))) %in%
+      attr(comp_extract, "postsim_names")
     output$coefficient <- .compose_coeff(
-      paths = paths$coeff,
+      paths = paths$coeff[!ps_paths],
       coeff_extract = comp_extract$coefficient,
       sets = sets,
       time_steps = time_steps,
       call = call
     )
-  }
-
-  if (compose_coefficient && is.null(cof_tbl) && !is.null(paths$postsim)) {
-    output$postsim <- .compose_coeff(
-      paths = paths$postsim,
-      coeff_extract = comp_extract$coefficient,
-      sets = sets,
-      time_steps = time_steps,
-      call = call,
-      type_label = "postsim"
-    )
+    if (any(ps_paths)) {
+      output$postsim <- .compose_coeff(
+        paths = paths$coeff[ps_paths],
+        coeff_extract = comp_extract$coefficient,
+        sets = sets,
+        time_steps = time_steps,
+        call = call,
+        type_label = "postsim"
+      )
+    }
   }
 
   if (type == "all") {

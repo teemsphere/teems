@@ -31,7 +31,7 @@ dat <- ems_data(
 )
 model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
 n_var <- sum(model$type == "Variable")
-# PostSim coefficients compose as type "postsim" and have no CSV pair
+# PostSim coefficients compose as type "postsim"
 n_coeff <- sum(model$type == "Coefficient" & !model$postsim)
 n_postsim <- sum(model$type == "Coefficient" & model$postsim)
 cmf_path <- ems_deploy(dat, model)
@@ -118,13 +118,17 @@ test_that("coefficients come from the binary dump; CSVs are opt-in and agree", {
   ems_option_set(tempdir = write_dir)
   expect_equal(
     length(list.files(file.path(csv_dir, "out", "coefficients"))),
-    n_coeff
+    n_coeff + n_postsim
   )
   csv_bin <- file.path(csv_dir, "out", "variables", "bin")
   file.rename(file.path(csv_bin, "sol.cof"), file.path(csv_bin, "sol.cof.off"))
   from_csv <- ems_compose(cmf_csv)
   file.rename(file.path(csv_bin, "sol.cof.off"), file.path(csv_bin, "sol.cof"))
 
+  expect_setequal(
+    from_csv$name[from_csv$type == "postsim"],
+    from_bin$name[from_bin$type == "postsim"]
+  )
   cb <- from_bin[from_bin$type == "coefficient", ]
   cc <- from_csv[from_csv$type == "coefficient", ]
   expect_setequal(cb$name, cc$name)

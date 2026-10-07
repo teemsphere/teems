@@ -29,12 +29,7 @@
   }
 
   if (coeff) {
-    is_ps <- if (is.null(model$postsim)) {
-      rep(FALSE, nrow(model))
-    } else {
-      !is.na(model$postsim) & model$postsim
-    }
-    coeff_names <- model[model$type == "Coefficient" & !is_ps, "name"][[1]]
+    coeff_names <- model[model$type == "Coefficient", "name"][[1]]
     coeff_writeout <- paste(
       "outdata",
       paste0('"', coeff_names, '"'),

@@ -53,15 +53,21 @@ test_that("finalized TAB re-wraps PostSim executables in a trailing section", {
   expect_true(any(grepl("^Coefficient PSKBSUM", inside)))
   expect_false(any(grepl("PSKBSUM", lines[seq_len(begin - 1)])))
   tab_csv <- .finalize_tab(model, write_coefficients = TRUE)
-  csv_lines <- strsplit(tab_csv, "\n")[[1]]
-  expect_true(any(grepl("^Write VKB to file", csv_lines)))
-  expect_false(any(grepl("^Write PSKBSUM to file", csv_lines)))
+  csv_lines <- unlist(strsplit(strsplit(tab_csv, "\n")[[1]], "\n"))
+  begin <- grep("^PostSim \\(Begin\\);", csv_lines)
+  end <- grep("^PostSim \\(End\\);", csv_lines)
+  inside <- csv_lines[(begin + 1):(end - 1)]
+  expect_true(any(grepl("^Write VKB to file", csv_lines[seq_len(begin - 1)])))
+  expect_false(any(grepl("PSKBSUM", csv_lines[seq_len(begin - 1)])))
+  expect_true(any(grepl("^File \\(new\\) PSKBSUM", inside)))
+  expect_true(any(grepl("^Write PSKBSUM to file PSKBSUM", inside)))
 })
 
-test_that("PostSim coefficients get no outdata entries (dump only)", {
+test_that("PostSim coefficients get outdata entries in out/coefficients", {
   w <- .writeout(model = model, write_dir = write_dir)
-  expect_false(any(grepl("PSKBSUM", w)))
+  expect_true(any(grepl("out/coefficients/PSKBSUM\\.csv", w)))
   expect_true(any(grepl("out/coefficients/VKB\\.csv", w)))
+  expect_false(any(grepl("out/postsim", w)))
 })
 
 test_that("forbidden statements in a PostSim section abort", {
@@ -99,4 +105,32 @@ test_that("PostSim runs end-to-end through deploy, solve and compose", {
   ps_val <- as.numeric(ps$dat[[1]][["Value"]])
   vkb <- out[out$name == "VKB", ]
   expect_equal(ps_val, sum(vkb$dat[[1]][["Value"]]), tolerance = 1e-6)
+})
+
+test_that("PostSim coefficients reach out/coefficients CSVs with write_coefficients", {
+  skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
+  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+    "teems image not available"
+  )
+  dat <- ems_data(
+    dat_input = Sys.getenv("GTAP12_dat"),
+    par_input = Sys.getenv("GTAP12_par"),
+    set_input = Sys.getenv("GTAP12_set"),
+    REG = "big3", ACTS = "macro_sector", ENDW = "labor_agg"
+  )
+  cmf_path <- ems_deploy(dat, model, write_coefficients = TRUE)
+  ps_csv <- file.path(dirname(cmf_path), "out", "coefficients", "PSKBSUM.csv")
+  expect_true(any(grepl("PSKBSUM.csv", readLines(cmf_path), fixed = TRUE)))
+  out <- ems_solve(cmf_path)
+  expect_true(file.exists(ps_csv))
+  expect_false(dir.exists(file.path(dirname(cmf_path), "out", "postsim")))
+  csv_val <- as.numeric(readLines(ps_csv)[2])
+  ps <- out[out$type == "postsim" & out$name == "PSKBSUM", ]
+  expect_equal(csv_val, as.numeric(ps$dat[[1]][["Value"]]), tolerance = 1e-6)
+  cof <- file.path(dirname(cmf_path), "out", "variables", "bin", "sol.cof")
+  file.rename(cof, paste0(cof, ".bak"))
+  withr::defer(file.rename(paste0(cof, ".bak"), cof))
+  csv_out <- ems_compose(cmf_path, which = c("PSKBSUM", "VKB"))
+  expect_identical(csv_out$type[csv_out$name == "PSKBSUM"], "postsim")
+  expect_identical(unique(csv_out$type[csv_out$name == "VKB"]), "coefficient")
 })

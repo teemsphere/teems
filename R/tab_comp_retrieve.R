@@ -45,5 +45,6 @@
 
   input_files <- file.path(dirname(tab_path), paste0(input_files, ".txt"))
   attr(comp_extract, "input_files") <- input_files
+  attr(comp_extract, "postsim_names") <- .postsim_decl_names(tab)
   return(comp_extract)
 }

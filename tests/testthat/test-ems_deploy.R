@@ -197,8 +197,8 @@ test_that("coefficient CSV Write pairs are opt-in (default off)", {
   cmf <- ems_deploy(dat, model)
   tab <- readLines(attr(cmf, "tab_path"))
   cmf_lines <- readLines(cmf)
-  # PostSim coefficients have no CSV pair
-  n_coeff <- sum(model$type == "Coefficient" & !model$postsim)
+  # PostSim coefficients get their CSV pair inside the PostSim section
+  n_coeff <- sum(model$type == "Coefficient")
   # sets still get their Write pairs and outdata lines
   expect_true(any(grepl("^Write \\(set\\) REG to file REG ", tab)))
   expect_true(any(grepl("^outdata \"REG\"", cmf_lines)))

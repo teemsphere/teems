@@ -43,9 +43,10 @@ carried out on this file.}
 \item{write_coefficients}{Logical of length 1 (default \code{FALSE}).
 Coefficient values return to R through the solver's binary
 coefficient dump, read selectively by \code{\link[=ems_compose]{ems_compose()}}. Set
-\code{TRUE} to also emit the GEMPACK-style per-coefficient CSV files
-(\verb{out/coefficients/}, \verb{out/postsim/}) via auto-generated
-\code{File}/\code{Write} statements, e.g. for inspection outside R.}
+\code{TRUE} to also emit per-coefficient CSV files
+in \verb{out/coefficients/} via auto-generated \code{File}/\code{Write}
+statements, e.g. for inspection outside R. PostSim coefficients
+are written there too, after the PostSim pass.}
 }
 \value{
 Path to the CMF file, to be passed to \code{\link[=ems_solve]{ems_solve()}}.

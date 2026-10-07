@@ -26,9 +26,10 @@
 #' @param write_coefficients Logical of length 1 (default `FALSE`).
 #'   Coefficient values return to R through the solver's binary
 #'   coefficient dump, read selectively by [`ems_compose()`]. Set
-#'   `TRUE` to also emit the GEMPACK-style per-coefficient CSV files
-#'   (`out/coefficients/`, `out/postsim/`) via auto-generated
-#'   `File`/`Write` statements, e.g. for inspection outside R.
+#'   `TRUE` to also emit per-coefficient CSV files
+#'   in `out/coefficients/` via auto-generated `File`/`Write`
+#'   statements, e.g. for inspection outside R. PostSim coefficients
+#'   are written there too, after the PostSim pass.
 #' @seealso [`ems_data()`] for loading and preparing data inputs.
 #'   [`ems_model()`] for parsing and modifying model and closure
 #'   files. [`ems_uniform_shock()`], [`ems_custom_shock()`], and

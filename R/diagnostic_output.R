@@ -33,9 +33,10 @@
     temporal_dynamics <- "static"
   }
 
+  user_sets <- !grepl("^[#[:space:]]*if-rewrite\\b", sets$label)
   data_path <- toString(normalizePath(unlist(data_path), "/"))
   diagnostic_file <- file.path(dirname(tab_path), "model_diagnostics.txt")
-  diag_output <- cli::cli_fmt({
+  diag_fmt <- \(keep) cli::cli_fmt({
     cli::cli_h1("Diagnostic outputs follow")
     cli::cli_h2("General model specifications")
     cli::cli_dl(c(
@@ -48,7 +49,7 @@
     ))
     cli::cli_h2(text = "Set elements")
     purrr::pmap(
-      .l = list(sets$name, sets$ele, sets$label),
+      .l = list(sets$name[keep], sets$ele[keep], sets$label[keep]),
       .f = \(nme, ele, info) {
         nme <- toupper(nme)
         info <- trimws(gsub("#", "", info))
@@ -62,12 +63,14 @@
       "Variables shocked" = shock_var
     ))
   })
+  diag_output <- diag_fmt(rep(TRUE, length(sets$name)))
 
   if (.o_verbose()) {
+    console_output <- diag_fmt(user_sets)
     if (exists("null_shk")) {
-      cli::cli_verbatim(diag_output, null_shk)
+      cli::cli_verbatim(console_output, null_shk)
     } else {
-      cli::cli_verbatim(diag_output)
+      cli::cli_verbatim(console_output)
     }
   }
 

@@ -21,12 +21,6 @@
     if (!is.null(a$refine)) {
       paste("-refine", .as01(a$refine))
     },
-    if (!is.null(a$cntl_3)) {
-      paste("-cntl_3", a$cntl_3)
-    },
-    if (!is.null(a$cntl_6)) {
-      paste("-cntl_6", a$cntl_6)
-    },
     if (!is.null(a$nsbbdblocks)) {
       paste("-nsbbdblocks", as.integer(a$nsbbdblocks))
     },
@@ -48,8 +42,11 @@
     if (!is.null(a$jacdump)) {
       paste("-jacdump", .as01(a$jacdump))
     },
-    if (!is.null(a$ma48u)) {
-      paste("-ma48u", format(a$ma48u, digits = 15))
+    if (!is.null(a$ma48_cntl2)) {
+      paste("-ma48_cntl2", format(a$ma48_cntl2, digits = 15))
+    },
+    if (!is.null(a$ma48_cntl4)) {
+      paste("-ma48_cntl4", format(a$ma48_cntl4, digits = 15))
     },
     if (!is.null(a$rk_chart)) {
       paste("-rkchart", a$rk_chart)

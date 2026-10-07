@@ -180,18 +180,24 @@ when the estimated need exceeds the memory available.
 \item \code{fastrefac} (logical, default \code{FALSE}): persistent-pivot
 refactorization; under \code{"DBBD"} it helps only small systems,
 whose block orderings repeat from step to step.
-\item \code{ma48u} (numeric in (0, 1], default each library's own: MA48
-0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold \code{CNTL(2)}; a
-calibration knob, not a tuning recommendation.
-\item \code{cntl_6} (numeric, default \code{0}): HSL MA51 rank tolerance in the
-\code{"DBBD"}/\code{"NDBBD"} block ordering.
-\item \code{cntl_3} (numeric): accepted, but has no effect in the current
-solver.
-\item \code{nsbbdblocks} (integer, default \code{2}): SBBD block-count hint.
+\item \code{ma48_cntl2} (numeric in (0, 1], default each library's own:
+MA48 0.1, HSL_MP48 0.01): MA48/HSL_MP48 pivot threshold
+\code{CNTL(2)}, at every factorization including the
+\code{"DBBD"}/\code{"NDBBD"} rank probes, so it can also move their block
+sizes; a calibration knob, not a tuning recommendation.
+\item \code{ma48_cntl4} (numeric >= 0, default \code{1e-4}): MA48 \code{CNTL(4)} in
+the MA48/MA51 rank probes that size the \code{"DBBD"}/\code{"NDBBD"}
+blocks; pivots below it count as zero (\code{0} = MA48's own
+default, exact zeros only). A calibration knob, not a tuning
+recommendation.
+\item \code{nsbbdblocks} (integer, default \code{2}): HSL MC66 \code{nblocks}, the
+number of row blocks MC66 partitions \code{"SBBD"} into; used only
+with \code{withmc66 = TRUE}.
 \item \code{withmc66} (logical, default \code{FALSE}): MC66 row ordering for
 SBBD.
 \item \code{smllthreads} (integer, default the run's thread count): OpenMP
-threads for small sections.
+threads for the \code{"NDBBD"} interface factorization and
+back-substitution.
 \item \code{tempdir} (character, default the container's \code{TMPDIR}, else
 \verb{/tmp/}): container-side scratch directory.
 \item \code{nowrites} (logical, default \code{FALSE}): skip the solver-side

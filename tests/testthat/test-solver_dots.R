@@ -89,22 +89,21 @@ test_that("expert flags render as solver CLI flags", {
     cmf,
     terminal_run = TRUE,
     fastrefac = TRUE,
-    cntl_3 = 0.5,
     nsbbdblocks = 4L,
     withmc66 = FALSE,
     nowrites = TRUE,
     condest = TRUE,
-    ma48u = 0.01
+    ma48_cntl2 = 0.01,
+    ma48_cntl4 = 1e-6
   ))
   cmd <- exec_cmd(d)
-  expect_match(cmd, "-ma48u 0.01", fixed = TRUE)
+  expect_match(cmd, "-ma48_cntl2 0.01", fixed = TRUE)
+  expect_match(cmd, "-ma48_cntl4 1e-06", fixed = TRUE)
   expect_match(cmd, "-fastrefac 1", fixed = TRUE)
-  expect_match(cmd, "-cntl_3 0.5", fixed = TRUE)
   expect_match(cmd, "-nsbbdblocks 4", fixed = TRUE)
   expect_match(cmd, "-withmc66 0", fixed = TRUE)
   expect_match(cmd, "-nowrites 1", fixed = TRUE)
   expect_match(cmd, "-condest 1", fixed = TRUE)
-  expect_no_match(cmd, "-cntl_6", fixed = TRUE)
   expect_no_match(cmd, "-tempdir", fixed = TRUE)
 })
 
@@ -128,6 +127,19 @@ test_that("removed gpzerodivide flag is an unknown dots argument", {
   )
 })
 
+test_that("removed and renamed HSL control flags are unknown dots arguments", {
+  d <- withr::local_tempdir()
+  cmf <- mk_cmf(d)
+  for (nme in c("cntl_3", "cntl_6", "ma48u")) {
+    args <- stats::setNames(list(cmf, 0.5), c("", nme))
+    expect_error(
+      do.call(ems_solve, args),
+      nme,
+      class = "rlang_error"
+    )
+  }
+})
+
 test_that("dot-passed extras are validated", {
   d <- withr::local_tempdir()
   cmf <- mk_cmf(d)
@@ -142,13 +154,13 @@ test_that("dot-passed extras are validated", {
     class = "rlang_error"
   )
   expect_error(
-    ems_solve(cmf, ma48u = 1.5),
-    "ma48u",
+    ems_solve(cmf, ma48_cntl2 = 1.5),
+    "ma48_cntl2",
     class = "rlang_error"
   )
   expect_error(
-    ems_solve(cmf, ma48u = 0),
-    "ma48u",
+    ems_solve(cmf, ma48_cntl2 = 0),
+    "ma48_cntl2",
     class = "rlang_error"
   )
   expect_error(
@@ -162,8 +174,13 @@ test_that("dot-passed extras are validated", {
     class = "rlang_error"
   )
   expect_error(
-    ems_solve(cmf, cntl_3 = "high"),
-    "cntl_3",
+    ems_solve(cmf, ma48_cntl4 = "high"),
+    "ma48_cntl4",
+    class = "rlang_error"
+  )
+  expect_error(
+    ems_solve(cmf, ma48_cntl4 = -1e-4),
+    "non-negative",
     class = "rlang_error"
   )
 })

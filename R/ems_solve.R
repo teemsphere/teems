@@ -146,18 +146,24 @@
 #'   * `fastrefac` (logical, default `FALSE`): persistent-pivot
 #'     refactorization; under `"DBBD"` it helps only small systems,
 #'     whose block orderings repeat from step to step.
-#'   * `ma48u` (numeric in (0, 1], default each library's own: MA48
-#'     0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold `CNTL(2)`; a
-#'     calibration knob, not a tuning recommendation.
-#'   * `cntl_6` (numeric, default `0`): HSL MA51 rank tolerance in the
-#'     `"DBBD"`/`"NDBBD"` block ordering.
-#'   * `cntl_3` (numeric): accepted, but has no effect in the current
-#'     solver.
-#'   * `nsbbdblocks` (integer, default `2`): SBBD block-count hint.
+#'   * `ma48_cntl2` (numeric in (0, 1], default each library's own:
+#'     MA48 0.1, HSL_MP48 0.01): MA48/HSL_MP48 pivot threshold
+#'     `CNTL(2)`, at every factorization including the
+#'     `"DBBD"`/`"NDBBD"` rank probes, so it can also move their block
+#'     sizes; a calibration knob, not a tuning recommendation.
+#'   * `ma48_cntl4` (numeric >= 0, default `1e-4`): MA48 `CNTL(4)` in
+#'     the MA48/MA51 rank probes that size the `"DBBD"`/`"NDBBD"`
+#'     blocks; pivots below it count as zero (`0` = MA48's own
+#'     default, exact zeros only). A calibration knob, not a tuning
+#'     recommendation.
+#'   * `nsbbdblocks` (integer, default `2`): HSL MC66 `nblocks`, the
+#'     number of row blocks MC66 partitions `"SBBD"` into; used only
+#'     with `withmc66 = TRUE`.
 #'   * `withmc66` (logical, default `FALSE`): MC66 row ordering for
 #'     SBBD.
 #'   * `smllthreads` (integer, default the run's thread count): OpenMP
-#'     threads for small sections.
+#'     threads for the `"NDBBD"` interface factorization and
+#'     back-substitution.
 #'   * `tempdir` (character, default the container's `TMPDIR`, else
 #'     `/tmp/`): container-side scratch directory.
 #'   * `nowrites` (logical, default `FALSE`): skip the solver-side

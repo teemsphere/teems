@@ -62,14 +62,14 @@ not CMF — they belong to the model author and are out of scope here.
 | Flag | Default | Meaning | Disposition |
 |---|---|---|---|
 | ~~`-maxthreads`~~ | 1 | OpenMP threads per task | **DONE**: `ems_solve(n_threads = )` (default 1; >1 not bit-reproducible across counts — reduction order); recorded as `max_threads` |
-| `-smllthreads` | = maxthreads | OpenMP threads for small sections | **escape hatch** (documented on `append_args`) |
+| `-smllthreads` | = maxthreads | OpenMP threads for the NDBBD interface factorization and back-substitution | **escape hatch** (documented on `append_args`) |
 | `-fastrefac` | 0 (off) | persistent-pivot refactorization (adoption plan 0bdd621; force-cleared for complementarity runs) | **escape hatch** until the adoption decision (recorded effective in stats.json) |
 | ~~`-gpzerodivide`~~ | — | GEMPACK dual-class ZERODIVIDE semantics (parity plan A1) | **REMOVED 2026-10-08**: the dual-class semantics are always on; the flag is gone from solver and R |
 | ~~`-maxretries`~~ | 3 | RK adaptive: retry cap | **DONE**: `ems_solve(max_retries = )`; recorded |
 | ~~`-retryadj`~~ | 0.5 | RK adaptive: step-shrink factor on retry | **DONE**: `ems_solve(retry_adjust = )`; recorded |
-| `-cntl_3` | HSL default | MA48 iterative/pivot threshold | **escape hatch** (expert HSL; documented) |
-| `-cntl_6` | HSL default | ordering CNTL(6) threshold | **escape hatch** (expert HSL; documented) |
-| `-nsbbdblocks` | derived | SBBD block-count override | **escape hatch** (partition auto-selection is the designed path) |
+| `-ma48_cntl2` | library defaults (MA48 0.1, MP48 0.01) | MA48/HSL_MP48 pivot threshold CNTL(2), every factorization incl. the DBBD/NDBBD rank probes | **escape hatch** (expert HSL; documented) |
+| `-ma48_cntl4` | 1e-4 | MA48 CNTL(4) in the DBBD/NDBBD MA48/MA51 rank probes | **escape hatch** (expert HSL; documented) |
+| `-nsbbdblocks` | 2 | HSL MC66 `nblocks` (SBBD under `-withmc66 1` only) | **escape hatch** (partition auto-selection is the designed path) |
 | `-withmc66` | 0 (off) | MC66 row ordering for SBBD | **escape hatch** (documented) |
 | `-nowrites` | 0 | skip the post-solve CSV output-file dumps (outputs_write_csv; solution binaries and the coefficient dump unaffected). Since the coefficient dump (2026-08-17) it only matters for `ems_deploy(write_coefficients = TRUE)` runs. Distinct from `suppress_outputs` (R-side compose skip) | **escape hatch** (documented with the distinction) |
 | `-cofdump` | 1 | write `<sol>.cof`/`.cbin`, the binary coefficient dump `ems_compose()` reads (all coefficients, selected on read); recorded in stats.json `options` | **not exposed** — off would silently drop coefficients from compose; no use case |
@@ -81,8 +81,8 @@ not CMF — they belong to the model author and are out of scope here.
   complementarity controls via `ems_complementarity()`, and
   `assertions`/`range_test_initial`/`range_test_updated`/`postsim` as
   `ems_solve()` named arguments.
-- **Documented escape hatch**: expert HSL/ordering knobs (`-cntl_3`,
-  `-cntl_6`, `-nsbbdblocks`, `-withmc66`) and performance toggles
+- **Documented escape hatch**: expert HSL/ordering knobs (`-ma48_cntl2`,
+  `-ma48_cntl4`, `-nsbbdblocks`, `-withmc66`) and performance toggles
   (`-fastrefac`, `-maxthreads`, `-smllthreads`) — document
   `append_args` as the supported route, or promote individually.
 - **Review for exposure or removal**: `-nowrites` vs

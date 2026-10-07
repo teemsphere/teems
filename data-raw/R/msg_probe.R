@@ -10,10 +10,9 @@ build_probe_err <- function() {
       "{.arg ...} accepts the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
-      {.arg cntl_3}, {.arg cntl_6},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
-      {.arg ma48u}, and the Runge-Kutta run controls, which a probe
+      {.arg ma48_cntl2}, {.arg ma48_cntl4}, and the Runge-Kutta run controls, which a probe
       ignores)."
     ),
     # test-ems_probe.R: "probe report errors when the report is absent"

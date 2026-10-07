@@ -27,9 +27,9 @@
 #' @param ... Additional named solver arguments, the same set
 #'   [`ems_solve()`] accepts through `...`: the MA48 workspace initial
 #'   guesses (`laA`, `laD`, `laDi`), the expert solver flags
-#'   (`postsim`, `inmemory`, `fastrefac`, `cntl_3`,
-#'   `cntl_6`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`,
-#'   `nowrites`, `condest`, `jacdump`, `ma48u`) and the Runge-Kutta
+#'   (`postsim`, `inmemory`, `fastrefac`, `nsbbdblocks`, `withmc66`,
+#'   `smllthreads`, `tempdir`, `nowrites`, `condest`, `jacdump`,
+#'   `ma48_cntl2`, `ma48_cntl4`) and the Runge-Kutta
 #'   run controls, which a probe ignores. Anything else is an error,
 #'   never a silently ignored flag.
 #' @details The probe runs on a single MPI rank; its cost is the

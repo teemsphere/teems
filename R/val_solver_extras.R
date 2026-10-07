@@ -25,22 +25,21 @@
       )
     }
   }
-  for (nme in c("cntl_3", "cntl_6")) {
-    x <- a[[nme]]
-    if (!is.null(x) && (!is.numeric(x) || length(x) != 1L || is.na(x))) {
-      bad_arg <- nme
-      requirement <- solve_err$requirement$numeric_scalar
-      .cli_action(solve_err$comp_arg_type,
-        action = "abort",
-        call = call
-      )
-    }
-  }
-  if (!is.null(a$ma48u) &&
-    (!is.numeric(a$ma48u) || length(a$ma48u) != 1L || is.na(a$ma48u) ||
-      a$ma48u <= 0 || a$ma48u > 1)) {
-    bad_arg <- "ma48u"
+  if (!is.null(a$ma48_cntl2) &&
+    (!is.numeric(a$ma48_cntl2) || length(a$ma48_cntl2) != 1L || is.na(a$ma48_cntl2) ||
+      a$ma48_cntl2 <= 0 || a$ma48_cntl2 > 1)) {
+    bad_arg <- "ma48_cntl2"
     requirement <- solve_err$requirement$half_open_unit
+    .cli_action(solve_err$comp_arg_type,
+      action = "abort",
+      call = call
+    )
+  }
+  if (!is.null(a$ma48_cntl4) &&
+    (!is.numeric(a$ma48_cntl4) || length(a$ma48_cntl4) != 1L || is.na(a$ma48_cntl4) ||
+      a$ma48_cntl4 < 0)) {
+    bad_arg <- "ma48_cntl4"
+    requirement <- solve_err$requirement$non_negative
     .cli_action(solve_err$comp_arg_type,
       action = "abort",
       call = call

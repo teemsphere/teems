@@ -1,5 +1,5 @@
 # unknown dot arguments abort
 
     x Unknown argument `bogus_argument` passed to `...`.
-    i `...` accepts the Runge-Kutta step controls (`adaptive`, `eps_tolerance`, `max_retries`, `retry_adjust`, `rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`, `rk_h0`, `rk_guard`; see `ems_RK()`), the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and the expert solver flags (`postsim`, `inmemory`, `fastrefac`, `cntl_3`, `cntl_6`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`, `nowrites`, `condest`, `jacdump`, `ma48u`).
+    i `...` accepts the Runge-Kutta step controls (`adaptive`, `eps_tolerance`, `max_retries`, `retry_adjust`, `rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`, `rk_h0`, `rk_guard`; see `ems_RK()`), the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and the expert solver flags (`postsim`, `inmemory`, `fastrefac`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`, `nowrites`, `condest`, `jacdump`, `ma48_cntl2`, `ma48_cntl4`).
 

@@ -37,6 +37,7 @@ build_solve_err <- function() {
     # {requirement} for comp_arg_type / the solver scalar validators
     # see solve_err$comp_arg_type
     # test-ems_complementarity.R: "constructor validation aborts"
+    # test-solver_dots.R: "dot-passed extras are validated"
     requirement = list(
       positive_int = "a positive integer-like numeric of length 1",
       level_ratio = "a numeric of length 1 greater than 1 (a level ratio)",
@@ -45,6 +46,7 @@ build_solve_err <- function() {
       character_scalar = "a character of length 1",
       open_unit = "a numeric of length 1 in (0, 1)",
       half_open_unit = "a numeric of length 1 in (0, 1]",
+      non_negative = "a non-negative numeric of length 1",
       fatal_or_warn = "either \"fatal\" or \"warn\"",
       one_of = "one of %s"
     ),
@@ -123,10 +125,9 @@ build_solve_err <- function() {
       {.fun ems_RK}), the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
-      {.arg cntl_3}, {.arg cntl_6},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
-      {.arg ma48u})."
+      {.arg ma48_cntl2}, {.arg ma48_cntl4})."
     ),
     # test-solver_dots.R: "solve_in_situ solver_args must be a fully named allowlisted list"
     solver_args_list = c(
@@ -141,10 +142,9 @@ build_solve_err <- function() {
       "Accepted: the MA48 workspace initial guesses ({.arg laA},
       {.arg laD}, {.arg laDi}), the expert solver flags
       ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
-      {.arg cntl_3}, {.arg cntl_6},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
-      {.arg ma48u}) and the Runge-Kutta run controls
+      {.arg ma48_cntl2}, {.arg ma48_cntl4}) and the Runge-Kutta run controls
       ({.arg rk_chart}, {.arg rk_norm}, {.arg rk_controller},
       {.arg rk_scope}, {.arg rk_h0}, {.arg rk_guard}). The
       Runge-Kutta step controls are formal arguments of
@@ -344,8 +344,8 @@ build_solve_info <- function() {
         "embedded pair's accumulated estimate: an indicator of the ",
         "least-settled elements, not a bound)"
       ),
-      matrix_method = "Matrix method: %s (laA %s, laDi %s, laD %s; fastrefac %s; ma48u %s)",
-      ma48u_default = "default",
+      matrix_method = "Matrix method: %s (laA %s, laDi %s, laD %s; fastrefac %s; ma48_cntl2 %s)",
+      ma48_cntl2_default = "default",
       la_used = "Workspace used (equivalent percents): laA %s, laDi %s, laD %s",
       condest = paste0(
         "Solve quality (condest): kappa_w1 max %s, kappa_w2 max %s, ",

@@ -161,10 +161,10 @@
     sprintf(
       solve_info$record$matrix_method,
       stats$matrix_method, opt$laA, opt$laDi, opt$laD, .onoff(opt$fastrefac),
-      if (is.null(opt$ma48u)) {
-        solve_info$record$ma48u_default
+      if (is.null(opt$ma48_cntl2)) {
+        solve_info$record$ma48_cntl2_default
       } else {
-        opt$ma48u
+        opt$ma48_cntl2
       }
     ),
     .resources_record_lines(resources_record),

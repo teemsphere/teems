@@ -83,15 +83,15 @@
 
     x Invalid set qualifier detected: (static).
 
-# conditional set builders (GEMPACK manual 10.1.2)
+# conditional set builders (GEMPACK manual 10.1.3)
 
     x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > 0 and)".
-    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.2); every name it uses must be declared.
+    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.3); every name it uses must be declared.
 
 ---
 
     x Unsupported condition in the Set builder "BADX": "= (all,c,COMM: VDFB(c,\"crops\",\"chn\",\"t0\") > NOPE(c))".
-    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.2); every name it uses must be declared.
+    i A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, `$POS` and sums, joined by `and`, `or` and `not` (GEMPACK manual 10.1.3); every name it uses must be declared.
 
 # set builders on indicator-formula operands (GTAP-AEZ UNITD* shape)
 
@@ -250,49 +250,49 @@
 
     x Equation E_tr1 cannot be used to backsolve tvr.
     i Occurrence tvr("usa",t): an element occurs as an argument; every argument must be an index (requirement 1).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr2 cannot be used to backsolve tvr.
     i Occurrence sum{r,REG, tvr(r,t)}: a SUM index occurs as an argument; every index must be an equation ALL index (requirement 2).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr3 cannot be used to backsolve tvc3.
     i Equation ALL index (r) absent from occurrence tvc3(t); every equation ALL index must appear in each occurrence (requirement 3).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr4 cannot be used to backsolve tvm.
     i Occurrence tvm(m,t) ranges over {MARG,ALLTIME} but the variable is declared over {COMM,ALLTIME}; every index must range over the full declared set (requirement 4).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr5 cannot be used to backsolve tvrr.
     i Occurrence tvrr(r,r,t): a repeated index; all indices of one occurrence must be different (requirement 5).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr6 cannot be used to backsolve tvr.
     i Occurrence tvr(r,t+1): an argument carries a lead/lag offset; offsets block substitution in intertemporal models (requirement 6).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_tr7 cannot be used to backsolve tvrr.
     i Occurrences tvrr(r,s,t) and tvrr(s,r,t) have different index patterns; all occurrences must share one pattern (requirement 7).
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 ---
 
     x Equation E_trc cannot be used to backsolve tvr.
     i The occurrences of the variable cancel; no expression for it can be obtained from this equation.
-    i GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10.
+    i See GEMPACK manual 14.1.10 for the substitution requirements.
 
 # backsolved variables must be endogenous in the closure
 

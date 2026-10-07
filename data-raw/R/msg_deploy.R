@@ -35,7 +35,7 @@ build_deploy_err <- function() {
     # test-set_builder_eval.R: "a mapping-sum builder without its mapping aborts"
     set_builder_mapsum = c(
       "{.field Set} builder {.val {bad_set}}: the mapping-conditional sum over {.val {cond_map}} cannot be evaluated at deploy.",
-      "The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a {.code (by_elements)} Read whose header is in the set data (GEMPACK manual 10.1.2)."
+      "The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a {.code (by_elements)} Read whose header is in the set data (GEMPACK manual 10.1.3)."
     ),
     # test-ems_deploy.R: "ems_deploy errors when read-in headers are missing mapping"
     missing_mapping = "Some read-in model sets have no mappings: {.field {m_map}}.",
@@ -116,7 +116,7 @@ build_deploy_err <- function() {
       of the {.code (onto)} mapping {.val {map_name}} {?is/are} not
       covered after aggregation.",
       "Every {.field {cod}} element must be the value of at least one
-      {.field {dom}} element (GEMPACK manual 11.9.1)."
+      {.field {dom}} element (GEMPACK manual 11.9.3)."
     ),
     # test-ems_deploy.R: "ems_deploy errors when shock_file and shock are both provided"
     shk_file_shocks = c(

@@ -52,7 +52,7 @@
 # custom and uniform shocks sharing a component abort
 
     x 2 shocks on pop overlap; a component is shocked more than once: (row,1).
-    i A component may be shocked only once (GEMPACK: "specified more than once"); the solver does not let a later shock override an earlier one.
+    i A component may be shocked only once; the solver does not let a later shock override an earlier one.
     i Split the shocks so their components are disjoint, or combine them into a single `ems_custom_shock()`.
 
 # ems_custom_shock errors when the variable is fully endogenous

@@ -324,7 +324,7 @@ test_that("multiple set operators", {
   expect_no_error(ems_model(ok_model, closure_file))
 })
 
-test_that("conditional set builders (GEMPACK manual 10.1.2)", {
+test_that("conditional set builders (GEMPACK manual 10.1.3)", {
   # the accepted shapes parse; the source set becomes the implied
   # superset and the statement is kept verbatim for the solver
   ok_model <- write_modified_model(

@@ -459,7 +459,7 @@ test_that("set equality solves identically through an equation quantifier", {
   expect_equal(eq_out, base)
 })
 
-test_that("conditional set builders resolve identically in R and the solver (manual 10.1.2)", {
+test_that("conditional set builders resolve identically in R and the solver (manual 10.1.3)", {
   nest_temp("solve_setbuild_base", write_dir)
   cmf_base <- ems_deploy(static_data, static_model, real_shock)
   base <- ems_solve(cmf_base)

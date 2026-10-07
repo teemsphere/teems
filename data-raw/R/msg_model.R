@@ -70,7 +70,7 @@ build_model_err <- function() {
     quantifier_malformed = c(
       "Malformed quantifier {.val {bad_group}} in: {.val {bad_stmt}}",
       "A quantifier is {.code (all,<index>,<set>)}; the index and the set
-      are both required (GEMPACK manual 10.7)."
+      are both required (GEMPACK manual 11.3)."
     ),
     # test-chk_tab_preflight.R: "malformed quantifiers, sums and zerodivide defaults abort"
     dims_too_many = "{n_dims} dimensions in declaration (the solver holds
@@ -209,7 +209,7 @@ build_model_err <- function() {
     map_malformed = c(
       "Malformed {.field Mapping} statement: {.val {bad_stmt}}",
       "Expected {.code Mapping [(onto)] <name> from <set> to <set>;}
-      (GEMPACK manual 11.9.1)."
+      (GEMPACK manual 10.13)."
     ),
     # test-tab_mapping.R: "mapping with undeclared sets aborts"
     map_undeclared_set = "{cli::qty(bad_sets)}Set{?s} {.val {bad_sets}}
@@ -225,7 +225,7 @@ build_model_err <- function() {
     # test-tab_mapping.R: "by_elements read of a non-mapping aborts"
     byele_nonmap = "{cli::qty(bad_targets)}{.code Read (by_elements)}
     target{?s} {.val {bad_targets}} {?is/are} not {?a declared
-    mapping/declared mappings} (GEMPACK manual 11.9.3).",
+    mapping/declared mappings} (GEMPACK manual 10.13.1).",
     # test-tab_mapping.R: "mapping without a read aborts"
     map_read_missing = "{cli::qty(bad_maps)}Mapping{?s}
     {.val {bad_maps}} {?has/have} no {.code Read} or {.code Formula}
@@ -291,7 +291,7 @@ build_model_err <- function() {
     condense_rule = c(
       "Equation {.field {eq_name}} cannot be used to backsolve {.field {var_name}}.",
       "{rule_text}",
-      "GEMPACK substitution requirement: see the GEMPACK manual, section 14.1.10."
+      "See GEMPACK manual 14.1.10 for the substitution requirements."
     ),
     # .rearrange_defining_eq() cancellation, injected into
     # condense_rule's {rule_text} line
@@ -432,14 +432,14 @@ build_model_err <- function() {
     # test-chk_tab_preflight.R: "a binary switch in a set definition aborts"
     binary_switch = c(
       "Unsupported binary switch detected in a {.field Set} definition.",
-      "A set selected by a condition takes the builder form (GEMPACK manual 10.1.2), e.g. {.field Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,\"mobile\") ne 0);}.",
+      "A set selected by a condition takes the builder form (GEMPACK manual 10.1.3), e.g. {.field Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,\"mobile\") ne 0);}.",
       "Otherwise declare its elements explicitly, e.g. {.field Set ENDWM # mobile endowments # (capital,unsklab,sklab);}."
     ),
-    # conditional set builders (GEMPACK manual 10.1.2; solver
+    # conditional set builders (GEMPACK manual 10.1.3; solver
     # tab_setbuilder_transform); test-ems_model.R: "conditional set builders"
     set_builder_cond = c(
       "Unsupported condition in the {.field Set} builder {.val {bad_set}}: {.val {bad_def}}.",
-      "A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, {.code $POS} and sums, joined by {.code and}, {.code or} and {.code not} (GEMPACK manual 10.1.2); every name it uses must be declared."
+      "A condition compares expressions over coefficients (Read, or assigned by Formulas), mappings, {.code $POS} and sums, joined by {.code and}, {.code or} and {.code not} (GEMPACK manual 10.1.3); every name it uses must be declared."
     ),
     # test-chk_tab_preflight.R: "intertemporal set builders abort"
     set_builder_int = "{.field Set} builder {.val {bad_set}} is intertemporal; builders are supported for static sets only.",
@@ -451,7 +451,7 @@ build_model_err <- function() {
     # test-chk_tab_preflight.R: "a mapping-sum set builder over a non-mapping aborts"
     set_builder_nomap = c(
       "{.field Set} builder {.val {bad_set}} sums over {.val {cond_map}}, which is not a {.field Mapping} with a {.code (by_elements)} Read.",
-      "The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.2)."
+      "The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.3)."
     ),
     # test-ems_model.R: "intertemporal set equality"
     int_set_eq_fail = c(
@@ -487,7 +487,7 @@ build_model_err <- function() {
       ranges over set {.val {bad_set}}, which is not {.val {decl_set}}
       (the declared set at that argument position) or a declared subset
       of it.",
-      "GEMPACK requires the relation to be declared (manual 10.1.2):
+      "GEMPACK requires the relation to be declared (manual 10.2):
       add {.code Subset {bad_set} is subset of {decl_set};}. Without it
       the solver would address the wrong elements of {.val {decl_set}}."
     ),

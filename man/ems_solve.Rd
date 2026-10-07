@@ -176,8 +176,7 @@ of the same deployment warm-starts them from its recorded
 \code{la_used} in \code{sol.stats.json}, else package defaults apply, and
 the solver grows the workspace itself if any guess proves too
 small); and the expert solver flags \code{postsim} (logical; \code{FALSE}
-skips the TAB's \code{PostSim} sections, a TEEMS-only switch with no
-GEMPACK counterpart), \code{inmemory} (logical: keep
+skips the TAB's \code{PostSim} sections), \code{inmemory} (logical: keep
 value arrays and block factors resident in memory rather than
 in scratch files; absent, the solver applies its per-method
 default, in-memory for every method except \code{"NDBBD"}, and falls
@@ -185,8 +184,8 @@ back to scratch with a warning when the estimated need exceeds
 the memory available), \code{fastrefac} (persistent-pivot
 refactorization, logical; under \code{"DBBD"} it helps only small
 systems, whose block orderings repeat from step to step),
-\code{gpzerodivide} (GEMPACK dual-class
-ZERODIVIDE semantics, logical), \code{cntl_3}/\code{cntl_6} (HSL
+\code{gpzerodivide} (logical: separate Zerodivide defaults for
+nonzero-by-zero and zero-by-zero divisions), \code{cntl_3}/\code{cntl_6} (HSL
 pivot/ordering thresholds, numeric), \code{nsbbdblocks} (SBBD
 block-count override, integer), \code{withmc66} (MC66 row ordering
 for SBBD, logical), \code{smllthreads} (OpenMP threads for small

@@ -143,8 +143,7 @@
 #'   `la_used` in `sol.stats.json`, else package defaults apply, and
 #'   the solver grows the workspace itself if any guess proves too
 #'   small); and the expert solver flags `postsim` (logical; `FALSE`
-#'   skips the TAB's `PostSim` sections, a TEEMS-only switch with no
-#'   GEMPACK counterpart), `inmemory` (logical: keep
+#'   skips the TAB's `PostSim` sections), `inmemory` (logical: keep
 #'   value arrays and block factors resident in memory rather than
 #'   in scratch files; absent, the solver applies its per-method
 #'   default, in-memory for every method except `"NDBBD"`, and falls
@@ -152,8 +151,8 @@
 #'   the memory available), `fastrefac` (persistent-pivot
 #'   refactorization, logical; under `"DBBD"` it helps only small
 #'   systems, whose block orderings repeat from step to step),
-#'   `gpzerodivide` (GEMPACK dual-class
-#'   ZERODIVIDE semantics, logical), `cntl_3`/`cntl_6` (HSL
+#'   `gpzerodivide` (logical: separate Zerodivide defaults for
+#'   nonzero-by-zero and zero-by-zero divisions), `cntl_3`/`cntl_6` (HSL
 #'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
 #'   block-count override, integer), `withmc66` (MC66 row ordering
 #'   for SBBD, logical), `smllthreads` (OpenMP threads for small

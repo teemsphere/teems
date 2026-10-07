@@ -57,12 +57,12 @@
 #'   levels stay positive for any tableau and any step (a
 #'   percentage-change variable cannot reach `-100%`), and every
 #'   method keeps its order (Munthe-Kaas 1999 on the multiplicative
-#'   group). `"percent"` is the GEMPACK-orientation arithmetic (stage
-#'   combination in initial-based percentage changes).
+#'   group). `"percent"` combines the stages in initial-based percentage
+#'   changes.
 #' @param error_norm Character length 1, the norm of the per-element
 #'   error metric that the adaptive accept test compares against
-#'   `eps_tolerance`: `"max"` (default; GEMPACK's rule, the worst
-#'   element decides) or `"rms"` (root mean square over elements).
+#'   `eps_tolerance`: `"max"` (default; the worst element decides)
+#'   or `"rms"` (root mean square over elements).
 #' @param controller Character length 1, the step-size controller:
 #'   `"std"` (default; the elementary rule with safety factor 0.85 and
 #'   a 0.5-2 clamp) or `"pi"` (proportional-integral control, which
@@ -71,7 +71,7 @@
 #' @param scope Character length 1, which elements steer the adaptive
 #'   accept test: `"pct"` (default) the percentage-change variables,
 #'   whose error metric is dimensionless; `"all"` adds the
-#'   ordinary-change variables (GEMPACK's rule). Early in the path
+#'   ordinary-change variables. Early in the path
 #'   `max(1, |X|)` reads an ordinary-change variable's estimate in its
 #'   own units, so welfare-decomposition accumulators in $ millions can
 #'   reject every step; every element is still reported in

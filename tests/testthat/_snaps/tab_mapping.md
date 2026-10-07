@@ -1,7 +1,7 @@
 # malformed mapping declarations abort
 
     x Malformed Mapping statement: "Mapping REGTOBLOC of REG onto BLOC"
-    i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 11.9.1).
+    i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 10.13).
 
 # mapping with undeclared sets aborts
 
@@ -23,7 +23,7 @@
 
 # by_elements read of a non-mapping aborts
 
-    x `Read (by_elements)` target "pop" is not a declared mapping (GEMPACK manual 11.9.3).
+    x `Read (by_elements)` target "pop" is not a declared mapping (GEMPACK manual 10.13.1).
 
 # partial reads of a coefficient abort
 
@@ -72,5 +72,5 @@
 # onto coverage is re-checked on the aggregated sets
 
     x Codomain element "blk2" of the `(onto)` mapping "REGTOBLOC" is not covered after aggregation.
-    i Every BLOC element must be the value of at least one REG element (GEMPACK manual 11.9.1).
+    i Every BLOC element must be the value of at least one REG element (GEMPACK manual 11.9.3).
 

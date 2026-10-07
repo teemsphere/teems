@@ -48,7 +48,7 @@ build_solver_error_map <- function() {
     c("is not in set .* \\(in ", "closure", NA),
     c("is not declared \\(in ", "closure", NA),
     c("which is endogenous; only exogenous components", "closure", "24.14.1"),
-    c("specified more than once", "closure", "68.1.1"),
+    c("specified more than once", "closure", NA),
     c("which Gragg's method cannot take", "closure", "30.2"),
     c("a percentage change below -100 would make", "closure", "30.2"),
     c("names no variable: .*manual 9\\.2\\.2\\): ", "tab", "9.2.2"),
@@ -106,7 +106,7 @@ build_solver_error_map <- function() {
     c("product Update of", "tab", "11.12.4"),
     c("has no operand after it", "tab", "11.4.1"),
     # PROD/MAXS/MINS (11.4.4), conditions (11.4.5-11.4.11), mappings
-    # (10.13, 11.9) and set builders (10.1.2), Tier C
+    # (10.13, 11.9) and set builders (10.1.3), Tier C
     c("inside PROD, MAXS or MINS", "tab", "11.4.4"),
     c("AND, OR and NOT|AND, OR or NOT", "tab", "11.4.5"),
     c("IF (condition|takes a condition)", "tab", "11.4.6"),
@@ -124,7 +124,7 @@ build_solver_error_map <- function() {
     c("mapping .* (is used|is written|has values for)", "tab", "11.9.1"),
     c("for mapping .* (has no file clause|its argument must be|needs a header)", "tab", "11.9.1"),
     c("Read \\(by_elements\\) target|statement for mapping|unknown mapping", "tab", "11.9.1"),
-    c("^set builder ", "tab", "10.1.2"),
+    c("^set builder ", "tab", "10.1.3"),
     c("Subset \\(by_numbers\\)", "tab", "10.2"),
     # left-hand sides and index offsets (formula.c lhs_args_bind,
     # offset_range_check, parse_index_leadlag; recursion order)
@@ -135,8 +135,8 @@ build_solver_error_map <- function() {
     c("the left-hand side of .* (carries [0-9]+ argument|has an empty or malformed argument)", "tab", "10.8"),
     c("is not an index of the statement's quantifiers", "tab", "10.8"),
     # names (names_validate)
-    c("or a declared subset of it", "tab", "10.1.2"),
-    c("is not a declared subset of", "tab", "10.1.2"),
+    c("or a declared subset of it", "tab", "10.2"),
+    c("is not a declared subset of", "tab", "10.2"),
     c("declared as both a", "tab", "11.2.1"),
     c("declared more than once", "tab", "11.2.1"),
     c("is a reserved word", "tab", "11.2.1"),

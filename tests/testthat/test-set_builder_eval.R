@@ -1,4 +1,4 @@
-# conditional set builders evaluated at deploy (GEMPACK manual 10.1.2):
+# conditional set builders evaluated at deploy (GEMPACK manual 10.1.3):
 # the R mirror of the solver's tab_setbuilder_transform, on a two-by-two
 # coefficient so every refusal is reached without a database
 

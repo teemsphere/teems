@@ -25,7 +25,7 @@
 # a mapping-sum builder without its mapping aborts
 
     x Set builder "NEWSET": the mapping-conditional sum over "MAPRC" cannot be evaluated at deploy.
-    i The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a `(by_elements)` Read whose header is in the set data (GEMPACK manual 10.1.2).
+    i The sum must range over the mapping's domain set, the builder over its codomain set, and the mapping needs a `(by_elements)` Read whose header is in the set data (GEMPACK manual 10.1.3).
 
 # a formula builder that cannot be evaluated names the reason
 

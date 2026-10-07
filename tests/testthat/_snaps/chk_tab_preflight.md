@@ -182,12 +182,12 @@
 # malformed quantifiers, sums and zerodivide defaults abort
 
     x Malformed quantifier "(all,r)" in: "Variable (all,r) qbad(r)"
-    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 10.7).
+    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 11.3).
 
 ---
 
     x Malformed quantifier "(all,REG)" in: "Equation E_qbad2 (all,REG) qgdp(REG) = 0"
-    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 10.7).
+    i A quantifier is `(all,<index>,<set>)`; the index and the set are both required (GEMPACK manual 11.3).
 
 ---
 
@@ -247,11 +247,11 @@
 # a mapping-sum set builder over a non-mapping aborts
 
     x Set builder "COMMZ" sums over "NOMAP", which is not a Mapping with a `(by_elements)` Read.
-    i The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.2).
+    i The mapping-conditional sum form needs a file-Read mapping and a file-Read summed coefficient (GEMPACK manual 10.1.3).
 
 # a binary switch in a set definition aborts
 
     x Unsupported binary switch detected in a Set definition.
-    i A set selected by a condition takes the builder form (GEMPACK manual 10.1.2), e.g. Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,"mobile") ne 0);.
+    i A set selected by a condition takes the builder form (GEMPACK manual 10.1.3), e.g. Set ENDWM # mobile endowments # = (all,e,ENDW: ENDOWFLAG(e,"mobile") ne 0);.
     i Otherwise declare its elements explicitly, e.g. Set ENDWM # mobile endowments # (capital,unsklab,sklab);.
 

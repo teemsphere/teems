@@ -258,7 +258,7 @@ test_that(".map_solver_errors classifies the Tier A solver fatals", {
     "the left-hand side of Formula c1 carries 1 argument(s); c1 is declared with 2 (manual 10.8, 11.4.10): c1(t) = 1",
     "index offsets are not allowed on the left-hand side of a Formula(Initial) (a Read in later steps; manual 10.8, 11.11.4): c1(t+1) = 1",
     "the shock statement for pop names component pop(usa), which is endogenous; only exogenous components can be shocked (manual 24, 24.14.1; shock file)",
-    "some components of pop have been specified more than once (pop(usa) is shocked by two statements; manual 68.1.1; shock file)",
+    "some components of pop have been specified more than once (pop(usa) is shocked by two statements; shock file)",
     "initial closure check: 10 endogenous components is not equal to the number of equation rows (11); 20 variable components, 10 exogenous, 0 backsolved -- make 1 more component(s) endogenous (manual 23.2.7)",
     "BREAK outside any loop (manual 11.18): break x > 1",
     "a strong comment opened with '![[!' in the TAB file is never closed by '!]]!' (1 still open at the end of the file; manual 11.1.5)",
@@ -275,7 +275,7 @@ test_that(".map_solver_errors classifies the Tier A solver fatals", {
     mapped$manual,
     c(
       "16.5", "11.2.4", "16.4", "10.8", "11.11.4",
-      "24.14.1", "68.1.1", "23.2.7",
+      "24.14.1", NA, "23.2.7",
       "11.18", "11.1.5", "11.12.4",
       "34.3", "34.1", "30.6.1"
     )

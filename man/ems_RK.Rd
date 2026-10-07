@@ -80,13 +80,13 @@ variable with a nonzero base as the logarithm of its level ratio:
 levels stay positive for any tableau and any step (a
 percentage-change variable cannot reach \verb{-100\%}), and every
 method keeps its order (Munthe-Kaas 1999 on the multiplicative
-group). \code{"percent"} is the GEMPACK-orientation arithmetic (stage
-combination in initial-based percentage changes).}
+group). \code{"percent"} combines the stages in initial-based percentage
+changes.}
 
 \item{error_norm}{Character length 1, the norm of the per-element
 error metric that the adaptive accept test compares against
-\code{eps_tolerance}: \code{"max"} (default; GEMPACK's rule, the worst
-element decides) or \code{"rms"} (root mean square over elements).}
+\code{eps_tolerance}: \code{"max"} (default; the worst element decides)
+or \code{"rms"} (root mean square over elements).}
 
 \item{controller}{Character length 1, the step-size controller:
 \code{"std"} (default; the elementary rule with safety factor 0.85 and
@@ -97,7 +97,7 @@ less often on rough paths).}
 \item{scope}{Character length 1, which elements steer the adaptive
 accept test: \code{"pct"} (default) the percentage-change variables,
 whose error metric is dimensionless; \code{"all"} adds the
-ordinary-change variables (GEMPACK's rule). Early in the path
+ordinary-change variables. Early in the path
 \verb{max(1, |X|)} reads an ordinary-change variable's estimate in its
 own units, so welfare-decomposition accumulators in $ millions can
 reject every step; every element is still reported in

@@ -92,7 +92,7 @@ build_shk_err <- function() {
     # test-ems_uniform_shock.R: "overlapping shocks on one variable abort"
     repeat_shock = c(
       "{n_shocks} shocks on {.field {var_name}} overlap; {cli::qty(dup_tuples)}{?a/} component{?s} {?is/are} shocked more than once: {.field {dup_tuples}}.",
-      "A component may be shocked only once (GEMPACK: \"specified more than once\"); the solver does not let a later shock override an earlier one.",
+      "A component may be shocked only once; the solver does not let a later shock override an earlier one.",
       "Split the shocks so their components are disjoint, or combine them into a single {.fun ems_custom_shock}."
     ),
     # test-ems_custom_shock.R: "ems_custom_shock errors when some shock tuples are endogenous"

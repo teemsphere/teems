@@ -511,7 +511,7 @@ test_that("a qualifier list that never closes aborts", {
   expect_preflight_error("Coefficient (parameter QUNB;")
 })
 
-# set builders (GEMPACK manual 10.1.2)
+# set builders (GEMPACK manual 10.1.3)
 
 test_that("intertemporal set builders abort", {
   expect_preflight_error("Set (intertemporal) BIGR = (all,r,REG: SAVE(r) > 0);")

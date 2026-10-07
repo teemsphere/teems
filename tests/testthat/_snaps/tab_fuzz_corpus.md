@@ -8,8 +8,8 @@
       default_eq_homotopy.tab: x Unknown Equation default "add_homotopy=" (GEMPACK manual 10.19): "Equation (default=add_homotopy=)"
       formula_and_equation.tab: x Malformed `Formula & Equation` statement: expected `Formula [(initial)] & Equation [(levels)] name [quantifiers] lhs = rhs` (GEMPACK manual 10.9.1): "Formula & Equation E_ppl # malformed: no equals # (all,r,REG) PPL(r)"
       formula_no_equals.tab: x Formula statement without `=`: "Formula NOEQ 1" i Either the statement is malformed or its leading token is an unrecognized keyword that was read as an implicit Formula continuation.
-      index_not_subset.tab: x Index "a" of `qo(a,r)` in Equation E_qlnd ranges over set "LANDACTS", which is not "ACTS" (the declared set at that argument position) or a declared subset of it. i GEMPACK requires the relation to be declared (manual 10.1.2): add `Subset LANDACTS is subset of ACTS;`. Without it the solver would address the wrong elements of "ACTS".
-      mapping_malformed.tab: x Malformed Mapping statement: "Mapping REGTOBLOC of REG onto BLOC" i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 11.9.1).
+      index_not_subset.tab: x Index "a" of `qo(a,r)` in Equation E_qlnd ranges over set "LANDACTS", which is not "ACTS" (the declared set at that argument position) or a declared subset of it. i GEMPACK requires the relation to be declared (manual 10.2): add `Subset LANDACTS is subset of ACTS;`. Without it the solver would address the wrong elements of "ACTS".
+      mapping_malformed.tab: x Malformed Mapping statement: "Mapping REGTOBLOC of REG onto BLOC" i Expected `Mapping [(onto)] <name> from <set> to <set>;` (GEMPACK manual 10.13).
       mapping_no_read.tab: x Mapping "regtobloc" has no `Read` or `Formula` assigning its values (GEMPACK manual 11.9.1).
       mapping_undeclared_set.tab: x Set "BLOC" in the Mapping declaration of "REGTOBLOC" is not declared in the model.
       name_c_prefix.tab: x Coefficient "c_pop" has the name of the linear variable of a levels variable (`c_X` for a change, `p_X` for a percentage-change levels variable `X`; GEMPACK manual 9.2.2); rename the coefficient.

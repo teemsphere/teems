@@ -75,6 +75,20 @@ ems_complementarity(do_approx_run = FALSE)
 # Inspect the approximate run only
 ems_complementarity(do_acc_run = FALSE)
 }
+\references{
+Harrison, W.J., Horridge, M., Pearson, K.R. and
+Wittwer, G. (2004), "A Practical Method for Explicitly Modeling
+Quotas and Other Complementarities", Computational Economics,
+vol. 23, pp. 325-341. A preliminary version was Centre of Policy
+Studies and the Impact Project Preliminary Working Paper No.
+IP-78, Melbourne (April 2002).
+\url{http://www.copsmodels.com/elecpapr/ip-78.htm}
+
+Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+(2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+\url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
+}
 \seealso{
 \code{\link[=ems_solve]{ems_solve()}} and \code{\link[=solve_in_situ]{solve_in_situ()}} for loading the
 output of this function.

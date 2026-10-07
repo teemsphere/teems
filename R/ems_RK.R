@@ -92,6 +92,30 @@
 #'   argument documentation.
 #' @references Schiffmann, F. (2022), "Runge Kutta integrators for
 #'   fast and accurate solutions in GEMPACK".
+#'
+#'   Munthe-Kaas, H. (1999), "High order Runge-Kutta methods on
+#'   manifolds", Applied Numerical Mathematics, vol. 29, pp. 115-127.
+#'
+#'   Butcher, J.C. (2015), "Runge-Kutta Methods for Ordinary
+#'   Differential Equations", in M. Al-Baali, L. Grandinetti and A.
+#'   Purnama (eds), Numerical Analysis and Optimization, Springer
+#'   Proceedings in Mathematics & Statistics, vol. 134, pp. 37-58.
+#'
+#'   Bogacki, P. and Shampine, L.F. (1989), "A 3(2) pair of Runge-Kutta
+#'   formulas", Applied Mathematics Letters, vol. 2, pp. 321-325.
+#'
+#'   Dormand, J.R. and Prince, P.J. (1980), "A family of embedded
+#'   Runge-Kutta formulae", Journal of Computational and Applied
+#'   Mathematics, vol. 6, pp. 19-26.
+#'
+#'   Gustafsson, K. (1991), "Control theoretic techniques for stepsize
+#'   selection in explicit Runge-Kutta methods", ACM Transactions on
+#'   Mathematical Software, vol. 17, pp. 533-554.
+#'
+#'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' \dontrun{
 #' # The following examples require the teems solver to be built.

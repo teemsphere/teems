@@ -81,3 +81,9 @@ check <- ems_homogeneity(cmf_path, type = "nominal")
 check$equations
 }
 }
+\references{
+Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+(2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+\url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
+}

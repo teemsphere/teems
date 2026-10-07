@@ -59,6 +59,11 @@
 #'   `zero_flow`), `elements`, one row per equation element with its
 #'   `zero_flow` mark, and with `simulate = TRUE`, `variables`, one row
 #'   per typed variable on the same terms.
+#' @references
+#'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' \dontrun{
 #' check <- ems_homogeneity(cmf_path, type = "nominal")

@@ -240,6 +240,24 @@
 #'   Models Accurately via a Linear Representation", Impact
 #'   Project Preliminary Working Paper No. IP-55, Monash
 #'   University (revised June 2002).
+#'
+#'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
+#'
+#'   Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
+#'   models in parallel using a singly bordered block diagonal
+#'   ordering technique", Economic Modelling, vol. 52, pp. 3-12.
+#'   \doi{10.1016/j.econmod.2015.07.011}
+#'
+#'   Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
+#'   resolved: The effects of climate change and trade barriers in
+#'   large dimensional modelling", Economic Modelling, vol. 80,
+#'   pp. 103-110. \doi{10.1016/j.econmod.2018.08.011}
+#'
+#'   HSL (2026), A collection of Fortran codes for large scale
+#'   scientific computation. \url{https://www.hsl.rl.ac.uk/}
 #' @examples
 #' \dontrun{
 #' # The following examples require the teems solver to be built. 

@@ -57,6 +57,18 @@
 #'   carefully.
 #' @seealso [`ems_solve()`] and [`solve_in_situ()`] for loading the
 #'   output of this function.
+#' @references Harrison, W.J., Horridge, M., Pearson, K.R. and
+#'   Wittwer, G. (2004), "A Practical Method for Explicitly Modeling
+#'   Quotas and Other Complementarities", Computational Economics,
+#'   vol. 23, pp. 325-341. A preliminary version was Centre of Policy
+#'   Studies and the Impact Project Preliminary Working Paper No.
+#'   IP-78, Melbourne (April 2002).
+#'   \url{http://www.copsmodels.com/elecpapr/ip-78.htm}
+#'
+#'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
+#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
+#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' # More Euler steps for a large shock, keeping errors fatal
 #' ems_complementarity(steps_approx_run = 40L)

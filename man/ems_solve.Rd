@@ -164,49 +164,69 @@ ch. 51). \code{NULL} applies the solver defaults; ignored by the
 solver when the model has no active complementarity component.}
 
 \item{...}{Additional named solver arguments; anything else is an
-error, never a silently ignored flag. Three groups are accepted:
-the Runge-Kutta step controls (\code{adaptive}, \code{eps_tolerance},
-\code{max_retries}, \code{retry_adjust}; see \code{\link[=ems_RK]{ems_RK()}} for their
-documentation and RK-tuned defaults); the MA48 workspace initial
-guesses \code{laA}, \code{laD} and \code{laDi} (integer percents of the system
-nonzeros — \code{laA} for \code{"LU"}/\code{"SBBD"} and the diagonal blocks,
-\code{laD} for the \code{"DBBD"}/\code{"NDBBD"} interface systems, \code{laDi} for
-\code{"NDBBD"} intermediate interfaces; when omitted, a previous run
-of the same deployment warm-starts them from its recorded
-\code{la_used} in \code{sol.stats.json}, else package defaults apply, and
-the solver grows the workspace itself if any guess proves too
-small); and the expert solver flags \code{postsim} (logical; \code{FALSE}
-skips the TAB's \code{PostSim} sections), \code{inmemory} (logical: keep
-value arrays and block factors resident in memory rather than
-in scratch files; absent, the solver applies its per-method
-default, in-memory for every method except \code{"NDBBD"}, and falls
-back to scratch with a warning when the estimated need exceeds
-the memory available), \code{fastrefac} (persistent-pivot
-refactorization, logical; under \code{"DBBD"} it helps only small
-systems, whose block orderings repeat from step to step),
-\code{gpzerodivide} (logical: separate Zerodivide defaults for
-nonzero-by-zero and zero-by-zero divisions), \code{cntl_3}/\code{cntl_6} (HSL
-pivot/ordering thresholds, numeric), \code{nsbbdblocks} (SBBD
-block-count override, integer), \code{withmc66} (MC66 row ordering
-for SBBD, logical), \code{smllthreads} (OpenMP threads for small
-sections, integer), \code{tempdir} (container-side scratch directory,
-character), \code{nowrites} (skip the solver-side output-file
-dumps, logical; coefficient composition then has nothing to read
-— distinct from \code{suppress_outputs}, which only skips the R-side
-composition) and \code{condest} (per-solve quality diagnostics on the
-\code{"LU"} matrix method, logical: componentwise backward error and
-scaled condition numbers via HSL MA60/MC71, logged per linear
-solve with run maxima recorded under \code{condest} in
-\code{sol.stats.json}; diagnostic-only — solutions are unchanged —
-and informative only for nonzero shocks), \code{jacdump} (logical:
-write the base-point Jacobian of the condensed system over every
-variable element, before the first step, to \code{sol.jac} with its
-row map in \code{sol.jac.json}; the run then solves as asked), and
-\code{ma48u} (MA48/HSL_MP48
-pivot threshold \code{CNTL(2)}, numeric in (0, 1]; absent = each
-library's default, MA48 0.1 and MP48 0.01 — a calibration knob,
-not a tuning recommendation). Effective values of recorded flags
-land in \code{sol.stats.json} regardless of how they were passed.}
+error, never a silently ignored flag. Effective values of recorded
+flags land in \code{sol.stats.json} regardless of how they were passed.
+Three groups are accepted:
+
+\strong{Expert solver flags}, with the solver default applied when a
+flag is absent:
+\itemize{
+\item \code{postsim} (logical, default \code{TRUE}): \code{FALSE} skips the TAB's
+\code{PostSim} sections.
+\item \code{inmemory} (logical, default \code{TRUE} except for \code{"NDBBD"}): keep
+value arrays and block factors resident in memory rather than in
+scratch files. The solver falls back to scratch with a warning
+when the estimated need exceeds the memory available.
+\item \code{fastrefac} (logical, default \code{FALSE}): persistent-pivot
+refactorization; under \code{"DBBD"} it helps only small systems,
+whose block orderings repeat from step to step.
+\item \code{gpzerodivide} (logical, default \code{FALSE}): separate Zerodivide
+defaults for nonzero-by-zero and zero-by-zero divisions, as in
+GEMPACK (manual 10.11); \code{FALSE} applies one default to both.
+\item \code{ma48u} (numeric in (0, 1], default each library's own: MA48
+0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold \code{CNTL(2)}; a
+calibration knob, not a tuning recommendation.
+\item \code{cntl_6} (numeric, default \code{0}): HSL MA51 rank tolerance in the
+\code{"DBBD"}/\code{"NDBBD"} block ordering.
+\item \code{cntl_3} (numeric): accepted, but has no effect in the current
+solver.
+\item \code{nsbbdblocks} (integer, default \code{2}): SBBD block-count hint.
+\item \code{withmc66} (logical, default \code{FALSE}): MC66 row ordering for
+SBBD.
+\item \code{smllthreads} (integer, default the run's thread count): OpenMP
+threads for small sections.
+\item \code{tempdir} (character, default the container's \code{TMPDIR}, else
+\verb{/tmp/}): container-side scratch directory.
+\item \code{nowrites} (logical, default \code{FALSE}): skip the solver-side
+output-file dumps; coefficient composition then has nothing to
+read. Distinct from \code{suppress_outputs}, which only skips the
+R-side composition.
+\item \code{condest} (logical, default \code{FALSE}): per-solve quality
+diagnostics on the \code{"LU"} matrix method: componentwise backward
+error and scaled condition numbers via HSL MA60/MC71, logged per
+linear solve with run maxima recorded under \code{condest} in
+\code{sol.stats.json}. Diagnostic only (solutions are unchanged) and
+informative only for nonzero shocks.
+\item \code{jacdump} (logical, default \code{FALSE}): write the base-point
+Jacobian of the condensed system over every variable element,
+before the first step, to \code{sol.jac} with its row map in
+\code{sol.jac.json}; the run then solves as asked.
+}
+
+\strong{Runge-Kutta step controls}: \code{adaptive}, \code{eps_tolerance},
+\code{max_retries} and \code{retry_adjust}; see \code{\link[=ems_RK]{ems_RK()}} for their
+documentation and RK-tuned defaults.
+
+\strong{MA48 workspace initial guesses}, integer percents of the system
+nonzeros. When omitted, a previous run of the same deployment
+warm-starts them from its recorded \code{la_used} in \code{sol.stats.json},
+else package defaults apply; the solver grows the workspace itself
+if any guess proves too small.
+\itemize{
+\item \code{laA}: \code{"LU"}/\code{"SBBD"} and the diagonal blocks.
+\item \code{laD}: the \code{"DBBD"}/\code{"NDBBD"} interface systems.
+\item \code{laDi}: \code{"NDBBD"} intermediate interfaces.
+}}
 }
 \value{
 A tibble of model output variables and coefficients.

@@ -131,49 +131,65 @@
 #'   ch. 51). `NULL` applies the solver defaults; ignored by the
 #'   solver when the model has no active complementarity component.
 #' @param ... Additional named solver arguments; anything else is an
-#'   error, never a silently ignored flag. Three groups are accepted:
-#'   the Runge-Kutta step controls (`adaptive`, `eps_tolerance`,
-#'   `max_retries`, `retry_adjust`; see [`ems_RK()`] for their
-#'   documentation and RK-tuned defaults); the MA48 workspace initial
-#'   guesses `laA`, `laD` and `laDi` (integer percents of the system
-#'   nonzeros — `laA` for `"LU"`/`"SBBD"` and the diagonal blocks,
-#'   `laD` for the `"DBBD"`/`"NDBBD"` interface systems, `laDi` for
-#'   `"NDBBD"` intermediate interfaces; when omitted, a previous run
-#'   of the same deployment warm-starts them from its recorded
-#'   `la_used` in `sol.stats.json`, else package defaults apply, and
-#'   the solver grows the workspace itself if any guess proves too
-#'   small); and the expert solver flags `postsim` (logical; `FALSE`
-#'   skips the TAB's `PostSim` sections), `inmemory` (logical: keep
-#'   value arrays and block factors resident in memory rather than
-#'   in scratch files; absent, the solver applies its per-method
-#'   default, in-memory for every method except `"NDBBD"`, and falls
-#'   back to scratch with a warning when the estimated need exceeds
-#'   the memory available), `fastrefac` (persistent-pivot
-#'   refactorization, logical; under `"DBBD"` it helps only small
-#'   systems, whose block orderings repeat from step to step),
-#'   `gpzerodivide` (logical: separate Zerodivide defaults for
-#'   nonzero-by-zero and zero-by-zero divisions), `cntl_3`/`cntl_6` (HSL
-#'   pivot/ordering thresholds, numeric), `nsbbdblocks` (SBBD
-#'   block-count override, integer), `withmc66` (MC66 row ordering
-#'   for SBBD, logical), `smllthreads` (OpenMP threads for small
-#'   sections, integer), `tempdir` (container-side scratch directory,
-#'   character), `nowrites` (skip the solver-side output-file
-#'   dumps, logical; coefficient composition then has nothing to read
-#'   — distinct from `suppress_outputs`, which only skips the R-side
-#'   composition) and `condest` (per-solve quality diagnostics on the
-#'   `"LU"` matrix method, logical: componentwise backward error and
-#'   scaled condition numbers via HSL MA60/MC71, logged per linear
-#'   solve with run maxima recorded under `condest` in
-#'   `sol.stats.json`; diagnostic-only — solutions are unchanged —
-#'   and informative only for nonzero shocks), `jacdump` (logical:
-#'   write the base-point Jacobian of the condensed system over every
-#'   variable element, before the first step, to `sol.jac` with its
-#'   row map in `sol.jac.json`; the run then solves as asked), and
-#'   `ma48u` (MA48/HSL_MP48
-#'   pivot threshold `CNTL(2)`, numeric in (0, 1]; absent = each
-#'   library's default, MA48 0.1 and MP48 0.01 — a calibration knob,
-#'   not a tuning recommendation). Effective values of recorded flags
-#'   land in `sol.stats.json` regardless of how they were passed.
+#'   error, never a silently ignored flag. Effective values of recorded
+#'   flags land in `sol.stats.json` regardless of how they were passed.
+#'   Three groups are accepted:
+#'
+#'   **Expert solver flags**, with the solver default applied when a
+#'   flag is absent:
+#'   * `postsim` (logical, default `TRUE`): `FALSE` skips the TAB's
+#'     `PostSim` sections.
+#'   * `inmemory` (logical, default `TRUE` except for `"NDBBD"`): keep
+#'     value arrays and block factors resident in memory rather than in
+#'     scratch files. The solver falls back to scratch with a warning
+#'     when the estimated need exceeds the memory available.
+#'   * `fastrefac` (logical, default `FALSE`): persistent-pivot
+#'     refactorization; under `"DBBD"` it helps only small systems,
+#'     whose block orderings repeat from step to step.
+#'   * `gpzerodivide` (logical, default `FALSE`): separate Zerodivide
+#'     defaults for nonzero-by-zero and zero-by-zero divisions, as in
+#'     GEMPACK (manual 10.11); `FALSE` applies one default to both.
+#'   * `ma48u` (numeric in (0, 1], default each library's own: MA48
+#'     0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold `CNTL(2)`; a
+#'     calibration knob, not a tuning recommendation.
+#'   * `cntl_6` (numeric, default `0`): HSL MA51 rank tolerance in the
+#'     `"DBBD"`/`"NDBBD"` block ordering.
+#'   * `cntl_3` (numeric): accepted, but has no effect in the current
+#'     solver.
+#'   * `nsbbdblocks` (integer, default `2`): SBBD block-count hint.
+#'   * `withmc66` (logical, default `FALSE`): MC66 row ordering for
+#'     SBBD.
+#'   * `smllthreads` (integer, default the run's thread count): OpenMP
+#'     threads for small sections.
+#'   * `tempdir` (character, default the container's `TMPDIR`, else
+#'     `/tmp/`): container-side scratch directory.
+#'   * `nowrites` (logical, default `FALSE`): skip the solver-side
+#'     output-file dumps; coefficient composition then has nothing to
+#'     read. Distinct from `suppress_outputs`, which only skips the
+#'     R-side composition.
+#'   * `condest` (logical, default `FALSE`): per-solve quality
+#'     diagnostics on the `"LU"` matrix method: componentwise backward
+#'     error and scaled condition numbers via HSL MA60/MC71, logged per
+#'     linear solve with run maxima recorded under `condest` in
+#'     `sol.stats.json`. Diagnostic only (solutions are unchanged) and
+#'     informative only for nonzero shocks.
+#'   * `jacdump` (logical, default `FALSE`): write the base-point
+#'     Jacobian of the condensed system over every variable element,
+#'     before the first step, to `sol.jac` with its row map in
+#'     `sol.jac.json`; the run then solves as asked.
+#'
+#'   **Runge-Kutta step controls**: `adaptive`, `eps_tolerance`,
+#'   `max_retries` and `retry_adjust`; see [`ems_RK()`] for their
+#'   documentation and RK-tuned defaults.
+#'
+#'   **MA48 workspace initial guesses**, integer percents of the system
+#'   nonzeros. When omitted, a previous run of the same deployment
+#'   warm-starts them from its recorded `la_used` in `sol.stats.json`,
+#'   else package defaults apply; the solver grows the workspace itself
+#'   if any guess proves too small.
+#'   * `laA`: `"LU"`/`"SBBD"` and the diagonal blocks.
+#'   * `laD`: the `"DBBD"`/`"NDBBD"` interface systems.
+#'   * `laDi`: `"NDBBD"` intermediate interfaces.
 #' @details Nothing is chosen for you here: the run is exactly the
 #'   arguments given, so it is reproducible from its record on any
 #'   machine. [`ems_probe()`] makes the choice explicit instead: it

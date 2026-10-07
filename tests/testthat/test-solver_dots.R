@@ -89,7 +89,6 @@ test_that("expert flags render as solver CLI flags", {
     cmf,
     terminal_run = TRUE,
     fastrefac = TRUE,
-    gpzerodivide = TRUE,
     cntl_3 = 0.5,
     nsbbdblocks = 4L,
     withmc66 = FALSE,
@@ -100,7 +99,6 @@ test_that("expert flags render as solver CLI flags", {
   cmd <- exec_cmd(d)
   expect_match(cmd, "-ma48u 0.01", fixed = TRUE)
   expect_match(cmd, "-fastrefac 1", fixed = TRUE)
-  expect_match(cmd, "-gpzerodivide 1", fixed = TRUE)
   expect_match(cmd, "-cntl_3 0.5", fixed = TRUE)
   expect_match(cmd, "-nsbbdblocks 4", fixed = TRUE)
   expect_match(cmd, "-withmc66 0", fixed = TRUE)
@@ -114,8 +112,18 @@ test_that("removed append_args formal is an unknown dots argument", {
   d <- withr::local_tempdir()
   cmf <- mk_cmf(d)
   expect_error(
-    ems_solve(cmf, append_args = "-gpzerodivide 1"),
+    ems_solve(cmf, append_args = "-fastrefac 1"),
     "append_args",
+    class = "rlang_error"
+  )
+})
+
+test_that("removed gpzerodivide flag is an unknown dots argument", {
+  d <- withr::local_tempdir()
+  cmf <- mk_cmf(d)
+  expect_error(
+    ems_solve(cmf, gpzerodivide = TRUE),
+    "gpzerodivide",
     class = "rlang_error"
   )
 })

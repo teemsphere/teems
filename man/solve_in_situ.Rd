@@ -226,7 +226,7 @@ solver when the model has no active complementarity component.}
 \item{solver_args}{Named list (default \code{NULL}). The additional
 named solver arguments \code{\link[=ems_solve]{ems_solve()}} accepts through \code{...} —
 the MA48 workspace initial guesses (\code{laA}, \code{laD}, \code{laDi}) and
-the expert solver flags (\code{fastrefac}, \code{gpzerodivide}, \code{cntl_3},
+the expert solver flags (\code{fastrefac}, \code{cntl_3},
 \code{cntl_6}, \code{nsbbdblocks}, \code{withmc66}, \code{smllthreads}, \code{tempdir},
 \code{nowrites}) — passed as a list because the in-situ \code{...} carries
 the input files. The Runge-Kutta step controls are formal

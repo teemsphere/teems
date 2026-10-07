@@ -146,9 +146,6 @@
 #'   * `fastrefac` (logical, default `FALSE`): persistent-pivot
 #'     refactorization; under `"DBBD"` it helps only small systems,
 #'     whose block orderings repeat from step to step.
-#'   * `gpzerodivide` (logical, default `FALSE`): separate Zerodivide
-#'     defaults for nonzero-by-zero and zero-by-zero divisions, as in
-#'     GEMPACK (manual 10.11); `FALSE` applies one default to both.
 #'   * `ma48u` (numeric in (0, 1], default each library's own: MA48
 #'     0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold `CNTL(2)`; a
 #'     calibration knob, not a tuning recommendation.

@@ -123,7 +123,7 @@ build_solve_err <- function() {
       {.fun ems_RK}), the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
-      {.arg gpzerodivide}, {.arg cntl_3}, {.arg cntl_6},
+      {.arg cntl_3}, {.arg cntl_6},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
       {.arg ma48u})."
@@ -141,7 +141,7 @@ build_solve_err <- function() {
       "Accepted: the MA48 workspace initial guesses ({.arg laA},
       {.arg laD}, {.arg laDi}), the expert solver flags
       ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
-      {.arg gpzerodivide}, {.arg cntl_3}, {.arg cntl_6},
+      {.arg cntl_3}, {.arg cntl_6},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
       {.arg ma48u}) and the Runge-Kutta run controls
@@ -354,7 +354,7 @@ build_solve_info <- function() {
       parallelism = "Parallelism: %s MPI task(s), %s OpenMP thread(s)",
       storage = "Coefficient storage: %s precision",
       system = "System: %s equations, %s exogenous elements",
-      modes = "Modes: assertions %s; range test initial %s, updated %s; postsim %s; gpzerodivide %s",
+      modes = "Modes: assertions %s; range test initial %s, updated %s; postsim %s",
       random_seed = "Random seed: %s (RANDOM draws in the model)",
       complementarity = paste0(
         "Complementarity: %s active component(s); approximate run %s ",

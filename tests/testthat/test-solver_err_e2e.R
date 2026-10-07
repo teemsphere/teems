@@ -7,8 +7,8 @@ skip_on_cran()
 # mapping end to end. Probe statements mirror the solver-side
 # .audit/{zdiv,bounds,intrinsics}-test-kit negative legs. The legs
 # assume the local teems image is current with the solver tree
-# (features landed 2026-07-26: A1 -gpzerodivide, A4 CMF range tests,
-# 3.1 intrinsic arity).
+# (features landed 2026-07-26: A1 dual-class zerodivide, A4 CMF range
+# tests, 3.1 intrinsic arity).
 
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")
@@ -94,8 +94,7 @@ test_that("0/0 with zero_by_zero off maps to a named runtime abort (Z1)", {
       "Coefficient ZDTD # zdiv off probe #;",
       "Formula ZDTD = 0/0;",
       sep = "\n"
-    ),
-    gpzerodivide = TRUE
+    )
   )
   expect_match(msg, "runtime error")
   expect_match(msg, "zero divided by zero in a formula", fixed = TRUE)
@@ -111,8 +110,7 @@ test_that("1/0 with nonzero_by_zero off maps to a named runtime abort (Z2)", {
       "Coefficient ZDTE # zdiv nbz off probe #;",
       "Formula ZDTE = 1/0;",
       sep = "\n"
-    ),
-    gpzerodivide = TRUE
+    )
   )
   expect_match(msg, "runtime error")
   expect_match(msg, "division by zero in a formula", fixed = TRUE)

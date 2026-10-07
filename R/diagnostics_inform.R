@@ -208,7 +208,7 @@
     sprintf(
       solve_info$record$modes,
       opt$assertions, opt$range_test_initial, opt$range_test_updated,
-      .onoff(opt$postsim), .onoff(opt$gpzerodivide)
+      .onoff(opt$postsim)
     ),
     if (!is.null(opt$random_seed) && !is.null(cmf) && .solver_uses_random(list(cmf = cmf))) {
       sprintf(solve_info$record$random_seed, opt$random_seed)

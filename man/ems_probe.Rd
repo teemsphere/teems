@@ -29,7 +29,7 @@ GB the recommendation is made for, read from the container when
 \item{...}{Additional named solver arguments, the same set
 \code{\link[=ems_solve]{ems_solve()}} accepts through \code{...}: the MA48 workspace initial
 guesses (\code{laA}, \code{laD}, \code{laDi}), the expert solver flags
-(\code{postsim}, \code{inmemory}, \code{fastrefac}, \code{gpzerodivide}, \code{cntl_3},
+(\code{postsim}, \code{inmemory}, \code{fastrefac}, \code{cntl_3},
 \code{cntl_6}, \code{nsbbdblocks}, \code{withmc66}, \code{smllthreads}, \code{tempdir},
 \code{nowrites}, \code{condest}, \code{jacdump}, \code{ma48u}) and the Runge-Kutta
 run controls, which a probe ignores. Anything else is an error,

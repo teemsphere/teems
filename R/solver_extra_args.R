@@ -8,7 +8,6 @@
     postsim = NULL,
     inmemory = NULL,
     fastrefac = NULL,
-    gpzerodivide = NULL,
     cntl_3 = NULL,
     cntl_6 = NULL,
     nsbbdblocks = NULL,

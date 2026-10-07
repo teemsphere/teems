@@ -338,7 +338,7 @@ test_that("the solve record names the BLAS kernel family the run dispatched", {
       '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
       '"fastrefac": false, "max_threads": 1, "blas_core": "Nehalem", ',
       '"assertions": "warn", "range_test_initial": "warn", ',
-      '"range_test_updated": "warn", "postsim": false, "gpzerodivide": false}}'
+      '"range_test_updated": "warn", "postsim": false}}'
     ),
     file.path(stats_dir, "sol.stats.json")
   )
@@ -361,7 +361,7 @@ test_that("the solve record omits the BLAS line when the solver did not record o
       '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
       '"fastrefac": false, "max_threads": 1, "assertions": "warn", ',
       '"range_test_initial": "warn", "range_test_updated": "warn", ',
-      '"postsim": false, "gpzerodivide": false}}'
+      '"postsim": false}}'
     ),
     file.path(stats_dir, "sol.stats.json")
   )
@@ -382,7 +382,7 @@ test_that("the solve record renders the per-phase memory table", {
       '"options": {"subintervals": 1, "laA": 300, "laDi": 500, "laD": 200, ',
       '"fastrefac": false, "max_threads": 1, "assertions": "warn", ',
       '"range_test_initial": "warn", "range_test_updated": "warn", ',
-      '"postsim": false, "gpzerodivide": false},\n',
+      '"postsim": false},\n',
       '  "rss_gb": {\n',
       '    "variable_calculation": {"max": 0.512, "sum": 0.900, "probes": 1},\n',
       '    "step": {"max": 1.250, "sum": 2.100, "probes": 3},\n',

@@ -27,7 +27,7 @@
 #' @param ... Additional named solver arguments, the same set
 #'   [`ems_solve()`] accepts through `...`: the MA48 workspace initial
 #'   guesses (`laA`, `laD`, `laDi`), the expert solver flags
-#'   (`postsim`, `inmemory`, `fastrefac`, `gpzerodivide`, `cntl_3`,
+#'   (`postsim`, `inmemory`, `fastrefac`, `cntl_3`,
 #'   `cntl_6`, `nsbbdblocks`, `withmc66`, `smllthreads`, `tempdir`,
 #'   `nowrites`, `condest`, `jacdump`, `ma48u`) and the Runge-Kutta
 #'   run controls, which a probe ignores. Anything else is an error,

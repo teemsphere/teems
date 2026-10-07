@@ -64,7 +64,7 @@ not CMF — they belong to the model author and are out of scope here.
 | ~~`-maxthreads`~~ | 1 | OpenMP threads per task | **DONE**: `ems_solve(n_threads = )` (default 1; >1 not bit-reproducible across counts — reduction order); recorded as `max_threads` |
 | `-smllthreads` | = maxthreads | OpenMP threads for small sections | **escape hatch** (documented on `append_args`) |
 | `-fastrefac` | 0 (off) | persistent-pivot refactorization (adoption plan 0bdd621; force-cleared for complementarity runs) | **escape hatch** until the adoption decision (recorded effective in stats.json) |
-| `-gpzerodivide` | 0 (legacy) | GEMPACK dual-class ZERODIVIDE semantics (parity plan A1) | **deliberately unexposed** — adoption is a golden re-anchor decision, not a per-run knob; escape hatch for experiments (recorded) |
+| ~~`-gpzerodivide`~~ | — | GEMPACK dual-class ZERODIVIDE semantics (parity plan A1) | **REMOVED 2026-10-08**: the dual-class semantics are always on; the flag is gone from solver and R |
 | ~~`-maxretries`~~ | 3 | RK adaptive: retry cap | **DONE**: `ems_solve(max_retries = )`; recorded |
 | ~~`-retryadj`~~ | 0.5 | RK adaptive: step-shrink factor on retry | **DONE**: `ems_solve(retry_adjust = )`; recorded |
 | `-cntl_3` | HSL default | MA48 iterative/pivot threshold | **escape hatch** (expert HSL; documented) |

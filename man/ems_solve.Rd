@@ -180,9 +180,6 @@ when the estimated need exceeds the memory available.
 \item \code{fastrefac} (logical, default \code{FALSE}): persistent-pivot
 refactorization; under \code{"DBBD"} it helps only small systems,
 whose block orderings repeat from step to step.
-\item \code{gpzerodivide} (logical, default \code{FALSE}): separate Zerodivide
-defaults for nonzero-by-zero and zero-by-zero divisions, as in
-GEMPACK (manual 10.11); \code{FALSE} applies one default to both.
 \item \code{ma48u} (numeric in (0, 1], default each library's own: MA48
 0.1, MP48 0.01): MA48/HSL_MP48 pivot threshold \code{CNTL(2)}; a
 calibration knob, not a tuning recommendation.

@@ -8,7 +8,6 @@
     postsim = c("NULL", "logical"),
     inmemory = c("NULL", "logical"),
     fastrefac = c("NULL", "logical"),
-    gpzerodivide = c("NULL", "logical"),
     cntl_3 = c("NULL", "numeric"),
     cntl_6 = c("NULL", "numeric"),
     nsbbdblocks = c("NULL", "numeric", "integer"),

@@ -21,9 +21,6 @@
     if (!is.null(a$refine)) {
       paste("-refine", .as01(a$refine))
     },
-    if (!is.null(a$gpzerodivide)) {
-      paste("-gpzerodivide", .as01(a$gpzerodivide))
-    },
     if (!is.null(a$cntl_3)) {
       paste("-cntl_3", a$cntl_3)
     },

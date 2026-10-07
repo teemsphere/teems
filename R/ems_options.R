@@ -6,12 +6,13 @@
 #' @param verbose Logical of length 1 (default is `TRUE`). If
 #'   `FALSE`, function-specific diagnostics are silenced.
 #' @param tempdir A character vector length 1. Default is what is
-#'   returned by `tempdir()`.
+#'   returned by `tempdir()`. Directory where input files, model
+#'   diagnostics, and output files are written.
 #' @param ndigits Integer (default is `6`). Number of digits to
 #'   the right of the decimal point kept when numeric type double
 #'   data are written to file. Values smaller than 0.1 in
-#'   magnitude keep `ndigits` significant digits instead, so small
-#'   nonzero data are never rounded to zero.
+#'   magnitude keep `ndigits` significant digits instead, so
+#'   small nonzero data are never rounded to zero.
 #' @param accuracy_threshold Numeric length 1 (default `0.8`),
 #'   converted to a percentage. 4-digit precision is compared
 #'   against this threshold; a warning is generated if it is not

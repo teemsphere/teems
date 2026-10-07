@@ -28,13 +28,14 @@ ems_option_set(
 \code{FALSE}, function-specific diagnostics are silenced.}
 
 \item{tempdir}{A character vector length 1. Default is what is
-returned by \code{tempdir()}.}
+returned by \code{tempdir()}. Directory where input files, model
+diagnostics, and output files are written.}
 
 \item{ndigits}{Integer (default is \code{6}). Number of digits to
 the right of the decimal point kept when numeric type double
 data are written to file. Values smaller than 0.1 in
-magnitude keep \code{ndigits} significant digits instead, so small
-nonzero data are never rounded to zero.}
+magnitude keep \code{ndigits} significant digits instead, so
+small nonzero data are never rounded to zero.}
 
 \item{accuracy_threshold}{Numeric length 1 (default \code{0.8}),
 converted to a percentage. 4-digit precision is compared

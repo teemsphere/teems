@@ -15,51 +15,44 @@
 #' @keywords internal
 #' @noRd
 .auto_evidence <- function(d) {
+  ev <- probe_info$evidence
   size <- if (is.na(d$system_size)) {
-    "unknown size"
+    ev$size_unknown
   } else {
-    paste(.fmt(d$system_size), "equations")
+    sprintf(ev$size, .fmt(d$system_size))
   }
   if (isTRUE(d$condensed)) {
-    size <- paste(size, "(condensed)")
+    size <- sprintf(ev$condensed, size)
   }
+  n_tasks <- as.integer(d$n_tasks)
+  tasks_txt <- sprintf(if (n_tasks == 1L) ev$task else ev$tasks, n_tasks)
   if (!isTRUE(d$probed)) {
-    evidence <- paste0(
-      size, ", n_tasks ", d$n_tasks,
-      "; structural probe skipped (",
-      d$probe_skip %|||% "not a candidate",
-      ")"
-    )
+    evidence <- sprintf(ev$skipped, size, tasks_txt, d$probe_skip %|||% ev$skip_default)
     return(evidence)
   }
   chain <- if (isTRUE(d$chain)) {
-    paste0("chain ", d$chain_set, " (", d$n_time, " blocks)")
+    sprintf(ev$chain, d$chain_set, as.integer(d$n_time))
   } else {
-    "no chain"
+    ev$no_chain
   }
   part <- if (is.null(d$partition)) {
-    paste0("no partition viable for ", d$n_tasks, " task(s)")
+    sprintf(ev$no_partition, tasks_txt)
   } else {
     p <- d$partition
-    paste0(
-      "partition ", p$set, " (", p$n_blocks, " blocks, border ",
-      if (is.na(p$border_share)) {
-        "n/a"
-      } else {
-        .pct(p$border_share)
-      }, ")"
-    )
+    share <- if (is.na(p$border_share)) {
+      ev$border_na
+    } else {
+      .pct(p$border_share)
+    }
+    sprintf(ev$partition, p$set, as.integer(p$n_blocks), share)
   }
   ceil <- if (is.null(d$lu_ceiling)) {
     ""
   } else if (isTRUE(d$lu_excluded)) {
-    paste0(
-      ", LU excluded (projected MA48 workspace ", .fmt(round(d$lu_ceiling$projected)),
-      " > 32-bit ceiling ", .fmt(d$lu_ceiling$ceiling), ")"
-    )
+    sprintf(ev$lu_excluded, .fmt(round(d$lu_ceiling$projected)), .fmt(d$lu_ceiling$ceiling))
   } else {
-    paste0(", LU workspace ", .pct(d$lu_ceiling$share), " of the 32-bit ceiling")
+    sprintf(ev$lu_share, .pct(d$lu_ceiling$share))
   }
-  evidence <- paste0(size, ", ", chain, ", ", part, ", n_tasks ", d$n_tasks, ceil)
+  evidence <- sprintf(ev$full, size, chain, part, tasks_txt, ceil)
   return(evidence)
 }

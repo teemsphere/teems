@@ -63,7 +63,7 @@ test_that("the probe recommendation reports the refinement decision for DBBD", {
     fit = NULL, tempdir = NULL, call = "ems_solve(cmf_path)",
     refine = list(on = TRUE, reason = "on", est_gb = 1.2)
   )
-  expect_match(paste(cli::cli_fmt(.probe_print_recommendation(r)), collapse = "\n"), "refinement step per \"?DBBD\"? solve: on \\(about 1.2 GB with it\\)")
+  expect_match(paste(cli::cli_fmt(.probe_print_recommendation(r)), collapse = "\n"), "Refinement: on, one step per \"?DBBD\"? solve; the estimate includes it")
   r$refine <- list(on = FALSE, reason = "off", est_gb = 20)
-  expect_match(paste(cli::cli_fmt(.probe_print_recommendation(r)), collapse = "\n"), "solve: off, set by the refine option")
+  expect_match(paste(cli::cli_fmt(.probe_print_recommendation(r)), collapse = "\n"), "Refinement: off by the .?refine.? option; on, the estimate would be about 20.0 GB")
 })

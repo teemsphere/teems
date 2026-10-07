@@ -285,13 +285,13 @@ test_that("the memory fit check refuses a run past the error band and warns insi
 
 test_that("evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
-  expect_match(.auto_evidence(d), "^2,500,000 equations, no chain, partition reg \\(3 blocks, border 6.4%\\), n_tasks 2$")
+  expect_match(.auto_evidence(d), "^2,500,000 equations, no time chain, partition reg \\(3 blocks, border 6.4% of the system\\), assessed at 2 tasks$")
   d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats)
-  expect_match(.auto_evidence(d), "chain alltime \\(3 blocks\\), partition reg \\(12 blocks, border 2.8%\\)")
+  expect_match(.auto_evidence(d), "time chain alltime \\(3 periods\\), partition reg \\(12 blocks, border 2.8% of the system\\)")
   d <- .auto_decide(FALSE, 4L, 3485)
-  expect_match(.auto_evidence(d), "^3,485 equations, n_tasks 4; structural probe skipped \\(not a candidate\\)")
+  expect_match(.auto_evidence(d), "^3,485 equations, assessed at 4 tasks; structural probe skipped \\(not a candidate\\)")
   d <- .auto_decide(FALSE, 2L, 1.3e5, n_reg = 3L, condensed = TRUE, n_backsolve_ele = 60000)
-  expect_match(.auto_evidence(d), "^130,000 equations \\(condensed\\), n_tasks 2; structural probe skipped")
+  expect_match(.auto_evidence(d), "^130,000 equations \\(condensed\\), assessed at 2 tasks; structural probe skipped")
   # the solve record
   host <- list(cores = 8L, mem_gb = 12)
   r <- .resolve_resources("SBBD", host, plain_size = 4.5e6)

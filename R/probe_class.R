@@ -1,69 +1,66 @@
-#' @importFrom cli cli_rule cli_text cli_alert_success cli_alert_danger
-#' @importFrom utils head
+#' @importFrom cli cli_rule cli_bullets format_inline
 #' @export
 print.teems_probe <- function(x, ...) {
-  cli::cli_rule(probe_info$print$rule)
-  cli::cli_text(probe_info$print$system)
+  b <- probe_info$brief
+  n_fmt <- .fmt(x$vecsize)
+  cli::cli_rule(left = b$rule, right = cli::format_inline(b$size))
+  singular <- FALSE
   for (pattern in c("structural", "realized")) {
     p <- x[[pattern]]
-    if (is.null(p)) {
+    if (is.null(p) || !p$defective || singular) {
       next
     }
-    lbl <- if (pattern %=% "structural") {
-      probe_info$print$pattern_structural
-    } else {
-      probe_info$print$pattern_realized
+    singular <- TRUE
+    rank_txt <- .fmt(p$rank)
+    n_txt <- .fmt(p$n)
+    msg <- if (pattern %=% "structural") b$singular else b$singular_base
+    cli::cli_bullets(c("x" = msg))
+    if (NROW(p$under_by_var)) {
+      agg <- paste0(p$under_by_var$name, "\u00a0\u00d7", p$under_by_var$count)
+      cli::cli_bullets(c(" " = b$under))
     }
-    if (!p$defective) {
-      cli::cli_alert_success(probe_info$print$rank_full)
-    } else {
-      cli::cli_alert_danger(probe_info$print$rank_singular)
-      if (NROW(p$under_by_var)) {
-        agg <- paste0(p$under_by_var$name, " ×", p$under_by_var$count)
-        cli::cli_text(probe_info$print$under_by_var)
-      }
-      if (NROW(p$over_by_eq)) {
-        agg <- paste0(p$over_by_eq$name, " ×", p$over_by_eq$count)
-        cli::cli_text(probe_info$print$over_by_eq)
-      }
-      if (!is.null(p$dm)) {
-        cli::cli_text(probe_info$print$dm_blocks)
-      }
+    if (NROW(p$over_by_eq)) {
+      agg <- paste0(p$over_by_eq$name, "\u00a0\u00d7", p$over_by_eq$count)
+      cli::cli_bullets(c(" " = b$over))
     }
+    cli::cli_bullets(c("i" = b$dm_hint))
   }
-  if (!is.null(x$cores)) {
-    cli::cli_text(probe_info$print$fine_dm)
-    if (NROW(x$cores$top)) {
-      eqs <- x$cores$top$eqs[[1]]
-      preview <- utils::head(paste0(eqs$name, " ×", eqs$count), 6L)
-      cli::cli_text(probe_info$print$largest_core)
-    }
+  if (!singular) {
+    cli::cli_bullets(c("v" = b$valid))
   }
-  if (NROW(x$statements)) {
-    cli::cli_text(probe_info$print$statements)
+  cn <- x$condense
+  if (!is.null(cn) && cn$verdict %=% "candidate") {
+    cli::cli_bullets(c("i" = b$candidate))
   }
-  if (!is.null(x$structure)) {
-    cli::cli_text(probe_info$print$ordering)
+  if (!is.null(cn) && cn$verdict %=% "hurts") {
+    set <- cn$partition_set %|||% (cn$chain_set %|||% "-")
+    blocks <- cn$n_blocks
+    cli::cli_bullets(c("!" = b$hurts))
   }
-  .probe_print_cndns(x$condense)
-  .probe_print_recommendation(x$recommendation)
+  .probe_print_recommendation(x$recommendation, brief = TRUE)
+  cli::cli_bullets(c("i" = b$more))
   invisible(x)
 }
 
-#' @importFrom cli cli_rule cli_text
+#' @importFrom cli cli_rule
 #' @importFrom utils head
 #' @export
 summary.teems_probe <- function(object, ...) {
-  print(object)
-  cli::cli_rule()
+  .probe_print_detail(object)
   if (NROW(object$defects)) {
-    cli::cli_text(probe_info$print$defects)
+    cli::cli_rule(left = probe_info$print$defects)
     print(object$defects, n = 20)
   }
   if (NROW(object$incidence)) {
     dense <- object$incidence[order(-object$incidence$weight), ]
-    cli::cli_text(probe_info$print$incidences)
+    cli::cli_rule(left = probe_info$print$incidences)
     print(utils::head(dense, 10))
+  }
+  .probe_print_cndns(object$condense)
+  .probe_print_recommendation(object$recommendation)
+  if (!is.null(object$paths$cmf) && !is.null(object$paths$log)) {
+    x <- object
+    cli::cli_bullets(c("i" = probe_info$print$files))
   }
   invisible(object)
 }

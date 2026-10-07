@@ -26,12 +26,14 @@ another machine.}
 GB the recommendation is made for, read from the container when
 \code{NULL}, as for \code{cores}.}
 
-\item{...}{Additional named solver arguments: the MA48 workspace
-initial guesses (\code{laA}, \code{laD}, \code{laDi}) and the expert solver
-flags (\code{fastrefac}, \code{gpzerodivide}, \code{cntl_3}, \code{cntl_6},
-\code{nsbbdblocks}, \code{withmc66}, \code{smllthreads}, \code{tempdir},
-\code{nowrites}); see the \code{\link[=ems_solve]{ems_solve()}} \code{...} documentation.
-Anything else is an error, never a silently ignored flag.}
+\item{...}{Additional named solver arguments, the same set
+\code{\link[=ems_solve]{ems_solve()}} accepts through \code{...}: the MA48 workspace initial
+guesses (\code{laA}, \code{laD}, \code{laDi}), the expert solver flags
+(\code{postsim}, \code{inmemory}, \code{fastrefac}, \code{gpzerodivide}, \code{cntl_3},
+\code{cntl_6}, \code{nsbbdblocks}, \code{withmc66}, \code{smllthreads}, \code{tempdir},
+\code{nowrites}, \code{condest}, \code{jacdump}, \code{ma48u}) and the Runge-Kutta
+run controls, which a probe ignores. Anything else is an error,
+never a silently ignored flag.}
 }
 \value{
 A \code{teems_probe} object: validity verdict and rank per
@@ -41,7 +43,8 @@ evidence (\code{structure}: the chain dimension and the block-partition
 candidate table the solver measured -- the evidence
 the recommendation is made from), the
 condensation verdict (\code{condense}), the recommended method and
-resources (\code{recommendation}), and report paths.
+resources (\code{recommendation}, whose \code{status} is \code{"ok"},
+\code{"singular"}, \code{"no_host"} or \code{"wont_fit"}), and report paths.
 }
 \description{
 Runs the solver's structural probe (\verb{-solmed probe}) on
@@ -62,11 +65,19 @@ not error here — the object reports it (see
 
 The probe also settles the condensation question, which the
 deploy-time advice in \code{\link[=ems_solve]{ems_solve()}} can only guess at: the
-measured block partition decides whether backsolving helps. A
-system with a usable partition belongs to a bordered method, where
-substitution densifies the blocks; a system without one is
-\code{"LU"}-bound, where condensation is the lever. The verdict prints
-with the object and is carried in \code{condense$verdict}.
+measured block partition decides whether backsolving helps.
+Substitution densifies the blocks the bordered methods exploit
+(measured on GTAP-RE: the standard condensation made \code{"SBBD"} runs
+69 to 393 percent slower, and condensed \code{"DBBD"} stops gaining from
+extra tasks), so a system with a usable partition and a time chain,
+or one above about 120 thousand condensed equations, is told to
+redeploy without \code{backsolve} (\code{"hurts"}); below that, threaded
+\code{"LU"} on the condensed system is still the fastest measured
+(\code{"lu_fine"}); a condensed system without a partition is
+\code{"LU"}-bound, where condensation pays (\code{"helps"}); and an
+uncondensed \code{"LU"}-bound system of a million equations or more is
+named as a candidate for \code{backsolve} in \code{\link[=ems_model]{ems_model()}}. The
+verdict is carried in \code{condense$verdict}.
 
 The probe also recommends how to solve the deployment: the matrix
 method and the tasks, threads and scratch directory to run it
@@ -75,7 +86,14 @@ from the measured structure, the deploy metadata and a peak-memory
 model per method (see \code{\link[=ems_solve]{ems_solve()}} Details for the rules and
 their provenance). The recommendation prints with the object as a
 ready-to-paste \code{\link[=ems_solve]{ems_solve()}} call and is carried in
-\code{recommendation}; \code{ems_solve()} itself chooses nothing.
+\code{recommendation}; \code{ems_solve()} itself chooses nothing. No
+recommendation is made when one cannot be sound: a structurally
+singular system (fix the closure first), a container whose cores
+could not be read (pass \code{cores} and \code{memory}), or a system whose
+smallest estimate does not fit the memory. The evidence is
+assessed at the task count the recommendation names, and a
+system below the smallest measured size (300 thousand equations)
+is sent to \code{"LU"}, since every method solves it quickly.
 }
 \examples{
 \dontrun{

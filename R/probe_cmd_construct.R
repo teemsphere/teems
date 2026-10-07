@@ -17,7 +17,7 @@
     "/opt/teems-solver/solver/teems-solver",
     "-cmdfile", paths$docker_cmf
   )
-  docker_diagnostic_out <- file.path(
+  docker_diagnostic_out <- paths$docker_diag_out %|||% file.path(
     paths$docker_run, "out",
     paste0("solver_out", "_", timeID, ".txt")
   )
@@ -27,6 +27,8 @@
     "-solmed", "probe",
     "-probefine", as.integer(fine),
     "-maxthreads", 1L,
+    "-nowrites", 1L,
+    "-cofdump", 0L,
     "-nox",
     if (.solver_uses_random(paths)) {
       paste("-random_seed", .o_random_seed())

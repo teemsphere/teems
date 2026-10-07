@@ -21,13 +21,18 @@
   condensed <- n_backsolve_ele > 0
   partitioned <- isTRUE(stats$bordered) && n_blocks > 1
 
+  chained <- identical(stats$chain_source, "structural")
+  lu_size <- .auto_thresholds()$dbbd_condensed_size
+  bordered_size <- !is.na(vecsize) && vecsize >= lu_size
+
   verdict <- "none"
-  if (condensed && partitioned) {
+  if (condensed && partitioned && (chained || bordered_size)) {
     verdict <- "hurts"
-  } else if (condensed && !partitioned) {
+  } else if (condensed && partitioned) {
+    verdict <- "lu_fine"
+  } else if (condensed) {
     verdict <- "helps"
-  } else if (!condensed && !partitioned && !is.na(vecsize) &&
-    vecsize >= .cndns_lu_size) {
+  } else if (!partitioned && !is.na(vecsize) && vecsize >= .cndns_lu_size) {
     verdict <- "candidate"
   }
 
@@ -35,6 +40,7 @@
     condensed = condensed,
     n_backsolve = stats$nbacksolve %|||% (nominated$n_backsolve %|||% 0L),
     n_backsolve_ele = n_backsolve_ele,
+    uncondensed = uncondensed,
     elimination_share = if (isTRUE(uncondensed > 0)) {
       n_backsolve_ele / uncondensed
     } else {
@@ -45,6 +51,7 @@
     partition_set = stats$partition_set,
     chain_set = stats$chain_set,
     border = border,
+    lu_size = lu_size,
     border_share = if (is.null(border) || is.na(vecsize) || vecsize <= 0) {
       NA_real_
     } else {

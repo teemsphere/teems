@@ -16,7 +16,7 @@
 
 # solve_in_situ errors when input file is without name
 
-    x Input files provided to `...` must be named as the appear within the `model_file`.
+    x Input files provided to `...` must be named as they appear within the `model_file`.
 
 # solve_in_situ errors when an input file does not exist
 

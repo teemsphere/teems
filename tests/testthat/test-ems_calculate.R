@@ -81,6 +81,7 @@ test_that("ems_calculate requires its input files", {
                                                                     GTAPPARM = inputs$GTAPPARM,
                                                                     model_dir = write_dir)))
   expect_snapshot_error(ems_calculate(model_file, inputs$GTAPSETS, model_dir = write_dir))
-  expect_snapshot_error(ems_calculate(model_file, GTAPSETS = inputs$GTAPSETS,
-                                      model_dir = file.path(write_dir, "absent")))
+  expect_snapshot(ems_calculate(model_file, GTAPSETS = inputs$GTAPSETS,
+                                model_dir = file.path(write_dir, "absent")),
+                  error = TRUE, transform = scrub_paths)
 })

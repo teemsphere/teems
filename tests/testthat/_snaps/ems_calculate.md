@@ -12,9 +12,14 @@
 
 ---
 
-    x Input files provided to `...` must be named as the appear within the `model_file`.
+    x Input files provided to `...` must be named as they appear within the `model_file`.
 
 ---
 
-    x The `model_dir` provided '/home/mpc/.cache/R/teems/calculate/absent' does not exist.
+    Code
+      ems_calculate(model_file, GTAPSETS = inputs$GTAPSETS, model_dir = file.path(
+        write_dir, "absent"))
+    Condition
+      Error in `ems_calculate()`:
+      x The `model_dir` provided '<cache>/calculate/absent' does not exist.
 

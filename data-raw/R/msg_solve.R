@@ -268,7 +268,7 @@ build_solve_err <- function() {
     no_model_dir = "The {.arg model_dir} provided {.path {model_dir}} does not exist.",
     # test-solve_in_situ.R: "solve_in_situ errors when input file is without name"
     # test-ems_calculate.R: "ems_calculate requires its input files"
-    no_input_names = "Input files provided to {.arg ...} must be named as the appear within the {.arg model_file}.",
+    no_input_names = "Input files provided to {.arg ...} must be named as they appear within the {.arg model_file}.",
     # test-ems_solve.R: "ems_solve errors when verbosity is invalid"
     verbosity_range = "{.arg verbosity} must be 0, 1, or 2.",
     # test-chk_solver_log.R: "a non-zero exit status aborts even with a clean log"

@@ -96,6 +96,22 @@ test_that("runtime errors map to the numeric abort", {
   expect_error(check_log(paths), "10.11.1")
 })
 
+test_that("equation and update divisions by zero map to the numeric abort", {
+  paths <- local_solver_log(
+    "Error: division by zero in Equation E_qo (all,a,acts)(all,r,reg) qo(a,r) = qx(a,r)/vtot(r), where it is never allowed (GEMPACK manual 10.11.1; Zerodivide statements apply to Formulas only) -- guard the denominator with ID01 or ID0V"
+  )
+  expect_error(check_log(paths), "runtime error")
+  expect_error(check_log(paths), "10.11.1")
+})
+
+test_that("non-finite coefficients and condition operands map to the numeric abort", {
+  paths <- local_solver_log(
+    "Error: a coefficient in Equation E_qo (all,a,acts)(all,r,reg) qo(a,r) = loge(x(r))*qx(a,r) is not finite (infinite): a division, LOGE, SQRT or power left its domain or the value overflowed (arithmetic error, GEMPACK manual 34.3)"
+  )
+  expect_error(check_log(paths), "runtime error")
+  expect_error(check_log(paths), "34.3")
+})
+
 test_that("workspace exhaustion maps to the resource abort", {
   # the three solver-side workspace fatals (solve_drivers.c ma48_grow_la
   # ceiling, the growth loops, and a declined fast refactorize)

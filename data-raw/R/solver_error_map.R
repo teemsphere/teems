@@ -92,6 +92,7 @@ build_solver_error_map <- function() {
     c("not satisfied very accurately", "numeric", "30.6.1"),
     c("zero divided by zero", "numeric", "10.11.1"),
     c("division by zero in a formula", "numeric", "10.11.1"),
+    c("division by zero in .*, where it is never allowed", "numeric", "10.11.1"),
     c("assertion failed", "numeric", "25.3"),
     c("has an? (updated )?value (at or )?(above|below) its declared", "numeric", "25.4.4"),
     c("fractional power of a negative number", "numeric", NA),

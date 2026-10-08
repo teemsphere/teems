@@ -40,7 +40,7 @@ build_solver_error_map <- function() {
     # and data rows, whose "is not in set"/"cannot open" wording the
     # subtotals-file messages share
     c("subtotals file", "subtotal", "29.1"),
-    c("subtotals \\(manual 29\\) are not available", "subtotal", "29"),
+    c("subtotals \\((GEMPACK )?manual 29\\) are not available", "subtotal", "29"),
     c("cannot keep (its factorization|yet)", "subtotal", NA),
     c("subtotal solves found no kept factorization", "subtotal", NA),
     # closure / shock files (closure_read wording: "(in <var>)";
@@ -113,7 +113,7 @@ build_solver_error_map <- function() {
     c("\"index IN set\"|\" is not active where the IF stands", "tab", "11.4.7"),
     c("(a condition|the condition) .*compares|compares two elements|has no comparison", "tab", "11.4.11"),
     c("(sum|quantifier|IF) condition|condition too long|cannot evaluate the .*condition|condition %s is too long", "tab", "11.4.11"),
-    c("is not an element of set .* \\(manual 11\\.4\\.11\\)", "tab", "11.4.11"),
+    c("is not an element of set .* \\((GEMPACK )?manual 11\\.4\\.11\\)", "tab", "11.4.11"),
     c("distinct mapping compositions|which is neither the domain", "tab", "11.9.6"),
     c("needs an intertemporal codomain", "tab", "11.9.6"),
     c("index expression through a mapping .* runs outside set", "tab", "16.4"),

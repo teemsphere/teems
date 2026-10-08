@@ -19,7 +19,7 @@ check_log <- function(paths) {
 test_that("TAB errors map to the model-specification abort", {
   paths <- local_solver_log(c(
     "solver banner",
-    "Error: name psave is declared as both a coefficient and a variable; names are case-insensitive and must be unique (manual 11.2.1)"
+    "Error: name psave is declared as both a coefficient and a variable; names are case-insensitive and must be unique (GEMPACK manual 11.2.1)"
   ))
   expect_error(
     check_log(paths),
@@ -30,7 +30,7 @@ test_that("TAB errors map to the model-specification abort", {
 
 test_that("multiple TAB errors are previewed with their manual sections", {
   paths <- local_solver_log(c(
-    "Error: coefficient dupx is declared more than once (manual 11.2.1)",
+    "Error: coefficient dupx is declared more than once (GEMPACK manual 11.2.1)",
     "Error: unknown variable qualifier 'foo'"
   ))
   expect_error(check_log(paths), "2 errors")
@@ -39,7 +39,7 @@ test_that("multiple TAB errors are previewed with their manual sections", {
 
 test_that("braces in a solver error line are relayed as written", {
   paths <- local_solver_log(c(
-    "Error: normal{factor_1{r}} is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)"
+    "Error: normal{factor_1{r}} is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, GEMPACK manual 11.5.6/11.4.11)"
   ))
   err <- tryCatch(check_log(paths), error = function(e) conditionMessage(e))
   expect_match(err, "normal{factor_1{r}} is not a coefficient", fixed = TRUE)
@@ -157,7 +157,7 @@ test_that("index ceiling maps to the size abort", {
 test_that("TAB class takes priority over data class", {
   paths <- local_solver_log(c(
     "Error: cannot open file baddata.har",
-    "Error: set marg is declared as both a coefficient and a set (manual 11.2.1)"
+    "Error: set marg is declared as both a coefficient and a set (GEMPACK manual 11.2.1)"
   ))
   expect_error(check_log(paths), "rejected the model specification")
 })
@@ -224,18 +224,18 @@ test_that("a clean log passes and writes the exec record", {
 
 test_that(".map_solver_errors classifies representative catalog lines", {
   mapped <- .map_solver_errors(c(
-    "coefficient name max is a reserved word (manual 11.2.1)",
+    "coefficient name max is a reserved word (GEMPACK manual 11.2.1)",
     "duplicate lower bound on a coefficient declaration (one lower GE/GT and one upper LE/LT allowed)",
     "only (linear) or (levels) may qualify an equation under Equation (default=levels)",
-    "PostSim Formula assigns variable psave; simulation results cannot be changed (manual 12.2.2)",
+    "PostSim Formula assigns variable psave; simulation results cannot be changed (GEMPACK manual 12.2.2)",
     "set nmrg references itself in a set expression",
-    "element range 'g5 - g2' in set badb runs backwards (manual 11.2.2)",
+    "element range 'g5 - g2' in set badb runs backwards (GEMPACK manual 11.2.2)",
     "Read without a header is not supported (use 'Read X from file <log> header \"H\"')",
     "variable qq is not declared",
     "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
     "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)",
     "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters",
-    "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, manual 11.5.6/11.4.11)",
+    "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, GEMPACK manual 11.5.6/11.4.11)",
     "coefficient vxsb has an updated value at or below its declared strict lower bound 0.000000"
   ))
   expect_identical(
@@ -252,20 +252,20 @@ test_that(".map_solver_errors classifies representative catalog lines", {
 
 test_that(".map_solver_errors classifies the Tier A solver fatals", {
   mapped <- .map_solver_errors(c(
-    "Formula for c1 reads a later element of c1 along the loop (backward recursion; formulas run forwards through their loops and use the most recent values, manual 16.5(b)/(c) -- copy the coefficient first): (all,t,time2) c1(t) = c1(t+1) + d(t)",
-    "index offset t+nlag is not an integer constant (manual 11.2.4: an offset is index + <integer> or index - <integer>)",
-    "index offset t+1 in k(t+1) runs outside set TIME (at element t10 of TIME; manual 16.4)",
-    "the left-hand side of Formula c1 carries 1 argument(s); c1 is declared with 2 (manual 10.8, 11.4.10): c1(t) = 1",
-    "index offsets are not allowed on the left-hand side of a Formula(Initial) (a Read in later steps; manual 10.8, 11.11.4): c1(t+1) = 1",
-    "the shock statement for pop names component pop(usa), which is endogenous; only exogenous components can be shocked (manual 24, 24.14.1; shock file)",
+    "Formula for c1 reads a later element of c1 along the loop (backward recursion; formulas run forwards through their loops and use the most recent values, GEMPACK manual 16.5(b)/(c) -- copy the coefficient first): (all,t,time2) c1(t) = c1(t+1) + d(t)",
+    "index offset t+nlag is not an integer constant (GEMPACK manual 11.2.4: an offset is index + <integer> or index - <integer>)",
+    "index offset t+1 in k(t+1) runs outside set TIME (at element t10 of TIME; GEMPACK manual 16.4)",
+    "the left-hand side of Formula c1 carries 1 argument(s); c1 is declared with 2 (GEMPACK manual 10.8, 11.4.10): c1(t) = 1",
+    "index offsets are not allowed on the left-hand side of a Formula(Initial) (a Read in later steps; GEMPACK manual 10.8, 11.11.4): c1(t+1) = 1",
+    "the shock statement for pop names component pop(usa), which is endogenous; only exogenous components can be shocked (GEMPACK manual 24, 24.14.1; shock file)",
     "some components of pop have been specified more than once (pop(usa) is shocked by two statements; shock file)",
-    "initial closure check: 10 endogenous components is not equal to the number of equation rows (11); 20 variable components, 10 exogenous, 0 backsolved -- make 1 more component(s) endogenous (manual 23.2.7)",
-    "BREAK outside any loop (manual 11.18): break x > 1",
-    "a strong comment opened with '![[!' in the TAB file is never closed by '!]]!' (1 still open at the end of the file; manual 11.1.5)",
-    "product Update of vfm: the right-hand side must be a product of percentage-change variables v1*v2*...*vn (manual 11.12.4), and 2 is not one; write a (change) Update for any other form: (all,i,com) vfm(i) = 2*p(i)",
-    "Formula for x gives a value that is not finite (NaN) at x(usa): a division, LOGE, SQRT or power left its domain or the value overflowed (arithmetic error, manual 34.3): x(r) = loge(y(r))",
-    "the linear solve gave a value that is not finite (NaN) for qo(usa): the LHS matrix is singular or badly scaled at this step, or a coefficient overflowed (manual 34.1, 34.3)",
-    "more than 100 equations were not satisfied very accurately (101 warnings); all files are written, but the solution may not be valid (manual 30.6.1)"
+    "initial closure check: 10 endogenous components is not equal to the number of equation rows (11); 20 variable components, 10 exogenous, 0 backsolved -- make 1 more component(s) endogenous (GEMPACK manual 23.2.7)",
+    "BREAK outside any loop (GEMPACK manual 11.18): break x > 1",
+    "a strong comment opened with '![[!' in the TAB file is never closed by '!]]!' (1 still open at the end of the file; GEMPACK manual 11.1.5)",
+    "product Update of vfm: the right-hand side must be a product of percentage-change variables v1*v2*...*vn (GEMPACK manual 11.12.4), and 2 is not one; write a (change) Update for any other form: (all,i,com) vfm(i) = 2*p(i)",
+    "Formula for x gives a value that is not finite (NaN) at x(usa): a division, LOGE, SQRT or power left its domain or the value overflowed (arithmetic error, GEMPACK manual 34.3): x(r) = loge(y(r))",
+    "the linear solve gave a value that is not finite (NaN) for qo(usa): the LHS matrix is singular or badly scaled at this step, or a coefficient overflowed (GEMPACK manual 34.1, 34.3)",
+    "more than 100 equations were not satisfied very accurately (101 warnings); all files are written, but the solution may not be valid (GEMPACK manual 30.6.1)"
   ))
   expect_identical(
     mapped$class,
@@ -284,13 +284,13 @@ test_that(".map_solver_errors classifies the Tier A solver fatals", {
 
 test_that(".map_solver_errors classifies the levels linear-name fatals", {
   mapped <- .map_solver_errors(c(
-    "coefficient c_lc has the name of the linear variable of levels variable lc (manual 9.2.2); rename the coefficient",
-    "variable p_zl has the name of the linear variable of levels variable zl (manual 9.2.2); rename it",
-    "p_x refers to linear variable x; a linear variable is named by itself (p_/c_ names belong to levels variables, manual 9.2.2): equation e_y (all,r,reg) y(r) = p_x(r);",
-    "p_lc: levels variable lc is a change variable; its linear variable is c_lc (manual 9.2.2): equation e_y (all,r,reg) y(r) = p_lc(r);",
-    "LINEAR_VAR=nope of levels variable xl: no linear variable nope is declared before it (manual 9.2.2)",
-    "p_ln names no variable: the linear variable of levels variable ln is xpc (LINEAR_NAME/LINEAR_VAR, manual 9.2.2): equation e_ln (all,r,reg) p_ln(r) = x(r);",
-    "p_y names no variable: y is a linear variable, named y (manual 9.2.2)"
+    "coefficient c_lc has the name of the linear variable of levels variable lc (GEMPACK manual 9.2.2); rename the coefficient",
+    "variable p_zl has the name of the linear variable of levels variable zl (GEMPACK manual 9.2.2); rename it",
+    "p_x refers to linear variable x; a linear variable is named by itself (p_/c_ names belong to levels variables, GEMPACK manual 9.2.2): equation e_y (all,r,reg) y(r) = p_x(r);",
+    "p_lc: levels variable lc is a change variable; its linear variable is c_lc (GEMPACK manual 9.2.2): equation e_y (all,r,reg) y(r) = p_lc(r);",
+    "LINEAR_VAR=nope of levels variable xl: no linear variable nope is declared before it (GEMPACK manual 9.2.2)",
+    "p_ln names no variable: the linear variable of levels variable ln is xpc (LINEAR_NAME/LINEAR_VAR, GEMPACK manual 9.2.2): equation e_ln (all,r,reg) p_ln(r) = x(r);",
+    "p_y names no variable: y is a linear variable, named y (GEMPACK manual 9.2.2)"
   ))
   expect_identical(mapped$class, c(rep("tab", 6), "closure"))
   expect_identical(mapped$manual, rep("9.2.2", 7))
@@ -298,8 +298,8 @@ test_that(".map_solver_errors classifies the levels linear-name fatals", {
 
 test_that(".map_solver_errors classifies the -100 percent shock fatals", {
   mapped <- .map_solver_errors(c(
-    "pxx is shocked by -100 percent, which Gragg's method cannot take: its final pass carries the variable past its end point, through zero (manual 30.2); use the midpoint or Euler method",
-    "pxx is shocked by -120 percent; a percentage change below -100 would make its levels value negative (manual 30.2; shock file)"
+    "pxx is shocked by -100 percent, which Gragg's method cannot take: its final pass carries the variable past its end point, through zero (GEMPACK manual 30.2); use the midpoint or Euler method",
+    "pxx is shocked by -120 percent; a percentage change below -100 would make its levels value negative (GEMPACK manual 30.2; shock file)"
   ))
   expect_identical(mapped$class, c("closure", "closure"))
   expect_identical(mapped$manual, c("30.2", "30.2"))
@@ -455,7 +455,7 @@ test_that("an option or manifest statement the image does not know maps to the i
 
 test_that("a misspelt TAB keyword maps to the model-specification abort", {
   paths <- local_solver_log(
-    "Error: unknown statement keyword 'coeficient' (a statement without a keyword continues the previous coefficient statement, manual 11.1.1, and this one cannot): coeficient (all,r,reg) k8(r) ;"
+    "Error: unknown statement keyword 'coeficient' (a statement without a keyword continues the previous coefficient statement, GEMPACK manual 11.1.1, and this one cannot): coeficient (all,r,reg) k8(r) ;"
   )
   expect_error(check_log(paths), "rejected the model specification")
   expect_error(check_log(paths), "11.1.1")
@@ -469,7 +469,7 @@ test_that("a data program asked for a Jacobian maps to the model-specification a
   expect_error(check_log(paths), "5.1.2")
   mapped <- .map_solver_errors(c(
     "-jacdump must be 0 (off), 1 (write <solfiles>.jac) or 2 (write it and stop before the solve), got 3",
-    "subtotals (manual 29) are not available with -solmed nosim, which runs no simulation; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
+    "subtotals (GEMPACK manual 29) are not available with -solmed nosim, which runs no simulation; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
   ))
   expect_identical(mapped$class, c("interface", "subtotal"))
 })
@@ -481,13 +481,13 @@ test_that("shock-group subtotal errors map to the subtotal abort", {
   expect_error(check_log(paths), "rejected the subtotal \\(shock-group\\) request with 1 error")
   expect_error(check_log(paths), "element mars is not in set reg", fixed = TRUE)
   paths <- local_solver_log(
-    "Error: subtotals (manual 29) are not available with matrix_method NDBBD, which cannot keep its factorization for more solves yet; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
+    "Error: subtotals (GEMPACK manual 29) are not available with matrix_method NDBBD, which cannot keep its factorization for more solves yet; use matrix_method LU, SBBD or DBBD with the Johansen, Euler or Gragg method"
   )
   expect_error(check_log(paths), "rejected the subtotal")
   mapped <- .map_solver_errors(c(
     "subtotal \"Twice\" is defined twice (subtotals file)",
     "cannot open subtotals file /opt/teems/sub.sts: No such file or directory",
-    "subtotals (manual 29) are not available in a model with complementarities yet: the approximate and accurate runs change the closure and the states between steps, so the step right-hand sides are not the shocks alone (manual 52)",
+    "subtotals (GEMPACK manual 29) are not available in a model with complementarities yet: the approximate and accurate runs change the closure and the states between steps, so the step right-hand sides are not the shocks alone (GEMPACK manual 52)",
     "this run solves extra right-hand sides with each step's factorization (-fhtest), which matrix_method NDBBD cannot keep yet; use matrix_method LU, SBBD or DBBD",
     "the manifest (.cmf) file has more than one subtotals statement; put every subtotal in one file"
   ))
@@ -497,7 +497,7 @@ test_that("shock-group subtotal errors map to the subtotal abort", {
 test_that("a state/bound downgrade warning does not abort the run", {
   paths <- local_solver_log(c(
     "solver banner",
-    "Warning: 3 complementarity state/bound error(s) after the accurate run (treated as warnings per -comp_sberr_warn; check the log carefully, manual 51.6)"
+    "Warning: 3 complementarity state/bound error(s) after the accurate run (treated as warnings per -comp_sberr_warn; check the log carefully, GEMPACK manual 51.6)"
   ))
   expect_no_error(suppressMessages(check_log(paths)))
 })
@@ -524,15 +524,15 @@ test_that("an unwritable output or scratch file maps to the system abort", {
 test_that(".map_solver_errors classifies the Tier C solver fatals", {
   mapped <- .map_solver_errors(c(
     "unknown -solmed Mid (valid: Gragg, Midpoint, Euler, RK2, Heun, RK4, BoSha32, DoPri54, Johansen, probe, nosim)",
-    "-convrule 1 applies to a run extrapolating from three solutions without subtotals (manual 26.2.5)",
+    "-convrule 1 applies to a run extrapolating from three solutions without subtotals (GEMPACK manual 26.2.5)",
     "-nsubints must be at least 1 (got 0)",
-    "linear variables are not permitted inside PROD, MAXS or MINS (manual 11.4.4): prod(c,COMM, x(c))",
-    "malformed condition 's<>r and' (AND, OR and NOT join comparisons; at most 16 comparisons; manual 11.4.5) in sum",
-    "the condition r=s compares two elements (manual 11.4.11) in Formula",
-    "Formula for mapping c2g gives element g9, which is not an element of its codomain grp (manual 11.9.12)",
+    "linear variables are not permitted inside PROD, MAXS or MINS (GEMPACK manual 11.4.4): prod(c,COMM, x(c))",
+    "malformed condition 's<>r and' (AND, OR and NOT join comparisons; at most 16 comparisons; GEMPACK manual 11.4.5) in sum",
+    "the condition r=s compares two elements (GEMPACK manual 11.4.11) in Formula",
+    "Formula for mapping c2g gives element g9, which is not an element of its codomain grp (GEMPACK manual 11.9.12)",
     "set builder rb: element x of source set reg is not in v's dimension set comm",
     "set reg declares 40000 elements, above the 30000 limit; check the element count in its data-file header",
-    "value 9 in the data for mapping c2g is not an element number of set grp (1 to 2; manual 11.9.1c, 11.9.2)",
+    "value 9 in the data for mapping c2g is not an element number of set grp (1 to 2; GEMPACK manual 11.9.1c, 11.9.2)",
     "the refinement step found no kept DBBD factorization for this solve"
   ))
   expect_identical(

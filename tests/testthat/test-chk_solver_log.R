@@ -90,7 +90,7 @@ test_that("data errors map to the data abort", {
 
 test_that("runtime errors map to the numeric abort", {
   paths <- local_solver_log(
-    "Error: division by zero in a formula; Zerodivide (nonzero_by_zero) is off (GEMPACK default) -- set a default or guard with ID01"
+    "Error: division by zero in a formula; Zerodivide (nonzero_by_zero) is off -- set a default with Zerodivide (nonzero_by_zero) default <value> or guard with ID01"
   )
   expect_error(check_log(paths), "runtime error")
   expect_error(check_log(paths), "10.11.1")

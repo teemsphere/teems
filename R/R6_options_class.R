@@ -168,7 +168,7 @@ options_class <- R6::R6Class(
     },
 
     get_range_test_initial = function() {
-      self$range_test_initial %|||% "warn"
+      self$range_test_initial %|||% "fatal"
     },
 
     get_range_test_updated = function() {

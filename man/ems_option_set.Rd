@@ -87,11 +87,13 @@ never asks.}
 failures in \code{\link[=ems_solve]{ems_solve()}} (GEMPACK manual 25.3): \code{"warn"}
 reports and continues, \code{"off"} skips the checks.}
 
-\item{range_test_initial}{Character length 1, \code{"warn"} (default),
-\code{"fatal"} or \code{"off"}. Severity of declared-range violations
-(e.g. \verb{(ge 0)}) on initial values in \code{\link[=ems_solve]{ems_solve()}} (GEMPACK
-manual 25.4.4, \verb{range test initial values}; GEMPACK's
-\code{yes}/\code{warn}/\code{no} are \code{"fatal"}/\code{"warn"}/\code{"off"} here).}
+\item{range_test_initial}{Character length 1, \code{"fatal"} (default),
+\code{"warn"} or \code{"off"}. Severity of declared-range violations
+(e.g. \verb{(ge 0)}) on initial values in \code{\link[=ems_solve]{ems_solve()}}: every
+coefficient, read or computed, is tested once the initial Reads
+and Formulas are done (GEMPACK manual 25.4.2 and 25.4.4,
+\verb{range test initial values}; GEMPACK's \code{yes} (its default),
+\code{warn} and \code{no} are \code{"fatal"}, \code{"warn"} and \code{"off"} here).}
 
 \item{range_test_updated}{Character length 1, \code{"warn"} (default),
 \code{"fatal"} or \code{"off"}. As \code{range_test_initial}, for updated

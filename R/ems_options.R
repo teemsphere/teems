@@ -56,11 +56,13 @@
 #'   `"warn"` or `"off"`. Severity of TAB `Assertion` statement
 #'   failures in [`ems_solve()`] (GEMPACK manual 25.3): `"warn"`
 #'   reports and continues, `"off"` skips the checks.
-#' @param range_test_initial Character length 1, `"warn"` (default),
-#'   `"fatal"` or `"off"`. Severity of declared-range violations
-#'   (e.g. `(ge 0)`) on initial values in [`ems_solve()`] (GEMPACK
-#'   manual 25.4.4, `range test initial values`; GEMPACK's
-#'   `yes`/`warn`/`no` are `"fatal"`/`"warn"`/`"off"` here).
+#' @param range_test_initial Character length 1, `"fatal"` (default),
+#'   `"warn"` or `"off"`. Severity of declared-range violations
+#'   (e.g. `(ge 0)`) on initial values in [`ems_solve()`]: every
+#'   coefficient, read or computed, is tested once the initial Reads
+#'   and Formulas are done (GEMPACK manual 25.4.2 and 25.4.4,
+#'   `range test initial values`; GEMPACK's `yes` (its default),
+#'   `warn` and `no` are `"fatal"`, `"warn"` and `"off"` here).
 #' @param range_test_updated Character length 1, `"warn"` (default),
 #'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
 #'   values (`range test updated values`).
@@ -204,8 +206,8 @@ ems_option_set <- function(verbose = NULL,
 #'   * `"assertions"` Character. `"fatal"` (the default), `"warn"`
 #'     or `"off"`: severity of TAB `Assertion` failures in
 #'     [`ems_solve()`].
-#'   * `"range_test_initial"` Character. `"warn"` (the default),
-#'     `"fatal"` or `"off"`: severity of declared-range violations on
+#'   * `"range_test_initial"` Character. `"fatal"` (the default),
+#'     `"warn"` or `"off"`: severity of declared-range violations on
 #'     initial values.
 #'   * `"range_test_updated"` Character. `"warn"` (the default),
 #'     `"fatal"` or `"off"`: as `"range_test_initial"`, for updated

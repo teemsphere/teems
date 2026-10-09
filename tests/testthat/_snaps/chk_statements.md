@@ -1,6 +1,6 @@
 # unclosed strong comment aborts (A5)
 
-    x Strong comment `![[!` opened on line 5545 is never closed.
+    x Strong comment `![[!` opened on line 5541 is never closed.
     i Strong comments nest: every `![[!` needs its own `!]]!`; everything between the outermost pair is ignored.
 
 # stray label text outside a statement aborts

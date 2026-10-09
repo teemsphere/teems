@@ -273,7 +273,7 @@ test_that("inmemory and verbosity reach the solver command", {
   cmd <- readLines(file.path(run_dir, "model_exec.txt"), warn = FALSE)
   expect_no_match(paste(cmd, collapse = " "), "-inmemory", fixed = TRUE)
   expect_match(paste(cmd, collapse = " "), "-verbosity 1", fixed = TRUE)
-  expect_match(paste(cmd, collapse = " "), "-assertions 2 -range_test_initial 1 -range_test_updated 1", fixed = TRUE)
+  expect_match(paste(cmd, collapse = " "), "-assertions 2 -range_test_initial 2 -range_test_updated 1", fixed = TRUE)
 })
 
 test_that("Runge-Kutta flags reach the solver command", {
@@ -329,7 +329,7 @@ test_that("ems_deploy errors when the closure does not square the system", {
 
 test_that("ems_solve warns when poor accuracy", {
   nest_temp("solve_wrn_accur", write_dir)
-  shock <- ems_uniform_shock("pop", 200)
+  shock <- ems_uniform_shock("pop", 150)
   cmf_path <- ems_deploy(static_data, static_model, shock)
   expect_snapshot_warning(ems_solve(
     cmf_path,

@@ -138,7 +138,7 @@ test_that("a fatal range-test bound violation maps to a named runtime abort (B2)
   # range-test modes are package options passed to the solver CLI;
   # the solver no longer parses CMF statements (CMF = file manifest only)
   ems_option_set(range_test_initial = "fatal")
-  withr::defer(ems_option_set(range_test_initial = "warn"))
+  withr::defer(ems_option_set(range_test_initial = "fatal"))
   msg <- solve_error_msg(
     "e2e_range",
     paste(

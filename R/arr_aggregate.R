@@ -5,6 +5,8 @@
 .aggregate_array <- function(arr,
                              sets,
                              ndigits) {
+  Value <- NULL
+
   dn <- lapply(dimnames(arr), tolower)
   nms <- names(dn)
   nms[duplicated(nms)] <- paste0(nms[duplicated(nms)], ".1")

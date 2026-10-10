@@ -226,6 +226,9 @@
 #' @keywords internal
 #' @noRd
 .homogeneity_rows <- function(jac, z, meta) {
+  nz <- NULL
+  moving <- NULL
+
   term <- jac$value * z[jac$col + 1L]
   zc <- z[jac$col + 1L]
   dt <- data.table::data.table(row = jac$row, term = term, nz = jac$value != 0,

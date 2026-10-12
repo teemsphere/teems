@@ -1666,3 +1666,52 @@ test_that("condensation renames indices whatever their case", {
   tab <- cndns_tab("Equation E_pm (all,i,COMM)(all,R,REG) pm(i,R) = TX(i,r)*ps(i,R);")
   expect_true(any(grepl("pms(i,r,s) = TX(i,s)*ps(i,s) + ps(i,r);", tab, fixed = TRUE)))
 })
+
+test_that("a numeric replaces exactly the defining Formula's right-hand side", {
+  v7_dir <- file.path(write_dir, "v7")
+  dir.create(v7_dir, recursive = TRUE, showWarnings = FALSE)
+  v7 <- ems_example("GTAPv7", v7_dir)
+  model <- ems_model(v7[["model_file"]], v7[["closure_file"]], VPP = 2, UTILPRIV = 0.5)
+  base <- ems_model(v7[["model_file"]], v7[["closure_file"]])
+  expect_identical(model$tab[.formula_lhs_rows(model, "VPP")], "Formula (all,c,COMM)(all,r,REG) VPP(c,r) = 2;")
+  expect_true(grepl("= 0.5;", model$tab[.formula_lhs_rows(model, "UTILPRIV")], fixed = TRUE))
+  expect_identical(
+    model$tab[.formula_lhs_rows(model, "UTILPRIVEV")],
+    base$tab[.formula_lhs_rows(base, "UTILPRIVEV")]
+  )
+  expect_identical(model$tab[-.formula_lhs_rows(model, c("VPP", "UTILPRIV"))], base$tab[-.formula_lhs_rows(base, c("VPP", "UTILPRIV"))])
+})
+
+test_that("a numeric for a coefficient with more than one defining Formula aborts", {
+  v7_dir <- file.path(write_dir, "v7")
+  dir.create(v7_dir, recursive = TRUE, showWarnings = FALSE)
+  v7 <- ems_example("GTAPv7", v7_dir)
+  expect_snapshot_error(ems_model(v7[["model_file"]], v7[["closure_file"]], IFC1 = 1))
+})
+
+test_that("equation IF and sum-condition indicators follow every Formula (GEMPACK manual 11.16.2)", {
+  tab <- c(
+    "File DATA # data #",
+    "Set S # elements # (e1, e2, e3)",
+    "Coefficient (all,i,S) A(i) # switch #",
+    "Formula (all,i,S) A(i) = 1",
+    "Variable (all,i,S) x(i) # x #",
+    "Variable (all,i,S) y(i) # y #",
+    "Equation E_x (all,i,S) x(i) = IF[A(i) > 0.5, y(i)] + 0.5*y(i)",
+    "Equation E_y (all,i,S) y(i) = sum{j,S: A(j) > 0.5, x(j)} + x(i)",
+    "Formula (all,i,S) A(i) = $pos(i) - 1.5"
+  )
+  out <- .rewrite_tab_if(.rewrite_sum_conditions(tab, call = NULL), call = NULL)
+  last_user_formula <- max(which(grepl("^Formula \\(all,i,S\\) A\\(i\\)", out)))
+  equations <- which(grepl("^Equation", out))
+  indicators <- which(grepl("^Formula", out) & !grepl("^Formula \\(all,i,S\\) A\\(i\\)", out))
+  expect_length(indicators, 4L)
+  expect_true(all(indicators > last_user_formula))
+  expect_true(all(indicators > max(equations)))
+})
+
+test_that("an identifier ending in E before a sign is not an exponent", {
+  terms <- .split_tab_terms("y(i)*A2E-y(i) + 1e-3*x(i) - cub06b_4E-x(i)")
+  expect_identical(terms$sign, c("+", "-", "+", "-", "-"))
+  expect_identical(terms$body, c("y(i)*A2E", "y(i)", "1e-3*x(i)", "cub06b_4E", "x(i)"))
+})

@@ -622,3 +622,19 @@ test_that("par_weights selects the share or value weights per parameter", {
 })
 
 unlink(write_dir, recursive = TRUE)
+
+test_that("ems_data rejects a mapping that sends one element to two aggregates", {
+  REG_dup <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG[, c(1, 2)]
+  colnames(REG_dup) <- c("REG", "mapping")
+  REG_dup$mapping <- "world"
+  REG_dup$mapping[REG_dup$REG %in% c("usa", "chn")] <- "big2"
+  REG_dup <- rbind(REG_dup, data.frame(REG = "usa", mapping = "world"))
+  expect_snapshot_error(ems_data(
+    dat_input,
+    par_input,
+    set_input,
+    REG = REG_dup,
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  ))
+})

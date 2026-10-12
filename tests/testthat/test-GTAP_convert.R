@@ -472,3 +472,17 @@ test_that("GTAP_convert prepares the 11c energy releases", {
   expect_equal(names(dimnames(ep$par$SUBP))[[1]], "TOPP")
   expect_true(all(ep$par$SUBP > 0 & ep$par$SUBP <= 1))
 })
+
+test_that("a region-varying parameter cannot be collapsed to the v6 format", {
+  esbt <- structure(
+    array(c(0, 0.5), dim = c(1, 2), dimnames = list(ACTS = "a", REG = c("r1", "r2"))),
+    class = c("ESBT", "par", "GTAPv7")
+  )
+  expect_snapshot_error(.header2GTAPv6(esbt, i_data = list()))
+  generic <- structure(
+    array(c(0.5, 1, 0.5, 1), dim = c(2, 2), dimnames = list(ACTS = c("a", "b"), REG = c("r1", "r2"))),
+    class = c("ESBT", "par", "GTAPv7")
+  )
+  out <- .header2GTAPv6(generic, i_data = list())
+  expect_identical(as.vector(out), c(0.5, 1, 0))
+})

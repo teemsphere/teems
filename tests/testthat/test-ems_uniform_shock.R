@@ -209,3 +209,8 @@ test_that("ems_uniform examples work", {
 })
 
 unlink(write_dir, recursive = TRUE)
+test_that("a uniform shock value must be a single finite number", {
+  expect_snapshot_error(ems_uniform_shock("pop", NA_real_))
+  expect_snapshot_error(ems_uniform_shock("pop", c(1, 2)))
+  expect_snapshot_error(ems_uniform_shock("pop", Inf))
+})

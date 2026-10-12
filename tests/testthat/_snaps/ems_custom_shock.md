@@ -60,3 +60,13 @@
     x No exogenous components in qgdp; partial shocks require at least one.
     i Call: `ems_custom_shock(var = "qgdp", input = data.frame(REGr = "row", ` and ` ALLTIMEt = 0, Value = 1))`
 
+# custom shock values must be finite numbers
+
+    x 1 shock value is not a finite number (row 1 of the input).
+    i Every Value must be a finite number; a text or missing entry in the input is not accepted.
+
+---
+
+    x 1 shock value is not a finite number (row 2 of the input).
+    i Every Value must be a finite number; a text or missing entry in the input is not accepted.
+

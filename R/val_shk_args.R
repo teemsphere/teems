@@ -21,6 +21,14 @@
     call = call
   )
 
+  if (length(shock$input) %!=% 1L || !is.finite(shock$input)) {
+    value <- shock$input
+    .cli_action(shk_err$uni_value,
+      action = "abort",
+      call = call
+    )
+  }
+
   if (shock$subset %!=% NA) {
     if (any(lengths(shock$subset) > 1)) {
       depth <- "multi"

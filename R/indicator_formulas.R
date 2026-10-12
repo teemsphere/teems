@@ -1,9 +1,9 @@
 #' @importFrom purrr map_lgl
 #' @keywords internal
 #' @noRd
-.indicator_formulas <- function(model, coef) {
+.indicator_formulas <- function(model, coef, limit_row = nrow(model) + 1L) {
   id <- "[A-Za-z_][A-Za-z0-9_@]*"
-  rows <- which(model$type == "Formula" & purrr::map_lgl(model$definition, \(d) {
+  rows <- which(model$type == "Formula" & seq_len(nrow(model)) < limit_row & purrr::map_lgl(model$definition, \(d) {
     length(d) == 1L && !is.na(d) &&
       grepl(paste0("^\\s*", coef, "\\s*[[({]"), d, ignore.case = TRUE)
   }))

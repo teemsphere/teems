@@ -25,7 +25,8 @@
   .chk_shk_col(input = input,
                type = type,
                call = call)
-  input$Value <- as.numeric(input$Value)
+  input$Value <- suppressWarnings(as.numeric(input$Value))
+  .chk_shk_value(input = input, call = call)
   return(input)
 }
 
@@ -54,6 +55,7 @@
                type = type,
                call = call)
   
-  input$Value <- as.numeric(input$Value)
+  input$Value <- suppressWarnings(as.numeric(input$Value))
+  .chk_shk_value(input = input, call = call)
   return(input)
 }

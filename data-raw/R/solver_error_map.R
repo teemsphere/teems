@@ -76,6 +76,9 @@ build_solver_error_map <- function() {
     c("in the data for mapping", "data", "11.9.2"),
     c("for mapping .* supplies [0-9]+ values for the", "data", "11.9.1"),
     c("is declared over a set with no elements; its values cannot be read", "data", NA),
+    # a shock value the solver cannot read is a shock-file fault, not
+    # a data one (teems_value_checked's "shock value for X is ...")
+    c("^shock value for", "closure", NA),
     c(" for .* is (missing|empty|not a number|not a finite number|out of range)", "data", NA),
     # factorization workspace / memory limits (solve_drivers.c
     # ma48_grow_la + ma48_alloc_fail, block_solve.c/block_order.c

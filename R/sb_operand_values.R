@@ -46,7 +46,7 @@
   steps <- if (is.null(model)) {
     NULL
   } else {
-    .indicator_formulas(model, coef)
+    .indicator_formulas(model, coef, limit_row = .set_stmt_row(model, bad_set))
   }
   if (is.null(steps)) {
     cond_coef <- coef

@@ -82,6 +82,7 @@
 #' @noRd
 #' @keywords internal
 #' @method .construct_shk scenario
+#' @importFrom utils head
 #' @export
 .construct_shk.scenario <- function(raw_shock,
                                       closure,
@@ -112,6 +113,17 @@
     baseline <- Value[get(int_col) == 0]
     (Value - baseline) / baseline * 100
   }), by = non_int_col]
+
+  bad <- value[!is.finite(Value), ]
+  if (nrow(bad) > 0L) {
+    n_bad <- nrow(bad)
+    bad_tuples <- utils::head(do.call(paste, c(bad[, c(non_int_col, int_col), with = FALSE], sep = ",")), 10L)
+    var_name <- raw_shock$var
+    .cli_action(shk_err$scen_base_zero,
+      action = c("abort", "inform"),
+      call = attr(raw_shock, "call")
+    )
+  }
 
   raw_shock$input <- value
   class(raw_shock)[[1]] <- "custom"

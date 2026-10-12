@@ -35,3 +35,8 @@
     i Scenario shocks must cover all pre-aggregation tuples for associated sets.
     i Call: `ems_scenario_shock(var = "pop", input = pop)`
 
+# a scenario shock with a zero base-year value aborts
+
+    x 9 scenario shock values for pop are not finite: chn,0, chn,1, chn,2, row,0, row,1, row,2, usa,0, usa,1, and usa,2.
+    i A scenario shock is the percentage change from the base-year value, which is zero or missing for these tuples.
+

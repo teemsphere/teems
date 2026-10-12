@@ -191,3 +191,14 @@ test_that("a factor region column in a scenario shock deploys like the character
 })
 
 unlink(write_dir, recursive = TRUE)
+
+test_that("a scenario shock with a zero base-year value aborts", {
+  regions <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG
+  traj <- expand.grid(REGr = regions, Year = c(2023, 2024, 2025), stringsAsFactors = FALSE)
+  traj$Value <- 100 * (1 + match(traj$REGr, regions) / 1000)^(traj$Year - 2023)
+  traj$Value[traj$Year == 2023] <- 0
+  zero_base <- ems_scenario_shock("pop", traj)
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  nest_temp("scen_zero_base", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, zero_base))
+})

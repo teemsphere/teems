@@ -211,3 +211,50 @@ test_that("set conditions see coefficients as the statements before them leave t
   expect_identical(ele("ACC"), "c3")
 })
 
+
+audit_builder_fixture <- function(tab = "audit_builders.tab") {
+  model <- .process_tablo(test_path("fixtures", "builders", tab), call = NULL)
+  dat <- function(hdr, v) {
+    dt <- data.table::data.table(COM = c("c1", "c2", "c3"), Value = v)
+    class(dt) <- c(hdr, "dat", class(dt))
+    dt
+  }
+  list(
+    model = model,
+    mappings = list(
+      COM = data.table::data.table(origin = c("c1", "c2", "c3"), mapping = c("c1", "c2", "c3")),
+      SUB = data.table::data.table(origin = "c1", mapping = "c1")
+    ),
+    coeff_data = list(XDAT = dat("XDAT", c(1, 2, 3))),
+    set_raw = list()
+  )
+}
+
+test_that("unary minus binds before ^ and ^ associates to the left (GEMPACK manual 11.4.1)", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  maps <- eval_formula_builders(audit_builder_fixture())
+  expect_identical(maps[["PREC"]]$mapping, c("c1", "c2", "c3"))
+  expect_identical(maps[["LEFT"]]$mapping, "c3")
+})
+
+test_that("set conditions keep the two Zerodivide classes apart (GEMPACK manual 10.11.1)", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  maps <- eval_formula_builders(audit_builder_fixture())
+  expect_identical(maps[["NZD"]]$mapping, character(0))
+  expect_identical(maps[["NBZ"]]$mapping, c("c1", "c2", "c3"))
+})
+
+test_that("a simple builder reads only the Formulas before its Set", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  maps <- eval_formula_builders(audit_builder_fixture())
+  expect_identical(maps[["LATER"]]$mapping, "c1")
+})
+
+test_that("a set condition dividing by zero while that Zerodivide class is off aborts", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  expect_snapshot_error(eval_formula_builders(audit_builder_fixture("zdiv_off_builders.tab")))
+})

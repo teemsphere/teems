@@ -18,6 +18,7 @@
   synth$var_names <- .tab_linear_variable_names(tab)
 
   out <- vector("list", length(tab))
+  deferred <- character(0)
   for (s in seq_along(tab)) {
     if (!has_if[s]) {
       out[[s]] <- tab[s]
@@ -46,8 +47,13 @@
         .native_if_stmt(tab[s], synth, call)
       }
     )
+    if (type %=% "equation") {
+      is_eq <- grepl("^\\s*equation\\b", out[[s]], ignore.case = TRUE)
+      deferred <- c(deferred, out[[s]][!is_eq])
+      out[[s]] <- out[[s]][is_eq]
+    }
   }
-  tab <- unlist(out, use.names = FALSE)
+  tab <- c(unlist(out, use.names = FALSE), deferred)
   return(tab)
 }
 

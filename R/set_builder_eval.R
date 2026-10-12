@@ -54,7 +54,7 @@
     steps <- if (is.null(model)) {
       NULL
     } else {
-      .indicator_formulas(model, b$coef)
+      .indicator_formulas(model, b$coef, limit_row = .set_stmt_row(model, owner))
     }
     if (!is.null(steps)) {
       vals <- .eval_indicator(steps, src_ele, mappings, model = model)

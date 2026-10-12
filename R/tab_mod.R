@@ -17,7 +17,7 @@
                                 call) {
 
   nme <- attr(input, "name")
-  r_idx <- grep(nme, model$comp1)
+  r_idx <- .formula_lhs_rows(model, nme)
   purrr::pluck(model, "type", r_idx) <- "Read"
   purrr::pluck(model, "name", r_idx) <- nme
   model[which(model$name == nme), ]$header <- nme
@@ -90,9 +90,25 @@
                                      model,
                                      call) {
   nme <- attr(input, "name")
-  r_idx <- grep(nme, model$comp1)
+  r_idx <- .formula_lhs_rows(model, nme)
+  if (length(r_idx) %!=% 1L) {
+    n_formula <- length(r_idx)
+    .cli_action(model_err$multi_formula,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
   num_txt <- .tab_number(input)
-  model$tab[r_idx] <- gsub(model[r_idx, ]$comp2, num_txt, model$tab[r_idx])
+  groups <- .parse_formula_header(model$tab[r_idx])$groups
+  quantifiers <- if (length(groups) > 0L) {
+    paste(groups, collapse = "")
+  } else {
+    NULL
+  }
+  model$tab[r_idx] <- paste(
+    c("Formula", quantifiers, model$comp1[r_idx], "=", paste0(num_txt, ";")),
+    collapse = " "
+  )
   model[r_idx, ]$comp2 <- num_txt
   return(model)
 }

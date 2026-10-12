@@ -31,3 +31,7 @@
 
     x Set builder "MIND": the condition "NCOMPROD(i)>1" cannot be evaluated at deploy: MAKE is Read from header "MAKE", which is not in the loaded data.
 
+# a set condition dividing by zero while that Zerodivide class is off aborts
+
+    x Set builder "OFF": the condition "Z0(c)/Z0(c) > 1" cannot be evaluated at deploy: a division by zero of the zero_by_zero kind occurs while that Zerodivide class is off (GEMPACK manual 10.11).
+

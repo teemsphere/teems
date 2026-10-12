@@ -17,6 +17,21 @@ build_shk_err <- function() {
       "Note that set names consist of the concatenation of the set name and variable-specific lowercase index.",
       "Call: {.code {deparse(call)}}"
     ),
+    # test-ems_uniform_shock.R: "a uniform shock value must be a single finite number"
+    uni_value = c(
+      "{.arg value} must be a single finite number, not {.val {value}}.",
+      "Call: {.code {deparse(call)}}"
+    ),
+    # test-ems_custom_shock.R: "custom shock values must be finite numbers"
+    value_finite = c(
+      "{n_bad} shock value{?s} {?is/are} not {?a /}finite number{?s} (row{?s} {.val {bad_rows}} of the input).",
+      "Every {.field Value} must be a finite number; a text or missing entry in the input is not accepted."
+    ),
+    # test-ems_scenario_shock.R: "a scenario shock with a zero base-year value aborts"
+    scen_base_zero = c(
+      "{n_bad} scenario shock value{?s} for {.field {var_name}} {cli::qty(n_bad)}{?is/are} not finite: {.field {bad_tuples}}.",
+      "A scenario shock is the percentage change from the base-year value, which is zero or missing for {cli::qty(n_bad)}{?this tuple/these tuples}."
+    ),
     # test-ems_uniform_shock.R: "ems_uniform_shock errors when variable is not present in the model file"
     not_a_var = c(
       "Shock variable {.val {var_name}} not found in the model.",

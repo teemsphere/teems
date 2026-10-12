@@ -116,7 +116,7 @@
     `+` = va + vb,
     `-` = va - vb,
     `*` = va * vb,
-    `/` = ifelse(vb == 0, ctx$zdiv, va / ifelse(vb == 0, 1, vb)),
+    `/` = .sbx_div(va, vb, ctx$zdiv),
     `^` = va^vb,
     and = as.numeric(va != 0 & vb != 0),
     or = as.numeric(va != 0 | vb != 0),
@@ -130,6 +130,24 @@
 }
 
 #' @importFrom stats setNames
+#' @keywords internal
+#' @noRd
+.sbx_div <- function(va, vb, zdiv) {
+  zero <- vb == 0
+  zbz <- zero & va == 0
+  nbz <- zero & va != 0
+  if (any(zbz) && !isTRUE(zdiv$zbz_on)) {
+    .sbx_fail(.sbx_reason("zdiv_off", "zero_by_zero"))
+  }
+  if (any(nbz) && !isTRUE(zdiv$nbz_on)) {
+    .sbx_fail(.sbx_reason("zdiv_off", "nonzero_by_zero"))
+  }
+  v <- va / ifelse(zero, 1, vb)
+  v[zbz] <- zdiv$zbz
+  v[nbz] <- zdiv$nbz
+  return(v)
+}
+
 #' @keywords internal
 #' @noRd
 .sbx_eval_agg <- function(node, binds, ctx) {

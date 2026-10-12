@@ -21,15 +21,19 @@
 .sbx_zdiv <- function(row, ctx) {
   model <- ctx$model
   prior <- seq_len(min(row, nrow(model) + 1L) - 1L)
-  zd <- 0
+  zd <- list(zbz = 0, zbz_on = TRUE, nbz = 0, nbz_on = FALSE)
   for (z in prior[tolower(model$type[prior]) %in% "zerodivide"]) {
     txt <- model$tab[z]
+    kind <- if (grepl("nonzero_by_zero", txt, ignore.case = TRUE)) "nbz" else "zbz"
     if (!grepl("\\bdefault\\b", txt, ignore.case = TRUE)) {
+      if (grepl("\\boff\\b", txt, ignore.case = TRUE)) {
+        zd[[paste0(kind, "_on")]] <- FALSE
+      }
       next
     }
     v <- trimws(sub("^.*\\bdefault\\s+([^;]*).*$", "\\1", txt, ignore.case = TRUE))
     num <- suppressWarnings(as.numeric(v))
-    zd <- if (!is.na(num)) {
+    zd[[kind]] <- if (!is.na(num)) {
       num
     } else {
       outer <- ctx$limit_row
@@ -38,6 +42,7 @@
       ctx$limit_row <- outer
       as.vector(val)[1]
     }
+    zd[[paste0(kind, "_on")]] <- TRUE
   }
   return(zd)
 }

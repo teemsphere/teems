@@ -317,3 +317,8 @@
       i Ranked set definition(s) for "REGUP" read as the base set; the ranking by "qgdp" is not preserved.
       i Ordering of report rows is left to the composed outputs.
 
+# a numeric for a coefficient with more than one defining Formula aborts
+
+    x `IFC1` is assigned by 2 Formulas in the model; a direct value replaces exactly one defining Formula.
+    i Supply the values as a `data.frame` instead, or edit the model file.
+

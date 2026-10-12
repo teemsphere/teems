@@ -78,3 +78,18 @@
     i Note that set names consist of the concatenation of the set name and variable-specific lowercase index.
     i Call: `ems_uniform_shock(var = "qe", value = 1, "capital", ALLTIMEt = 1)`
 
+# a uniform shock value must be a single finite number
+
+    x `value` must be a single finite number, not NA.
+    x Call: `ems_uniform_shock(var = "pop", value = NA_real_)`
+
+---
+
+    x `value` must be a single finite number, not 1 and 2.
+    x Call: `ems_uniform_shock(var = "pop", value = c(1, 2))`
+
+---
+
+    x `value` must be a single finite number, not Inf.
+    x Call: `ems_uniform_shock(var = "pop", value = Inf)`
+

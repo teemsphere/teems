@@ -33,7 +33,7 @@
 
     if (nme %in% model[model$type == "Read", ]$name) {
       tab_entry <- "read"
-    } else if (any(grepl(nme, model[model$type == "Formula", ]$comp1))) {
+    } else if (length(.formula_lhs_rows(model, nme)) > 0L) {
       tab_entry <- "formula"
     } else {
       .cli_action(

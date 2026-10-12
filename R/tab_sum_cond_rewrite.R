@@ -12,6 +12,7 @@
   synth$tab <- tab
   synth$maps <- .tab_mappings(tab)
   out <- as.list(tab)
+  deferred <- character(0)
   for (s in which(is_eq | is_fml)) {
     synth$native <- is_fml[s]
     synth$pre <- character(0)
@@ -32,10 +33,15 @@
     if (length(synth$pre) %=% 0L) {
       next
     }
-    out[[s]] <- c(synth$pre, gsub("\\s{2,}", " ", stmt))
-    synth$tab <- unlist(out, use.names = FALSE)
+    if (is_eq[s]) {
+      deferred <- c(deferred, synth$pre)
+      out[[s]] <- gsub("\\s{2,}", " ", stmt)
+    } else {
+      out[[s]] <- c(synth$pre, gsub("\\s{2,}", " ", stmt))
+    }
+    synth$tab <- c(unlist(out, use.names = FALSE), deferred)
   }
-  tab <- unlist(out, use.names = FALSE)
+  tab <- c(unlist(out, use.names = FALSE), deferred)
   return(tab)
 }
 

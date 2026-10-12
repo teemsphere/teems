@@ -39,3 +39,8 @@
     x The "GTAP-EP" target prepares the GTAPv7-format GTAP-Power layer (GTAP 11c/12a Power databases); the input is in the v6.2 format.
     i The v6-format GTAP-Power layer (GTAP 10a) carries different headers and is not supported.
 
+# a region-varying parameter cannot be collapsed to the v6 format
+
+    x ESBT varies by region, so it cannot be written in the GTAPv6 format, which holds one value for all regions.
+    i The shipped GTAP databases carry region-generic parameters; a regionally aggregated v7 database (FlexAgg output) does not.
+

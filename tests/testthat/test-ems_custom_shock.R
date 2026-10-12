@@ -248,3 +248,12 @@ test_that("ems_custom_shock example runs", {
 })
 
 unlink(write_dir, recursive = TRUE)
+test_that("custom shock values must be finite numbers", {
+  bad <- df_input
+  bad$Value[1] <- NA
+  expect_snapshot_error(ems_custom_shock("aoall", bad))
+  text <- df_input
+  text$Value <- as.character(text$Value)
+  text$Value[2] <- "n/a"
+  expect_snapshot_error(ems_custom_shock("aoall", text))
+})

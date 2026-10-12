@@ -36,6 +36,13 @@ build_data_err <- function(layer_spec) {
     missing_data = "No loaded set data corresponds to the {.field {map_name}} mapping.",
     # test-ems_data.R: "ems_data rejects invalid mapping values in CSV"
     missing_ele_mapping = "The {.field {map_name}} mapping has no entries for {.val {missing_ele}}.",
+    # test-ems_data.R: "ems_data rejects a mapping that sends one element to two aggregates"
+    dup_origin = "The {.field {map_name}} mapping sends {.val {dup_ele}} to more than one destination.",
+    # test-GTAP_convert.R: "a region-varying parameter cannot be collapsed to the v6 format"
+    region_varying_par = c(
+      "{.field {header}} varies by region, so it cannot be written in the GTAPv6 format, which holds one value for all regions.",
+      "The shipped GTAP databases carry region-generic parameters; a regionally aggregated v7 database (FlexAgg output) does not."
+    ),
     # test-ems_data.R: "ems_data rejects unrecognized set arguments"
     no_internal_mapping = "No internal mappings exist for set {.field {map_name}}.",
     # test-ems_data.R: "ems_data rejects invalid internal mapping name"

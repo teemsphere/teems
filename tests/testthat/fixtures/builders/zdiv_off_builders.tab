@@ -1,0 +1,10 @@
+File INFILE # data #;
+Set COM # commodities # (c1, c2, c3);
+Coefficient (all,c,COM) X(c) # data #;
+Read X from file INFILE header "XDAT";
+Coefficient (all,c,COM) Z0(c) # zeros #;
+Formula (all,c,COM) Z0(c) = 0;
+Zerodivide (zero_by_zero) off;
+Set OFF # divides zero by zero # = (all,c,COM: Z0(c)/Z0(c) > 1);
+Variable (all,c,COM) v(c) # quantity #;
+Equation E_v (all,c,COM) v(c) = 0;

@@ -151,6 +151,16 @@
   }
 
   set_mapping[, names(set_mapping) := lapply(.SD, .fold_elements)]
+  origin <- set_mapping[[1]]
+  destination <- set_mapping[[2]]
+  dup_ele <- unique(origin[duplicated(origin)])
+  dup_ele <- dup_ele[vapply(dup_ele, \(o) length(unique(destination[origin == o])) > 1L, logical(1))]
+  if (length(dup_ele) > 0L) {
+    .cli_action(data_err$dup_origin,
+      action = "abort",
+      call = call
+    )
+  }
   .check_map_coverage(
     set_mapping = set_mapping,
     data_ele = matched_data[[1]],

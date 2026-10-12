@@ -93,3 +93,7 @@
     x `par_weights` names "ESBX", which "GTAPv7" data does not weight.
     i Weighted parameters: "ESBD", "ESBM", "ESDC", "ESMC", "ESBT", "ESBV", "INCP", "SUBP", "ESBC", "ESBG", "ESBI", "ETRQ", "ESBQ", "EFVE", and "EAEZ".
 
+# ems_data rejects a mapping that sends one element to two aggregates
+
+    x The REG mapping sends "usa" to more than one destination.
+

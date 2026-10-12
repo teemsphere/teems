@@ -53,10 +53,16 @@
     drop_dim <- cnvrt_dim_names[!cnvrt_dim_names %in% v6col]
 
     if (drop_dim %!=% character(0)) {
-      input <- apply(input,
-        which(!orig_dim_names %in% drop_dim),
-        FUN = unique
-      )
+      keep <- which(!orig_dim_names %in% drop_dim)
+      varies <- apply(input, keep, FUN = \(v) length(unique(v)) > 1L)
+      if (any(varies)) {
+        header <- classes[1]
+        .cli_action(data_err$region_varying_par,
+          action = c("abort", "inform"),
+          call = NULL
+        )
+      }
+      input <- apply(input, keep, FUN = unique)
     }
 
     if (classes[1] %=% "ESBT") {

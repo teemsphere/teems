@@ -120,10 +120,21 @@
 #' @keywords internal
 #' @noRd
 .sbx_mul <- function(st) {
-  a <- .sbx_unary(st)
+  a <- .sbx_pow(st)
   while (.sbx_peek(st) %in% c("*", "/")) {
     op <- .sbx_next(st)
-    a <- list(t = "bin", op = op, a = a, b = .sbx_unary(st))
+    a <- list(t = "bin", op = op, a = a, b = .sbx_pow(st))
+  }
+  return(a)
+}
+
+#' @keywords internal
+#' @noRd
+.sbx_pow <- function(st) {
+  a <- .sbx_unary(st)
+  while (.sbx_peek(st) == "^") {
+    .sbx_next(st)
+    a <- list(t = "bin", op = "^", a = a, b = .sbx_unary(st))
   }
   return(a)
 }
@@ -140,19 +151,8 @@
     node <- list(t = "un", op = "neg", x = x)
     return(node)
   }
-  node <- .sbx_pow(st)
+  node <- .sbx_primary(st)
   return(node)
-}
-
-#' @keywords internal
-#' @noRd
-.sbx_pow <- function(st) {
-  a <- .sbx_primary(st)
-  if (.sbx_peek(st) == "^") {
-    .sbx_next(st)
-    a <- list(t = "bin", op = "^", a = a, b = .sbx_unary(st))
-  }
-  return(a)
 }
 
 #' @keywords internal

@@ -5,11 +5,3 @@
 ## General testing
 
 All tests here (except revdep) have been conducted (https://github.com/ThinkR-open/prepare-for-cran).
-
-## Resubmission
-
-### ems_example() example error
-* The closing parenthesis was an error, now fixed
-
-### General
-* All exported function examples (including the dontrun and donttest snippets) now have dedicated tests

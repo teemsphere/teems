@@ -20,27 +20,25 @@
 #'   found. Note that some coefficient names differ from their
 #'   associated headers (e.g., VTWR/VTMFSD). Coefficient values
 #'   are read from the solver's binary coefficient dump
-#'   (`sol.cof`/`sol.cbin`), selectively for named coefficients;
-#'   the per-coefficient CSV files (see `write_coefficients` in
-#'   [`ems_deploy()`]) are used only when the dump is absent.
+#'   (`sol.cof`/`sol.cbin`), selectively for named coefficients.
 #' @param passes Logical length 1 (default `FALSE`). When `TRUE`,
-#'   each variable's data.table gains the separate solutions that a
-#'   three-pass `"Gragg"`, `"Midpoint"` or `"Euler"` run extrapolates
-#'   from (GEMPACK's SSL, manual 26.8.1): `Pass1`, `Pass2` and `Pass3`
-#'   for the solutions with the fewest to the most steps, in the
-#'   units of `Value`, and `Accuracy`, the number of significant
-#'   figures to which the passes agree (6 for six or more, 1 for one
-#'   or none; manual 26.2.3). With subintervals each pass is that
-#'   pass over the last subinterval, compounded onto the
-#'   extrapolated result of the earlier ones. An error is raised for
-#'   a run that wrote no separate solutions.
+#'   each variable's data.table gains the separate solutions that
+#'   a three-pass `"Gragg"`, `"Midpoint"` or `"Euler"` run
+#'   extrapolates from: `Pass1`, `Pass2` and `Pass3` for the
+#'   solutions with the fewest to the most steps, in the units of
+#'   `Value`, and `Accuracy`, the number of significant figures
+#'   to which the passes agree (6 for six or more, 1 for one or
+#'   none). With subintervals, `Pass1`–`Pass3` differ only in the
+#'   last subinterval, so `Accuracy` applies to that subinterval
+#'   alone. An error is raised for a run that wrote no separate
+#'   solutions.
 #' @details Every variable whose pre-simulation level is known
-#'   gains the columns `PreLevel` and `PostLevel`, plus `Change` (the ordinary
-#'   change) for a percent-change variable or `PercentChange` for a
-#'   change variable (GEMPACK levels results, manual 11.6.5). The
-#'   level is known for a variable declared with `ORIG_LEVEL=` (a
-#'   coefficient over exactly the variable's sets, or a number) and
-#'   for a levels variable; pre-simulation values come from the
+#'   gains the columns `PreLevel` and `PostLevel`, plus `Change`
+#'   (the ordinary change) for a percent-change variable or
+#'   `PercentChange` for a change variable. The level is known
+#'   for a variable declared with `ORIG_LEVEL=` (a coefficient
+#'   over exactly the variable's sets, or a number) and for a
+#'   levels variable; pre-simulation values come from the
 #'   solver's `sol.cbin0`.
 #' @seealso [`ems_solve()`] for solving the CGE model.
 #' @examples

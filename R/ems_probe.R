@@ -166,7 +166,10 @@ ems_probe <- function(cmf_path,
       call = call
     )
   }
+  completed <- FALSE
+  on.exit(if (!completed) .container_remove(paste0(timeID, "_probe")), add = TRUE, after = FALSE)
   elapsed <- system.time(status <- .run_solver_cmd(probe_cmd))
+  completed <- TRUE
   if (!identical(as.integer(status), 0L) && file.exists(paths$diag_out)) {
     .check_solver_log(
       elapsed_time = NULL,

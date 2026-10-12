@@ -112,7 +112,8 @@ scrub_paths <- function(lines) {
   lines <- gsub("--mount ['\"](type=bind[^'\"]*)['\"]", "--mount \\1", lines)
   # Linux hosts run the container as the calling user (--user uid:gid);
   # Docker Desktop hosts do not, so the flag is dropped here
-  lines <- gsub("docker run --rm --user [0-9]+:[0-9]+ -e HOME=/tmp ", "docker run --rm ", lines)
+  lines <- gsub("--user [0-9]+:[0-9]+ -e HOME=/tmp ", "", lines)
+  lines <- gsub("teems_[0-9]{6}_[0-9]+(_probe)?", "teems_ID", lines)
   lines <- gsub("solver_out_[0-9]+(_[0-9]+)?\\.txt", "solver_out_HHMM.txt", lines)
   gsub("teems:[A-Za-z0-9._-]+ /bin/bash", "teems:TAG /bin/bash", lines)
 }

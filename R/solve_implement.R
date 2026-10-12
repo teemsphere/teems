@@ -68,6 +68,9 @@
     return(invisible(NULL))
   }
 
+  completed <- FALSE
+  on.exit(if (!completed) .container_remove(timeID), add = TRUE, after = FALSE)
+
   status <- 0L
   if (Sys.info()[["sysname"]] == "Windows") {
     captured <- character(0)
@@ -86,7 +89,8 @@
       ignore.stderr = TRUE
     ))
   }
-  
+  completed <- TRUE
+
   .check_solver_log(
     elapsed_time = elapsed_time,
     solve_cmd = cmds$solve,

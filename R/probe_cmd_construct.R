@@ -4,12 +4,7 @@
                                  timeID,
                                  fine,
                                  extra = NULL) {
-  docker_preamble <- paste(
-    paste0("docker run --rm ", .docker_user_flag(), "--mount"),
-    .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
-    paste0("teems", ":", .resolve_docker_tag()),
-    "/bin/bash -c"
-  )
+  docker_preamble <- .docker_run_preamble(timeID = timeID, run_dir = paths$run)
   exec_preamble <- paste(
     docker_preamble,
     '"/opt/teems-solver/lib/mpi/bin/mpiexec',

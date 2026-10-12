@@ -454,6 +454,27 @@ test_that("a non-zero exit status aborts even with a clean log", {
   expect_no_error(check_log(paths))
 })
 
+test_that("an interrupted solve aborts by name and clears the solution files", {
+  paths <- local_solver_log(c("solver banner", "Step 3: Jacobian assembled"))
+  bin_dir <- file.path(paths$run, "out", "variables", "bin")
+  dir.create(bin_dir, recursive = TRUE)
+  partial <- file.path(bin_dir, c("sol.bin", "sol.mds"))
+  file.create(partial)
+  for (status in c(130L, 143L)) {
+    expect_error(
+      .check_solver_log(
+        elapsed_time = proc.time(),
+        solve_cmd = "cmd",
+        paths = paths,
+        call = NULL,
+        status = status
+      ),
+      "interrupted"
+    )
+  }
+  expect_false(any(file.exists(partial)))
+})
+
 test_that("an option or manifest statement the image does not know maps to the interface abort", {
   paths <- local_solver_log(c(
     "teems-solver 1.1.0-dev.4",

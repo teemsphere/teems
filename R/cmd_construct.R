@@ -42,12 +42,7 @@
                            laD = NULL,
                            laDi = NULL,
                            extra_flags = NULL) {
-  docker_preamble <- paste(
-    paste0("docker run --rm ", .docker_user_flag(), "--mount"),
-    .shell_quote(paste("type=bind", paste0("src=", paths$run), "dst=/opt/teems", sep = ",")),
-    paste0("teems", ":", .resolve_docker_tag()),
-    "/bin/bash -c"
-  )
+  docker_preamble <- .docker_run_preamble(timeID = timeID, run_dir = paths$run)
   solver_bin <- if (precision %=% "double") {
     "/opt/teems-solver/solver/teems-solver-f64"
   } else {
@@ -128,7 +123,7 @@
   if (terminal_run) {
     m_exec <- normalizePath(file.path(paths$run, "model_exec.txt"), "/", FALSE)
     cat(solve_cmd, file = m_exec)
-    hsl <- "teems-solver"
+    container <- .container_name(timeID)
     diag_out <- normalizePath(paths$diag_out, "/", FALSE)
     cmf_path <- paste0("\"", normalizePath(paths$cmf, "/"), "\"")
     .cli_action(solve_info$terminal_run,

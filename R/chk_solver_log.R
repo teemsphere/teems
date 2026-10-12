@@ -108,6 +108,13 @@
       call = call
     )
   }
+  if (as.integer(status) %in% c(130L, 143L)) {
+    .clear_solution_files(run_dir = paths$run)
+    .cli_action(solve_err$solver_interrupted,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
   if (any(grepl("error", fatal_log, ignore.case = TRUE))) {
     .cli_action(solve_err$solution_err,
       action = "abort",

@@ -275,6 +275,11 @@ build_solve_err <- function() {
     verbosity_range = "{.arg verbosity} must be 0, 1, or 2.",
     # test-chk_solver_log.R: "a non-zero exit status aborts even with a clean log"
     solver_exit = "The solver exited with status {status} without a recognised error in its log. See {.path {paths$diag_out}}.",
+    # test-chk_solver_log.R: "an interrupted solve aborts by name and clears the solution files"
+    solver_interrupted = c(
+      "The solve was interrupted (solver exit status {status}); its partial solution files were removed.",
+      "Log up to the interruption: {.path {paths$diag_out}}."
+    ),
     # test-chk_solver_version.R: the version handshake (release plan
     # 1.1.0): abort by default, downgraded to a warning under
     # ems_option_set(version_check = "warn")
@@ -412,7 +417,7 @@ build_solve_info <- function() {
     terminal_run = "{.arg terminal_run} activated. To solve and compose outputs:",
     # test-ems_solve.R: "ems_solve informs terminal run"
     terminal_run_steps = c("Run the above command in your OS terminal.",
-                           "If errors are present in the terminal output during an ongoing run, it is possible to stop the relevant {.field {hsl}} process early according to your OS-specific system activity monitor.",
+                           "To stop the run early, press Ctrl-C in that terminal, or run {.code docker kill {container}} from another one.",
                            "Any error and/or singularity indicators will be present in the model diagnostic output: {.path {diag_out}}.",
                            "If no errors or singularities are detected, use the following expression to structure solver binary outputs: {.run ems_compose({cmf_path})}"),
     # test-inform_messages.R: "a finished run reports its elapsed time and accuracy"

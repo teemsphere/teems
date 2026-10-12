@@ -33,34 +33,21 @@
 #'   the weights with which parameters are averaged when their
 #'   sets are aggregated.
 #'   * `"share"`: each member is weighted by the value of its
-#'   CES or CET nest times one minus the sum of its squared
-#'   input shares, so that the aggregate elasticity reproduces
-#'   the members' response to a small relative price change.
-#'   Members whose input shares cannot move (for example a
-#'   commodity that is never imported) carry no weight.
+#'   CES or CET nest times one minus the sum of its squared input
+#'   shares, so that the aggregate elasticity reproduces the
+#'   members' response to a small relative price change. Members
+#'   whose input shares cannot move (for example a commodity that
+#'   is never imported) carry no weight.
 #'   * `"value"`: each member is weighted by the value of its
-#'   nest, as the FlexAgg aggregation programs do; the Armington,
-#'   intermediate-input and value-added elasticities are weighted
-#'   with world totals and take one value in every region, as
-#'   FlexAgg writes them.
+#'   nest; the Armington, intermediate-input and value-added
+#'   elasticities are weighted with world totals and take one
+#'   value in every region.
 #'
 #'   An unnamed element sets the method for every weighted
 #'   parameter; elements named after a parameter header (e.g.
 #'   `c("share", ESBM = "value")`) override it for that
 #'   parameter. The CDE parameters (INCP, SUBP) are weighted by
-#'   value under either method. Ignored on the single-file
-#'   route, where nothing is aggregated.
-#'
-#'   On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
-#'   FlexAgg's aggpar programs: coal, oil and gas mining are
-#'   recalibrated to the target supply elasticities (SPLY) and the
-#'   other fuels take 1. Two results are then overridden, reported
-#'   when `verbose` is on, and listed in the metadata: a
-#'   recalibrated value below 0.1, which a natural-resource rent too
-#'   small to carry its target produces, keeps the aggregated member
-#'   value; and an aggregate whose members all carry the database
-#'   placeholder 1e-6 (the technologies without energy inputs) takes
-#'   1.
+#'   value under either method. Has no effect when only dat_input is given, since that route does not aggregate.
 #' @param ... A named pairlist assigning set mappings to model
 #'   sets that are explicitly read (not constructed via any set
 #'   operation defined in the model file). Set mappings can be
@@ -91,6 +78,17 @@
 #'   the set labels stored in the file, and the sets are passed
 #'   through without aggregation. No database version is read and
 #'   no set mappings may be supplied on this route.
+#'
+#'   On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
+#'   FlexAgg's aggpar programs: coal, oil and gas mining are
+#'   recalibrated to the target supply elasticities (SPLY) and
+#'   the other fuels take 1. Two results are then overridden,
+#'   reported when `verbose` is on, and listed in the metadata: a
+#'   recalibrated value below 0.1, which a natural-resource rent
+#'   too small to carry its target produces, keeps the aggregated
+#'   member value; and an aggregate whose members all carry the
+#'   database placeholder 1e-6 (the technologies without energy
+#'   inputs) takes 1.
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function. [`GTAP_convert()`] for converting GTAP HAR files
 #'   and data formats.

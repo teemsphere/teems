@@ -12,9 +12,18 @@ test_that("a previous run's solution files and probe record are cleared", {
   for (f in c(stale, kept)) {
     writeLines("stale", f)
   }
+  dir.create(file.path(run_dir, "out", "sets"))
+  dir.create(file.path(run_dir, "out", "coefficients"))
+  stale_csv <- file.path(run_dir, "out", c("sets", "coefficients"), c("REG.csv", "VDFB.csv"))
+  kept_txt <- file.path(run_dir, "out", "coefficients", "readme.txt")
+  for (f in c(stale_csv, kept_txt)) {
+    writeLines("stale", f)
+  }
   expect_no_error(.clear_solution_files(run_dir = run_dir))
   expect_false(any(file.exists(stale)))
+  expect_false(any(file.exists(stale_csv)))
   expect_true(file.exists(kept))
+  expect_true(file.exists(kept_txt))
 })
 
 test_that("clearing an empty or absent solution directory is a no-op", {

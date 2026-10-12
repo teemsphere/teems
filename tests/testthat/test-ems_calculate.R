@@ -52,6 +52,28 @@ test_that("a data program is calculated from its input files", {
   expect_false(file.exists(file.path(run_dir, "out", "variables", "bin", "sol.bin")))
 })
 
+test_that("a second program in the same model_dir does not see the first one's set CSVs", {
+  run_dir <- file.path(write_dir, "calculate_twice")
+  dir.create(run_dir)
+  first <- write_data_program(withr::local_tempdir())
+  ems_calculate(first, GTAPSETS = inputs$GTAPSETS, GTAPDATA = inputs$GTAPDATA, model_dir = run_dir)
+  expect_true(file.exists(file.path(run_dir, "out", "sets", "COMM.csv")))
+  second <- file.path(withr::local_tempdir(), "regonly.tab")
+  writeLines(c(
+    "File GTAPSETS # sets #;",
+    "File GTAPDATA # data #;",
+    "Set REG # regions # read elements from file GTAPSETS header \"REG\";",
+    "Coefficient (all,r,REG) SAVE(r) # saving #;",
+    "Read SAVE from file GTAPDATA header \"SAVE\";",
+    "Coefficient (all,r,REG) SAVE2(r) # twice saving #;",
+    "Formula (all,r,REG) SAVE2(r) = 2 * SAVE(r);"
+  ), second)
+  out <- ems_calculate(second, GTAPSETS = inputs$GTAPSETS, GTAPDATA = inputs$GTAPDATA, model_dir = run_dir)
+  expect_setequal(out$name, c("SAVE", "SAVE2"))
+  expect_false(file.exists(file.path(run_dir, "out", "sets", "COMM.csv")))
+  expect_true(file.exists(file.path(run_dir, "out", "sets", "REG.csv")))
+})
+
 test_that("a full model is calculated without a solve, to its null-shock values", {
   run_dir <- file.path(write_dir, "calculate_model")
   dir.create(run_dir)

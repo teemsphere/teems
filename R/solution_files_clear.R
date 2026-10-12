@@ -9,5 +9,11 @@
     ".probe.json", ".probe.pattern"
   ))
   unlink(stale[file.exists(stale)])
+  csv_out <- list.files(
+    file.path(run_dir, "out", c("sets", "coefficients")),
+    pattern = "\\.csv$",
+    full.names = TRUE
+  )
+  unlink(csv_out)
   return(invisible(NULL))
 }

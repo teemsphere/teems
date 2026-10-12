@@ -344,6 +344,7 @@ test_that("the probe runs against its own CMF copy and output stem", {
   local_mocked_bindings(.solver_uses_random = function(...) FALSE)
   cmd <- .construct_probe_cmd(paths, "x", fine = TRUE)
   expect_match(cmd, "tee /opt/teems/out/probe/solver_out_probe.txt", fixed = TRUE)
+  expect_match(cmd, "set -o pipefail;", fixed = TRUE)
   expect_identical(paths$sol_prefix, file.path(normalizePath(run_dir, "/"), "out", "probe", "sol"))
   probe_cmf <- readLines(file.path(run_dir, "out", "probe", "model.cmf"))
   expect_identical(
@@ -389,4 +390,30 @@ test_that("probing a solved model leaves its solution intact", {
   expect_false(any(grepl("solver_out_.*_probe", list.files(file.path(dirname(cmf_path), "out")))))
   expect_false(file.exists(file.path(dirname(cmf_path), "out", "probe", "sol.cof")))
   expect_identical(ems_compose(cmf_path, which = c("qgdp", "VKB")), composed)
+})
+
+test_that("a solver failure before the probe report reaches the user by name", {
+  skip_on_cran()
+  skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
+  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+    "teems image not available"
+  )
+  write_dir <- withr::local_tempdir()
+  ems_option_set(verbose = FALSE, tempdir = write_dir)
+  withr::defer(ems_option_reset())
+  files <- ems_example("GTAPv7", write_dir)
+  dat <- ems_data(
+    dat_input = Sys.getenv("GTAP12_dat"),
+    par_input = Sys.getenv("GTAP12_par"),
+    set_input = Sys.getenv("GTAP12_set"),
+    REG = "big3", ACTS = "macro_sector", ENDW = "labor_agg"
+  )
+  model <- ems_model(files[["model_file"]], files[["closure_file"]])
+  cmf_path <- ems_deploy(dat, model)
+  cls <- list.files(dirname(cmf_path), pattern = "\\.cls$", full.names = TRUE)
+  closure <- readLines(cls)
+  closure[2] <- "nosuchvar"
+  writeLines(closure, cls)
+  expect_error(ems_probe(cmf_path), "nosuchvar")
+  expect_error(ems_probe(cmf_path), "closure")
 })

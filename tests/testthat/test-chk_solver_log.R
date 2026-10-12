@@ -183,6 +183,43 @@ test_that("unmapped Error lines fall back to the generic abort", {
     "Error: some entirely novel condition"
   )
   expect_error(check_log(paths), "Errors detected during solution")
+  expect_error(check_log(paths), "some entirely novel condition")
+  paths <- local_solver_log(
+    "fatal error in step 3 with no Error prefix"
+  )
+  expect_error(check_log(paths), "Errors detected during solution")
+  expect_error(check_log(paths), "fatal error in step 3")
+})
+
+test_that("fatals added after the 10-05 audit map to their classes", {
+  lines <- c(
+    "pop is shocked by -100 percent, which the Runge-Kutta methods cannot take: each step that reaches zero is rejected and retried at half the size without end (GEMPACK manual 30.2)",
+    "the complementarity accurate run (GEMPACK manual 51.7.1) shocks x by -100 percent to reach its bound of zero, which the Gragg method cannot take (GEMPACK manual 30.2)",
+    "DBBD (-matsol 2) found no partition set and its chain blocks over ALLTIME hold only 10 of 100 equations (border 90.0%); use -matsol 1 (SBBD) or -matsol 0 (LU)",
+    "mapping MX is never given values (GEMPACK manual 11.9.1)",
+    "zzz is not an element of set REG, the domain of mapping MX (GEMPACK manual 11.9.2)",
+    "zzz is not an element of set COMM, the codomain of mapping MX (GEMPACK manual 11.9.2)",
+    "mapping MX takes one argument in a Formula (GEMPACK manual 10.13.1): y",
+    "a set mapping applied to the element usa (mapping MX) is not supported in an expression yet; write the codomain element it maps to (GEMPACK manual 11.9.6)",
+    "$POS(\"usa\") needs the set as second argument (GEMPACK manual 11.5.6)",
+    "index t of x ranges over set ALLTIME, and its element t[3] lands on ALLTIME[4], outside set FWDTIME (FWDTIME[1] - FWDTIME[3]); intertemporal elements line up by number (GEMPACK manual 16.4)",
+    "the size of intertemporal set ALLTIME comes from coefficient NT, which no Read statement reads from a file; give the count by a Read, or write the elements out (GEMPACK manual 10.1)",
+    "the size of set REG comes from NREG, which no Read statement supplies as an integer from a data file (GEMPACK manual 10.1 style (4))",
+    "loops nested too deeply"
+  )
+  mapped <- .map_solver_errors(lines)
+  expect_identical(mapped$class, c("closure", "closure", "method", rep("tab", 10L)))
+  expect_identical(mapped$manual[1:3], c("30.2", "30.2", NA))
+  expect_identical(mapped$manual[4:12], c("11.9.1", "11.9.2", "11.9.2", "10.13.1", "11.9.6", "11.5.6", "16.4", "10.1", "10.1"))
+})
+
+test_that("a matrix method the model cannot take routes to the method abort", {
+  paths <- local_solver_log(
+    "Error: DBBD (-matsol 2) found no partition set and its chain blocks over ALLTIME hold only 10 of 100 equations (border 90.0%); use -matsol 1 (SBBD) or -matsol 0 (LU)"
+  )
+  expect_error(check_log(paths), "cannot run the chosen matrix method")
+  expect_error(check_log(paths), "found no partition set")
+  expect_error(check_log(paths), "ems_probe")
 })
 
 test_that("singularity without Error lines routes to the probe hint", {

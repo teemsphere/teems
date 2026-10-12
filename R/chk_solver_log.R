@@ -51,7 +51,7 @@
   if (length(err_lines) > 0L) {
     err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
     mapped <- .map_solver_errors(err_lines)
-    sel <- intersect(c("interface", "system", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
+    sel <- intersect(c("interface", "system", "method", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -66,6 +66,7 @@
       msg_name <- switch(sel,
         interface = "solver_interface",
         system = "solver_system",
+        method = "solver_method",
         tab = "solver_tab",
         closure = "solver_closure",
         subtotal = "solver_subtotal",
@@ -86,7 +87,7 @@
       )
     }
     .cli_action(solve_err$solution_err,
-      action = "abort",
+      action = c("abort", "inform", "inform"),
       call = call
     )
   }
@@ -115,9 +116,16 @@
       call = call
     )
   }
-  if (any(grepl("error", fatal_log, ignore.case = TRUE))) {
+  fatal_lines <- grep("error", fatal_log, ignore.case = TRUE, value = TRUE)
+  if (length(fatal_lines) > 0L) {
+    n_err <- length(fatal_lines)
+    preview <- utils::head(fatal_lines, 10L)
+    if (n_err > 10L) {
+      preview <- c(preview, paste0("... and ", n_err - 10L, " more"))
+    }
+    err_preview <- paste(preview, collapse = "\f")
     .cli_action(solve_err$solution_err,
-      action = "abort",
+      action = c("abort", "inform", "inform"),
       call = call
     )
   }

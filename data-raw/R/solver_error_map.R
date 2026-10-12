@@ -26,6 +26,9 @@ build_solver_error_map <- function() {
     # means the image and the package disagree on what is accepted
     c("^unknown -solmed ", "interface", NA),
     c("^-(convrule|two_run|single_run|step1|nsubints|random_seed)\\b", "interface", NA),
+    # a matrix method the model cannot take (main.c DBBD partition
+    # check): the user picks another method, nothing else is wrong
+    c("found no partition set", "method", NA),
     # the run environment: output or scratch files that cannot be
     # written, and memory the solver could not get (above "cannot
     # open" in the data block, which these share)
@@ -50,6 +53,8 @@ build_solver_error_map <- function() {
     c("which is endogenous; only exogenous components", "closure", "24.14.1"),
     c("specified more than once", "closure", NA),
     c("which Gragg's method cannot take", "closure", "30.2"),
+    c("which the Runge-Kutta methods cannot take", "closure", "30.2"),
+    c("by -100 percent to reach its bound of zero", "closure", "30.2"),
     c("a percentage change below -100 would make", "closure", "30.2"),
     c("names no variable: .*manual 9\\.2\\.2\\): ", "tab", "9.2.2"),
     c("names no variable", "closure", "9.2.2"),
@@ -125,6 +130,14 @@ build_solver_error_map <- function() {
     c("mapping .* (is used|is written|has values for)", "tab", "11.9.1"),
     c("for mapping .* (has no file clause|its argument must be|needs a header)", "tab", "11.9.1"),
     c("Read \\(by_elements\\) target|statement for mapping|unknown mapping", "tab", "11.9.1"),
+    c("mapping .* is never given values", "tab", "11.9.1"),
+    c("the (domain|codomain) of mapping", "tab", "11.9.2"),
+    c("takes one argument in a Formula", "tab", "10.13.1"),
+    c("a set mapping applied to the element", "tab", "11.9.6"),
+    c("needs the set as second argument", "tab", "11.5.6"),
+    c("and its element .* lands on", "tab", "16.4"),
+    c("which no Read statement (reads from a file|supplies)", "tab", "10.1"),
+    c("loops nested too deeply", "tab", NA),
     c("^set builder ", "tab", "10.1.3"),
     c("Subset \\(by_numbers\\)", "tab", "10.2"),
     # left-hand sides and index offsets (formula.c lhs_args_bind,

@@ -7,7 +7,7 @@
   docker_preamble <- .docker_run_preamble(timeID = timeID, run_dir = paths$run)
   exec_preamble <- paste(
     docker_preamble,
-    '"/opt/teems-solver/lib/mpi/bin/mpiexec',
+    '"set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec',
     "-n", 1L,
     "/opt/teems-solver/solver/teems-solver",
     "-cmdfile", paths$docker_cmf

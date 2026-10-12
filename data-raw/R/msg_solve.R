@@ -160,7 +160,18 @@ build_solve_err <- function() {
     # test-ems_solve.R: "ems_solve errors when SBBD used with static model"
     invalid_method = "{.arg matrix_method} {.val {matrix_method}} only applicable to intertemporal model runs.",
     # test-chk_solver_log.R: "unmapped Error lines fall back to the generic abort"
-    solution_err = "Errors detected during solution. See {.path {paths$diag_out}}.",
+    solution_err = c(
+      "Errors detected during solution ({n_err} line{?s} no teems check classifies):",
+      "{err_preview}",
+      "Full log: {.path {diag_out}}."
+    ),
+    # test-chk_solver_log.R: "a matrix method the model cannot take routes to the method abort"
+    solver_method = c(
+      "The solver cannot run the chosen matrix method on this model, with {n_err} error{?s}:",
+      "{err_preview}",
+      "Choose another {.arg matrix_method} in {.fun teems::ems_solve}; {.fun teems::ems_probe} recommends one.",
+      "Full log: {.path {diag_out}}."
+    ),
     # test-chk_solver_log.R: "singularity without Error lines routes to the probe hint"
     solution_sing = c(
       "Singularity detected during solution. See {.path {paths$diag_out}}.",

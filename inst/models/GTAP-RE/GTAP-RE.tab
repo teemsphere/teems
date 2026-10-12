@@ -990,18 +990,18 @@ Formula (initial)
     DELTAKADJ = 1;
 Coefficient (parameter)(all,r,REG)(all,t,ALLTIME)
     CPHI(r,t) # investment parameter #;
-Formula (all,r,REG)(all,t,ALLTIME)
+Formula (initial)(all,r,REG)(all,t,ALLTIME)
     CPHI(r,t) = 0.1;
 Coefficient (parameter)(all,r,REG)(all,t,ALLTIME)
     KAPPA(r,t) # depreciation rate #;
-Formula (all,r,REG)(all,t,ALLTIME)
+Formula (initial)(all,r,REG)(all,t,ALLTIME)
     KAPPA(r,t) = 0.04;
 
 Coefficient (parameter)(all,r,REG)(all,t,ALLTIME)
     LTGR(r,t) # discount coefficient #;
 Coefficient (all,r,REG)(all,t,ALLTIME)
     VCAPI(r,t) # Value of real capital increment #;
-Formula (all,r,REG)(all,t,ALLTIME)
+Formula (initial)(all,r,REG)(all,t,ALLTIME)
     LTGR(r,t) = 0.04;
 Coefficient (all,r,REG)(all,t,ALLTIME)
     REGINV(r,t) # regional GROSS investment in r #;

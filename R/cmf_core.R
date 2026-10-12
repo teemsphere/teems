@@ -25,9 +25,10 @@
     files <- purrr::map(
       files,
       \(f) {
-        nme <- basename(f)
-        new_path <- file.path(write_dir, nme)
-        file.copy(f, new_path)
+        new_path <- file.path(write_dir, basename(f))
+        if (normalizePath(f, "/") %!=% normalizePath(new_path, "/", mustWork = FALSE)) {
+          file.copy(f, new_path, overwrite = TRUE)
+        }
         return(new_path)
       }
     )

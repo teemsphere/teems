@@ -22,6 +22,10 @@
 
     x Input file not found: not_a_file.txt.
 
+# solve_in_situ errors when two input files share a file name
+
+    x Input files are copied into `model_dir` by file name, so each name must be unique: "GTAPDATA.txt".
+
 # solve_in_situ errors when no input files are given
 
     x No input files loaded; all files must be passed as named arguments via `...`.

@@ -264,6 +264,59 @@ test_that("solve_in_situ errors when an input file does not exist", {
   )))
 })
 
+test_that("solve_in_situ errors when two input files share a file name", {
+  subdir <- "dup_name"
+  nest_temp(subdir, write_dir)
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
+  src_a <- file.path(insitu_dir, "a")
+  src_b <- file.path(insitu_dir, "b")
+  dir.create(src_a)
+  dir.create(src_b)
+  writeLines("A", file.path(src_a, "GTAPDATA.txt"))
+  writeLines("B", file.path(src_b, "GTAPDATA.txt"))
+  writeLines("Shock ;", file.path(src_a, "null.shf"))
+  expect_snapshot_error(solve_in_situ(
+    GTAPDATA = file.path(src_a, "GTAPDATA.txt"),
+    GTAPPARM = file.path(src_b, "GTAPDATA.txt"),
+    model_file = model_files[["model_file"]],
+    closure_file = model_files[["closure_file"]],
+    shock_file = file.path(src_a, "null.shf"),
+    model_dir = insitu_dir
+  ))
+})
+
+test_that("the in-situ CMF copies refreshed inputs over the previous copies", {
+  subdir <- "stale_copy"
+  nest_temp(subdir, write_dir)
+  insitu_dir <- normalizePath(file.path(write_dir, subdir), "/", FALSE)
+  src_a <- file.path(insitu_dir, "a")
+  src_b <- file.path(insitu_dir, "b")
+  dir.create(src_a)
+  dir.create(src_b)
+  writeLines("VERSION A", file.path(src_a, "GTAPDATA.txt"))
+  writeLines("VERSION B", file.path(src_b, "GTAPDATA.txt"))
+  writeLines("VERSION A", file.path(src_a, "null.shf"))
+  writeLines("VERSION B", file.path(src_b, "null.shf"))
+  for (src in c(src_a, src_b)) {
+    .cmf_core(
+      input_files = list(GTAPDATA = file.path(src, "GTAPDATA.txt")),
+      model_file = model_files[["model_file"]],
+      shock_file = file.path(src, "null.shf"),
+      model_dir = insitu_dir
+    )
+  }
+  expect_identical(readLines(file.path(insitu_dir, "GTAPDATA.txt")), "VERSION B")
+  expect_identical(readLines(file.path(insitu_dir, "null.shf")), "VERSION B")
+
+  writeLines("IN PLACE", file.path(insitu_dir, "GTAPSETS.txt"))
+  .cmf_core(
+    input_files = list(GTAPSETS = file.path(insitu_dir, "GTAPSETS.txt")),
+    model_file = model_files[["model_file"]],
+    model_dir = insitu_dir
+  )
+  expect_identical(readLines(file.path(insitu_dir, "GTAPSETS.txt")), "IN PLACE")
+})
+
 test_that("solve_in_situ errors when no input files are given", {
   expect_snapshot_error(solve_in_situ(
     model_file = model_files[["model_file"]],

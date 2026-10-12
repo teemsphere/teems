@@ -56,6 +56,15 @@
     )
   }
 
+  file_names <- basename(c(unlist(input_files), model_file, closure_file, shock_file))
+  if (anyDuplicated(file_names)) {
+    dup_names <- unique(file_names[duplicated(file_names)])
+    .cli_action(solve_err$insitu_dup_name,
+      action = "abort",
+      call = call
+    )
+  }
+
   cmf <- .cmf_core(
     input_files = input_files,
     model_file = model_file,

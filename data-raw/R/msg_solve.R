@@ -65,6 +65,8 @@ build_solve_err <- function() {
     # test-solve_in_situ.R: "solve_in_situ errors when an input file does not exist"
     # test-ems_calculate.R: "ems_calculate requires its input files"
     insitu_no_file = "Input file{?s} not found: {.val {nonexist_files}}.",
+    # test-solve_in_situ.R: "solve_in_situ errors when two input files share a file name"
+    insitu_dup_name = "Input files are copied into {.arg model_dir} by file name, so each name must be unique: {.val {dup_names}}.",
     # test-ems_solve.R: "ems_solve errors when n_tasks is not integerish"
     x_integerish = "{.arg {arg}} must be integer-like.",
     # test-ems_complementarity.R: "constructor validation aborts"

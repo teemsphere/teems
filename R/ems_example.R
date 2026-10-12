@@ -10,8 +10,8 @@
 #'   script files.
 #' @param model Character vector of length 1, name of model.
 #'   Options include:
-#'   * `"GTAP-RE"`: GTAP Rational Expectations
 #'   * `"GTAPv7"`: Standard GTAP model
+#'   * `"GTAP-RE"`: GTAP Rational Expectations
 #'   * `"GTAP-AEZ"`: GTAP-AEZ land-use model on the GTAPv7.1 core
 #'     (requires a GTAP-AEZ database)
 #'   * `"GTAP-E"`: GTAP-E energy and carbon model on the GTAPv7.1
@@ -19,9 +19,6 @@
 #'   * `"GTAP-EP"`: GTAP-E with the GTAP-Power electricity
 #'     technologies (requires a GTAP-Power database)
 #'   * `"GTAPv6"`: Classic GTAP model
-#'   * `"ORANI-G"`: ORANI-G single-country model (2013 edition,
-#'     requires its `basedata.har`; the short-run closure is
-#'     returned, the long-run closure ships beside it)
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.
 #' @param type Character vector of length 1, (default is
@@ -29,9 +26,7 @@
 #'   include:
 #'   * `"model_files"`: Model file and closure file
 #'   * `"scripts"`: Example scripts for the chosen `model`.
-#'   `dat_input`, `par_input`, and `set_input` are required for
-#'   the GTAP models; a single-file model (ORANI-G) takes
-#'   `dat_input` alone.
+#'   `dat_input`, `par_input`, and `set_input` are required.
 #' @param dat_input Character vector of length 1 (default is
 #'   `NULL`, only used when `type = "scripts"`), file name in
 #'   working directory or path to a data input containing
@@ -50,12 +45,20 @@
 #' @seealso [`GTAP_convert()`] for converting GTAP HAR files and
 #'   data formats.
 #' @examples
-#' # Retrieve GTAP-RE model files
-#' ems_example("GTAP-RE", tempdir())
-#' 
+#' # Retrieve GTAPv7 model files
+#' ems_example("GTAPv7", tempdir())
+#'
 #' \dontrun{
-#' # The following example requires input data. See
+#' # The following examples require input data. See
 #' # https://teemsphere.github.io/ to get started.
+#'
+#' # Generate GTAPv7 example scripts
+#' ems_example(model = "GTAPv7",
+#'             path = "path/to/example/scripts",
+#'             type = "scripts",
+#'             dat_input = "v7_data/gsdfdat.har",
+#'             par_input = "v7_data/gsdfpar.har",
+#'             set_input = "v7_data/gsdfset.har")
 #'
 #' # Generate GTAP-RE example scripts
 #' ems_example(model = "GTAP-RE",
@@ -93,24 +96,18 @@
 #'             par_input = "power_data/gsdfpar.har",
 #'             set_input = "power_data/gsdfset.har")
 #'
-#' # Generate ORANI-G example scripts from its single database file
-#' ems_example(model = "ORANI-G",
-#'             path = tempdir(),
-#'             type = "scripts",
-#'             dat_input = "oranig/basedata.har")
+#' # Generate GTAPv6 example scripts from a v7 format database
+#' converted <- GTAP_convert(dat_har = "v7_data/gsdfdat.har",
+#'                           par_har = "v7_data/gsdfpar.har",
+#'                           set_har = "v7_data/gsdfset.har",
+#'                           target = "GTAPv6")
 #'
-#' # Generate GTAPv7 example scripts from a v6.2 format database
-#' converted <- GTAP_convert(dat_har = "v6_data/gsddat.har",
-#'                           par_har = "v6_data/gsdpar.har",
-#'                           set_har = "v6_data/gsdset.har",
-#'                           target = "GTAPv7")
-#' 
-#' ems_example(model = "GTAPv7",
+#' ems_example(model = "GTAPv6",
 #'             path = "path/to/example/scripts",
 #'             type = "scripts",
 #'             dat_input = converted$dat,
 #'             par_input = converted$par,
-#'             set_input = converted$set)           
+#'             set_input = converted$set)
 #' }
 ems_example <- function(model,
                         path,

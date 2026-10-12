@@ -19,13 +19,16 @@ build_solve_err <- function() {
     copy of the deployment.",
     # .solve_lock_acquire()
     # test-ems_solve.R: "a second solve in one deploy directory is refused by name"
+    # test-solve_lock_acquire.R: "a lock whose owner is still running is refused"
     lock_held = c(
       "A solve is already running in this deploy directory: {lock_owner}.",
       "Concurrent runs need a deploy directory each: call
        {.code ems_option_set(tempdir = ...)} before {.fn ems_deploy} for
        every run. Two solves in one directory share the solver's scratch
        files and the outputs the CMF names, and would corrupt each other.
-       If a previous run was interrupted, remove {.path {lock_path}}."
+       A lock whose R process has ended is taken over automatically; one
+       left by another machine on a shared folder must be removed by
+       hand: {.path {lock_path}}."
     ),
     # see solve_err$lock_held
     # test-solve_lock_acquire.R: "a lock without an owner record is attributed to an earlier run"
@@ -426,6 +429,10 @@ build_solve_info <- function() {
     docker_tag_auto = "Using image {.field teems:{tag}} (matches host CPU capability {.val {level}}). Set {.arg docker_tag} via {.fn ems_option_set} to override.",
     # test-ems_solve.R: "ems_solve informs terminal run"
     terminal_run = "{.arg terminal_run} activated. To solve and compose outputs:",
+    # .solve_lock_acquire()
+    # test-solve_lock_acquire.R: "a lock whose owner has ended is taken over"
+    # test-ems_solve.R: "a lock left by a dead R process is taken over"
+    lock_stale = "Taking over the lock of {lock_owner}: its R process has ended. Any solver container of that run was stopped.",
     # test-ems_solve.R: "ems_solve informs terminal run"
     terminal_run_steps = c("Run the above command in your OS terminal.",
                            "To stop the run early, press Ctrl-C in that terminal, or run {.code docker kill {container}} from another one.",

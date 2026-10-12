@@ -1,7 +1,13 @@
 #' @keywords internal
 #' @noRd
+.run_counter <- new.env(parent = emptyenv())
+
+#' @keywords internal
+#' @noRd
 .run_id <- function() {
-  id <- paste0(format(x = Sys.time(), "%H%M%S"), "_", Sys.getpid())
+  n <- (.run_counter$n %|||% 0L) + 1L
+  .run_counter$n <- n
+  id <- paste0(format(x = Sys.time(), "%H%M%S"), "_", Sys.getpid(), "_", n)
   return(id)
 }
 

@@ -362,6 +362,26 @@ test_that("a CSV mapping reproduces the internal mapping it was written from", {
   expect_all_true(same)
 })
 
+test_that("a user mapping data frame with factor columns aggregates like the character one", {
+  big3 <- as.data.frame(getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG[, c("REG", "big3")])
+  big3_factor <- big3
+  big3_factor[] <- lapply(big3_factor, factor)
+  factor_data <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = big3_factor,
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  expect_identical(names(factor_data), names(agg_data))
+  same <- purrr::map2_lgl(factor_data, agg_data, function(a, b) {
+    isTRUE(all.equal(a, b, check.attributes = FALSE))
+  })
+  expect_all_true(same)
+  expect_type(factor_data$VDFB$REG, "character")
+})
+
 test_that("subsetting an ems_data object keeps its class and metadata", {
   sub <- agg_data[c("VDFB", "EVFB")]
   expect_s3_class(sub, "ems_data")

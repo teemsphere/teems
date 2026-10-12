@@ -70,6 +70,9 @@
 #' @keywords internal
 #' @noRd
 .fold_elements <- function(x) {
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
   if (is.character(x)) {
     x[] <- tolower(x)
   }

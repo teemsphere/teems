@@ -175,4 +175,19 @@ test_that("ems_scenario_shock errors when not all preaggregation tuples provided
   ))
 })
 
+test_that("a factor region column in a scenario shock deploys like the character column", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shk)
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  regions <- rev(getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG)
+  chr <- expand.grid(REGr = regions, Year = c(2023, 2024, 2025), stringsAsFactors = FALSE)
+  chr$Value <- 100 * (1 + match(chr$REGr, regions) / 1000)^(chr$Year - 2023)
+  fac <- chr
+  fac$REGr <- factor(fac$REGr, levels = regions)
+  canon <- shf(ems_scenario_shock("pop", chr), "scen_factor_chr")
+  expect_identical(shf(ems_scenario_shock("pop", fac), "scen_factor"), canon)
+})
+
 unlink(write_dir, recursive = TRUE)

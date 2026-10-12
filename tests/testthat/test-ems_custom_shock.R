@@ -154,6 +154,27 @@ test_that("custom shock column names match the declared set and index case-insen
   expect_identical(mixed, canon)
 })
 
+test_that("factor columns in a custom shock follow the set order, not the level order", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shk)
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  chr <- expand.grid(
+    ACTSa = c("svces", "mnfcs", "livestock", "food", "crops"),
+    ALLTIMEt = 2:0,
+    REGr = "usa",
+    stringsAsFactors = FALSE
+  )
+  chr$Value <- seq_len(nrow(chr))
+  fac <- chr
+  fac$ACTSa <- factor(fac$ACTSa, levels = unique(fac$ACTSa))
+  fac$REGr <- factor(toupper(fac$REGr))
+  canon <- shf(ems_custom_shock("aoall", chr), "cust_factor_chr")
+  expect_identical(shf(ems_custom_shock("aoall", fac), "cust_factor"), canon)
+  expect_true(any(grepl("^15 14 13 12 11$", canon)))
+})
+
 test_that("ems_custom_shock example runs", {
   model <- "GTAP-RE"
   model_files <- ems_example(model, write_dir)

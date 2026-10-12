@@ -29,7 +29,7 @@
   return(input)
 }
 
-#' @importFrom data.table is.data.table as.data.table copy
+#' @importFrom data.table is.data.table as.data.table copy set
 #' @keywords internal
 #' @noRd
 #' @method .shk_preload data.frame
@@ -43,7 +43,13 @@
   } else {
     input <- data.table::copy(input)
   }
-  
+
+  for (col in colnames(input)) {
+    if (is.factor(input[[col]])) {
+      data.table::set(input, j = col, value = as.character(input[[col]]))
+    }
+  }
+
   .chk_shk_col(input = input,
                type = type,
                call = call)

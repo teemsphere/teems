@@ -11,7 +11,7 @@ build_probe_err <- function() {
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
-      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg nowrites}, {.arg condest}, {.arg jacdump},
       {.arg ma48_cntl2}, {.arg ma48_cntl4}, and the Runge-Kutta run controls, which a probe
       ignores)."
     ),
@@ -185,8 +185,6 @@ build_probe_info <- function() {
       estimate includes it",
       refine_off = "Refinement: off by the {.field refine} option; on, the
       estimate would be {refine_gb}",
-      scratch = "Scratch: {.val NDBBD} writes its block factors to
-      {.path {r$tempdir}} inside the container ({.fn ems_solve} sets this)",
       call = "{.code {r$call}}",
       unknown_gb = "unknown",
       small_gb = "under 0.01 GB",

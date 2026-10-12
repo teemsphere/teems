@@ -11,7 +11,6 @@
     nsbbdblocks = c("NULL", "numeric", "integer"),
     withmc66 = c("NULL", "logical"),
     smllthreads = c("NULL", "numeric", "integer"),
-    tempdir = c("NULL", "character"),
     nowrites = c("NULL", "logical"),
     condest = c("NULL", "logical"),
     jacdump = c("NULL", "logical"),

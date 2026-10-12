@@ -128,7 +128,7 @@ build_solve_err <- function() {
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
-      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg nowrites}, {.arg condest}, {.arg jacdump},
       {.arg ma48_cntl2}, {.arg ma48_cntl4})."
     ),
     # test-solver_dots.R: "solve_in_situ solver_args must be a fully named allowlisted list"
@@ -145,7 +145,7 @@ build_solve_err <- function() {
       {.arg laD}, {.arg laDi}), the expert solver flags
       ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
-      {.arg tempdir}, {.arg nowrites}, {.arg condest}, {.arg jacdump},
+      {.arg nowrites}, {.arg condest}, {.arg jacdump},
       {.arg ma48_cntl2}, {.arg ma48_cntl4}) and the Runge-Kutta run controls
       ({.arg rk_chart}, {.arg rk_norm}, {.arg rk_controller},
       {.arg rk_scope}, {.arg rk_h0}, {.arg rk_guard}). The
@@ -245,7 +245,7 @@ build_solve_err <- function() {
     solver_system = c(
       "The solver could not get the disk or memory it needs, with {n_err} error{?s}:",
       "{err_preview}",
-      "Check that the run directory and the scratch directory ({.arg tempdir}) are writable and have free space, and that Docker has the memory {.fun teems::ems_probe} estimates for this model.",
+      "Check that the run directory and the container's scratch directory ({.path /tmp}) are writable and have free space, and that Docker has the memory {.fun teems::ems_probe} estimates for this model.",
       "Full log: {.path {diag_out}}."
     ),
     # test-chk_solver_log.R: "shock-group subtotal errors map to the subtotal abort"
@@ -371,7 +371,7 @@ build_solve_info <- function() {
       memory_phases = "Memory (resident GB, max per rank / sum over ranks): %s",
       memory_phase = "%s %s/%s",
       memory_peak = "Memory high-water mark: %s GB max per rank, %s GB sum over ranks",
-      resources = "Resources: n_tasks %s, n_threads %s, inmemory %s, tempdir %s (%s)",
+      resources = "Resources: n_tasks %s, n_threads %s, inmemory %s (%s)",
       host_unknown = "container not inspected",
       host = "container %s core(s), %s",
       solver_default = "solver default",

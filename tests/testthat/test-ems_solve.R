@@ -381,11 +381,10 @@ test_that("matrix_method has no auto: the run is what is given, and the record s
   )))
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
   expect_true(any(grepl("^Matrix method: LU", record)))
-  expect_true(any(grepl("^Resources: n_tasks 1, n_threads 1, inmemory solver default, tempdir solver default \\(container ", record)))
+  expect_true(any(grepl("^Resources: n_tasks 1, n_threads 1, inmemory solver default \\(container ", record)))
   expect_true(any(grepl("^  memory check: LU at 1 task\\(s\\) estimated .* plain-equivalent equations -> [0-9]+% of .* \\(fits\\)$", record)))
-  # a scratch-backed run gets its scratch inside the container
-  # filesystem (docker's /dev/shm is 64 MB by default) and the record
-  # says so
+  # every run gets its scratch inside the container filesystem
+  # (docker's /dev/shm is 64 MB by default)
   nest_temp("solve_manual_record_dyn", write_dir)
   cmf_path <- ems_deploy(dynamic_data, dynamic_model)
   metadata <- readRDS(file.path(dirname(cmf_path), "metadata.rds"))
@@ -393,7 +392,7 @@ test_that("matrix_method has no auto: the run is what is given, and the record s
   out <- ems_solve(cmf_path, solution_method = "Gragg", matrix_method = "NDBBD", n_tasks = 2L)
   expect_s3_class(out, "data.frame")
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
-  expect_true(any(grepl("^Resources: n_tasks 2, n_threads 1, inmemory solver default, tempdir /tmp \\(container ", record)))
+  expect_true(any(grepl("^Resources: n_tasks 2, n_threads 1, inmemory solver default \\(container ", record)))
   expect_match(readLines(file.path(dirname(cmf_path), "model_exec.txt")), "-tempdir /tmp", fixed = TRUE, all = FALSE)
 })
 

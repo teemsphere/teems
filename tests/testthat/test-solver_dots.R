@@ -104,7 +104,21 @@ test_that("expert flags render as solver CLI flags", {
   expect_match(cmd, "-withmc66 0", fixed = TRUE)
   expect_match(cmd, "-nowrites 1", fixed = TRUE)
   expect_match(cmd, "-condest 1", fixed = TRUE)
-  expect_no_match(cmd, "-tempdir", fixed = TRUE)
+  expect_match(cmd, "-tempdir /tmp", fixed = TRUE)
+})
+
+test_that("scratch is always the container's /tmp and tempdir is no longer an argument", {
+  d <- withr::local_tempdir()
+  cmf <- mk_cmf(d)
+  suppressMessages(ems_solve(cmf, terminal_run = TRUE))
+  expect_match(exec_cmd(d), "-tempdir /tmp", fixed = TRUE)
+  suppressMessages(ems_solve(cmf, terminal_run = TRUE, matrix_method = "LU", inmemory = TRUE))
+  expect_match(exec_cmd(d), "-tempdir /tmp", fixed = TRUE)
+  expect_error(
+    ems_solve(cmf, terminal_run = TRUE, tempdir = "/scratch"),
+    "tempdir",
+    class = "rlang_error"
+  )
 })
 
 test_that("removed append_args formal is an unknown dots argument", {

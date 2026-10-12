@@ -198,8 +198,6 @@ SBBD.
 \item \code{smllthreads} (integer, default the run's thread count): OpenMP
 threads for the \code{"NDBBD"} interface factorization and
 back-substitution.
-\item \code{tempdir} (character, default the container's \code{TMPDIR}, else
-\verb{/tmp/}): container-side scratch directory.
 \item \code{nowrites} (logical, default \code{FALSE}): skip the solver-side
 output-file dumps; coefficient composition then has nothing to
 read. Distinct from \code{suppress_outputs}, which only skips the

@@ -45,15 +45,6 @@
       call = call
     )
   }
-  if (!is.null(a$tempdir) &&
-    (!is.character(a$tempdir) || length(a$tempdir) != 1L || is.na(a$tempdir))) {
-    bad_arg <- "tempdir"
-    requirement <- solve_err$requirement$character_scalar
-    .cli_action(solve_err$comp_arg_type,
-      action = "abort",
-      call = call
-    )
-  }
   rk_choices <- list(
     rk_chart = c("log", "percent"),
     rk_norm = c("max", "rms"),

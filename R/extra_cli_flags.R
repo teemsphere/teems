@@ -30,9 +30,7 @@
     if (!is.null(a$smllthreads)) {
       paste("-smllthreads", as.integer(a$smllthreads))
     },
-    if (!is.null(a$tempdir)) {
-      paste("-tempdir", a$tempdir)
-    },
+    "-tempdir /tmp",
     if (!is.null(a$nowrites)) {
       paste("-nowrites", .as01(a$nowrites))
     },

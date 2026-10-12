@@ -135,11 +135,6 @@
       dbbd_plain_gb <- plain_gb
     }
   }
-  tempdir <- if (identical(d$method, "NDBBD")) {
-    "/tmp"
-  } else {
-    NULL
-  }
   call <- paste0(
     "ems_solve(cmf_path, matrix_method = \"", d$method, "\"",
     if (r$n_tasks > 1L) {
@@ -165,7 +160,6 @@
     n_tasks = r$n_tasks,
     n_threads = r$n_threads,
     inmemory = NULL,
-    tempdir = tempdir,
     model_type = d$model_type,
     method_johansen = d_johansen$method,
     evidence = .auto_evidence(d),

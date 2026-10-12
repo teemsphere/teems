@@ -141,9 +141,6 @@
       cli::cli_bullets(c("*" = m$refine_off))
     }
   }
-  if (!is.null(r$tempdir)) {
-    cli::cli_bullets(c("*" = m$scratch))
-  }
   cli::cli_bullets(c(">" = m$call))
   return(invisible(NULL))
 }

@@ -28,7 +28,7 @@
 #'   [`ems_solve()`] accepts through `...`: the MA48 workspace initial
 #'   guesses (`laA`, `laD`, `laDi`), the expert solver flags
 #'   (`postsim`, `inmemory`, `fastrefac`, `nsbbdblocks`, `withmc66`,
-#'   `smllthreads`, `tempdir`, `nowrites`, `condest`, `jacdump`,
+#'   `smllthreads`, `nowrites`, `condest`, `jacdump`,
 #'   `ma48_cntl2`, `ma48_cntl4`) and the Runge-Kutta
 #'   run controls, which a probe ignores. Anything else is an error,
 #'   never a silently ignored flag.

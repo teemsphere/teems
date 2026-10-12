@@ -164,8 +164,6 @@
 #'   * `smllthreads` (integer, default the run's thread count): OpenMP
 #'     threads for the `"NDBBD"` interface factorization and
 #'     back-substitution.
-#'   * `tempdir` (character, default the container's `TMPDIR`, else
-#'     `/tmp/`): container-side scratch directory.
 #'   * `nowrites` (logical, default `FALSE`): skip the solver-side
 #'     output-file dumps; coefficient composition then has nothing to
 #'     read. Distinct from `suppress_outputs`, which only skips the

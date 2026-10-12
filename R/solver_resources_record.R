@@ -41,10 +41,6 @@
     call = call,
     refine = isTRUE(refine$on)
   )
-  if (is.null(a$tempdir) && (a$matrix_method %=% "NDBBD" || isFALSE(a$inmemory))) {
-    a$tempdir <- "/tmp"
-  }
-  resources_record$tempdir <- a$tempdir
   a$resources_record <- resources_record
   if (!is.null(metadata)) {
     .advise_cndns(

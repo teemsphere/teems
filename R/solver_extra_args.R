@@ -11,7 +11,6 @@
     nsbbdblocks = NULL,
     withmc66 = NULL,
     smllthreads = NULL,
-    tempdir = NULL,
     nowrites = NULL,
     condest = NULL,
     jacdump = NULL,

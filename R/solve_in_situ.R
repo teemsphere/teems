@@ -53,7 +53,7 @@
 #'   named solver arguments [`ems_solve()`] accepts through `...` —
 #'   the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and
 #'   the expert solver flags (`fastrefac`, `nsbbdblocks`, `withmc66`,
-#'   `smllthreads`, `tempdir`, `nowrites`, `ma48_cntl2`,
+#'   `smllthreads`, `nowrites`, `ma48_cntl2`,
 #'   `ma48_cntl4`) — passed as a list because the in-situ `...` carries
 #'   the input files. The Runge-Kutta step controls are formal
 #'   arguments here. See the [`ems_solve()`] `...` documentation for

@@ -52,7 +52,6 @@
       } else {
         tolower(as.character(r$inmemory))
       },
-      r$tempdir %|||% solve_info$record$solver_default,
       host
     ),
     fit_line,

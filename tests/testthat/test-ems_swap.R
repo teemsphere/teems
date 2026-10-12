@@ -279,6 +279,65 @@ subset_closure_model <- function(entries) {
   ems_model(model_file, cls_file, ignore_condense = TRUE)
 }
 
+test_that("every documented swap form expands the same way, bare or inside a list", {
+  multi_in <- ems_swap("qfd", COMMc = c("food", "crops"), REGr = "usa")
+  multi_out <- ems_swap("tfd", COMMc = c("food", "crops"), REGr = "usa")
+  single_in <- ems_swap("qfd", COMMc = "food", REGr = "usa")
+  single_out <- ems_swap("tfd", COMMc = "food", REGr = "usa")
+  deploy_cls <- function(name, ...) {
+    nest_temp(name, write_dir)
+    cls_lines(ems_deploy(dat, model, ...))
+  }
+  bare_multi <- deploy_cls("form_bare_multi", swap_in = multi_in, swap_out = multi_out)
+  expect_true(all(c("qfd(\"food\",ACTS,\"usa\",ALLTIME)", "qfd(\"crops\",ACTS,\"usa\",ALLTIME)") %in% bare_multi))
+  expect_false(any(grepl("^tfd\\(\"(food|crops)\",ACTS,\"usa\"", bare_multi)))
+  expect_identical(deploy_cls("form_list_multi", swap_in = list(multi_in), swap_out = list(multi_out)), bare_multi)
+  expect_identical(deploy_cls("form_list_multi_unwrapped", swap_in = list(multi_in[[1]]), swap_out = list(multi_out[[1]])), bare_multi)
+
+  bare_single <- deploy_cls("form_bare_single", swap_in = single_in, swap_out = single_out)
+  expect_identical(deploy_cls("form_list_single", swap_in = list(single_in), swap_out = list(single_out)), bare_single)
+
+  with_plain <- deploy_cls("form_bare_multi_plain", swap_in = list(multi_in, "yp"), swap_out = list(multi_out, "dppriv"))
+  expect_true("yp" %in% with_plain)
+  expect_false("dppriv" %in% with_plain)
+  expect_true(all(c("qfd(\"food\",ACTS,\"usa\",ALLTIME)", "qfd(\"crops\",ACTS,\"usa\",ALLTIME)") %in% with_plain))
+  expect_setequal(deploy_cls("form_plain_first", swap_in = list("yp", multi_in), swap_out = list("dppriv", multi_out)), with_plain)
+  expect_setequal(deploy_cls("form_vector_plain", swap_in = c("yp", "qfd"), swap_out = c("dppriv", "tfd")),
+                  deploy_cls("form_list_plain", swap_in = list("yp", "qfd"), swap_out = list("dppriv", "tfd")))
+
+  single_chn_in <- ems_swap("qfd", COMMc = "svces", REGr = "chn")
+  single_chn_out <- ems_swap("tfd", COMMc = "svces", REGr = "chn")
+  mixed <- deploy_cls("form_mixed", swap_in = list(multi_in, single_chn_in), swap_out = list(multi_out, single_chn_out))
+  expect_true(all(c("qfd(\"food\",ACTS,\"usa\",ALLTIME)", "qfd(\"crops\",ACTS,\"usa\",ALLTIME)", "qfd(\"svces\",ACTS,\"chn\",ALLTIME)") %in% mixed))
+  expect_setequal(deploy_cls("form_mixed_reversed", swap_in = list(single_chn_in, multi_in), swap_out = list(single_chn_out, multi_out)), mixed)
+  expect_setequal(deploy_cls("form_mixed_unwrapped", swap_in = list(multi_in[[1]], single_chn_in[[1]]), swap_out = list(multi_out[[1]], single_chn_out[[1]])), mixed)
+})
+
+test_that(".expand_ele expands a multi swap whether or not it is still wrapped", {
+  multi <- ems_swap("qfd", COMMc = c("food", "crops"), REGr = c("usa", "chn"))
+  bare <- .expand_ele(multi)
+  expect_length(bare, 4L)
+  expect_false(any(vapply(bare, inherits, logical(1), "multi")))
+  single <- ems_swap("qfd", COMMc = "svces", REGr = "chn")
+  unwrapped <- lapply(list(multi, "yp", single), \(s) if (is.null(names(s))) s[[1]] else s)
+  expanded <- .expand_ele(unwrapped)
+  expect_length(expanded, 6L)
+  expect_identical(expanded[[5]], "yp")
+  expect_identical(expanded[[6]], single[[1]])
+  expect_setequal(
+    vapply(expanded[1:4], \(e) paste(e$subset$COMMc, e$subset$REGr), character(1)),
+    c("food usa", "food chn", "crops usa", "crops chn")
+  )
+  shocks <- lapply(
+    list(ems_uniform_shock("pop", 1, REGr = c("usa", "chn")), ems_uniform_shock("pop", 2, REGr = "row")),
+    \(s) if (is.null(names(s))) s[[1]] else s
+  )
+  expanded <- .expand_ele(shocks)
+  expect_length(expanded, 3L)
+  expect_identical(vapply(expanded, \(e) e$var, character(1)), c("pop", "pop", "pop"))
+  expect_identical(expanded[[3]]$subset$REGr, "row")
+})
+
 test_that("a partial swap-out of a subset-named entry keeps the subset", {
   nest_temp("subset_entry", write_dir)
   m <- subset_closure_model(c("tfd(NMRG,ACTS,REG,ALLTIME)", "tfd(MARG,ACTS,REG,ALLTIME)"))

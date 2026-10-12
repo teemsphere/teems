@@ -1,8 +1,7 @@
 #' @importFrom purrr list_flatten map_lgl map
 #' @noRd
 #' @keywords internal
-.expand_ele <- function(input,
-                        nested = FALSE) {
+.expand_ele <- function(input) {
 
   if (any(purrr::map_lgl(input, inherits, "multi"))) {
     multi_ele <- lapply(input, \(m) {
@@ -20,7 +19,7 @@
           }
         )
       } else {
-        m
+        list(m)
       }
     })
     

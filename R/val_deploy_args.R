@@ -32,7 +32,8 @@
   }
   
   if (!is.null(a$swap_in)) {
-    a$swap_in <- .expand_ele(input = a$swap_in, nested = TRUE)
+    a$swap_in <- lapply(a$swap_in, \(s) if (is.null(names(s))) s[[1]] else s)
+    a$swap_in <- .expand_ele(input = a$swap_in)
     a$swap_in <- lapply(a$swap_in,
       .check_swap,
       var_extract = a$model[a$model$type == "Variable", ],
@@ -42,7 +43,8 @@
   }
 
   if (!is.null(a$swap_out)) {
-    a$swap_out <- .expand_ele(input = a$swap_out, nested = TRUE)
+    a$swap_out <- lapply(a$swap_out, \(s) if (is.null(names(s))) s[[1]] else s)
+    a$swap_out <- .expand_ele(input = a$swap_out)
     a$swap_out <- lapply(a$swap_out,
       .check_swap,
       var_extract = a$model[a$model$type == "Variable", ],

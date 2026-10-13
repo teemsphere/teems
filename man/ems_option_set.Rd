@@ -37,10 +37,10 @@ data are written to file. Values smaller than 0.1 in
 magnitude keep \code{ndigits} significant digits instead, so
 small nonzero data are never rounded to zero.}
 
-\item{accuracy_threshold}{Numeric length 1 (default \code{0.8}),
-converted to a percentage. 4-digit precision is compared
-against this threshold; a warning is generated if it is not
-met.}
+\item{accuracy_threshold}{Numeric length 1 (default \code{0.8}).
+The share of endogenous results whose levels values must be
+accurate to at least four significant figures; a warning is
+generated if the share is lower.}
 
 \item{full_exclude}{A character vector of variable length
 (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers to fully exclude from all aspects

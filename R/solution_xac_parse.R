@@ -9,11 +9,13 @@
   con <- file(path, "rb")
   on.exit(close(con))
   hdr <- readBin(con, "integer", n = 4L, size = 8L, endian = "little")
-  if (length(hdr) != 4L || anyNA(hdr) || !identical(hdr[1], 1L) || !identical(hdr[3], 3L) || hdr[2] < 0L) {
+  if (length(hdr) != 4L || anyNA(hdr) || !hdr[1] %in% c(1L, 2L) || !identical(hdr[3], 3L) || hdr[2] < 0L) {
     return(NULL)
   }
+  version <- hdr[1]
   nrow <- as.numeric(hdr[2])
-  if (!identical(file.size(path), 32 + 3 * 8 * nrow + 4 * nrow)) {
+  expected_size <- if (identical(version, 1L)) 32 + 3 * 8 * nrow + 4 * nrow else 32 + 4 * 8 * nrow + 4 * nrow
+  if (!identical(file.size(path), expected_size)) {
     return(NULL)
   }
   read_rows <- function(offset, size, type, beg, n) {
@@ -22,19 +24,34 @@
   }
   beg <- as.numeric(var_tbl$begadd)
   n <- var_tbl$matsize
-  passes <- lapply(0:2, \(p) {
+  read_column <- function(offset, size, type) {
     unlist(lapply(seq_along(beg), \(i) {
-      read_rows(32 + 8 * p * nrow, 8L, "double", beg[i], n[i])
+      read_rows(offset, size, type, beg[i], n[i])
     }))
-  })
-  accuracy <- unlist(lapply(seq_along(beg), \(i) {
-    read_rows(32 + 24 * nrow, 4L, "integer", beg[i], n[i])
-  }))
+  }
+  passes <- lapply(0:2, \(p) read_column(32 + 8 * p * nrow, 8L, "double"))
+  if (identical(version, 1L)) {
+    figures <- read_column(32 + 24 * nrow, 4L, "integer")
+    levels_figures <- rep(NA_integer_, length(figures))
+    error <- rep(NA_real_, length(figures))
+    summarised <- rep(NA, length(figures))
+  } else {
+    error <- read_column(32 + 24 * nrow, 8L, "double")
+    byte_base <- 32 + 32 * nrow
+    figures <- read_column(byte_base, 1L, "integer")
+    levels_figures <- read_column(byte_base + nrow, 1L, "integer")
+    flags <- read_column(byte_base + 3 * nrow, 1L, "integer")
+    summarised <- bitwAnd(flags, 1L) > 0L
+  }
+  figures[figures == 7L] <- NA_integer_
   xac <- data.table::data.table(
     Pass1 = passes[[1]],
     Pass2 = passes[[2]],
     Pass3 = passes[[3]],
-    Accuracy = accuracy
+    Error = error,
+    Figures = figures,
+    LevelsFigures = levels_figures,
+    Summarised = summarised
   )
   return(xac)
 }

@@ -243,14 +243,17 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
   w <- vapply(1:3, \(i) prod(x[-i] / (x[-i] - x[i])), numeric(1))
   for (nm in c("qgdp", "qfd")) {
     d <- out$dat[[nm]]
-    expect_true(all(c("Pass1", "Pass2", "Pass3", "Accuracy") %in% names(d)), label = nm)
-    expect_true(all(d$Accuracy %in% 1:6), label = nm)
+    expect_true(all(c("Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Summarised") %in% names(d)), label = nm)
+    expect_true(all(d$Figures %in% c(0:6, NA)), label = nm)
+    expect_true(all(d$LevelsFigures >= d$Figures | is.na(d$Figures)), label = nm)
+    expect_true(all(d$Summarised), label = nm)
+    expect_true(all(d$Error >= 0), label = nm)
     expect_true(any(d$Pass1 != d$Value), label = nm)
     extrapolated <- w[1] * d$Pass1 + w[2] * d$Pass2 + w[3] * d$Pass3
     expect_equal(extrapolated, d$Value, tolerance = 1e-9, label = nm)
   }
   plain <- ems_compose(shocked, "qgdp")
-  expect_false(any(c("Pass1", "Accuracy") %in% names(plain$dat$qgdp)))
+  expect_false(any(c("Pass1", "Figures") %in% names(plain$dat$qgdp)))
 })
 
 test_that("passes = TRUE on a run without separate solutions aborts", {

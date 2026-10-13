@@ -1,3 +1,4 @@
+#' @importFrom jsonlite read_json
 #' @keywords internal
 #' @noRd
 .inform_diagnostics <- function(elapsed_time,
@@ -10,59 +11,70 @@
   cat("-- Solver log --\n\n", append = TRUE, file = diagnostic_file)
   cat(paste(model_log, collapse = "\n"), "\n", append = TRUE, file = diagnostic_file)
 
-  if (any(grepl(pattern = "^Accurate at ", model_log))) {
-    accuracy_output <- grep("^Accurate at ", model_log, value = TRUE)
-    zero_output <- grep("^Judged zero ", model_log, value = TRUE)
-
-    all_digits <- as.numeric(sub(".*\\s", "", trimws(accuracy_output)))
-    judged_zero <- sum(as.numeric(sub(".*\\s", "", trimws(zero_output))))
-
-    total_var <- sum(all_digits)
-    a4digits <- sum(all_digits[1:3])
-
-    accurate_4 <- if (total_var > 0) a4digits / total_var else 1
-    accuracy <- sprintf("%.0f%%", accurate_4 * 100)
-    a_threshold <- .o_accuracy_threshold()
-    elapsed_time_raw <- elapsed_time[[3]]
-
-    if (elapsed_time_raw < 60) {
-      elapsed_time_fmt <- sprintf("%.2fs", elapsed_time_raw)
-    } else if (elapsed_time_raw < 3600) {
-      elapsed_time_fmt <- sprintf("%dm %02ds", floor(elapsed_time_raw / 60), floor(elapsed_time_raw %% 60))
-    } else {
-      elapsed_time_fmt <- sprintf("%dh %02dm", floor(elapsed_time_raw / 3600), floor((elapsed_time_raw %% 3600) / 60))
-    }
-
-    elapsed_time <- elapsed_time_fmt
-
-    .cli_action(solve_info$elapsed_time,
-      action = "inform"
-    )
-
-    below_threshold <- round(accurate_4, 2) < a_threshold
-    a_threshold_fmt <- sprintf("%.0f%%", a_threshold * 100)
-
-    if (below_threshold) {
-      a_threshold <- a_threshold_fmt
-      .cli_action(solve_wrn$accuracy,
-        action = c("warn", "inform"),
-        call = call
-      )
-    } else if (.o_verbose()) {
-      .cli_action(solve_info$accuracy,
-        action = "inform"
-      )
-    }
-
-    cat(
-      "\n-- Run summary --\n\n",
-      sprintf("Elapsed time:       %s\n", elapsed_time_fmt),
-      sprintf("Accuracy (4-digit): %s\n", accuracy),
-      sprintf("Judged zero:        %s\n", judged_zero),
-      sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
-      append = TRUE, file = diagnostic_file, sep = ""
+  stats_path <- file.path(run_dir, "out", "variables", "bin", "sol.stats.json")
+  stats <- if (file.exists(stats_path)) {
+    tryCatch(
+      jsonlite::read_json(stats_path, simplifyVector = TRUE),
+      error = \(e) NULL
     )
   }
+  acc <- stats$accuracy
+  if (is.null(acc)) {
+    return(invisible(NULL))
+  }
+
+  linear <- as.numeric(acc$linear$figures)
+  levels <- as.numeric(acc$levels$figures)
+  judged_zero <- as.numeric(acc$linear$judged_zero)
+  summarised <- as.numeric(acc$summarised)
+
+  accurate_4 <- if (summarised > 0) sum(levels[5:7]) / summarised else 1
+  accuracy <- sprintf("%.0f%%", accurate_4 * 100)
+  a_threshold <- .o_accuracy_threshold()
+  elapsed_time_raw <- elapsed_time[[3]]
+
+  if (elapsed_time_raw < 60) {
+    elapsed_time_fmt <- sprintf("%.2fs", elapsed_time_raw)
+  } else if (elapsed_time_raw < 3600) {
+    elapsed_time_fmt <- sprintf("%dm %02ds", floor(elapsed_time_raw / 60), floor(elapsed_time_raw %% 60))
+  } else {
+    elapsed_time_fmt <- sprintf("%dh %02dm", floor(elapsed_time_raw / 3600), floor((elapsed_time_raw %% 3600) / 60))
+  }
+
+  elapsed_time <- elapsed_time_fmt
+
+  .cli_action(solve_info$elapsed_time,
+    action = "inform"
+  )
+
+  below_threshold <- round(accurate_4, 2) < a_threshold
+  a_threshold_fmt <- sprintf("%.0f%%", a_threshold * 100)
+
+  if (below_threshold) {
+    a_threshold <- a_threshold_fmt
+    .cli_action(solve_wrn$accuracy,
+      action = c("warn", "inform"),
+      call = call
+    )
+  } else if (.o_verbose()) {
+    .cli_action(solve_info$accuracy,
+      action = "inform"
+    )
+  }
+
+  figures_table <- sprintf("%7d  %7.0f  %13.0f", 6:0, rev(linear), rev(levels))
+  cat(
+    "\n-- Run summary --\n\n",
+    sprintf("Elapsed time:       %s\n", elapsed_time_fmt),
+    sprintf("Accuracy (levels, 4 figures): %s\n", accuracy),
+    sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
+    sprintf("Results summarised: %.0f (endogenous and backsolved)\n", summarised),
+    sprintf("Subintervals:       %.0f\n", as.numeric(acc$subintervals)),
+    "figures  results  levels values\n",
+    paste0(figures_table, "\n"),
+    sprintf("Judged zero:        %.0f\n", judged_zero),
+    append = TRUE, file = diagnostic_file, sep = ""
+  )
 
   return(invisible(NULL))
 }

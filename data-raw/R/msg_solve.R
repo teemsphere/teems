@@ -362,7 +362,7 @@ build_solve_wrn <- function() {
     condense_memory = "The memory estimate does not cover condensed {.val {matrix_method}} runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.",
     # test-ems_solve.R: "ems_solve warns when poor accuracy"
     accuracy = c(
-      "Only {.emph {accuracy}} of variables accurate to at least 4 digits, below the {a_threshold} threshold.",
+      "Only {.emph {accuracy}} of endogenous results accurate to at least 4 significant figures in their levels values, below the {a_threshold} threshold.",
       "Adjust with {.arg accuracy_threshold} in {.fun teems::ems_option_set}."
     )
   )
@@ -468,7 +468,7 @@ build_solve_info <- function() {
                            "Any error and/or singularity indicators will be present in the model diagnostic output: {.path {diag_out}}.",
                            "If no errors or singularities are detected, use the following expression to structure solver binary outputs: {.run ems_compose({cmf_path})}"),
     # test-inform_messages.R: "a finished run reports its elapsed time and accuracy"
-    accuracy = "{.emph {accuracy}} of variables accurate to at least 4 digits.",
+    accuracy = "{.emph {accuracy}} of endogenous results accurate to at least 4 significant figures in their levels values.",
     # test-inform_messages.R: "a finished run reports its elapsed time and accuracy"
     elapsed_time = "Elapsed time: {elapsed_time}"
   )

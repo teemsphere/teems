@@ -21,9 +21,9 @@
 # a finished run reports its elapsed time and accuracy
 
     Code
-      .inform_diagnostics(elapsed_time = c(0, 0, 75.4), model_log = model_log,
+      .inform_diagnostics(elapsed_time = c(0, 0, 75.4), model_log = "solver log",
       run_dir = run_dir, call = NULL)
     Message
       i Elapsed time: 1m 15s
-      i 98% of variables accurate to at least 4 digits.
+      i 98% of endogenous results accurate to at least 4 significant figures in their levels values.
 

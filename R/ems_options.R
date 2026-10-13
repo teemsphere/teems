@@ -14,10 +14,10 @@
 #'   data are written to file. Values smaller than 0.1 in
 #'   magnitude keep `ndigits` significant digits instead, so
 #'   small nonzero data are never rounded to zero.
-#' @param accuracy_threshold Numeric length 1 (default `0.8`),
-#'   converted to a percentage. 4-digit precision is compared
-#'   against this threshold; a warning is generated if it is not
-#'   met.
+#' @param accuracy_threshold Numeric length 1 (default `0.8`).
+#'   The share of endogenous results whose levels values must be
+#'   accurate to at least four significant figures; a warning is
+#'   generated if the share is lower.
 #' @param full_exclude A character vector of variable length
 #'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
 #'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
@@ -163,9 +163,9 @@ ems_option_set <- function(tempdir = NULL,
 #'   * `"ndigits"` Integer. Number of digits to the right of
 #'     the decimal point written to file for numeric type double
 #'     (at least `ndigits` significant digits for small values).
-#'   * `"accuracy_threshold"` Numeric. Threshold
-#'     (converted to a percentage) against which 4-digit
-#'     precision is compared.
+#'   * `"accuracy_threshold"` Numeric. Share of endogenous
+#'     results whose levels values must be accurate to at least
+#'     four significant figures.
 #'   * `"full_exclude"` Character vector. Headers to
 #'     fully exclude from all aspects of the model run.
 #'   * `"check_shock_status"` Logical. If `FALSE`, no

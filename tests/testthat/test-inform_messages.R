@@ -34,59 +34,82 @@ test_that("EFVE overrides are reported", {
   expect_no_message(.inform_efve(metadata = list(efve_overrides = overrides), call = NULL))
 })
 
+local_accuracy_stats <- function(run_dir, linear, levels, judged_zero, subintervals = 1L) {
+  bin_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(bin_dir, recursive = TRUE)
+  stats <- list(
+    version = 2L,
+    accuracy = list(
+      population = "endogenous+backsolved",
+      summarised = sum(levels),
+      subintervals = subintervals,
+      linear = list(figures = linear, judged_zero = judged_zero),
+      levels = list(figures = levels)
+    )
+  )
+  jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE)
+  return(invisible(run_dir))
+}
+
 test_that("a finished run reports its elapsed time and accuracy", {
   ems_option_set(verbose = TRUE)
   withr::defer(ems_option_reset())
   run_dir <- withr::local_tempdir()
-  model_log <- c(
-    "Accurate at 6 digits        90",
-    "Accurate at 5 digits        5",
-    "Accurate at 4 digits        3",
-    "Accurate at 3 digits        2",
-    "Accurate at 2 digits        0",
-    "Accurate at 1 digit or none 0"
+  local_accuracy_stats(
+    run_dir,
+    linear = c(0, 0, 0, 2, 3, 5, 90),
+    levels = c(0, 0, 0, 2, 0, 3, 95),
+    judged_zero = 0
   )
   expect_snapshot(.inform_diagnostics(
     elapsed_time = c(0, 0, 75.4),
-    model_log = model_log,
+    model_log = "solver log",
     run_dir = run_dir,
     call = NULL
   ))
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_true(any(grepl("^Elapsed time: +1m 15s$", record)))
-  expect_true(any(grepl("^Accuracy \\(4-digit\\): 98%$", record)))
+  expect_true(any(grepl("^Accuracy \\(levels, 4 figures\\): 98%$", record)))
+  expect_true(any(grepl("^ +3 +2 +2$", record)))
 })
 
-test_that("results judged zero stay out of the accuracy share, and an all-zero run is not flagged", {
+test_that("the accuracy share is judged on levels figures, judged-zero results counting at 6", {
   ems_option_set(verbose = FALSE)
   withr::defer(ems_option_reset())
-  counts <- function(d6, d4, d1, zero) {
-    log <- c(
-      sprintf("Accurate at 6 digits        %d", d6),
-      "Accurate at 5 digits        0",
-      sprintf("Accurate at 4 digits        %d", d4),
-      "Accurate at 3 digits        0",
-      "Accurate at 2 digits        0",
-      sprintf("Accurate at 1 digit or none %d", d1),
-      sprintf("Judged zero (both below 1e-6) %d", zero)
-    )
-    return(log)
-  }
   run_dir <- withr::local_tempdir()
+  local_accuracy_stats(run_dir, linear = integer(7), levels = c(0, 0, 0, 0, 0, 0, 4478), judged_zero = 4478)
   expect_no_warning(.inform_diagnostics(
     elapsed_time = c(0, 0, 1),
-    model_log = counts(0, 0, 0, 4478),
+    model_log = "solver log",
     run_dir = run_dir,
     call = NULL
   ))
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
-  expect_true(any(grepl("^Accuracy \\(4-digit\\): 100%$", record)))
+  expect_true(any(grepl("^Accuracy \\(levels, 4 figures\\): 100%$", record)))
   expect_true(any(grepl("^Judged zero: +4478$", record)))
   run_dir <- withr::local_tempdir()
+  local_accuracy_stats(
+    run_dir,
+    linear = c(30, 30, 0, 0, 10, 0, 30),
+    levels = c(10, 20, 0, 0, 30, 0, 40),
+    judged_zero = 0
+  )
   expect_warning(.inform_diagnostics(
     elapsed_time = c(0, 0, 1),
-    model_log = counts(40, 30, 30, 900),
+    model_log = "solver log",
     run_dir = run_dir,
     call = NULL
   ), "70%")
+})
+
+test_that("a run without an accuracy summary reports nothing", {
+  run_dir <- withr::local_tempdir()
+  expect_no_message(.inform_diagnostics(
+    elapsed_time = c(0, 0, 1),
+    model_log = "solver log",
+    run_dir = run_dir,
+    call = NULL
+  ))
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_false(any(grepl("^-- Run summary --$", record)))
 })

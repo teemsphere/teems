@@ -207,10 +207,14 @@
 #'
 #'   **Judging accuracy.** The extrapolating methods solve at three
 #'   step counts, and the agreement between the three solutions gives
-#'   an accuracy summary. This is the share of results that agree to
-#'   at least four significant digits. A warning is given when the
-#'   share falls below the `accuracy_threshold` option (default 80%,
-#'   see [`ems_option_set()`]), and the full summary is written to
+#'   an accuracy summary over the endogenous results. Its measure is
+#'   the share of results whose levels values are accurate to at
+#'   least four significant figures, the criterion GEMPACK calls
+#'   `solution`. A percent-change result usually has more accurate
+#'   figures in its levels value than in the percentage itself. A
+#'   warning is given when the share falls below the
+#'   `accuracy_threshold` option (default 80%, see
+#'   [`ems_option_set()`]), and the full summary is written to
 #'   `model_diagnostics.txt` in the run directory. When this happens,
 #'   take more steps (for example `steps = c(4L, 8L, 16L)`), raise
 #'   `n_subintervals`, or switch to adaptive `"DoPri54"`, which

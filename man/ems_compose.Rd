@@ -26,12 +26,18 @@ each variable's data.table gains the separate solutions that
 a three-pass \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run
 extrapolates from: \code{Pass1}, \code{Pass2} and \code{Pass3} for the
 solutions with the fewest to the most steps, in the units of
-\code{Value}, and \code{Accuracy}, the number of significant figures
-to which the passes agree (6 for six or more, 1 for one or
-none). With subintervals, \code{Pass1}–\code{Pass3} differ only in the
-last subinterval, so \code{Accuracy} applies to that subinterval
-alone. An error is raised for a run that wrote no separate
-solutions.}
+\code{Value}. \code{Figures} is the number of significant figures to
+which the two two-pass extrapolations agree (0 to 6, \code{NA} for
+a result judged zero, both extrapolations below 1e-6), and
+\code{LevelsFigures} the same for the variable's levels value,
+which a percent-change result usually has more of. \code{Error} is
+the difference between the two extrapolations in the units of
+\code{Value}, and \code{Summarised} is \code{FALSE} for exogenous elements,
+which the run's accuracy summary leaves out. With
+subintervals, \code{Pass1}–\code{Pass3} and \code{Error} describe the last
+subinterval, and the figures are the lowest over all
+subintervals. An error is raised for a run that wrote no
+separate solutions.}
 }
 \value{
 A tibble with columns "name", "label", "type", and

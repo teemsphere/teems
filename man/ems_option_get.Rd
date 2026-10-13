@@ -18,9 +18,9 @@ diagnostics are silenced.
 \item \code{"ndigits"} Integer. Number of digits to the right of
 the decimal point written to file for numeric type double
 (at least \code{ndigits} significant digits for small values).
-\item \code{"accuracy_threshold"} Numeric. Threshold
-(converted to a percentage) against which 4-digit
-precision is compared.
+\item \code{"accuracy_threshold"} Numeric. Share of endogenous
+results whose levels values must be accurate to at least
+four significant figures.
 \item \code{"full_exclude"} Character vector. Headers to
 fully exclude from all aspects of the model run.
 \item \code{"check_shock_status"} Logical. If \code{FALSE}, no

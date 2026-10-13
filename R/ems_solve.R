@@ -313,7 +313,7 @@ if (missing(cmf_path)) {
 }
 call <- match.call()
 # Named extras ride through the dots: the Runge-Kutta step controls
-# (ems_RK() is the documented front end), the MA48 workspace initial
+# (ems_RK() is the documented wrapper), the MA48 workspace initial
 # guesses and the expert solver flags. Anything else here is an
 # error, never silently ignored.
 rk_args <- list(

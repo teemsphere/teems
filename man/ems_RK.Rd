@@ -56,14 +56,10 @@ acted on; check failures are ignored.
 }}
 
 \item{eps_tolerance}{Numeric length 1 (default \code{0.01}), the
-per-step error-metric bound targeted by \code{adaptive} control.
-Measured on large shocks against 32-step references, \code{0.01}
-reaches four correct digits on about 92-96\% of elements at a
-third of the factorizations the pre-2026-09 driver needed;
-\code{0.1} (GEMPACK's recommendation) is loose now that the accept
-test is steered by percentage-change variables only, and
-\code{0.001} buys the last digits at roughly 1.6x the cost. Ignored
-when \code{adaptive = "no"}.}
+per-step error-metric bound targeted by \code{adaptive} control. On
+large shocks, \code{0.01} reaches four correct digits on most
+elements; \code{0.001} gains the last digits at roughly 1.6x the
+cost, and \code{0.1} is loose. Ignored when \code{adaptive = "no"}.}
 
 \item{max_retries}{Integer length 1 (default \code{3L}),
 \code{adaptive = "yes"} only: how many times a step
@@ -79,9 +75,9 @@ combined in. \code{"log"} (default) carries every percentage-change
 variable with a nonzero base as the logarithm of its level ratio:
 levels stay positive for any tableau and any step (a
 percentage-change variable cannot reach \verb{-100\%}), and every
-method keeps its order (Munthe-Kaas 1999 on the multiplicative
-group). \code{"percent"} combines the stages in initial-based percentage
-changes.}
+method keeps its order, since the log chart is a smooth change of
+variables. \code{"percent"} combines the stages in initial-based
+percentage changes.}
 
 \item{error_norm}{Character length 1, the norm of the per-element
 error metric that the adaptive accept test compares against
@@ -122,14 +118,14 @@ forwarded unchanged.}
 As \code{\link[=ems_solve]{ems_solve()}}.
 }
 \description{
-A Runge-Kutta front end for \code{\link[=ems_solve]{ems_solve()}}: the same
+A Runge-Kutta wrapper for \code{\link[=ems_solve]{ems_solve()}}: the same
 solver run restricted to the Runge-Kutta \code{solution_method}
 flavors, with the step-control arguments that only exist for
 them (\code{adaptive}, \code{eps_tolerance}, \code{max_retries},
-\code{retry_adjust}) and RK-tuned defaults — \code{"DoPri54"} with a
-single step and adaptive control enabled. Everything else
+\code{retry_adjust}) and RK-tuned defaults: \code{"DoPri54"} from four
+initial steps with adaptive control enabled. Everything else
 (\code{matrix_method}, \code{n_tasks}, \code{precision}, ...) is forwarded to
-\code{\link[=ems_solve]{ems_solve()}} unchanged, which performs all validation and
+\code{\link[=ems_solve]{ems_solve()}} unchanged and validated there; \code{\link[=ems_solve]{ems_solve()}}
 remains fully capable of Runge-Kutta runs itself.
 }
 \examples{
@@ -147,9 +143,6 @@ ems_RK(cmf_path, solution_method = "RK4", steps = 8L)
 \references{
 Schiffmann, F. (2022), "Runge Kutta integrators for
 fast and accurate solutions in GEMPACK".
-
-Munthe-Kaas, H. (1999), "High order Runge-Kutta methods on
-manifolds", Applied Numerical Mathematics, vol. 29, pp. 115-127.
 
 Butcher, J.C. (2015), "Runge-Kutta Methods for Ordinary
 Differential Equations", in M. Al-Baali, L. Grandinetti and A.

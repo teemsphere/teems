@@ -1,14 +1,13 @@
-#' @importFrom rlang arg_match
 #' @title Solve a model with a Runge-Kutta method
 #' @export
-#' @description A Runge-Kutta front end for [`ems_solve()`]: the same
+#' @description A Runge-Kutta wrapper for [`ems_solve()`]: the same
 #'   solver run restricted to the Runge-Kutta `solution_method`
 #'   flavors, with the step-control arguments that only exist for
 #'   them (`adaptive`, `eps_tolerance`, `max_retries`,
-#'   `retry_adjust`) and RK-tuned defaults — `"DoPri54"` with a
-#'   single step and adaptive control enabled. Everything else
+#'   `retry_adjust`) and RK-tuned defaults: `"DoPri54"` from four
+#'   initial steps with adaptive control enabled. Everything else
 #'   (`matrix_method`, `n_tasks`, `precision`, ...) is forwarded to
-#'   [`ems_solve()`] unchanged, which performs all validation and
+#'   [`ems_solve()`] unchanged and validated there; [`ems_solve()`]
 #'   remains fully capable of Runge-Kutta runs itself.
 #' @param solution_method The Runge-Kutta flavor, one of
 #'   `"DoPri54"` (default), `"BoSha32"`, `"RK4"`, `"Heun"` or
@@ -36,14 +35,10 @@
 #'   * `"accuracy-only"`: As `"yes"`, but only the error metric is
 #'   acted on; check failures are ignored.
 #' @param eps_tolerance Numeric length 1 (default `0.01`), the
-#'   per-step error-metric bound targeted by `adaptive` control.
-#'   Measured on large shocks against 32-step references, `0.01`
-#'   reaches four correct digits on about 92-96% of elements at a
-#'   third of the factorizations the pre-2026-09 driver needed;
-#'   `0.1` (GEMPACK's recommendation) is loose now that the accept
-#'   test is steered by percentage-change variables only, and
-#'   `0.001` buys the last digits at roughly 1.6x the cost. Ignored
-#'   when `adaptive = "no"`.
+#'   per-step error-metric bound targeted by `adaptive` control. On
+#'   large shocks, `0.01` reaches four correct digits on most
+#'   elements; `0.001` gains the last digits at roughly 1.6x the
+#'   cost, and `0.1` is loose. Ignored when `adaptive = "no"`.
 #' @param max_retries Integer length 1 (default `3L`),
 #'   `adaptive = "yes"` only: how many times a step
 #'   failing the -100% crossing check is retried at reduced length
@@ -56,9 +51,9 @@
 #'   variable with a nonzero base as the logarithm of its level ratio:
 #'   levels stay positive for any tableau and any step (a
 #'   percentage-change variable cannot reach `-100%`), and every
-#'   method keeps its order (Munthe-Kaas 1999 on the multiplicative
-#'   group). `"percent"` combines the stages in initial-based percentage
-#'   changes.
+#'   method keeps its order, since the log chart is a smooth change of
+#'   variables. `"percent"` combines the stages in initial-based
+#'   percentage changes.
 #' @param error_norm Character length 1, the norm of the per-element
 #'   error metric that the adaptive accept test compares against
 #'   `eps_tolerance`: `"max"` (default; the worst element decides)
@@ -94,9 +89,6 @@
 #'   argument documentation.
 #' @references Schiffmann, F. (2022), "Runge Kutta integrators for
 #'   fast and accurate solutions in GEMPACK".
-#'
-#'   Munthe-Kaas, H. (1999), "High order Runge-Kutta methods on
-#'   manifolds", Applied Numerical Mathematics, vol. 29, pp. 115-127.
 #'
 #'   Butcher, J.C. (2015), "Runge-Kutta Methods for Ordinary
 #'   Differential Equations", in M. Al-Baali, L. Grandinetti and A.
@@ -142,40 +134,21 @@ ems_RK <- function(cmf_path,
                    scope = c("pct", "all"),
                    h_init = NULL,
                    guard = NULL,
-                   ...) {
-  if (missing(cmf_path)) {
-    .cli_missing(cmf_path)
-  }
-  solution_method <- rlang::arg_match(solution_method)
-  chart <- rlang::arg_match(chart)
-  error_norm <- rlang::arg_match(error_norm)
-  controller <- rlang::arg_match(controller)
-  scope <- rlang::arg_match(scope)
-  if (is.null(adaptive)) {
-    adaptive <- if (solution_method %in% c("BoSha32", "DoPri54")) {
-      "yes"
-    } else {
-      "no"
-    }
-  }
-  sol <- ems_solve(
-    cmf_path = cmf_path,
-    solution_method = solution_method,
-    steps = steps,
-    adaptive = adaptive,
-    eps_tolerance = eps_tolerance,
-    max_retries = max_retries,
-    retry_adjust = retry_adjust,
-    rk_chart = chart,
-    rk_norm = error_norm,
-    rk_controller = controller,
-    rk_scope = scope,
-    rk_h0 = h_init,
-    rk_guard = guard,
-    ...
-  )
-  if (is.null(sol)) {
-    return(invisible(NULL))
-  }
-  return(sol)
+                   ...
+) {
+if (missing(cmf_path)) {
+  .cli_missing(cmf_path)
+}
+args_list <- mget(setdiff(names(formals()), "..."))
+args_list$solve_args <- list(...)
+call <- match.call()
+output <- .implement_RK(
+  args_list = args_list,
+  call = call
+)
+if (is.null(output) || is.character(output)) {
+  invisible(output)
+} else {
+  output
+}
 }

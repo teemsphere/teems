@@ -1,6 +1,6 @@
 skip_on_cran()
 
-# ems_RK(): Runge-Kutta front end delegating to ems_solve(); the RK
+# ems_RK(): Runge-Kutta wrapper delegating to ems_solve(); the RK
 # step controls (adaptive, eps_tolerance, max_retries, retry_adjust)
 # left ems_solve()'s formals and ride its dots — one validation and
 # one record path.

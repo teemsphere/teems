@@ -322,6 +322,22 @@ build_solve_wrn <- function() {
       "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit.",
       "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
     ),
+    # test-ems_solve.R: "condensed deployments are warned against bordered methods (roadmap 6.2)"
+    condense_bordered = c(
+      "This deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system) and {.val {matrix_method}} is a bordered method.",
+      "Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.",
+      "Condensation pays under {.val LU}; deploy without {.arg backsolve} for bordered runs."
+    ),
+    # test-ems_solve.R: "condensed intertemporal deployments are warned against (roadmap 6.2)"
+    condense_intertemporal = c(
+      "This intertemporal deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system).",
+      "Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed {.val LU} run is slower still than plain {.val SBBD}.",
+      "Deploy without {.arg backsolve} and solve with {.val SBBD}."
+    ),
+    # test-ems_options.R: "docker tag auto-selection"
+    docker_tag_auto = "Using image {.field teems:{tag}} (matches host CPU capability {.val {level}}). Set {.arg docker_tag} via {.fn ems_option_set} to override.",
+    # test-ems_solve.R: "condensed intertemporal deployments are warned against (roadmap 6.2)"
+    condense_memory = "The memory estimate does not cover condensed {.val {matrix_method}} runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.",
     # test-ems_solve.R: "ems_solve warns when poor accuracy"
     accuracy = c(
       "Only {.emph {accuracy}} of variables accurate to at least 4 digits, below the {a_threshold} threshold.",
@@ -413,20 +429,6 @@ build_solve_info <- function() {
       NDBBD = "one rank holds the tables once; the solver budgets its own threads",
       LU = "one rank; threads for the condensed factorization"
     ),
-    # test-ems_solve.R: "condensed deployments are advised against bordered methods (roadmap 6.2)"
-    condense_bordered = c(
-      "This deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system) and {.val {matrix_method}} is a bordered method.",
-      "Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.",
-      "Condensation pays under {.val LU}; deploy without {.arg backsolve} for bordered runs."
-    ),
-    # test-ems_solve.R: "condensed intertemporal deployments are advised against"
-    condense_intertemporal = c(
-      "This intertemporal deployment is condensed ({n_backsolve} backsolved variable{?s}, {share} of the uncondensed system).",
-      "Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed {.val LU} run is slower still than plain {.val SBBD}.",
-      "Deploy without {.arg backsolve} and solve with {.val SBBD}."
-    ),
-    # test-ems_options.R: "docker tag auto-selection"
-    docker_tag_auto = "Using image {.field teems:{tag}} (matches host CPU capability {.val {level}}). Set {.arg docker_tag} via {.fn ems_option_set} to override.",
     # test-ems_solve.R: "ems_solve informs terminal run"
     terminal_run = "{.arg terminal_run} activated. To solve and compose outputs:",
     # .solve_lock_acquire()

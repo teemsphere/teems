@@ -234,7 +234,8 @@
 #'   bordered methods exploit: it pays under `"LU"` on static models
 #'   and costs wall time everywhere else. A condensed deployment
 #'   solved with a bordered method, or any condensed intertemporal
-#'   deployment, is flagged at run time.
+#'   deployment, runs with a warning; under `"SBBD"` and `"NDBBD"` the
+#'   memory estimate above does not cover condensed runs.
 #'
 #'   The MA48 workspace sizes (`laA`, `laD`, `laDi`) never need
 #'   manual tuning: the solver reallocates and retries on a

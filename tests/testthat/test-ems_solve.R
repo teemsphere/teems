@@ -1022,7 +1022,7 @@ test_that("deploy metadata records the condensation state", {
   expect_identical(plain$elimination_share, 0)
 })
 
-test_that("condensed deployments are advised against bordered methods (roadmap 6.2)", {
+test_that("condensed deployments are warned against bordered methods (roadmap 6.2)", {
   nest_temp("solve_condense_advice", write_dir)
   cond_model <- suppressWarnings(
     ems_model(static_model_file, static_closure_file,
@@ -1046,7 +1046,7 @@ test_that("condensed deployments are advised against bordered methods (roadmap 6
   expect_false(any(grepl("bordered method", lu_msg)))
 })
 
-test_that("condensed intertemporal deployments are advised against (roadmap 6.2)", {
+test_that("condensed intertemporal deployments are warned against (roadmap 6.2)", {
   nest_temp("solve_condense_inter", write_dir)
   cond_model <- suppressWarnings(
     ems_model(dynamic_model_file, dynamic_closure_file, backsolve = c("qint", "qva"))

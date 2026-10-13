@@ -134,14 +134,16 @@
       x A solve is already running in this deploy directory: run 010203_999 (pid 999) started 2026-01-01 01:02:03 UTC.
       i Concurrent runs need a deploy directory each: call `ems_option_set(tempdir = ...)` before `ems_deploy()` for every run. Two solves in one directory share the solver's scratch files and the outputs the CMF names, and would corrupt each other. A lock whose R process has ended is taken over automatically; one left by another machine on a shared folder must be removed by hand: '<cache>/solve/solve_lock/.solve_lock'.
 
-# condensed deployments are advised against bordered methods (roadmap 6.2)
+# condensed deployments are warned against bordered methods (roadmap 6.2)
 
     Code
       ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L, terminal_run = TRUE)
-    Message
-      i This deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system) and "DBBD" is a bordered method.
+    Condition
+      Warning in `ems_solve()`:
+      ! This deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system) and "DBBD" is a bordered method.
       i Substitution densifies the diagonal blocks the bordered methods exploit: condensed deployments solve slower at every elimination share.
       i Condensation pays under "LU"; deploy without `backsolve` for bordered runs.
+    Message
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -refine 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
@@ -155,15 +157,18 @@
       structure solver binary outputs:
       `ems_compose("<cache>/solve/solve_condense_advice/GTAPv7.cmf")`
 
-# condensed intertemporal deployments are advised against (roadmap 6.2)
+# condensed intertemporal deployments are warned against (roadmap 6.2)
 
     Code
       ems_solve(cmf_path, solution_method = "Gragg", matrix_method = "SBBD",
         terminal_run = TRUE)
-    Message
-      i This intertemporal deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system).
+    Condition
+      Warning in `ems_solve()`:
+      ! This intertemporal deployment is condensed (2 backsolved variables, 0.9% of the uncondensed system).
       i Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed "LU" run is slower still than plain "SBBD".
       i Deploy without `backsolve` and solve with "SBBD".
+      i The memory estimate does not cover condensed "SBBD" runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.
+    Message
       i `terminal_run` activated. To solve and compose outputs:
       docker run --rm --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       

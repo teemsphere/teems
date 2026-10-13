@@ -13,16 +13,20 @@
   n_backsolve <- condense$n_backsolve
   share <- .cndns_share(condense)
 
-  if (enable_time) {
-    .cli_action(solve_info$condense_intertemporal,
-      action = rep("inform", 3),
-      call = call
-    )
+  msg <- if (enable_time) {
+    solve_wrn$condense_intertemporal
   } else if (matrix_method %in% c("SBBD", "DBBD", "NDBBD")) {
-    .cli_action(solve_info$condense_bordered,
-      action = rep("inform", 3),
-      call = call
-    )
+    solve_wrn$condense_bordered
   }
+  if (is.null(msg)) {
+    return(invisible(NULL))
+  }
+  if (matrix_method %in% c("SBBD", "NDBBD")) {
+    msg <- c(msg, solve_wrn$condense_memory)
+  }
+  .cli_action(msg,
+    action = c("warn", rep("inform", length(msg) - 1L)),
+    call = call
+  )
   return(invisible(NULL))
 }

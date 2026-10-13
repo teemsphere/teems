@@ -27,7 +27,7 @@ test_that("Linux runs the container as the calling user; Docker Desktop hosts do
   expect_identical(.docker_user_flag(sysname = "Windows"), "")
 })
 
-test_that("a rootless Docker or Podman daemon runs the container without --user", {
-  expect_identical(.docker_user_flag(sysname = "Linux", rootless = TRUE), "")
+test_that("a rootless Docker or Podman daemon runs the container as its root, the calling user", {
+  expect_identical(.docker_user_flag(sysname = "Linux", rootless = TRUE), "--user 0:0 -e HOME=/tmp ")
   expect_type(.docker_rootless(), "logical")
 })

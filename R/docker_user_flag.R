@@ -2,8 +2,12 @@
 #' @noRd
 .docker_user_flag <- function(sysname = Sys.info()[["sysname"]],
                               rootless = .docker_rootless()) {
-  if (!sysname %=% "Linux" || isTRUE(rootless)) {
+  if (!sysname %=% "Linux") {
     return("")
+  }
+  if (isTRUE(rootless)) {
+    flag <- "--user 0:0 -e HOME=/tmp "
+    return(flag)
   }
   uid <- system2("id", "-u", stdout = TRUE)
   gid <- system2("id", "-g", stdout = TRUE)
@@ -19,7 +23,7 @@
     error = \(e) character(0)
   ))
   podman <- any(grepl("podman", quiet("--version"), ignore.case = TRUE))
-  security <- any(grepl("rootless", quiet(c("info", "--format", "{{json .SecurityOptions}}")), ignore.case = TRUE))
+  security <- any(grepl("rootless", quiet(c("info", "--format", shQuote("{{json .SecurityOptions}}"))), ignore.case = TRUE))
   rootless <- security || podman
   return(rootless)
 }

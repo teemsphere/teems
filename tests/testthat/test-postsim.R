@@ -85,7 +85,7 @@ test_that("forbidden statements in a PostSim section abort", {
 
 test_that("PostSim runs end-to-end through deploy, solve and compose", {
   skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
-  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+  skip_if(!.docker_image_present(paste0("teems:", .o_docker_tag())),
     "teems image not available"
   )
   dat <- ems_data(
@@ -109,7 +109,7 @@ test_that("PostSim runs end-to-end through deploy, solve and compose", {
 
 test_that("PostSim coefficients reach out/coefficients CSVs with write_coefficients", {
   skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
-  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+  skip_if(!.docker_image_present(paste0("teems:", .o_docker_tag())),
     "teems image not available"
   )
   dat <- ems_data(

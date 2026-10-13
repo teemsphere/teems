@@ -241,7 +241,7 @@ test_that("fully exogenous complementarity variable deploys", {
 # --- "dev") against a current rebuild) --------------------------------
 
 solver_has_comp <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }

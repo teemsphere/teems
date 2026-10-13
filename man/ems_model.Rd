@@ -29,17 +29,19 @@ by backsolving. Unnamed entries resolve their defining
 equation by the \verb{E_<variable>} convention; use named entries
 for exceptions (e.g., \code{c(qgd = "E_qgdtot")}). Backsolved
 variables must be endogenous; their values remain available
-in solve outputs. Nominations are validated against the
-GEMPACK substitution requirements (GEMPACK manual, section
-14.1.10).}
+in solve outputs. Each nomination is checked to make sure
+its equation can be solved for the variable (see GEMPACK
+manual 14.1.10); a nomination that fails aborts with the
+reason.}
 
 \item{ignore_condense}{Logical length 1 (default is \code{FALSE}).
-If \code{TRUE}, \code{Substitute} and \code{Backsolve} statements found in the
-model file are ignored (the equivalent of the GEMPACK \code{ICT}
-option). In-TAB \code{Substitute} statements are always executed as
-backsolves. In-TAB \code{Omit} statements hold the omitted variables
-exogenous and unshocked, which is what omission means in
-GEMPACK; the variables stay in the model and in the outputs.}
+If \code{TRUE}, in-TAB \code{Substitute}, \code{Backsolve} and \code{Omit}
+statements are ignored. Otherwise \code{Substitute} statements
+are executed as backsolves and \code{Omit} statements make the
+omitted variables exogenous where the closure does not
+already. The solver automatically drops
+unshocked exogenous variables from the solve, and their zero
+results remain in the outputs.}
 
 \item{...}{A named pairlist assigning values to model
 coefficients. Name must match a coefficient declared in the

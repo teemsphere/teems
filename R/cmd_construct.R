@@ -75,7 +75,7 @@
     } else if (solmed %in% c("Gragg", "Midpoint", "Euler")) {
       paste0(
         paste("-step1", steps[1], "-step2", steps[2], "-step3", steps[3]),
-        if (.o_convergence_rule() %=% "on") " -convrule 1" else ""
+        if (isTRUE(.o_converge())) " -convrule 1" else ""
       )
     },
     if (solmed %in% c("RK2", "Heun", "RK4", "BoSha32", "DoPri54")) {

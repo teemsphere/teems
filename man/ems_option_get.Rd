@@ -11,16 +11,18 @@ ems_option_get(name = NULL)
 value. One of:
 \itemize{
 \item \code{NULL} Returns all option values.
-\item \code{"verbose"} Logical. If \code{FALSE}, function-specific
-diagnostics are silenced.
 \item \code{"tempdir"} Character. Directory used for temporary
 file storage during a model run.
+\item \code{"verbose"} Logical. If \code{FALSE}, function-specific
+diagnostics are silenced.
 \item \code{"ndigits"} Integer. Number of digits to the right of
 the decimal point written to file for numeric type double
 (at least \code{ndigits} significant digits for small values).
 \item \code{"accuracy_threshold"} Numeric. Threshold
 (converted to a percentage) against which 4-digit
 precision is compared.
+\item \code{"full_exclude"} Character vector. Headers to
+fully exclude from all aspects of the model run.
 \item \code{"check_shock_status"} Logical. If \code{FALSE}, no
 check on shock element endogenous/exogenous status is
 conducted.
@@ -28,15 +30,8 @@ conducted.
 time of each period (\code{time_steps} of \code{\link[=ems_data]{ems_data()}}).
 \item \code{"n_timestep_header"} Character. Header written with the
 number of periods.
-\item \code{"full_exclude"} Character vector. Headers to
-fully exclude from all aspects of the model run.
-\item \code{"docker_tag"} Character. Docker tag specifying
-which Docker image to use. \code{"latest"} when unset; note
-the solve command auto-selects a host-matched variant
-tag when the option is unset (see \code{\link[=ems_option_set]{ems_option_set()}}).
-\item \code{"version_check"} Character. \code{"abort"} (the default),
-\code{"warn"} or \code{"off"}: what the solve pre-flight does with the
-image's solver version (see \code{\link[=ems_option_set]{ems_option_set()}}).
+\item \code{"docker_tag"} Character. Tag of the \code{teems} Docker image
+to use. \code{"latest"} when unset.
 \item \code{"assertions"} Character. \code{"fatal"} (the default), \code{"warn"}
 or \code{"off"}: severity of TAB \code{Assertion} failures in
 \code{\link[=ems_solve]{ems_solve()}}.
@@ -48,11 +43,11 @@ initial values.
 values.
 \item \code{"random_seed"} Integer. Seed of \code{RANDOM(a,b)} (the default
 is \code{1}).
-\item \code{"refine"} Character. \code{"on"} (the default) or \code{"off"}: one
-refinement step per \code{"DBBD"} solve (see
+\item \code{"refine"} Logical. \code{TRUE} (the default): one refinement
+step per \code{"DBBD"} solve (see
 \code{\link[=ems_option_set]{ems_option_set()}}).
-\item \code{"convergence_rule"} Character. \code{"off"} (the default) or
-\code{"on"}: GEMPACK's treatment of poorly converging results (see
+\item \code{"converge"} Logical. \code{FALSE} (the default); \code{TRUE}
+applies GEMPACK's treatment of poorly converging results (see
 \code{\link[=ems_option_set]{ems_option_set()}}).
 }}
 }

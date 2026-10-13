@@ -108,7 +108,7 @@ test_that("ems_solve rejects a non-spec complementarity", {
 # --- teems image with the options record, teems-solver c6e7e80+) ----
 
 solver_has_record <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }

@@ -1,5 +1,4 @@
-#' @importFrom data.table fread data.table setnames
-#' @importFrom tools file_path_sans_ext
+#' @importFrom data.table data.table setnames
 #' @keywords internal
 #' @noRd
 .get_timesteps <- function(paths,
@@ -26,21 +25,18 @@
   timestep_coeff <- model$name[match(.o_timestep_header(), model$header)]
 
   sol_prefix <- file.path(dirname(cmf_path), "out", "variables", "bin", "sol.")
-  if (.has_coefficient_dump(sol_prefix)) {
-    cof <- .parse_coefficient_bins(
-      sol_prefix = sol_prefix,
-      coeff_names = tolower(timestep_coeff)
-    )
-    timesteps <- data.table::data.table(cof$xc$Value)
-    data.table::setnames(timesteps, timestep_header)
-  } else {
-    output_paths <- .get_output_paths(cmf_path = cmf_path)$coeff
-    timestep_file <- output_paths[tools::file_path_sans_ext(basename(output_paths)) == timestep_coeff]
-    timesteps <- data.table::fread(timestep_file,
-      skip = 1,
-      col.names = timestep_header
+  if (!.has_coefficient_dump(sol_prefix)) {
+    .cli_action(compose_err$no_coef_dump,
+      action = c("abort", "inform"),
+      call = call
     )
   }
+  cof <- .parse_coefficient_bins(
+    sol_prefix = sol_prefix,
+    coeff_names = tolower(timestep_coeff)
+  )
+  timesteps <- data.table::data.table(cof$xc$Value)
+  data.table::setnames(timesteps, timestep_header)
   
   timesteps <- timesteps[!is.na(get(timestep_header))]
   timesteps[, let(CYRS = t0 + unlist(timesteps))]

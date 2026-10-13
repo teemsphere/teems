@@ -19,21 +19,19 @@ names to retrieve — an error is raised for any name not
 found. Note that some coefficient names differ from their
 associated headers (e.g., VTWR/VTMFSD). Coefficient values
 are read from the solver's binary coefficient dump
-(\code{sol.cof}/\code{sol.cbin}), selectively for named coefficients;
-the per-coefficient CSV files (see \code{write_coefficients} in
-\code{\link[=ems_deploy]{ems_deploy()}}) are used only when the dump is absent.}
+(\code{sol.cof}/\code{sol.cbin}), selectively for named coefficients.}
 
 \item{passes}{Logical length 1 (default \code{FALSE}). When \code{TRUE},
-each variable's data.table gains the separate solutions that a
-three-pass \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run extrapolates
-from (GEMPACK's SSL, manual 26.8.1): \code{Pass1}, \code{Pass2} and \code{Pass3}
-for the solutions with the fewest to the most steps, in the
-units of \code{Value}, and \code{Accuracy}, the number of significant
-figures to which the passes agree (6 for six or more, 1 for one
-or none; manual 26.2.3). With subintervals each pass is that
-pass over the last subinterval, compounded onto the
-extrapolated result of the earlier ones. An error is raised for
-a run that wrote no separate solutions.}
+each variable's data.table gains the separate solutions that
+a three-pass \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run
+extrapolates from: \code{Pass1}, \code{Pass2} and \code{Pass3} for the
+solutions with the fewest to the most steps, in the units of
+\code{Value}, and \code{Accuracy}, the number of significant figures
+to which the passes agree (6 for six or more, 1 for one or
+none). With subintervals, \code{Pass1}–\code{Pass3} differ only in the
+last subinterval, so \code{Accuracy} applies to that subinterval
+alone. An error is raised for a run that wrote no separate
+solutions.}
 }
 \value{
 A tibble with columns "name", "label", "type", and
@@ -51,12 +49,12 @@ checks are performed during composition.
 }
 \details{
 Every variable whose pre-simulation level is known
-gains the columns \code{PreLevel} and \code{PostLevel}, plus \code{Change} (the ordinary
-change) for a percent-change variable or \code{PercentChange} for a
-change variable (GEMPACK levels results, manual 11.6.5). The
-level is known for a variable declared with \verb{ORIG_LEVEL=} (a
-coefficient over exactly the variable's sets, or a number) and
-for a levels variable; pre-simulation values come from the
+gains the columns \code{PreLevel} and \code{PostLevel}, plus \code{Change}
+(the ordinary change) for a percent-change variable or
+\code{PercentChange} for a change variable. The level is known
+for a variable declared with \verb{ORIG_LEVEL=} (a coefficient
+over exactly the variable's sets, or a number) and for a
+levels variable; pre-simulation values come from the
 solver's \code{sol.cbin0}.
 }
 \examples{

@@ -68,7 +68,7 @@
   cores <- v$cores
   memory <- v$memory
   inspected <- if (is.null(cores) || is.null(memory)) {
-    .cntnr_resources(image = paste0("teems:", .resolve_docker_tag(quiet = TRUE)))
+    .cntnr_resources(image = paste0("teems:", .o_docker_tag()))
   } else {
     NULL
   }

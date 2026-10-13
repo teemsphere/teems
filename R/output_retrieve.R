@@ -7,7 +7,6 @@
                              cof_data = NULL,
                              type,
                              comp_extract,
-                             paths,
                              sets,
                              time_steps,
                              call) {
@@ -28,7 +27,7 @@
     )
   }
   
-  if (compose_coefficient && !is.null(cof_tbl)) {
+  if (compose_coefficient) {
     output$coefficient <- .compose_coeff_bin(
       data_dt = cof_data,
       coeff_extract = comp_extract$coefficient,
@@ -37,32 +36,10 @@
       time_steps = time_steps,
       call = call
     )
-  } else if (compose_coefficient) {
-    ps_paths <- toupper(sub("\\.csv$", "", basename(paths$coeff))) %in%
-      attr(comp_extract, "postsim_names")
-    output$coefficient <- .compose_coeff(
-      paths = paths$coeff[!ps_paths],
-      coeff_extract = comp_extract$coefficient,
-      sets = sets,
-      time_steps = time_steps,
-      call = call
-    )
-    if (any(ps_paths)) {
-      output$postsim <- .compose_coeff(
-        paths = paths$coeff[ps_paths],
-        coeff_extract = comp_extract$coefficient,
-        sets = sets,
-        time_steps = time_steps,
-        call = call,
-        type_label = "postsim"
-      )
-    }
   }
 
   if (type == "all") {
-    output <- rbind(output$variable, output$coefficient, output$postsim)
-  } else if (!is.null(output$postsim)) {
-    output <- rbind(output[[1]], output$postsim)
+    output <- rbind(output$variable, output$coefficient)
   } else {
     output <- output[[1]]
   }

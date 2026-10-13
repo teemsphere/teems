@@ -361,7 +361,7 @@ test_that("the probe runs against its own CMF copy and output stem", {
 test_that("probing a solved model leaves its solution intact", {
   skip_on_cran()
   skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
-  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+  skip_if(!.docker_image_present(paste0("teems:", .o_docker_tag())),
     "teems image not available"
   )
   write_dir <- withr::local_tempdir()
@@ -395,7 +395,7 @@ test_that("probing a solved model leaves its solution intact", {
 test_that("a solver failure before the probe report reaches the user by name", {
   skip_on_cran()
   skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
-  skip_if(!.docker_image_present(paste0("teems:", .resolve_docker_tag())),
+  skip_if(!.docker_image_present(paste0("teems:", .o_docker_tag())),
     "teems image not available"
   )
   write_dir <- withr::local_tempdir()

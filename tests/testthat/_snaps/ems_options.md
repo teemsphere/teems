@@ -1,6 +1,6 @@
 # ems_option_get errors on invalid name
 
-    `name` must be one of "verbose", "tempdir", "ndigits", "accuracy_threshold", "check_shock_status", "timestep_header", "n_timestep_header", "full_exclude", "docker_tag", "version_check", "assertions", "range_test_initial", "range_test_updated", "random_seed", "refine", and "convergence_rule", not "not_an_option".
+    `name` must be one of "tempdir", "verbose", "ndigits", "accuracy_threshold", "full_exclude", "check_shock_status", "timestep_header", "n_timestep_header", "docker_tag", "assertions", "range_test_initial", "range_test_updated", "random_seed", "refine", and "converge", not "not_an_option".
 
 # ems_option errors when write_dir does not exist
 
@@ -9,14 +9,6 @@
     Condition
       Error in `ems_option_set()`:
       ! 'testthat/does_not_exist' does not exist.
-
-# ems_option_set sets version_check and rejects other values
-
-    `version_check` must be one of "abort", "warn" or "off".
-
----
-
-    `version_check` must be one of "abort", "warn" or "off".
 
 # ems_option_set rejects invalid values
 
@@ -68,16 +60,9 @@
 
 # the refine option is validated, stored and reset
 
-    `refine` must be "on" or "off".
+    `refine` must be TRUE or FALSE.
 
-# the convergence_rule option is validated, stored and reset
+# the converge option is validated, stored and reset
 
-    `convergence_rule` must be "on" or "off".
-
-# docker tag auto-selection
-
-    Code
-      tag <- .resolve_docker_tag()
-    Message
-      i Using image teems:v3 (matches host CPU capability "x86-64-v3"). Set `docker_tag` via `ems_option_set()` to override.
+    `converge` must be TRUE or FALSE.
 

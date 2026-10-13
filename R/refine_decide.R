@@ -10,8 +10,8 @@
     return(NULL)
   }
   d <- list(
-    on = !mode %=% "off",
-    reason = mode,
+    on = isTRUE(mode),
+    reason = if (isTRUE(mode)) "on" else "off",
     est_gb = .auto_memory_gb("DBBD", n_tasks, plain_size, condensed, th, refine = TRUE)
   )
   return(d)

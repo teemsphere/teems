@@ -52,7 +52,7 @@ image_created <- function(image) {
 
 skip_if_no_e2e <- function() {
   skip_if(!nzchar(dat_input), "GTAP data not available")
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   skip_if(!.docker_image_present(img), "teems image not available")
   created <- image_created(img)
   skip_if(

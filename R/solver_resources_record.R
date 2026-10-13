@@ -5,7 +5,7 @@
                                      call) {
   th <- .auto_thresholds()
   host <- .cntnr_resources(
-    image = paste0("teems:", .resolve_docker_tag(quiet = TRUE))
+    image = paste0("teems:", .o_docker_tag())
   )
   metadata <- .deploy_metadata(cmf_path = paths$cmf)
   condensed <- isTRUE((metadata$condense$n_backsolve %|||% 0L) > 0L)

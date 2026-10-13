@@ -3,11 +3,12 @@
 #' @description `ems_option_set()` allows the user to customize
 #'   advanced options.
 #' @return `invisible(NULL)`, called for its side effects.
-#' @param verbose Logical of length 1 (default is `TRUE`). If
-#'   `FALSE`, function-specific diagnostics are silenced.
 #' @param tempdir A character vector length 1. Default is what is
 #'   returned by `tempdir()`. Directory where input files, model
-#'   diagnostics, and output files are written.
+#'   diagnostics, and output files are written as well as where
+#'   the model run takes place (via Docker bind mount).
+#' @param verbose Logical of length 1 (default is `TRUE`). If
+#'   `FALSE`, function-specific diagnostics are silenced.
 #' @param ndigits Integer (default is `6`). Number of digits to
 #'   the right of the decimal point kept when numeric type double
 #'   data are written to file. Values smaller than 0.1 in
@@ -17,9 +18,14 @@
 #'   converted to a percentage. 4-digit precision is compared
 #'   against this threshold; a warning is generated if it is not
 #'   met.
+#' @param full_exclude A character vector of variable length
+#'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
+#'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
+#'   of the model run. Failure to designate these headers
+#'   properly will result in errors. Modify with caution.
 #' @param check_shock_status Logical of length 1 (default is
-#'   `TRUE`). If `FALSE`, no check on shock element
-#'   endogenous/exogenous status is conducted.
+#'   `TRUE`). If `FALSE`, no check on the endogenous/exogenous
+#'   status of a variable designated for a shock is conducted.
 #' @param timestep_header A character vector length 1 (default is
 #'   `"YEAR"`). Header written with the time of each period, as
 #'   given in the `time_steps` argument of [`ems_data()`] (years,
@@ -30,103 +36,82 @@
 #'   is `"NTSP"`). Header written with the number of periods (the
 #'   length of `time_steps`). For novel intertemporal models —
 #'   modify with caution.
-#' @param full_exclude A character vector of variable length
-#'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
-#'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
-#'   of the model run. Failure to designate these headers
-#'   properly will result in errors. Modify with caution.
-#' @param docker_tag Character length 1. Docker tag specifying
-#'   which `teems` image to use. When unset, the tag is selected
-#'   automatically: the highest CPU capability level the host
-#'   supports (e.g. `"x86-64-v3"`, probed by running `ld.so` inside a
-#'   local `teems` image, so the answer is the same on Linux, Windows
-#'   and macOS hosts) with a matching local image `teems:<level>` (or
-#'   its short form, e.g. `teems:v3`) is preferred, falling back to
-#'   `"latest"`.
-#' @param version_check Character length 1 (default `"abort"`). What
-#'   the solve pre-flight does with the image's answer to
-#'   `teems-solver -version`, asked once per image per session. The
-#'   solver's major version must equal this package's (the interface
-#'   contract) and be at least the package's minimum (`1.1.0`, the
-#'   first solver that answers at all); `"abort"` stops on an old,
-#'   silent or mismatched image, `"warn"` reports it and runs anyway
-#'   (bit-exact reproduction against a pinned old image), `"off"`
-#'   never asks.
+#' @param docker_tag Character length 1 (default `"latest"`). Tag
+#'   of the `teems` Docker image to use.
 #' @param assertions Character length 1, `"fatal"` (default),
 #'   `"warn"` or `"off"`. Severity of TAB `Assertion` statement
-#'   failures in [`ems_solve()`] (GEMPACK manual 25.3): `"warn"`
-#'   reports and continues, `"off"` skips the checks.
-#' @param range_test_initial Character length 1, `"fatal"` (default),
-#'   `"warn"` or `"off"`. Severity of declared-range violations
-#'   (e.g. `(ge 0)`) on initial values in [`ems_solve()`]: every
-#'   coefficient, read or computed, is tested once the initial Reads
-#'   and Formulas are done (GEMPACK manual 25.4.2 and 25.4.4,
-#'   `range test initial values`; GEMPACK's `yes` (its default),
-#'   `warn` and `no` are `"fatal"`, `"warn"` and `"off"` here).
-#' @param range_test_updated Character length 1, `"warn"` (default),
-#'   `"fatal"` or `"off"`. As `range_test_initial`, for updated
-#'   values (`range test updated values`).
+#'   failures: `"warn"` reports and continues, `"off"` skips the
+#'   checks.
+#' @param range_test_initial Character length 1, `"fatal"`
+#'   (default), `"warn"` or `"off"`. Severity of declared-range
+#'   violations (e.g. `(ge 0)`) on initial values: every
+#'   coefficient, read or computed, is tested once the initial
+#'   Reads and Formulas are done.
+#' @param range_test_updated Character length 1, `"warn"`
+#'   (default), `"fatal"` or `"off"`. As `range_test_initial`,
+#'   for updated values (`range test updated values`).
 #' @param random_seed Integer (default is `1`). Seed of the TAB
-#'   function `RANDOM(a,b)` (GEMPACK manual 11.5.2) in
-#'   [`ems_solve()`]. The same seed reproduces every draw; each
-#'   Formula element keeps its draw across steps and extrapolation
-#'   passes. GEMPACK draws a new sequence per run by default
-#'   (`randomize = yes`); change the seed for a new sequence.
-#' @param refine Character length 1, `"on"` (default) or `"off"`. One
-#'   step of iterative refinement after every linear solve of
+#'   function `RANDOM(a,b)`. The same seed reproduces every draw;
+#'   each Formula element keeps its draw across steps and
+#'   extrapolation passes. Change the seed for a new sequence.
+#' @param refine Logical length 1 (default `TRUE`). One step of
+#'   iterative refinement after every linear solve of
 #'   `matrix_method = "DBBD"` in [`ems_solve()`], which brings its
-#'   accuracy to that of `"LU"`. Refinement holds the system matrix and
-#'   the block factorizations through each solve, so it raises peak
-#'   memory; the memory estimate counts it. Other matrix methods are
-#'   not refined.
-#' @param convergence_rule Character length 1, `"off"` (default) or
-#'   `"on"`. With `"on"`, [`ems_solve()`] applies GEMPACK's treatment
-#'   of poorly converging results (GEMPACK manual 26.2.5) to a run
-#'   extrapolated from three multi-step solutions: a component whose
-#'   three solutions lie very close together or near zero reports their
-#'   average, one whose solutions do not converge cleanly reports the
-#'   solution with the most steps, and the rest are extrapolated. The
-#'   manual does not publish its thresholds; teems-solver's follow
-#'   Pearson (1991). Not available with subtotals.
+#'   accuracy to that of `"LU"`. Refinement holds the system matrix
+#'   and the block factorizations through each solve, so it raises
+#'   peak memory; the memory estimate counts it. `"LU"` and
+#'   `"SBBD"` are backward-stable and need no refinement;
+#'   `"NDBBD"` is not refined, as it cannot yet keep its
+#'   factorization for a second solve.
+#' @param converge Logical length 1 (default `FALSE`). If `TRUE`,
+#'   [`ems_solve()`] applies GEMPACK's treatment of poorly
+#'   converging results (see GEMPACK manual 26.2.5) to a run
+#'   extrapolated from three multi-step solutions: a component
+#'   whose three solutions lie very close together or near zero
+#'   reports their average, one whose solutions do not converge
+#'   cleanly reports the solution with the most steps, and the rest
+#'   are extrapolated. Not available with subtotals.
 #' @seealso [`ems_option_get()`] for retrieving package options.
 #'   [`ems_option_reset()`] for resetting package options.
 #' @examples
 #' # Set multiple options
 #' ems_option_set(verbose = FALSE, ndigits = 8)
 #' 
-#' # Retrieve value of `verbose`
-#' ems_option_get("verbose")
+#' # Retrieve value of `tempdir`
+#' ems_option_get("tempdir")
 #' 
 #' # Reset options to default values
 #' ems_option_reset()
-ems_option_set <- function(verbose = NULL,
-                           tempdir = NULL,
+ems_option_set <- function(tempdir = NULL,
+                           verbose = NULL,
                            ndigits = NULL,
                            accuracy_threshold = NULL,
+                           full_exclude = NULL,
                            check_shock_status = NULL,
                            timestep_header = NULL,
                            n_timestep_header = NULL,
-                           full_exclude = NULL,
                            docker_tag = NULL,
-                           version_check = NULL,
                            assertions = NULL,
                            range_test_initial = NULL,
                            range_test_updated = NULL,
                            random_seed = NULL,
                            refine = NULL,
-                           convergence_rule = NULL) {
+                           converge = NULL) {
   call <- match.call()
-  if (!is.null(verbose)) {
-    ems_options$set_verbose(verbose, call = call)
-  }
   if (!is.null(tempdir)) {
     ems_options$set_tempdir(tempdir, call = call)
+  }
+  if (!is.null(verbose)) {
+    ems_options$set_verbose(verbose, call = call)
   }
   if (!is.null(ndigits)) {
     ems_options$set_ndigits(ndigits, call = call)
   }
   if (!is.null(accuracy_threshold)) {
     ems_options$set_accuracy_threshold(accuracy_threshold, call = call)
+  }
+  if (!is.null(full_exclude)) {
+    ems_options$set_full_exclude(full_exclude, call = call)
   }
   if (!is.null(check_shock_status)) {
     ems_options$set_check_shock_status(check_shock_status, call = call)
@@ -137,14 +122,8 @@ ems_option_set <- function(verbose = NULL,
   if (!is.null(n_timestep_header)) {
     ems_options$set_n_timestep_header(n_timestep_header, call = call)
   }
-  if (!is.null(full_exclude)) {
-    ems_options$set_full_exclude(full_exclude, call = call)
-  }
   if (!is.null(docker_tag)) {
     ems_options$set_docker_tag(docker_tag, call = call)
-  }
-  if (!is.null(version_check)) {
-    ems_options$set_version_check(version_check, call = call)
   }
   if (!is.null(assertions)) {
     ems_options$set_assertions(assertions, call = call)
@@ -161,8 +140,8 @@ ems_option_set <- function(verbose = NULL,
   if (!is.null(refine)) {
     ems_options$set_refine(refine, call = call)
   }
-  if (!is.null(convergence_rule)) {
-    ems_options$set_convergence_rule(convergence_rule, call = call)
+  if (!is.null(converge)) {
+    ems_options$set_converge(converge, call = call)
   }
   invisible(NULL)
 }
@@ -177,16 +156,18 @@ ems_option_set <- function(verbose = NULL,
 #' @param name Name of the option for which to retrieve a
 #'   value. One of:
 #'   * `NULL` Returns all option values.
-#'   * `"verbose"` Logical. If `FALSE`, function-specific
-#'     diagnostics are silenced.
 #'   * `"tempdir"` Character. Directory used for temporary
 #'     file storage during a model run.
+#'   * `"verbose"` Logical. If `FALSE`, function-specific
+#'     diagnostics are silenced.
 #'   * `"ndigits"` Integer. Number of digits to the right of
 #'     the decimal point written to file for numeric type double
 #'     (at least `ndigits` significant digits for small values).
 #'   * `"accuracy_threshold"` Numeric. Threshold
 #'     (converted to a percentage) against which 4-digit
 #'     precision is compared.
+#'   * `"full_exclude"` Character vector. Headers to
+#'     fully exclude from all aspects of the model run.
 #'   * `"check_shock_status"` Logical. If `FALSE`, no
 #'     check on shock element endogenous/exogenous status is
 #'     conducted.
@@ -194,15 +175,8 @@ ems_option_set <- function(verbose = NULL,
 #'     time of each period (`time_steps` of [`ems_data()`]).
 #'   * `"n_timestep_header"` Character. Header written with the
 #'     number of periods.
-#'   * `"full_exclude"` Character vector. Headers to
-#'     fully exclude from all aspects of the model run.
-#'   * `"docker_tag"` Character. Docker tag specifying
-#'     which Docker image to use. `"latest"` when unset; note
-#'     the solve command auto-selects a host-matched variant
-#'     tag when the option is unset (see [`ems_option_set()`]).
-#'   * `"version_check"` Character. `"abort"` (the default),
-#'     `"warn"` or `"off"`: what the solve pre-flight does with the
-#'     image's solver version (see [`ems_option_set()`]).
+#'   * `"docker_tag"` Character. Tag of the `teems` Docker image
+#'     to use. `"latest"` when unset.
 #'   * `"assertions"` Character. `"fatal"` (the default), `"warn"`
 #'     or `"off"`: severity of TAB `Assertion` failures in
 #'     [`ems_solve()`].
@@ -214,11 +188,11 @@ ems_option_set <- function(verbose = NULL,
 #'     values.
 #'   * `"random_seed"` Integer. Seed of `RANDOM(a,b)` (the default
 #'     is `1`).
-#'   * `"refine"` Character. `"on"` (the default) or `"off"`: one
-#'     refinement step per `"DBBD"` solve (see
+#'   * `"refine"` Logical. `TRUE` (the default): one refinement
+#'     step per `"DBBD"` solve (see
 #'     [`ems_option_set()`]).
-#'   * `"convergence_rule"` Character. `"off"` (the default) or
-#'     `"on"`: GEMPACK's treatment of poorly converging results (see
+#'   * `"converge"` Logical. `FALSE` (the default); `TRUE`
+#'     applies GEMPACK's treatment of poorly converging results (see
 #'     [`ems_option_set()`]).
 #' @seealso [`ems_option_set()`] for setting package options.
 #'   [`ems_option_reset()`] for resetting package options.
@@ -240,22 +214,21 @@ ems_option_get <- function(name = NULL) {
   }
 
   switch(name,
-         verbose            = ems_options$get_verbose(),
          tempdir            = ems_options$get_tempdir(),
+         verbose            = ems_options$get_verbose(),
          ndigits            = ems_options$get_ndigits(),
          accuracy_threshold = ems_options$get_accuracy_threshold(),
+         full_exclude       = ems_options$get_full_exclude(),
          check_shock_status = ems_options$get_check_shock_status(),
          timestep_header    = ems_options$get_timestep_header(),
          n_timestep_header  = ems_options$get_n_timestep_header(),
-         full_exclude       = ems_options$get_full_exclude(),
          docker_tag         = ems_options$get_docker_tag(),
-         version_check      = ems_options$get_version_check(),
          assertions         = ems_options$get_assertions(),
          range_test_initial = ems_options$get_range_test_initial(),
          range_test_updated = ems_options$get_range_test_updated(),
          random_seed        = ems_options$get_random_seed(),
          refine             = ems_options$get_refine(),
-         convergence_rule   = ems_options$get_convergence_rule()
+         converge           = ems_options$get_converge()
   )
 }
 

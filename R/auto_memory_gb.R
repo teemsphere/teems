@@ -5,7 +5,7 @@
                             plain_size,
                             condensed = FALSE,
                             th = .auto_thresholds(),
-                            refine = !.o_refine() %=% "off") {
+                            refine = isTRUE(.o_refine())) {
   if (is.null(plain_size) || is.na(plain_size) || plain_size <= 0) {
     return(NA_real_)
   }

@@ -231,8 +231,9 @@ if any guess proves too small.
 }
 \value{
 A tibble of model output variables and coefficients.
-\code{invisible(NULL)} if \code{suppress_outputs = TRUE}. Instructions
-for terminal execution if \code{terminal_run = TRUE}.
+The CMF path, invisibly, if \code{suppress_outputs = TRUE}; pass it
+to \code{\link[=ems_compose]{ems_compose()}}. Instructions for terminal execution if
+\code{terminal_run = TRUE}.
 }
 \description{
 Calls the

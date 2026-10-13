@@ -24,17 +24,10 @@
     full.names = TRUE
   )
 
-  coeff_paths <- list.files(
-    path = file.path(model_dir, "out", "coefficients"),
-    pattern = "csv",
-    full.names = TRUE
-  )
-
   paths <- list(
     tab      = tab_path,
     model    = model_dir,
     metadata = metadata_path,
-    coeff    = coeff_paths,
     sets     = set_paths
   )
   return(paths)

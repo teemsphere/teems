@@ -63,13 +63,6 @@
 
 #' @noRd
 #' @keywords internal
-.o_version_check <- function() {
-  version_check <- ems_option_get("version_check")
-  return(version_check)
-}
-
-#' @noRd
-#' @keywords internal
 .o_assertions <- function() {
   assertions <- ems_option_get("assertions")
   return(assertions)
@@ -105,7 +98,7 @@
 
 #' @noRd
 #' @keywords internal
-.o_convergence_rule <- function() {
-  convergence_rule <- ems_option_get("convergence_rule")
-  return(convergence_rule)
+.o_converge <- function() {
+  converge <- ems_option_get("converge")
+  return(converge)
 }

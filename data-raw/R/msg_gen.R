@@ -36,8 +36,6 @@ build_gen_err <- function() {
     opt_full_exclude = "{.arg full_exclude} must be a character vector.",
     # test-ems_options.R: "ems_option_set rejects invalid values"
     opt_docker_tag = "{.arg docker_tag} must be a character vector.",
-    # test-ems_options.R: "ems_option_set sets version_check and rejects other values"
-    opt_version_check = "{.arg version_check} must be one of {.val abort}, {.val warn} or {.val off}.",
     # test-ems_options.R: "ems_option_set sets the solver run modes and rejects other values"
     opt_assertions = "{.arg assertions} must be one of {.val fatal}, {.val warn} or {.val off}.",
     # test-ems_options.R: "ems_option_set sets the solver run modes and rejects other values"
@@ -45,9 +43,9 @@ build_gen_err <- function() {
     # test-ems_options.R: "ems_option_set sets the solver run modes and rejects other values"
     opt_range_test_updated = "{.arg range_test_updated} must be one of {.val fatal}, {.val warn} or {.val off}.",
     # test-ems_options.R: "the refine option is validated, stored and reset"
-    opt_refine = "{.arg refine} must be {.val on} or {.val off}.",
-    # test-ems_options.R: "the convergence_rule option is validated, stored and reset"
-    opt_convergence_rule = "{.arg convergence_rule} must be {.val on} or {.val off}.",
+    opt_refine = "{.arg refine} must be TRUE or FALSE.",
+    # test-ems_options.R: "the converge option is validated, stored and reset"
+    opt_converge = "{.arg converge} must be TRUE or FALSE.",
     # one-line internal aborts
     # test-ems_compose.R: "ems_compose errors when cmf_path is missing"
     missing_arg = "argument {.arg {arg}} is missing, with no default",

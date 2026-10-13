@@ -220,7 +220,7 @@ test_that("compositions, offsets on mapped indices and LHS mappings parse (manua
 # --- "dev") against a current rebuild) --------------------------------
 
 solver_has_levels <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }
@@ -349,7 +349,7 @@ test_that("a sum condition in a levels equation reaches the solver as written", 
 })
 
 solver_has_homotopy <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }

@@ -59,29 +59,9 @@ test_that("a conforming image passes, is cached, and is asked once", {
   expect_identical(get("teems:ok", envir = .solver_version_cache), "1.1.0-dev.4")
 })
 
-test_that("version_check = 'warn' downgrades the abort to a warning, once", {
-  reset_cache()
-  ems_option_set(version_check = "warn")
-  local_mocked_bindings(.solver_version_query = function(image) NA_character_)
-  expect_warning(
-    .check_solver_version("teems:old", call = NULL),
-    "predates the versioned interface"
-  )
-  expect_no_warning(.check_solver_version("teems:old", call = NULL))
-  ems_option_reset()
-})
-
-test_that("version_check = 'off' never asks the image", {
-  reset_cache()
-  ems_option_set(version_check = "off")
-  local_mocked_bindings(.solver_version_query = function(image) stop("asked"))
-  expect_null(.check_solver_version("teems:any", call = NULL))
-  ems_option_reset()
-})
-
 test_that("the local solve image answers -version with a semantic version", {
   skip_if_not(nzchar(Sys.which("docker")))
-  image <- paste0("teems:", .resolve_docker_tag(quiet = TRUE))
+  image <- paste0("teems:", .o_docker_tag())
   v <- .solver_version_query(image)
   expect_match(v, "^[0-9]+\\.[0-9]+\\.[0-9]+")
   reset_cache()

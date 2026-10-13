@@ -116,20 +116,6 @@ test_that("ems_option_reset restores default ndigits", {
   expect_equal(ems_option_get("ndigits"), 6)
 })
 
-test_that("ems_option_get returns character for version_check", {
-  expect_identical(ems_option_get("version_check"), "abort")
-})
-
-test_that("ems_option_set sets version_check and rejects other values", {
-  ems_option_set(version_check = "warn")
-  expect_identical(ems_option_get("version_check"), "warn")
-  ems_option_set(version_check = "off")
-  expect_identical(ems_option_get("version_check"), "off")
-  expect_snapshot_error(ems_option_set(version_check = "maybe"))
-  expect_snapshot_error(ems_option_set(version_check = c("abort", "warn")))
-  ems_option_reset()
-})
-
 test_that("ems_option_set rejects invalid values", {
   withr::defer(ems_option_reset())
   expect_snapshot_error(ems_option_set(verbose = "yes"))
@@ -176,34 +162,29 @@ test_that("random_seed is validated, stored as an integer and reset", {
 
 test_that("the refine option is validated, stored and reset", {
   withr::defer(ems_option_reset())
-  expect_identical(ems_option_get("refine"), "on")
-  ems_option_set(refine = "off")
-  expect_identical(ems_option_get("refine"), "off")
-  expect_identical(ems_option_get()$refine, "off")
-  expect_identical(.o_refine(), "off")
-  expect_snapshot_error(ems_option_set(refine = TRUE))
-  expect_error(ems_option_set(refine = c("on", "off")), "refine")
-  expect_identical(ems_option_get("refine"), "off")
+  expect_true(ems_option_get("refine"))
+  ems_option_set(refine = FALSE)
+  expect_false(ems_option_get("refine"))
+  expect_false(ems_option_get()$refine)
+  expect_false(.o_refine())
+  expect_snapshot_error(ems_option_set(refine = "off"))
+  expect_error(ems_option_set(refine = c(TRUE, FALSE)), "refine")
+  expect_error(ems_option_set(refine = NA), "refine")
+  expect_false(ems_option_get("refine"))
   ems_option_reset()
-  expect_identical(ems_option_get("refine"), "on")
+  expect_true(ems_option_get("refine"))
 })
 
-test_that("the convergence_rule option is validated, stored and reset", {
+test_that("the converge option is validated, stored and reset", {
   withr::defer(ems_option_reset())
-  expect_identical(ems_option_get("convergence_rule"), "off")
-  ems_option_set(convergence_rule = "on")
-  expect_identical(ems_option_get("convergence_rule"), "on")
-  expect_identical(ems_option_get()$convergence_rule, "on")
-  expect_identical(.o_convergence_rule(), "on")
-  expect_snapshot_error(ems_option_set(convergence_rule = TRUE))
+  expect_false(ems_option_get("converge"))
+  ems_option_set(converge = TRUE)
+  expect_true(ems_option_get("converge"))
+  expect_true(ems_option_get()$converge)
+  expect_true(.o_converge())
+  expect_snapshot_error(ems_option_set(converge = "on"))
   ems_option_reset()
-  expect_identical(ems_option_get("convergence_rule"), "off")
-})
-
-test_that("ems_option_reset restores default version_check", {
-  ems_option_set(version_check = "off")
-  ems_option_reset()
-  expect_identical(ems_option_get("version_check"), "abort")
+  expect_false(ems_option_get("converge"))
 })
 
 test_that("ems_option_reset restores default docker_tag", {
@@ -252,77 +233,9 @@ test_that("ems_option_reset examples work", {
   ems_option_get("verbose")
 })
 
-test_that("supported ISA levels resolve per platform", {
-  expect_identical(.supported_isa_levels(machine = "arm64"), "armv8-a")
-  expect_identical(.supported_isa_levels(machine = "aarch64"), "armv8-a")
-  expect_identical(.supported_isa_levels(machine = "ppc64le"), character(0))
-
-  # x86-64 asks the image's own ld.so, so the answer is the same on
-  # Linux, Windows and macOS hosts; the probe is cached per session
-  rm(list = ls(.isa_cache), envir = .isa_cache)
-  local_mocked_bindings(
-    .cntnr_isa_levels = function(...) c("x86-64-v3", "x86-64-v2")
-  )
-  for (machine in c("x86_64", "x86-64", "AMD64")) {
-    expect_identical(
-      .supported_isa_levels(machine = machine),
-      c("x86-64-v3", "x86-64-v2")
-    )
-  }
-  local_mocked_bindings(.cntnr_isa_levels = function(...) stop("cached"))
-  expect_identical(.supported_isa_levels(machine = "x86_64"), c("x86-64-v3", "x86-64-v2"))
-
-  # no image to ask (or an image without a level-aware ld.so): baseline
-  rm(list = ls(.isa_cache), envir = .isa_cache)
-  local_mocked_bindings(.cntnr_isa_levels = function(...) character(0))
-  expect_identical(.supported_isa_levels(machine = "x86_64"), "x86-64-v2")
-  rm(list = ls(.isa_cache), envir = .isa_cache)
-})
-
-test_that("container ISA probe parses ld.so and skips images that cannot answer", {
-  ld_out <- c("  x86-64-v4", "  x86-64-v3 (supported, searched)",
-              "  x86-64-v2 (supported, searched)")
-  rec <- new.env(parent = emptyenv())
-  rec$calls <- character(0)
-  local_mocked_bindings(
-    .cntnr_ld_so_help = function(image) {
-      rec$calls <- c(rec$calls, image)
-      if (image == "teems:latest") return(character(0))
-      ld_out
-    }
-  )
-  expect_identical(
-    .cntnr_isa_levels(c("teems:latest", "teems:dev")),
-    c("x86-64-v3", "x86-64-v2")
-  )
-  expect_identical(rec$calls, c("teems:latest", "teems:dev"))
-  expect_identical(.cntnr_isa_levels(character(0)), character(0))
-
-  # live: any local teems image answers with the baseline at least
-  skip_if(!length(.local_teems_images()), "no local teems image")
-  levels <- .cntnr_isa_levels()
-  expect_true(all(grepl("^x86-64-v[0-9]+$", levels)))
-  expect_true(is.element("x86-64-v2", levels))
-  expect_identical(levels, sort(levels, decreasing = TRUE))
-})
-
-test_that("docker tag auto-selection", {
-  # an explicit docker_tag always wins
+test_that("docker_tag defaults to latest and an explicit tag wins", {
+  expect_identical(.o_docker_tag(), "latest")
   ems_option_set(docker_tag = "custom")
-  expect_identical(.resolve_docker_tag(), "custom")
+  expect_identical(.o_docker_tag(), "custom")
   ems_option_reset()
-
-  # highest supported local variant preferred; short-form tag matches too
-  local_mocked_bindings(
-    .supported_isa_levels = function(...) c("x86-64-v3", "x86-64-v2"),
-    .docker_image_present = function(image_name) image_name == "teems:v3"
-  )
-  expect_snapshot(tag <- .resolve_docker_tag())
-  expect_identical(tag, "v3")
-
-  # no variant image present: silent fallback to latest
-  local_mocked_bindings(
-    .docker_image_present = function(image_name) FALSE
-  )
-  expect_silent(expect_identical(.resolve_docker_tag(), "latest"))
 })

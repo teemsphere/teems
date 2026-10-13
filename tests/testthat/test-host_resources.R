@@ -27,7 +27,7 @@ test_that("container inspection output is parsed", {
 
 test_that("the live inspection reports this machine's container once per session", {
   skip_if_not(nzchar(Sys.which("docker")))
-  image <- paste0("teems:", .resolve_docker_tag(quiet = TRUE))
+  image <- paste0("teems:", .o_docker_tag())
   h <- .cntnr_resources(image, refresh = TRUE)
   skip_if(is.null(h))
   expect_gte(h$cores, 1L)

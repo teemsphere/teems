@@ -9,114 +9,108 @@ options_class <- R6::R6Class(
   portable = FALSE,
   cloneable = FALSE,
   public = list(
-    verbose = NULL,
     tempdir = NULL,
+    verbose = NULL,
     ndigits = NULL,
     accuracy_threshold = NULL,
+    full_exclude = NULL,
     check_shock_status = NULL,
     timestep_header = NULL,
     n_timestep_header = NULL,
-    full_exclude = NULL,
     docker_tag = NULL,
-    version_check = NULL,
     assertions = NULL,
     range_test_initial = NULL,
     range_test_updated = NULL,
     random_seed = NULL,
     refine = NULL,
-    convergence_rule = NULL,
+    converge = NULL,
 
-    initialize = function(verbose = NULL,
-                          tempdir = NULL,
+    initialize = function(tempdir = NULL,
+                          verbose = NULL,
                           ndigits = NULL,
                           accuracy_threshold = NULL,
+                          full_exclude = NULL,
                           check_shock_status = NULL,
                           timestep_header = NULL,
                           n_timestep_header = NULL,
-                          full_exclude = NULL,
                           docker_tag = NULL,
-                          version_check = NULL,
                           assertions = NULL,
                           range_test_initial = NULL,
                           range_test_updated = NULL,
                           random_seed = NULL,
                           refine = NULL,
-                          convergence_rule = NULL) {
-      self$verbose <- verbose
+                          converge = NULL) {
       self$tempdir <- tempdir
+      self$verbose <- verbose
       self$ndigits <- ndigits
       self$accuracy_threshold <- accuracy_threshold
+      self$full_exclude <- full_exclude
       self$check_shock_status <- check_shock_status
       self$timestep_header <- timestep_header
       self$n_timestep_header <- n_timestep_header
-      self$full_exclude <- full_exclude
       self$docker_tag <- docker_tag
-      self$version_check <- version_check
       self$assertions <- assertions
       self$range_test_initial <- range_test_initial
       self$range_test_updated <- range_test_updated
       self$random_seed <- random_seed
       self$refine <- refine
-      self$convergence_rule <- convergence_rule
+      self$converge <- converge
     },
 
     export = function() {
       list(
-        verbose = self$get_verbose(),
         tempdir = self$get_tempdir(),
+        verbose = self$get_verbose(),
         ndigits = self$get_ndigits(),
         accuracy_threshold = self$get_accuracy_threshold(),
+        full_exclude = self$get_full_exclude(),
         check_shock_status = self$get_check_shock_status(),
         timestep_header = self$get_timestep_header(),
         n_timestep_header = self$get_n_timestep_header(),
-        full_exclude = self$get_full_exclude(),
         docker_tag = self$get_docker_tag(),
-        version_check = self$get_version_check(),
         assertions = self$get_assertions(),
         range_test_initial = self$get_range_test_initial(),
         range_test_updated = self$get_range_test_updated(),
         random_seed = self$get_random_seed(),
         refine = self$get_refine(),
-        convergence_rule = self$get_convergence_rule()
+        converge = self$get_converge()
       )
     },
 
     import = function(list) {
-      self$set_verbose(list$verbose)
       self$set_tempdir(list$tempdir)
+      self$set_verbose(list$verbose)
       self$set_ndigits(list$ndigits)
       self$set_accuracy_threshold(list$accuracy_threshold)
+      self$set_full_exclude(list$full_exclude)
       self$set_check_shock_status(list$check_shock_status)
       self$set_timestep_header(list$timestep_header)
       self$set_n_timestep_header(list$n_timestep_header)
-      self$set_full_exclude(list$full_exclude)
       self$set_docker_tag(list$docker_tag)
-      self$set_version_check(list$version_check)
       self$set_assertions(list$assertions)
       self$set_range_test_initial(list$range_test_initial)
       self$set_range_test_updated(list$range_test_updated)
       self$set_random_seed(list$random_seed)
       self$set_refine(list$refine)
-      self$set_convergence_rule(list$convergence_rule)
+      self$set_converge(list$converge)
     },
 
     reset = function() {
-      self$verbose <- NULL
       self$tempdir <- NULL
+      self$verbose <- NULL
       self$ndigits <- NULL
       self$accuracy_threshold <- NULL
+      self$full_exclude <- NULL
       self$check_shock_status <- NULL
       self$timestep_header <- NULL
       self$n_timestep_header <- NULL
-      self$full_exclude <- NULL
       self$docker_tag <- NULL
-      self$version_check <- NULL
       self$assertions <- NULL
       self$range_test_initial <- NULL
       self$range_test_updated <- NULL
       self$random_seed <- NULL
       self$refine <- NULL
-      self$convergence_rule <- NULL
+      self$converge <- NULL
     },
 
     get_verbose = function() {
@@ -159,10 +153,6 @@ options_class <- R6::R6Class(
       self$docker_tag %|||% "latest"
     },
 
-    get_version_check = function() {
-      self$version_check %|||% "abort"
-    },
-
     get_assertions = function() {
       self$assertions %|||% "fatal"
     },
@@ -176,11 +166,11 @@ options_class <- R6::R6Class(
     },
 
     get_refine = function() {
-      self$refine %|||% "on"
+      self$refine %|||% TRUE
     },
 
-    get_convergence_rule = function() {
-      self$convergence_rule %|||% "off"
+    get_converge = function() {
+      self$converge %|||% FALSE
     },
 
     set_verbose = function(verbose, call = rlang::caller_env()) {
@@ -233,11 +223,6 @@ options_class <- R6::R6Class(
       self$docker_tag <- docker_tag
     },
 
-    set_version_check = function(version_check, call = rlang::caller_env()) {
-      self$validate_version_check(version_check, call = call)
-      self$version_check <- version_check
-    },
-
     set_assertions = function(assertions, call = rlang::caller_env()) {
       self$validate_assertions(assertions, call = call)
       self$assertions <- assertions
@@ -258,9 +243,9 @@ options_class <- R6::R6Class(
       self$refine <- refine
     },
 
-    set_convergence_rule = function(convergence_rule, call = rlang::caller_env()) {
-      self$validate_convergence_rule(convergence_rule, call = call)
-      self$convergence_rule <- convergence_rule
+    set_converge = function(converge, call = rlang::caller_env()) {
+      self$validate_converge(converge, call = call)
+      self$converge <- converge
     },
 
     validate_verbose = function(verbose, call = rlang::caller_env()) {
@@ -324,13 +309,6 @@ options_class <- R6::R6Class(
       }
     },
 
-    validate_version_check = function(version_check, call = rlang::caller_env()) {
-      if (!is.character(version_check) || length(version_check) != 1L ||
-        !version_check %in% c("abort", "warn", "off")) {
-        cli::cli_abort(gen_err$opt_version_check, call = call)
-      }
-    },
-
     validate_assertions = function(assertions, call = rlang::caller_env()) {
       if (!is.character(assertions) || length(assertions) != 1L ||
         !assertions %in% c("fatal", "warn", "off")) {
@@ -353,16 +331,14 @@ options_class <- R6::R6Class(
     },
 
     validate_refine = function(refine, call = rlang::caller_env()) {
-      if (!is.character(refine) || length(refine) != 1L ||
-        !refine %in% c("on", "off")) {
+      if (!is.logical(refine) || length(refine) != 1 || is.na(refine)) {
         cli::cli_abort(gen_err$opt_refine, call = call)
       }
     },
 
-    validate_convergence_rule = function(convergence_rule, call = rlang::caller_env()) {
-      if (!is.character(convergence_rule) || length(convergence_rule) != 1L ||
-        !convergence_rule %in% c("on", "off")) {
-        cli::cli_abort(gen_err$opt_convergence_rule, call = call)
+    validate_converge = function(converge, call = rlang::caller_env()) {
+      if (!is.logical(converge) || length(converge) != 1 || is.na(converge)) {
+        cli::cli_abort(gen_err$opt_converge, call = call)
       }
     },
 
@@ -376,12 +352,11 @@ options_class <- R6::R6Class(
       self$validate_n_timestep_header(self$get_n_timestep_header())
       self$validate_full_exclude(self$get_full_exclude())
       self$validate_docker_tag(self$get_docker_tag())
-      self$validate_version_check(self$get_version_check())
       self$validate_assertions(self$get_assertions())
       self$validate_range_test_initial(self$get_range_test_initial())
       self$validate_range_test_updated(self$get_range_test_updated())
       self$validate_refine(self$get_refine())
-      self$validate_convergence_rule(self$get_convergence_rule())
+      self$validate_converge(self$get_converge())
     }
   )
 )
@@ -395,7 +370,6 @@ options_new <- function(verbose = NULL,
                         n_timestep_header = NULL,
                         full_exclude = NULL,
                         docker_tag = NULL,
-                        version_check = NULL,
                         assertions = NULL,
                         range_test_initial = NULL,
                         range_test_updated = NULL) {
@@ -409,7 +383,6 @@ options_new <- function(verbose = NULL,
     n_timestep_header = n_timestep_header,
     full_exclude = full_exclude,
     docker_tag = docker_tag,
-    version_check = version_check,
     assertions = assertions,
     range_test_initial = range_test_initial,
     range_test_updated = range_test_updated

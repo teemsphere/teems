@@ -38,7 +38,7 @@ ems_option_set(verbose = FALSE, tempdir = write_dir)
 withr::defer(ems_option_reset(), teardown_env())
 
 image_has_f64 <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }

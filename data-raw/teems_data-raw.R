@@ -23,7 +23,8 @@ dir <- list.dirs(
   recursive = FALSE
 )
 
-dir <- dir[basename(dir) != ".git"]
+# ORANI-G stays in teems-models but is not shipped for ems_example()
+dir <- dir[!basename(dir) %in% c(".git", "ORANI-G")]
 file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
 
 # model layers (definitions in data-raw/R/layer_spec.R) ---------------

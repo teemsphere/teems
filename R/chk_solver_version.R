@@ -11,19 +11,11 @@
 #' @noRd
 .check_solver_version <- function(image,
                                   call = NULL) {
-  mode <- .o_version_check()
-  if (mode %=% "off") {
-    return(invisible(NULL))
-  }
   cached <- .solver_version_cache[[image]]
   if (!is.null(cached)) {
     return(invisible(cached))
   }
-  action <- c(if (mode %=% "abort") {
-    "abort"
-  } else {
-    "warn"
-  }, "inform")
+  action <- c("abort", "inform")
   pkg_version <- as.character(utils::packageVersion("teems"))
   pkg_core <- .solver_version_core(pkg_version)
   pkg_major <- as.integer(pkg_core[[1, 1]])

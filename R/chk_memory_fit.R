@@ -15,7 +15,7 @@
                               th = .auto_thresholds(),
                               call = NULL,
                               report_only = FALSE,
-                              refine = !.o_refine() %=% "off") {
+                              refine = isTRUE(.o_refine())) {
   est_gb <- .auto_memory_gb(method, n_tasks, plain_size, condensed, th, refine = refine)
   limit <- host$mem_gb %|||% NA_real_
   rec <- list(

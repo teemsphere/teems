@@ -53,7 +53,7 @@ ems_option_set(verbose = FALSE, tempdir = write_dir)
 withr::defer(ems_option_reset(), teardown_env())
 
 solver_has_switches <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }
@@ -71,7 +71,7 @@ solver_has_switches <- function() {
 }
 
 solver_has_retry_record <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }
@@ -174,7 +174,7 @@ test_that("switches reach the solver and the run records them (e2e)", {
 })
 
 solver_has_refine <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }
@@ -224,9 +224,9 @@ test_that("the DBBD refinement option reaches the solver and the record (e2e)", 
   diag_txt <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_true(any(grepl("refinement (DBBD, one step per solve): on", diag_txt, fixed = TRUE)))
   expect_true(any(grepl("^Refinement \\(DBBD\\): [0-9]+ solve\\(s\\) refined", diag_txt)))
-  ems_option_set(refine = "off")
+  ems_option_set(refine = FALSE)
   off <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L))
-  ems_option_set(refine = "on")
+  ems_option_set(refine = TRUE)
   stats <- read_stats()
   expect_false(stats$options$refine)
   expect_null(stats$refine)

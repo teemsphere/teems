@@ -86,35 +86,6 @@ test_that("variable names that differ from the tab extract abort", {
   expect_snapshot_error(compose_var_fixture(fx))
 })
 
-test_that("a coefficient file that carries another coefficient aborts", {
-  coeff_dir <- withr::local_tempdir()
-  path <- file.path(coeff_dir, "SAVE.csv")
-  writeLines(
-    c('2 Real SpreadSheet Header "OTHR" LongName "some other coefficient";', "1", "2", ""),
-    path
-  )
-  expect_error(
-    .compose_coeff(
-      paths = path,
-      coeff_extract = tibble::tibble(name = "SAVE", ls_mixed_idx = list("REGr")),
-      sets = list(REG = c("a", "b")),
-      time_steps = NULL,
-      call = NULL
-    ),
-    "coefficients absent from model output",
-    fixed = TRUE
-  )
-})
-
-test_that("a coefficient dimensioned on an unknown set aborts", {
-  expect_snapshot_error(
-    .parse_coeff_block(
-      dimen = 2L, col_nmes = "REGr", upper_nmes = "REG", num_ls = c("1", "2"),
-      sets = list(COMM = c("f", "m")), call = NULL
-    )
-  )
-})
-
 test_that("a fixed-element intertemporal set keeps its element names", {
   sets <- data.frame(setname = c("ALLTIME", "TT"), begadd = c(0L, 3L), size = c(3L, 4L), intertemp = c(1L, 1L))
   set_ele <- data.table::data.table(mapped_ele = c("0", "1", "2", "p0", "p1", "p2", "p3"))

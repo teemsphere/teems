@@ -11,7 +11,7 @@ solve_in_situ(
   closure_file,
   shock_file,
   ignore_condense = FALSE,
-  solution_method = c("Gragg", "Midpoint", "Johansen", "Euler", "RK2", "Heun", "RK4",
+  solution_method = c("Gragg", "Johansen", "Euler", "Midpoint", "RK2", "Heun", "RK4",
     "BoSha32", "DoPri54"),
   matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
@@ -70,21 +70,15 @@ is \code{"Gragg"} with \code{steps = c(2L, 4L, 8L)}. Choices:
 \itemize{
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
-of linearized steps — an Euler first step, midpoint
+of linearized steps — a Euler first step, midpoint
 "leapfrog" steps, and a terminal smoothing pass — and the
 sequence is repeated for each of the three step counts in
 \code{steps}. The three solutions are then combined by Richardson
 extrapolation, giving rapid error decay as steps increase
 plus an accuracy estimate from the agreement between levels.
-Recommended whenever accuracy matters. See also:
+See also:
 \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
 solution methods}
-\item \code{"Midpoint"}: The midpoint method, Gragg's method without
-the terminal smoothing pass (N passes for N steps), combined
-by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
-never takes the exogenous variables past their end point, so
-it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
-cannot take (GEMPACK manual 30.2).
 \item \code{"Johansen"}: The one-step Johansen method is fast however it
 should only be used as a rough approximation due to handling of
 nonlinear equations. See:
@@ -99,6 +93,12 @@ step uses only the current state, so it tolerates
 near-asymptote levels and severe shocks — including exact
 \verb{-100\%} shocks — where the midpoint family can become
 unstable. Any strictly increasing step counts are permitted.
+\item \code{"Midpoint"}: The midpoint method, Gragg's method without
+the terminal smoothing pass (N passes for N steps), combined
+by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
+never takes the exogenous variables past their end point, so
+it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
+cannot take (GEMPACK manual 30.2).
 \item \code{"RK2"}, \code{"RK4"}: Explicit Runge-Kutta methods (the midpoint
 method and the classic fourth-order method; Schiffmann 2022).
 A single solution is computed with the one step count in
@@ -219,7 +219,7 @@ structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{complementarity}{A \code{teems_complementarity} object built by
 \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
-models with active \code{Complementarity} statements (GEMPACK manual
+models with active \code{Complementarity} statements (see GEMPACK manual
 ch. 51). \code{NULL} applies the solver defaults; ignored by the
 solver when the model has no active complementarity component.}
 

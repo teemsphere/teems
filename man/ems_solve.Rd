@@ -6,7 +6,7 @@
 \usage{
 ems_solve(
   cmf_path,
-  solution_method = c("Gragg", "Midpoint", "Johansen", "Euler", "RK2", "Heun", "RK4",
+  solution_method = c("Gragg", "Johansen", "Euler", "Midpoint", "RK2", "Heun", "RK4",
     "BoSha32", "DoPri54"),
   matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
@@ -30,21 +30,15 @@ is \code{"Gragg"} with \code{steps = c(2L, 4L, 8L)}. Choices:
 \itemize{
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
-of linearized steps — an Euler first step, midpoint
+of linearized steps — a Euler first step, midpoint
 "leapfrog" steps, and a terminal smoothing pass — and the
 sequence is repeated for each of the three step counts in
 \code{steps}. The three solutions are then combined by Richardson
 extrapolation, giving rapid error decay as steps increase
 plus an accuracy estimate from the agreement between levels.
-Recommended whenever accuracy matters. See also:
+See also:
 \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
 solution methods}
-\item \code{"Midpoint"}: The midpoint method, Gragg's method without
-the terminal smoothing pass (N passes for N steps), combined
-by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
-never takes the exogenous variables past their end point, so
-it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
-cannot take (GEMPACK manual 30.2).
 \item \code{"Johansen"}: The one-step Johansen method is fast however it
 should only be used as a rough approximation due to handling of
 nonlinear equations. See:
@@ -59,6 +53,12 @@ step uses only the current state, so it tolerates
 near-asymptote levels and severe shocks — including exact
 \verb{-100\%} shocks — where the midpoint family can become
 unstable. Any strictly increasing step counts are permitted.
+\item \code{"Midpoint"}: The midpoint method, Gragg's method without
+the terminal smoothing pass (N passes for N steps), combined
+by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
+never takes the exogenous variables past their end point, so
+it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
+cannot take (GEMPACK manual 30.2).
 \item \code{"RK2"}, \code{"RK4"}: Explicit Runge-Kutta methods (the midpoint
 method and the classic fourth-order method; Schiffmann 2022).
 A single solution is computed with the one step count in
@@ -159,7 +159,7 @@ structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
 \item{complementarity}{A \code{teems_complementarity} object built by
 \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
-models with active \code{Complementarity} statements (GEMPACK manual
+models with active \code{Complementarity} statements (see GEMPACK manual
 ch. 51). \code{NULL} applies the solver defaults; ignored by the
 solver when the model has no active complementarity component.}
 
@@ -243,58 +243,77 @@ Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
 \details{
-Nothing is chosen for you here: the run is exactly the
-arguments given, so it is reproducible from its record on any
-machine. \code{\link[=ems_probe]{ems_probe()}} makes the choice explicit instead: it
-measures the deployed system's structure, reads the container's
-cores and memory (or the ones passed for another machine) and
-prints a recommended \code{matrix_method}, \code{n_tasks} and \code{n_threads}
-with the evidence, the memory estimate and the call to paste.
-The rules it applies were measured on the 2026-09 laptop ladder
-(12 GB, 4 and 8 cores) and the top-end cells: \code{"SBBD"} for every
-intertemporal model (fastest at every measured size, 2.4 to 230
-million equations; ranks to the knee of four to eight, threads
-for the remaining cores), \code{"NDBBD"} on one rank only where SBBD's
-host copy would not fit; \code{"DBBD"} at two tasks for an uncondensed
-static system with a usable partition (faster than LU at every
-rung from 346 thousand to 7.7 million equations) and for a
-condensed one from about 120 thousand condensed equations (70
-thousand under Johansen), where threaded \code{"LU"} stops winning;
-\code{"LU"} with up to eight threads otherwise. A bare
-\code{ems_solve(cmf_path)} runs \code{"LU"} on one task and one thread,
-which is correct for every model and slow for a large
-intertemporal one.
+\strong{What a solve does.} The model is written in linearized
+(percentage-change) form, and the shock is applied as a path from
+the base data, which is the initial solution, to the post-shock
+equilibrium (Pearson 1991). Each step along the path solves one
+linear system in the model's Jacobian and then updates the data.
+\code{"Johansen"} takes that path in a single step, so its error grows
+with the size of the shock. The multistep methods divide the path
+into smaller steps, so the linearization error shrinks as the
+number of steps rises, and the extrapolating methods then remove
+most of the error that remains. Computing time grows with the
+total number of steps,
+and with \code{n_subintervals}, since each subinterval repeats the full
+solve on its share of the shock.
 
-Before any run starts, its peak memory is estimated and compared
-with the container's memory (Docker Desktop's Resources setting
-on a laptop, the cgroup limit or the machine elsewhere, read once
-per session from inside the image): a run whose estimate exceeds
-the memory by more than the model's error band is refused by
-name with the estimate, the limit and the remedies; one inside
-the band is warned about. The memory model is peak GB per
-plain-equivalent equation (the solved system plus the backsolved
-elements, since condensation cuts equations twentyfold but not
-peak memory): LU about 0.9 kB (1.2 times that when condensed),
-DBBD 0.85 + 0.27 per rank kB plus 0.2 kB for its refinement step
-(1.55 times that when condensed), SBBD 0.36 + 0.02 per rank kB,
-NDBBD 0.15 per rank + 0.05 kB; measured on whole containers under
-Gragg, conservative by up to a quarter on small systems.
+\strong{Judging accuracy.} The extrapolating methods solve at three
+step counts, and the agreement between the three solutions gives
+an accuracy summary. This is the share of results that agree to
+at least four significant digits. A warning is given when the
+share falls below the \code{accuracy_threshold} option (default 80\%,
+see \code{\link[=ems_option_set]{ems_option_set()}}), and the full summary is written to
+\code{model_diagnostics.txt} in the run directory. When this happens,
+take more steps (for example \code{steps = c(4L, 8L, 16L)}), raise
+\code{n_subintervals}, or switch to adaptive \code{"DoPri54"}, which
+estimates the error of every result (see \code{\link[=ems_RK]{ems_RK()}}). With one
+or two step counts there is no estimate. If adding steps stops
+improving accuracy, the run has reached the rounding limit of
+single precision, and \code{precision = "double"} is the remedy.
 
-Condensation interacts with that choice. Backsolving (see the
-\code{backsolve} argument of \code{\link[=ems_model]{ems_model()}}) substitutes variables
-out of the system, which densifies the diagonal blocks the
-bordered methods exploit: it pays under \code{"LU"} on static models
-and costs wall time everywhere else. A condensed deployment
-solved with a bordered method, or any condensed intertemporal
-deployment, runs with a warning; under \code{"SBBD"} and \code{"NDBBD"} the
-memory estimate above does not cover condensed runs.
+\strong{Choosing a method.} The default \code{"Gragg"} with \code{c(2L, 4L, 8L)}
+suits most static policy shocks. \code{"Johansen"} is a quick check
+that a new model and closure run, but its results should not be
+reported. Shocks that drive a CES or CET share close to zero, or
+a variable close to \verb{-100\%}, can make the midpoint methods
+unstable (Schiffmann 2022). In those cases \code{"Euler"} is the most
+robust choice, and a shock of exactly \verb{-100\%} needs \code{"Midpoint"}
+or \code{"Euler"}. A single step count, without extrapolation, suits
+models whose updates must follow the steps themselves.
 
-The MA48 workspace sizes (\code{laA}, \code{laD}, \code{laDi}) never need
-manual tuning: the solver reallocates and retries on a
-too-small workspace, logging each growth, and records the
-effective sizes as \code{la_used} in \code{sol.stats.json}, which later
-runs of the same deployment reuse as their starting point. Pass
-them through \code{...} only to pin a specific starting size.
+\strong{Size, matrix method and resources.} The linear system has one
+row for each endogenous variable element left after condensation.
+Its size grows with the number of regions times the number of
+commodities, and for intertemporal models it also grows with the
+number of periods. \code{"LU"} factorizes the whole system at once. It
+works for every model and is usually best for static models, with
+\code{n_threads} set to the available cores. The bordered methods
+divide the system into blocks that are solved in parallel and
+joined through a smaller border system:
+\itemize{
+\item Static models are split by region, using \code{"DBBD"}.
+\item Intertemporal models are split by period, using \code{"SBBD"} (Van Ha
+and Kompas 2016).
+\item \code{"NDBBD"} nests these splits for systems too large to hold as
+one, such as GTAP-INT at full disaggregation (Kompas and Van Ha
+2019).
+}
+
+With a bordered method, \code{n_tasks} is the number of processes that
+share the blocks, and \code{n_threads} is the number of threads each
+process runs. \code{n_tasks * n_threads} should not exceed the
+available cores. \code{\link[=ems_probe]{ems_probe()}} measures a deployed model and the
+machine, then recommends \code{matrix_method}, \code{n_tasks} and
+\code{n_threads}. Treat its recommendation as a starting point.
+
+\strong{Memory.} Before a run starts, its peak memory is estimated
+and compared with the memory available to the container. A run
+that will not fit is refused, and the message lists remedies such
+as a coarser aggregation, fewer tasks or \code{"NDBBD"}.
+
+\strong{Reproducibility.} \code{ems_solve()} makes no choices of its own.
+A run uses exactly the arguments given, so it can be reproduced
+from its record in \code{sol.stats.json}.
 }
 \examples{
 \dontrun{
@@ -324,6 +343,10 @@ Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
 (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
 Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
 \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
+
+Schiffmann, F. (2022), "Runge Kutta integrators for fast and
+accurate solutions in GEMPACK", GEMPACK Software, Centre of Policy
+Studies, Victoria University, Melbourne.
 
 Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 models in parallel using a singly bordered block diagonal

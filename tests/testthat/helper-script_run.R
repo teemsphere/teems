@@ -68,6 +68,16 @@ ems_test_dir <- function(write_dir, name) {
   }
   return(test_dir)
 }
+
+# A self-removing run directory under the user cache rather than the R
+# session temporary directory: terminal_run warns about the latter, since
+# R deletes it at exit, and that warning is not what these tests check.
+local_run_dir <- function(env = parent.frame()) {
+  cache <- tools::R_user_dir("teems", "cache")
+  dir.create(cache, recursive = TRUE, showWarnings = FALSE)
+  run_dir <- withr::local_tempdir(tmpdir = cache, .local_envir = env)
+  return(run_dir)
+}
 # Snapshot transform for messages that embed a path or a run-specific
 # name. The user cache root (tools::R_user_dir) made every such snapshot
 # user- and OS-specific: variants keyed by sysname were really keyed by

@@ -31,7 +31,7 @@ mk_stats <- function(dir, laA = 410, laDi = 520, laD = 210) {
 }
 
 test_that("cold-start la defaults reach the command line", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_solve(cmf, terminal_run = TRUE))
   cmd <- exec_cmd(d)
@@ -41,7 +41,7 @@ test_that("cold-start la defaults reach the command line", {
 })
 
 test_that("dot-passed la args set the initial guess", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_solve(cmf, terminal_run = TRUE, laA = 350L, laD = 250L))
   cmd <- exec_cmd(d)
@@ -51,7 +51,7 @@ test_that("dot-passed la args set the initial guess", {
 })
 
 test_that("absent la args warm-start from the previous run's la_used", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   mk_stats(d)
   suppressMessages(ems_solve(cmf, terminal_run = TRUE))
@@ -62,7 +62,7 @@ test_that("absent la args warm-start from the previous run's la_used", {
 })
 
 test_that("a user-passed la arg beats the warm start", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   mk_stats(d)
   suppressMessages(ems_solve(cmf, terminal_run = TRUE, laA = 999L))
@@ -72,7 +72,7 @@ test_that("a user-passed la arg beats the warm start", {
 })
 
 test_that("an unreadable stats file falls back to the cold defaults", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   stats_dir <- file.path(d, "out", "variables", "bin")
   dir.create(stats_dir, recursive = TRUE)
@@ -83,7 +83,7 @@ test_that("an unreadable stats file falls back to the cold defaults", {
 })
 
 test_that("expert flags render as solver CLI flags", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_solve(
     cmf,
@@ -108,7 +108,7 @@ test_that("expert flags render as solver CLI flags", {
 })
 
 test_that("scratch is always the container's /tmp and tempdir is no longer an argument", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_solve(cmf, terminal_run = TRUE))
   expect_match(exec_cmd(d), "-tempdir /tmp", fixed = TRUE)
@@ -122,7 +122,7 @@ test_that("scratch is always the container's /tmp and tempdir is no longer an ar
 })
 
 test_that("removed append_args formal is an unknown dots argument", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_error(
     ems_solve(cmf, append_args = "-fastrefac 1"),
@@ -132,7 +132,7 @@ test_that("removed append_args formal is an unknown dots argument", {
 })
 
 test_that("removed gpzerodivide flag is an unknown dots argument", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_error(
     ems_solve(cmf, gpzerodivide = TRUE),
@@ -142,7 +142,7 @@ test_that("removed gpzerodivide flag is an unknown dots argument", {
 })
 
 test_that("removed and renamed HSL control flags are unknown dots arguments", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   for (nme in c("cntl_3", "cntl_6", "ma48u")) {
     args <- stats::setNames(list(cmf, 0.5), c("", nme))
@@ -155,7 +155,7 @@ test_that("removed and renamed HSL control flags are unknown dots arguments", {
 })
 
 test_that("dot-passed extras are validated", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_error(
     ems_solve(cmf, laA = -5L),

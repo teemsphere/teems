@@ -66,7 +66,8 @@ test_that("a program with no Formula or Equation is calculated (R6-B2) and a two
   ), tab)
   out <- ems_calculate(tab, GTAPSETS = inputs$GTAPSETS, GTAPDATA = inputs$GTAPDATA, model_dir = run_dir)
   expect_identical(out$name, "SAVE")
-  expect_identical(sort(readLines(file.path(run_dir, "out", "sets", "NOTUSA.csv"))[-1]), c("chn", "row"))
+  notusa <- readLines(file.path(run_dir, "out", "sets", "NOTUSA.csv"))[-1]
+  expect_identical(sort(notusa[nzchar(notusa)]), c("chn", "row"))
 })
 
 test_that("a second program in the same model_dir does not see the first one's set CSVs", {

@@ -216,7 +216,10 @@ test_that("the DBBD refinement option reaches the solver and the record (e2e)", 
       simplifyVector = TRUE
     )
   }
-  on <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L))
+  expect_warning(
+    on <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L)),
+    "is a bordered method"
+  )
   stats <- read_stats()
   expect_true(stats$options$refine)
   expect_gt(stats$refine$solves, 0L)
@@ -225,7 +228,10 @@ test_that("the DBBD refinement option reaches the solver and the record (e2e)", 
   expect_true(any(grepl("refinement (DBBD, one step per solve): on", diag_txt, fixed = TRUE)))
   expect_true(any(grepl("^Refinement \\(DBBD\\): [0-9]+ solve\\(s\\) refined", diag_txt)))
   ems_option_set(refine = FALSE)
-  off <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L))
+  expect_warning(
+    off <- suppressMessages(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2L)),
+    "is a bordered method"
+  )
   ems_option_set(refine = TRUE)
   stats <- read_stats()
   expect_false(stats$options$refine)

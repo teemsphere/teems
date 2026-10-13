@@ -21,13 +21,13 @@ exec_cmd <- function(dir) {
 }
 
 test_that("an h_init above the uniform step is refused by name (R5-B3)", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_snapshot_error(ems_RK(cmf, steps = 4L, h_init = 0.5, terminal_run = TRUE))
 })
 
 test_that("RK controls pass through the ems_solve dots", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   out <- suppressMessages(ems_solve(
     cmf,
@@ -45,7 +45,7 @@ test_that("RK controls pass through the ems_solve dots", {
 })
 
 test_that("unknown dot arguments abort", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_snapshot_error(ems_solve(cmf, bogus_argument = 1))
   expect_error(
@@ -56,7 +56,7 @@ test_that("unknown dot arguments abort", {
 })
 
 test_that("dot-passed RK controls are still validated", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   expect_error(
     ems_solve(cmf, adaptive = "maybe"),
@@ -76,7 +76,7 @@ test_that("dot-passed RK controls are still validated", {
 })
 
 test_that("ems_RK defaults: adaptive DoPri54; fixed-step for RK4/RK2", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_RK(cmf, terminal_run = TRUE))
   cmd <- exec_cmd(d)
@@ -90,7 +90,7 @@ test_that("ems_RK defaults: adaptive DoPri54; fixed-step for RK4/RK2", {
 })
 
 test_that("ems_RK forwards ems_solve arguments and validation", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_RK(cmf, precision = "double", terminal_run = TRUE))
   expect_match(exec_cmd(d), "teems-solver-f64", fixed = TRUE)
@@ -112,7 +112,7 @@ test_that("ems_RK forwards ems_solve arguments and validation", {
 })
 
 test_that("ems_RK forwards the chart, norm, controller, initial step and guard", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_RK(cmf, terminal_run = TRUE))
   cmd <- exec_cmd(d)
@@ -140,7 +140,7 @@ test_that("ems_RK forwards the chart, norm, controller, initial step and guard",
 })
 
 test_that("Heun is accepted as a fixed-step Runge-Kutta flavor", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   suppressMessages(ems_RK(cmf, solution_method = "Heun", steps = 8L, terminal_run = TRUE))
   cmd <- exec_cmd(d)
@@ -151,7 +151,7 @@ test_that("Heun is accepted as a fixed-step Runge-Kutta flavor", {
 })
 
 test_that("ems_RK returns invisibly when there are no outputs to return", {
-  d <- withr::local_tempdir()
+  d <- local_run_dir()
   cmf <- mk_cmf(d)
   res <- suppressMessages(withVisible(ems_RK(cmf, terminal_run = TRUE)))
   expect_null(res$value)

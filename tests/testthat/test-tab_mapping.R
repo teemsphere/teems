@@ -500,8 +500,11 @@ test_that("a mapped-index equation solves under a bordered method (e2e)", {
     shock = ems_uniform_shock(var = "vbloc", value = 10),
     swap_in = "vbloc"
   )
-  out <- suppressMessages(
-    ems_solve(cmf_path, solution_method = "Johansen", matrix_method = "DBBD", n_tasks = 2)
+  expect_warning(
+    out <- suppressMessages(
+      ems_solve(cmf_path, solution_method = "Johansen", matrix_method = "DBBD", n_tasks = 2)
+    ),
+    "is a bordered method"
   )
   vtot <- out[out$name == "vtot", ]
   expect_identical(nrow(vtot), 1L)

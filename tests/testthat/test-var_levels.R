@@ -23,3 +23,18 @@ test_that("the ORIG_LEVEL target is read from a qualifier list", {
     c("vdfb", NA, "1.0", NA)
   )
 })
+
+test_that("a levels variable whose pair coefficient is renamed by the solver is looked up through stats.json (R6-B6)", {
+  d <- withr::local_tempdir()
+  prefix <- file.path(d, "sol.")
+  target <- c(p_lq = "p_lq", lx = "lx", qgdp = NA_character_)
+  is_levels <- c(TRUE, TRUE, FALSE)
+  expect_identical(.levels_pair_targets(prefix, target, is_levels), target)
+  jsonlite::write_json(list(levels_pairs = list(P_LQ = "gen_lv0")), paste0(prefix, "stats.json"), auto_unbox = TRUE)
+  expect_identical(
+    .levels_pair_targets(prefix, target, is_levels),
+    c(p_lq = "gen_lv0", lx = "lx", qgdp = NA_character_)
+  )
+  jsonlite::write_json(list(levels_pairs = structure(list(), names = character(0))), paste0(prefix, "stats.json"), auto_unbox = TRUE)
+  expect_identical(.levels_pair_targets(prefix, target, is_levels), target)
+})

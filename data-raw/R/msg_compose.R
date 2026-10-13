@@ -15,23 +15,28 @@ build_compose_err <- function() {
     strict_check = "Strict column check failed: one or more column names are absent or out of order relative to the tab extract.",
     # test-compose_checks.R: "variable names that differ from the tab extract abort"
     var_check = "Parsed variable names do not match extract names.",
-    # test-compose_checks.R: "a coefficient file that carries another coefficient aborts"
-    coeff_check = "One or more Tablo-identified coefficients absent from model output.",
-    # test-compose_checks.R: "a coefficient dimensioned on an unknown set aborts"
-    invalid_coeff_set = "Set not found; a space in a coefficient set declaration may be the cause, e.g. {.code (all, r, REG)} instead of {.code (all,r,REG)}.",
     # test-compose_checks.R: "sets absent from the binary outputs abort by name"
     missing_sets = "Set information missing from binary outputs: {.field {x_sets}}.",
     # test-ems_compose.R: "ems_compose errors when invalid which"
     invalid_name = "{.field {name}} is not present in output variables or coefficients.",
+    # test-ems_compose.R: "which must name at least one output and passes must be a flag"
+    which_empty = "{.arg which} must be {.val all} or a character vector of at least one variable or coefficient name.",
+    # test-ems_compose.R: "which must name at least one output and passes must be a flag"
+    passes_flag = "{.arg passes} must be {.val TRUE} or {.val FALSE}.",
+    # test-ems_compose.R: "passes = TRUE with only coefficients in which aborts"
+    passes_coefficients = c(
+      "{.code passes = TRUE} adds the separate pass solutions of variables, but {.arg which} names only coefficients.",
+      "Name a variable in {.arg which}, or drop {.arg passes}."
+    ),
     # test-ems_compose.R: "passes = TRUE on a run without separate solutions aborts"
     no_passes = c(
       "This run wrote no separate pass solutions, so {.arg passes} cannot add them.",
       "They are written for a three-pass {.val Gragg}, {.val Midpoint} or {.val Euler} run (three step counts); a {.val Johansen} or Runge-Kutta run, or one with fewer passes, has none."
     ),
-    # test-ems_compose.R: "a run without a coefficient dump or CSVs warns and returns variables only"
-    no_coefficients = c(
-      "No coefficient outputs found for this run; only variables are returned.",
-      "The solver image predates the binary coefficient dump ({.file sol.cof}). Update the image, or deploy with {.code write_coefficients = TRUE} for the per-coefficient CSVs."
+    # test-ems_compose.R: "a run without a coefficient dump composes variables only"
+    no_coef_dump = c(
+      "No coefficient dump ({.file sol.cof}/{.file sol.cbin}) found for this run, so coefficients cannot be returned.",
+      "The run did not finish or the solver image predates the dump; re-run with a current image, or name only variables in {.arg which}."
     )
   )
 }

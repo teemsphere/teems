@@ -7,6 +7,7 @@
                                  closure,
                                  size_metadata,
                                  n_comp_active = 0,
+                                 swap_out = NULL,
                                  call) {
   eqs <- model[model$type == "Equation", ]
   defining <- unique(stats::na.omit(model$condense_eq))
@@ -55,11 +56,13 @@
   } else {
     cls_err$square_over
   }
+  prefer <- unlist(lapply(swap_out, \(s) if (is.character(s)) s[[1]] else s$var %|||% NULL))
   candidate_txt <- .square_candidates(
     gap = gap,
     var_extract = var_extract,
     sets = sets,
-    closure = closure
+    closure = closure,
+    prefer = prefer %|||% character(0)
   )
   msg <- .cli_action(cls_err$not_square,
     action = c("abort", "inform", "inform", "inform"),

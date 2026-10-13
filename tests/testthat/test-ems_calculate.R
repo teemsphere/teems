@@ -52,6 +52,23 @@ test_that("a data program is calculated from its input files", {
   expect_false(file.exists(file.path(run_dir, "out", "variables", "bin", "sol.bin")))
 })
 
+test_that("a program with no Formula or Equation is calculated (R6-B2) and a two-set TAB resolves its derived set (R2-B2)", {
+  run_dir <- file.path(write_dir, "calculate_readonly")
+  dir.create(run_dir)
+  tab <- file.path(withr::local_tempdir(), "readonly.tab")
+  writeLines(c(
+    "File GTAPSETS # sets #;",
+    "File GTAPDATA # data #;",
+    "Set REG # regions # read elements from file GTAPSETS header \"REG\";",
+    "Set NOTUSA = REG - \"usa\";",
+    "Coefficient (all,r,REG) SAVE(r) # saving #;",
+    "Read SAVE from file GTAPDATA header \"SAVE\";"
+  ), tab)
+  out <- ems_calculate(tab, GTAPSETS = inputs$GTAPSETS, GTAPDATA = inputs$GTAPDATA, model_dir = run_dir)
+  expect_identical(out$name, "SAVE")
+  expect_identical(sort(readLines(file.path(run_dir, "out", "sets", "NOTUSA.csv"))[-1]), c("chn", "row"))
+})
+
 test_that("a second program in the same model_dir does not see the first one's set CSVs", {
   run_dir <- file.path(write_dir, "calculate_twice")
   dir.create(run_dir)

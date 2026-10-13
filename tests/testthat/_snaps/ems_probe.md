@@ -222,7 +222,7 @@
       -- Recommendation --------------------------------------------------------------
       v "DBBD", 2 tasks × 4 threads for the machine given (8 cores, 12.0 GB)
       * Evidence: 1,500,000 equations, no time chain, partition reg (3 blocks, border
-        6.4% of the system), assessed at 2 tasks
+        6.4% of the system by equations), assessed at 2 tasks
       * Rationale: two ranks on a laptop, more only where cores and memory allow;
         threads take the rest
       * Memory: about 2.4 GB at 2 tasks, 20% of 12.0 GB (fits)
@@ -301,7 +301,7 @@
       -- Recommendation --------------------------------------------------------------
       v "LU", 1 task × 1 thread for the machine given (8 cores, 12.0 GB)
       * Evidence: 12,500,000 equations, no time chain, partition reg (3 blocks,
-        border 6.4% of the system), assessed at 2 tasks
+        border 6.4% of the system by equations), assessed at 2 tasks
       * Rationale: one task and one thread: threads do not help an uncondensed "LU"
         factorization
       ! "DBBD" would be faster but its 19.9 GB estimate does not fit; "LU" stays

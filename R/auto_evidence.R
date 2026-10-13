@@ -44,7 +44,7 @@
     } else {
       .pct(p$border_share)
     }
-    sprintf(ev$partition, p$set, as.integer(p$n_blocks), share)
+    sprintf(ev$partition, p$set, as.integer(p$n_blocks), share, p$border_kind %|||% "variables")
   }
   ceil <- if (is.null(d$lu_ceiling)) {
     ""

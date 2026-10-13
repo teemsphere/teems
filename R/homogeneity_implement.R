@@ -5,6 +5,7 @@
                                    simulate,
                                    solve_args,
                                    call) {
+  .homogeneity_check_args(solve_args, simulate, call = call)
   run_dir <- dirname(cmf_path)
   metadata_path <- file.path(run_dir, "metadata.rds")
   vpq <- if (file.exists(metadata_path)) readRDS(metadata_path)$vpqtype else NULL
@@ -77,6 +78,13 @@
       solve_args = solve_args,
       call = call
     )
+    if (length(attr(output$variables, "unshocked")) > 0L) {
+      unshocked <- attr(output$variables, "unshocked")
+      .cli_action(solve_info$homog_unshocked,
+        action = c("inform", "inform"),
+        call = call
+      )
+    }
   }
   return(output)
 }
@@ -100,9 +108,9 @@
 #' @noRd
 .homogeneity_workspace <- function(cmf_path) {
   run_dir <- dirname(cmf_path)
-  work <- paste0(run_dir, "_homogeneity")
+  work <- file.path(run_dir, "out", "homogeneity")
   unlink(work, recursive = TRUE)
-  dir.create(work)
+  dir.create(work, recursive = TRUE)
   files <- list.files(run_dir, full.names = TRUE)
   files <- files[!dir.exists(files) & !startsWith(basename(files), "_temp_")]
   file.copy(files, work)
@@ -312,12 +320,17 @@
     }
     size <- 1
     if (isTRUE(change[[nm]])) {
-      level <- unique(as.numeric(pre[[nm]]))
-      if (length(level) != 1L) {
+      level <- as.numeric(pre[[nm]])
+      full_entry <- !grepl("(", entry, fixed = TRUE)
+      if (length(unique(level)) == 1L) {
+        size <- level[1] / 100
+      } else if (full_entry && length(level) == var_tbl$matsize[match(nm, var_tbl$cofname)]) {
+        shocks <- c(shocks, sprintf("Shock %s = %s;", entry, paste(format(level / 100, digits = 15), collapse = " ")))
+        next
+      } else {
         unshocked <- c(unshocked, nm)
         next
       }
-      size <- level / 100
     }
     shocks <- c(shocks, sprintf("Shock %s = uniform %s;", entry, format(size, digits = 15)))
   }
@@ -379,4 +392,31 @@
   variables <- variables[order(-variables$max_err), ]
   attr(variables, "unshocked") <- unshocked
   return(variables)
+}
+
+#' @keywords internal
+#' @noRd
+.homogeneity_check_args <- function(solve_args,
+                                    simulate,
+                                    call) {
+  if (length(solve_args) == 0L) {
+    return(invisible(NULL))
+  }
+  allowed <- setdiff(names(.homogeneity_solve_args("", list())), c("cmf_path", "suppress_outputs", "terminal_run"))
+  unknown <- setdiff(names(solve_args), allowed)
+  if (is.null(names(solve_args)) || any(!nzchar(names(solve_args))) || length(unknown) > 0L) {
+    unknown <- if (is.null(names(solve_args))) "<unnamed>" else unknown
+    .cli_action(solve_err$homog_unknown_args,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  if (!isTRUE(simulate)) {
+    given <- names(solve_args)
+    .cli_action(solve_err$homog_args_no_simulate,
+      action = "abort",
+      call = call
+    )
+  }
+  return(invisible(NULL))
 }

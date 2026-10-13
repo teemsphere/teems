@@ -14,6 +14,7 @@
   is_levels <- grepl("\\blevels\\b", quals)
   target[is_levels & is.na(target)] <- decl[is_levels & is.na(target)]
   names(target) <- decl
+  target <- .levels_pair_targets(sol_prefix, target, is_levels)
   target <- target[!is.na(target)]
   if (length(target) == 0L) {
     pre <- list()
@@ -83,4 +84,28 @@
     dt$Change <- dt$PostLevel - dt$PreLevel
   }
   return(dt)
+}
+
+#' @importFrom jsonlite read_json
+#' @keywords internal
+#' @noRd
+.levels_pair_targets <- function(sol_prefix,
+                                 target,
+                                 is_levels) {
+  stats_path <- paste0(sol_prefix, "stats.json")
+  if (!any(is_levels) || !file.exists(stats_path)) {
+    return(target)
+  }
+  stats <- tryCatch(jsonlite::read_json(stats_path), error = \(e) NULL)
+  pairs <- stats$levels_pairs
+  if (is.null(pairs) || length(pairs) == 0L) {
+    return(target)
+  }
+  names(pairs) <- tolower(names(pairs))
+  for (v in names(target)[is_levels]) {
+    if (!is.null(pairs[[v]])) {
+      target[[v]] <- tolower(pairs[[v]])
+    }
+  }
+  return(target)
 }

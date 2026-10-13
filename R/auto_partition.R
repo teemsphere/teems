@@ -25,6 +25,11 @@
     NA_real_
   }
   border <- max(pick$netcut, border_neq, na.rm = TRUE)
+  border_kind <- if (!is.na(border_neq) && border_neq > pick$netcut) {
+    "equations"
+  } else {
+    "variables"
+  }
   partition <- list(
     set = pick$set,
     n_blocks = as.integer(pick$nblocks),
@@ -40,7 +45,8 @@
       NA_real_
     } else {
       border / vecsize
-    }
+    },
+    border_kind = border_kind
   )
   return(partition)
 }

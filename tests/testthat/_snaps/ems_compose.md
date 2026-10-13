@@ -14,14 +14,31 @@
 
     x `passes` must be a logical, not a string.
 
+# which must name at least one output and passes must be a flag (R6-B8)
+
+    x `which` must be "all" or a character vector of at least one variable or coefficient name.
+
+---
+
+    x `passes` must be "TRUE" or "FALSE".
+
+---
+
+    x `passes` must be "TRUE" or "FALSE".
+
+# passes = TRUE with only coefficients in which aborts (R6-B8)
+
+    x `passes = TRUE` adds the separate pass solutions of variables, but `which` names only coefficients.
+    i Name a variable in `which`, or drop `passes`.
+
 # ems_compose errors when cmf_path does not exist
 
     x Cannot open file 'not_a_path': No such file.
 
-# a run without a coefficient dump or CSVs warns and returns variables only
+# a run without a coefficient dump composes variables only
 
-    ! No coefficient outputs found for this run; only variables are returned.
-    i The solver image predates the binary coefficient dump ('sol.cof'). Update the image, or deploy with `write_coefficients = TRUE` for the per-coefficient CSVs.
+    x No coefficient dump ('sol.cof'/'sol.cbin') found for this run, so coefficients cannot be returned.
+    i The run did not finish or the solver image predates the dump; re-run with a current image, or name only variables in `which`.
 
 # ems_compose errors when model run has not taken place
 

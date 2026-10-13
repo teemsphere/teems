@@ -1,3 +1,17 @@
+# unknown or unused solver arguments abort (R6-B5)
+
+    x Unknown argument "n_task" in `...`.
+    i The dots take the `teems::ems_solve()` arguments of the simulation run (for example `matrix_method`, `n_tasks`, `solution_method`, `steps`).
+
+---
+
+    x Unknown argument "matrix_methd" in `...`.
+    i The dots take the `teems::ems_solve()` arguments of the simulation run (for example `matrix_method`, `n_tasks`, `solution_method`, `steps`).
+
+---
+
+    x Argument "n_tasks" in `...` applies to the simulation run only; set `simulate = TRUE` or drop it.
+
 # a deployment without VPQ types cannot be checked
 
     x No variable in the model file has a VPQ type, so there is nothing to check.

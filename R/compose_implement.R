@@ -1,5 +1,4 @@
 #' @importFrom purrr map_lgl
-#' @importFrom tools file_path_sans_ext
 #' @keywords internal
 #' @noRd
 .implement_compose <- function(args_list,
@@ -14,7 +13,18 @@
   avail_vars <- meta$var_union$cofname
   paths <- .get_output_paths(cmf_path = v$cmf_path)
 
+  select_all <- args_list$which %=% "all"
+
   cof_dump <- .has_coefficient_dump(v$sol_prefix)
+  if (!cof_dump && (select_all ||
+    !all(tolower(v$which) %in% tolower(avail_vars)))) {
+    .cli_action(compose_err$no_coef_dump,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  avail_coeffs <- character(0)
+  internal <- character(0)
   if (cof_dump) {
     cof_meta <- .parse_coefficient_bins(
       sol_prefix = v$sol_prefix,
@@ -28,27 +38,15 @@
     avail_coeffs <- tab_coeffs$name[
       tolower(tab_coeffs$name) %in% cof_meta$cofname
     ]
-  } else {
-    avail_coeffs <- if (!is.null(paths$coeff)) {
-      tools::file_path_sans_ext(basename(paths$coeff))
-    } else {
-      character(0)
-    }
-    if (length(avail_coeffs) == 0L) {
-      .cli_action(compose_err$no_coefficients,
-        action = c("warn", "inform"),
-        call = call
-      )
-    }
+    internal <- tab_coeffs$name[grepl("^backsolve (product|pivot)", tab_coeffs$label)]
   }
 
   var_names_sel <- character(0)
-  coeff_names_sel <- character(0)
-
-  select_all <- args_list$which %=% "all"
+  coeff_names_sel <- if (select_all) setdiff(avail_coeffs, internal) else character(0)
 
   if (!select_all) {
-    invalid <- v$which[!v$which %in% c(avail_vars, avail_coeffs)]
+    which_lc <- tolower(v$which)
+    invalid <- v$which[!which_lc %in% tolower(c(avail_vars, avail_coeffs))]
 
     if (length(invalid) > 0) {
       name <- invalid
@@ -57,8 +55,14 @@
         call = call
       )
     }
-    var_names_sel <- v$which[v$which %in% avail_vars]
-    coeff_names_sel <- v$which[v$which %in% avail_coeffs]
+    var_names_sel <- avail_vars[tolower(avail_vars) %in% which_lc]
+    coeff_names_sel <- avail_coeffs[tolower(avail_coeffs) %in% which_lc]
+    if (isTRUE(v$passes) && length(var_names_sel) == 0L) {
+      .cli_action(compose_err$passes_coefficients,
+        action = c("abort", "inform"),
+        call = call
+      )
+    }
   }
 
   has_solution <- file.exists(paste0(v$sol_prefix, "bin"))
@@ -66,14 +70,6 @@
     length(var_names_sel) > 0
   compose_coefficient <- (select_all && length(avail_coeffs) > 0) ||
     length(coeff_names_sel) > 0
-
-  if (!select_all && length(coeff_names_sel) > 0) {
-    paths$coeff <- paths$coeff[
-      tools::file_path_sans_ext(basename(paths$coeff)) %in% coeff_names_sel
-    ]
-  } else if (!compose_coefficient) {
-    paths$coeff <- NULL
-  }
 
   type <- if (compose_variable && compose_coefficient) {
     "all"
@@ -169,7 +165,6 @@
     cof_data     = cof_bins$xc,
     type         = type,
     comp_extract = comp_extract,
-    paths        = paths,
     sets         = sets,
     time_steps   = timesteps,
     call         = call

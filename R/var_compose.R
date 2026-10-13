@@ -58,7 +58,7 @@
 
   data.table::setnames(data_dt, old = 1:2, new = c("r_idx", "Value"))
 
-  data_dt$var <- rep(vars$cofname, vars$matsize)
+  vars$start <- c(0L, cumsum(vars$matsize))[seq_len(nrow(vars))]
 
   declared <- vars$cofname %in% tolower(var_extract$name)
   derived <- grepl("@", vars$cofname, fixed = TRUE) & !declared
@@ -102,9 +102,10 @@
   }
 
   data_dt <- purrr::map(vars$cofname, \(nm) {
+    k <- match(nm, vars$cofname)
     sets <- vars$dt[[nm]]
-    dt_data <- data_dt[data_dt$var == nm, ]
-    dt <- cbind(sets, dt_data[, -c("r_idx", "var")])
+    dt_data <- data_dt[vars$start[k] + seq_len(vars$matsize[k]), ]
+    dt <- cbind(sets, dt_data[, -"r_idx"])
     if (!is.null(levels[[nm]])) {
       dt <- .add_levels(dt, levels[[nm]])
     }

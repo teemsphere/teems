@@ -23,6 +23,7 @@ test_that("probe stats keep the partition candidate table and the chosen set", {
 test_that("partition replay follows the solver's selection at the solve's rank count", {
   # the solver's own choice at 1 rank
   p <- .auto_partition(static_stats, n_tasks = 1L)
+  expect_true(p$border_kind %in% c("variables", "equations"))
   expect_identical(p$set, "reg")
   expect_identical(p$n_blocks, 3L)
   expect_identical(p$netcut, 74L)
@@ -285,9 +286,9 @@ test_that("the memory fit check refuses a run past the error band and warns insi
 
 test_that("evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
-  expect_match(.auto_evidence(d), "^2,500,000 equations, no time chain, partition reg \\(3 blocks, border 6.4% of the system\\), assessed at 2 tasks$")
+  expect_match(.auto_evidence(d), "^2,500,000 equations, no time chain, partition reg \\(3 blocks, border 6.4% of the system by equations\\), assessed at 2 tasks$")
   d <- .auto_decide(TRUE, 4L, 10524, structure = inter_stats)
-  expect_match(.auto_evidence(d), "time chain alltime \\(3 periods\\), partition reg \\(12 blocks, border 2.8% of the system\\)")
+  expect_match(.auto_evidence(d), "time chain alltime \\(3 periods\\), partition reg \\(12 blocks, border 2.8% of the system by variables\\)")
   d <- .auto_decide(FALSE, 4L, 3485)
   expect_match(.auto_evidence(d), "^3,485 equations, assessed at 4 tasks; structural probe skipped \\(not a candidate\\)")
   d <- .auto_decide(FALSE, 2L, 1.3e5, n_reg = 3L, condensed = TRUE, n_backsolve_ele = 60000)

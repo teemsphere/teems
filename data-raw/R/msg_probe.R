@@ -203,7 +203,7 @@ build_probe_info <- function() {
       chain = "time chain %s (%d periods)",
       no_chain = "no time chain",
       no_partition = "no partition viable for %s",
-      partition = "partition %s (%d blocks, border %s of the system)",
+      partition = "partition %s (%d blocks, border %s of the system by %s)",
       border_na = "n/a",
       lu_excluded = ", LU excluded (projected MA48 workspace %s > 32-bit ceiling %s)",
       lu_share = ", LU workspace %s of the 32-bit ceiling",

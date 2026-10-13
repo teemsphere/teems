@@ -102,7 +102,10 @@
     th = th
   )
   if ((d$method %in% c("DBBD", "SBBD") || d$small) && r$n_tasks != d$n_tasks) {
-    d <- decide(r$n_tasks)
+    d_resolved <- decide(r$n_tasks)
+    if (identical(d_resolved$method, d$method)) {
+      d <- d_resolved
+    }
   }
   d_johansen <- decide(d$n_tasks, multistep = FALSE)
   if (identical(d$method, "LU") && !d$condensed) {

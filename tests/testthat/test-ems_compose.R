@@ -54,6 +54,23 @@ test_that("ems_compose errors when passes is not logical", {
   expect_snapshot_error(ems_compose(cmf_path, passes = "yes"))
 })
 
+test_that("which matches variable and coefficient names case-insensitively and returns the canonical names (R6-B3)", {
+  upper <- ems_compose(cmf_path, which = c("QGDP", "vdfb"))
+  lower <- ems_compose(cmf_path, which = c("qgdp", "VDFB"))
+  expect_identical(upper$name, lower$name)
+  expect_setequal(upper$name, c("qgdp", "VDFB"))
+})
+
+test_that("which must name at least one output and passes must be a flag (R6-B8)", {
+  expect_snapshot_error(ems_compose(cmf_path, which = character(0)))
+  expect_snapshot_error(ems_compose(cmf_path, passes = NA))
+  expect_snapshot_error(ems_compose(cmf_path, passes = c(TRUE, FALSE)))
+})
+
+test_that("passes = TRUE with only coefficients in which aborts (R6-B8)", {
+  expect_snapshot_error(ems_compose(cmf_path, which = "VDFB", passes = TRUE))
+})
+
 test_that("ems_compose returns tibble for which = 'all'", {
   result <- ems_compose(cmf_path)
   expect_s3_class(result, "tbl")
@@ -97,7 +114,7 @@ test_that("ems_compose selects variable/coefficient mix", {
   expect_s3_class(result, "data.frame")
 })
 
-test_that("coefficients come from the binary dump; CSVs are opt-in and agree", {
+test_that("coefficients come from the binary dump; CSVs are opt-in", {
   bin_dir <- file.path(dirname(cmf_path), "out", "variables", "bin")
   expect_true(file.exists(file.path(bin_dir, "sol.cof")))
   expect_true(file.exists(file.path(bin_dir, "sol.cbin")))
@@ -107,46 +124,6 @@ test_that("coefficients come from the binary dump; CSVs are opt-in and agree", {
   )
   from_bin <- ems_compose(cmf_path)
   expect_equal(sum(from_bin$type == "coefficient"), n_coeff)
-
-  # the same deploy with the CSV pairs on: values agree to the CSVs'
-  # %f (six-decimal) rounding, structure identical
-  csv_dir <- file.path(write_dir, "compose_csv")
-  dir.create(csv_dir)
-  ems_option_set(tempdir = csv_dir)
-  cmf_csv <- ems_deploy(dat, model, write_coefficients = TRUE)
-  ems_solve(cmf_csv, suppress_outputs = TRUE)
-  ems_option_set(tempdir = write_dir)
-  expect_equal(
-    length(list.files(file.path(csv_dir, "out", "coefficients"))),
-    n_coeff + n_postsim
-  )
-  csv_bin <- file.path(csv_dir, "out", "variables", "bin")
-  file.rename(file.path(csv_bin, "sol.cof"), file.path(csv_bin, "sol.cof.off"))
-  from_csv <- ems_compose(cmf_csv)
-  file.rename(file.path(csv_bin, "sol.cof.off"), file.path(csv_bin, "sol.cof"))
-
-  expect_setequal(
-    from_csv$name[from_csv$type == "postsim"],
-    from_bin$name[from_bin$type == "postsim"]
-  )
-  cb <- from_bin[from_bin$type == "coefficient", ]
-  cc <- from_csv[from_csv$type == "coefficient", ]
-  expect_setequal(cb$name, cc$name)
-  for (nm in cb$name) {
-    a <- cb$dat[[nm]]
-    b <- cc$dat[[nm]]
-    expect_identical(names(a), names(b))
-    expect_identical(data.table::key(a), data.table::key(b))
-    # CSVs carry %f: six fixed decimals, so agreement is absolute
-    expect_lt(max(abs(a$Value - b$Value)), 5.1e-7)
-    keys <- setdiff(names(a), c("Value", "Year"))
-    if (length(keys)) {
-      expect_identical(
-        lapply(a[, keys, with = FALSE], as.vector),
-        lapply(b[, keys, with = FALSE], as.vector)
-      )
-    }
-  }
 })
 
 test_that("the solver lists its outputs and the pre-simulation coefficients read back", {
@@ -212,41 +189,13 @@ test_that("time steps read from the deploy metadata match the solver's timestep 
   expect_equal(from_metadata$CYRS - from_metadata$CYRS[1], c(0, 1, 2))
 })
 
-test_that("a run without a coefficient dump or CSVs warns and returns variables only", {
-  # a static run: an intertemporal one reads its time steps from the
-  # coefficient outputs and cannot compose without them
-  static_files <- ems_example("GTAPv7", ems_test_dir(write_dir, "no_coeff_model"))
-  static_dat <- ems_data(
-    dat_input,
-    par_input,
-    set_input,
-    REG = "big3",
-    ACTS = "macro_sector",
-    ENDW = "labor_agg"
-  )
-  static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
-  nest_temp("no_coeff", write_dir)
-  static_cmf <- ems_deploy(static_dat, static_model)
-  withr::defer(ems_option_set(tempdir = write_dir))
-  ems_solve(static_cmf, suppress_outputs = TRUE)
-  run_dir <- dirname(static_cmf)
-  unlink(file.path(run_dir, "out", "variables", "bin", c("sol.cof", "sol.cbin")))
-  unlink(file.path(run_dir, "out", "coefficients"), recursive = TRUE)
-  expect_snapshot_warning(result <- ems_compose(static_cmf))
-  expect_setequal(result$type, "variable")
-})
-
-test_that("an intertemporal run without coefficient outputs still composes its variables over time", {
+test_that("a run without a coefficient dump composes variables only", {
   # the run directory is not used again: the next test removes its outputs
   unlink(file.path(write_dir, "out", "variables", "bin", c("sol.cof", "sol.cbin")))
-  unlink(file.path(write_dir, "out", "coefficients"), recursive = TRUE)
-  expect_warning(
-    result <- ems_compose(cmf_path),
-    "No coefficient outputs found for this run",
-    fixed = TRUE
-  )
+  expect_snapshot_error(ems_compose(cmf_path))
+  expect_error(ems_compose(cmf_path, c("qfd", "SAVE")), "No coefficient dump", fixed = TRUE)
+  result <- ems_compose(cmf_path, "qfd")
   expect_setequal(result$type, "variable")
-  expect_equal(nrow(result), n_var)
   expect_true("Year" %in% names(result$dat$qfd))
 })
 

@@ -4,7 +4,8 @@
 .square_candidates <- function(gap,
                                var_extract,
                                sets,
-                               closure) {
+                               closure,
+                               prefer = character(0)) {
   nelem <- vapply(
     var_extract$ls_upper_idx,
     \(var_sets) {
@@ -44,6 +45,8 @@
   if (length(avail) == 0L) {
     return(cls_err$square_no_candidate)
   }
+  first <- tolower(names(avail)) %in% tolower(prefer)
+  avail <- avail[order(!first)]
   exact <- avail[avail == abs(gap)]
   if (length(exact) > 0L) {
     picks <- utils::head(names(exact), 5L)
@@ -56,7 +59,7 @@
     )
     return(msg)
   }
-  near <- utils::head(names(avail)[order(abs(avail - abs(gap)))], 5L)
+  near <- utils::head(names(avail)[order(abs(avail - abs(gap)), !first[order(!first)])], 5L)
   msg <- sprintf(
     cls_err$square_nearest,
     paste(paste0(near, " (", avail[near], ")"), collapse = ", ")

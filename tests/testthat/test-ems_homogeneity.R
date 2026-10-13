@@ -36,6 +36,26 @@ test_that("GTAPv7 is nominally and really homogeneous", {
   expect_false(file.exists(file.path(dirname(cmf_path), "out", "variables", "bin", "sol.jac")))
 })
 
+test_that("unknown or unused solver arguments abort (R6-B5)", {
+  nest_temp("homogeneity_args", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  expect_snapshot_error(ems_homogeneity(cmf_path, simulate = TRUE, n_task = 4))
+  expect_snapshot_error(ems_homogeneity(cmf_path, simulate = TRUE, matrix_methd = "SBBD"))
+  expect_snapshot_error(ems_homogeneity(cmf_path, simulate = FALSE, n_tasks = 2))
+  expect_null(.homogeneity_check_args(list(n_tasks = 2L, matrix_method = "SBBD"), simulate = TRUE, call = NULL))
+})
+
+test_that("the homogeneity workspace lives under the deployment's out folder (R6-C3)", {
+  nest_temp("homogeneity_work", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  sibling <- paste0(dirname(cmf_path), "_homogeneity")
+  dir.create(sibling)
+  writeLines("keep", file.path(sibling, "mine.txt"))
+  ems_homogeneity(cmf_path, type = "nominal")
+  expect_true(file.exists(file.path(sibling, "mine.txt")))
+  expect_true(file.exists(file.path(dirname(cmf_path), "out", "homogeneity", basename(cmf_path))))
+})
+
 test_that("the GTAP-RE saving-price equations are flagged", {
   nest_temp("homogeneity_re", write_dir)
   re_files <- ems_example("GTAP-RE", file.path(write_dir, "homogeneity_re"))

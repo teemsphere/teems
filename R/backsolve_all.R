@@ -96,6 +96,9 @@
     tab[[entry$row_id]] <- .serialize_eq_statement(entry)
   }
 
+  if (length(csub$statements) > 0L) {
+    tab <- c(tab, "Zerodivide (zero_by_zero) off", "Zerodivide (nonzero_by_zero) off")
+  }
   tab <- c(tab, csub$statements)
   return(tab)
 }

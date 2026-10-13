@@ -48,9 +48,12 @@
   }
 
   err_lines <- grep("Error:", scan_log, value = TRUE, fixed = TRUE)
+  err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
+  mapped <- .map_solver_errors(err_lines)
+  not_singular <- is.na(mapped$class) | mapped$class != "singular"
+  err_lines <- err_lines[not_singular]
+  mapped <- mapped[not_singular, , drop = FALSE]
   if (length(err_lines) > 0L) {
-    err_lines <- unique(sub(".*Error:\\s*", "", err_lines))
-    mapped <- .map_solver_errors(err_lines)
     sel <- intersect(c("interface", "system", "method", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
 
     n_err <- length(err_lines)

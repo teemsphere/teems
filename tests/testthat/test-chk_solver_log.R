@@ -231,6 +231,17 @@ test_that("singularity without Error lines routes to the probe hint", {
   expect_error(check_log(paths), "structurally deficient closure")
 })
 
+test_that("MA48 rank-deficiency Error lines route to the singularity abort", {
+  for (line in c(
+    "Error: the system matrix is structurally singular: structural rank 989 of 998 (MA48A/AD INFO(1) = -4)",
+    "Error: the system matrix is numerically singular: estimated rank 12874 of 12880 (MA48B/BD INFO(1) = 3)"
+  )) {
+    paths <- local_solver_log(c(line, "probe: diagnosing the failed factorization: condensed system (998 x 998)"))
+    expect_error(check_log(paths), "Singularity detected")
+    expect_error(check_log(paths), "ems_probe")
+  }
+})
+
 test_that("singularity after updated range violations routes to the shock-size hint", {
   paths <- local_solver_log(c(
     "Warning: coefficient vxsb has a value below its declared lower bound 0.000000",

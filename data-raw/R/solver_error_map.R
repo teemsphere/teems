@@ -94,6 +94,9 @@ build_solver_error_map <- function() {
     # HSL_MP48 (SBBD) takes INTEGER(4) counts: hsl_kernels.f90 hsl_i4
     # aborts past that range, the same size class with the same remedy
     c("32-bit HSL MP48 interface", "size", NA),
+    # MA48 rank deficiency (hsl_kernels.f90 teems_ma48_fail): handled by
+    # the singular abort in .check_solver_log, not by a class message
+    c("the system matrix is (structurally|numerically) singular", "singular", NA),
     # runtime numeric evaluation
     c("linear solve gave a value that is not finite", "numeric", "34.1"),
     c("not finite", "numeric", "34.3"),

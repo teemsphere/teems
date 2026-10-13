@@ -71,9 +71,9 @@ build_probe_info <- function() {
       dm_hint = "Locate it with {.code plot(x, type = \"dm\")}",
       candidate = "Large {.val LU}-bound system: {.arg backsolve} in
       {.fn ems_model} would shrink it",
-      hurts = "Backsolving hurts here: {.val {set}} splits the system into
-      {blocks} blocks, which the bordered methods exploit and substitution
-      densifies; redeploy without {.arg backsolve}",
+      slower = "Backsolving likely slows this system: {.val {set}} splits
+      it into {blocks} blocks, which the bordered methods exploit and
+      substitution densifies; try redeploying without {.arg backsolve}",
       more = "{.code summary(x)} for the full report"
     ),
     # the full report's structure section
@@ -119,18 +119,18 @@ build_probe_info <- function() {
       rule = "Condensation",
       status = "{n_backsolve} backsolved variable{?s} remove {share} of the
       uncondensed system ({uncondensed_fmt} to {n_fmt} equations)",
-      helps = "No block partition, so the system is {.val LU}-bound: the
-      case condensation pays for",
+      faster = "No block partition, so the system is likely {.val LU}-bound,
+      where condensation tends to speed the solve",
       lu_fine = "{.val {set}} partitions the condensed system into {blocks}
       blocks, but below {lu_size} condensed equations threaded {.val LU}
       beats {.val DBBD}",
-      hurts = "{.val {set}} partitions the system into {blocks} blocks
+      slower = "{.val {set}} partitions the system into {blocks} blocks
       ({border} border variable{?s}), which the bordered methods exploit
-      and substitution densifies",
-      hurts_advice = "Redeploy without {.arg backsolve} and solve with a
-      bordered method: measured on GTAP-RE, condensation made {.val SBBD}
-      runs 69% to 393% slower, and condensed {.val DBBD} stops gaining
-      from extra tasks",
+      and substitution densifies; backsolving likely slows the solve",
+      slower_advice = "Try redeploying without {.arg backsolve} and solving
+      with a bordered method: measured on GTAP-RE, condensation made
+      {.val SBBD} runs 69% to 393% slower, and condensed {.val DBBD}
+      stopped gaining from extra tasks",
       candidate = "No condensation and no block partition: a {.val LU}-bound
       system this large is a candidate for {.arg backsolve} in
       {.fn ems_model}"

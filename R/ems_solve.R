@@ -68,9 +68,9 @@
 #'   * `"NDBBD"`: Nested doubly bordered block diagonal, for
 #'   intertemporal models whose `"SBBD"` host copy does not fit the
 #'   memory available.
-#'   [`ems_probe()`] recommends the method and the tasks, threads
-#'   and scratch to run it with for a deployment and a machine, and
-#'   prints the call to paste (see Details).
+#'   [`ems_probe()`] (experimental) suggests the method and the
+#'   tasks and threads to run it with for a deployment and a machine,
+#'   and prints the call to paste (see Details).
 #' @param n_subintervals Integer length 1 (default is `1L`),
 #'   number of subintervals for the applied shock. More
 #'   subintervals may alleviate accuracy issues stemming from

@@ -146,10 +146,11 @@
       * 68 backsolved variables remove 1% of the uncondensed system (202,000 to
         200,000 equations)
       ! "REG" partitions the system into 35 blocks (400 border variables), which the
-        bordered methods exploit and substitution densifies
-      i Redeploy without `backsolve` and solve with a bordered method: measured on
-        GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and condensed
-        "DBBD" stops gaining from extra tasks
+        bordered methods exploit and substitution densifies; backsolving likely slows
+        the solve
+      i Try redeploying without `backsolve` and solving with a bordered method:
+        measured on GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and
+        condensed "DBBD" stopped gaining from extra tasks
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
@@ -158,16 +159,17 @@
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
-      v No block partition, so the system is "LU"-bound: the case condensation pays
-        for
+      v No block partition, so the system is likely "LU"-bound, where condensation
+        tends to speed the solve
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
       ! "alltime" partitions the system into 12 blocks (0 border variables), which
-        the bordered methods exploit and substitution densifies
-      i Redeploy without `backsolve` and solve with a bordered method: measured on
-        GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and condensed
-        "DBBD" stops gaining from extra tasks
+        the bordered methods exploit and substitution densifies; backsolving likely
+        slows the solve
+      i Try redeploying without `backsolve` and solving with a bordered method:
+        measured on GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and
+        condensed "DBBD" stopped gaining from extra tasks
       -- Condensation ----------------------------------------------------------------
       i No condensation and no block partition: a "LU"-bound system this large is a
         candidate for `backsolve` in `ems_model()`

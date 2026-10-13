@@ -32,10 +32,10 @@ print.teems_probe <- function(x, ...) {
   if (!is.null(cn) && cn$verdict %=% "candidate") {
     cli::cli_bullets(c("i" = b$candidate))
   }
-  if (!is.null(cn) && cn$verdict %=% "hurts") {
+  if (!is.null(cn) && cn$verdict %=% "slower") {
     set <- cn$partition_set %|||% (cn$chain_set %|||% "-")
     blocks <- cn$n_blocks
-    cli::cli_bullets(c("!" = b$hurts))
+    cli::cli_bullets(c("!" = b$slower))
   }
   .probe_print_recommendation(x$recommendation, brief = TRUE)
   cli::cli_bullets(c("i" = b$more))

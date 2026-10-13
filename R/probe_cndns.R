@@ -27,11 +27,11 @@
 
   verdict <- "none"
   if (condensed && partitioned && (chained || bordered_size)) {
-    verdict <- "hurts"
+    verdict <- "slower"
   } else if (condensed && partitioned) {
     verdict <- "lu_fine"
   } else if (condensed) {
-    verdict <- "helps"
+    verdict <- "faster"
   } else if (!partitioned && !is.na(vecsize) && vecsize >= .cndns_lu_size) {
     verdict <- "candidate"
   }

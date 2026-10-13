@@ -136,7 +136,7 @@ test_that("probe advises against condensation when a partition exists", {
   )
   expect_true(cond$condensed)
   expect_true(cond$partitioned)
-  expect_identical(cond$verdict, "hurts")
+  expect_identical(cond$verdict, "slower")
   expect_equal(cond$elimination_share, 2000 / 202000, tolerance = 1e-12)
   expect_equal(cond$border_share, 400 / 2e5, tolerance = 1e-12)
   expect_equal(cond$uncondensed, 202000)
@@ -146,7 +146,7 @@ test_that("probe advises against condensation when a partition exists", {
     nbacksolve = 68, nbselems = 2000, bordered = TRUE, ndblock = 12,
     chain_set = "alltime", chain_source = "structural"
   )
-  expect_identical(chained$verdict, "hurts")
+  expect_identical(chained$verdict, "slower")
 })
 
 test_that("probe keeps condensation below the condensed LU crossover", {
@@ -163,7 +163,7 @@ test_that("probe confirms condensation on an LU-bound system", {
   cond <- probe_stats_variant(nbacksolve = 68, nbselems = 2000)
   expect_true(cond$condensed)
   expect_false(cond$partitioned)
-  expect_identical(cond$verdict, "helps")
+  expect_identical(cond$verdict, "faster")
 })
 
 test_that("probe suggests condensation for a large LU-bound system", {

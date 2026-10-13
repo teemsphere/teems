@@ -19,9 +19,9 @@
   border <- condense$border %|||% 0L
   lu_size <- .fmt(condense$lu_size)
   switch(condense$verdict,
-    "helps" = cli::cli_bullets(c("v" = m$helps)),
+    "faster" = cli::cli_bullets(c("v" = m$faster)),
     "lu_fine" = cli::cli_bullets(c("v" = m$lu_fine)),
-    "hurts" = cli::cli_bullets(c("!" = m$hurts, "i" = m$hurts_advice)),
+    "slower" = cli::cli_bullets(c("!" = m$slower, "i" = m$slower_advice)),
     "candidate" = cli::cli_bullets(c("i" = m$candidate))
   )
   return(invisible(NULL))

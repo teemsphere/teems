@@ -90,9 +90,9 @@ for intertemporal models partitioned along the time chain.
 \item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
 intertemporal models whose \code{"SBBD"} host copy does not fit the
 memory available.
-\code{\link[=ems_probe]{ems_probe()}} recommends the method and the tasks, threads
-and scratch to run it with for a deployment and a machine, and
-prints the call to paste (see Details).
+\code{\link[=ems_probe]{ems_probe()}} (experimental) suggests the method and the
+tasks and threads to run it with for a deployment and a machine,
+and prints the call to paste (see Details).
 }}
 
 \item{n_subintervals}{Integer length 1 (default is \code{1L}),

@@ -63,37 +63,56 @@ equations, ~a minute at 10^6). A structurally singular result does
 not error here — the object reports it (see
 \code{\link[=plot.teems_probe]{plot.teems_probe()}} and the \code{defects} tibble).
 
-The probe also settles the condensation question, which the
-deploy-time advice in \code{\link[=ems_solve]{ems_solve()}} can only guess at: the
-measured block partition decides whether backsolving helps.
-Substitution densifies the blocks the bordered methods exploit
-(measured on GTAP-RE: the standard condensation made \code{"SBBD"} runs
-69 to 393 percent slower, and condensed \code{"DBBD"} stops gaining from
-extra tasks), so a system with a usable partition and a time chain,
-or one above about 120 thousand condensed equations, is told to
-redeploy without \code{backsolve} (\code{"hurts"}); below that, threaded
-\code{"LU"} on the condensed system is still the fastest measured
-(\code{"lu_fine"}); a condensed system without a partition is
-\code{"LU"}-bound, where condensation pays (\code{"helps"}); and an
-uncondensed \code{"LU"}-bound system of a million equations or more is
-named as a candidate for \code{backsolve} in \code{\link[=ems_model]{ems_model()}}. The
-verdict is carried in \code{condense$verdict}.
+The probe also offers a view on the condensation question,
+which the deploy-time advice in \code{\link[=ems_solve]{ems_solve()}} can only guess
+at: the measured block partition suggests whether backsolving
+is likely to help. Substitution densifies the blocks the
+bordered methods exploit: on GTAP-RE the standard condensation
+made \code{"SBBD"} runs 69 to 393 percent slower, and condensed
+\code{"DBBD"} stopped gaining from extra tasks. The verdict, carried
+in \code{condense$verdict}, is one of:
+\itemize{
+\item \code{"slower"}: a condensed system with a usable partition
+and a time chain, or one above about 120 thousand condensed
+equations; backsolving likely slows the solve, so try
+redeploying without \code{backsolve}.
+\item \code{"lu_fine"}: a condensed system with a usable partition
+below that size; threaded \code{"LU"} on the condensed system was
+the fastest measured.
+\item \code{"faster"}: a condensed system without a partition,
+likely \code{"LU"}-bound, where condensation tends to speed the
+solve.
+\item \code{"candidate"}: an uncondensed \code{"LU"}-bound system of a
+million equations or more, a candidate for \code{backsolve} in
+\code{\link[=ems_model]{ems_model()}}.
+\item \code{"none"}: no verdict.
+}
 
-The probe also recommends how to solve the deployment: the matrix
-method and the tasks, threads and scratch directory to run it
-with on this machine (or on the \code{cores} and \code{memory} given),
-from the measured structure, the deploy metadata and a peak-memory
-model per method (see \code{\link[=ems_solve]{ems_solve()}} Details for the rules and
-their provenance). The recommendation prints with the object as a
+The probe also suggests how to solve the deployment: a matrix
+method and the tasks and threads to run it with on this machine
+(or on the \code{cores} and \code{memory} given), from the measured
+structure, the deploy metadata and a peak-memory model per
+method (see \code{\link[=ems_solve]{ems_solve()}} Details for the rules and their
+provenance). The suggestion prints with the object as a
 ready-to-paste \code{\link[=ems_solve]{ems_solve()}} call and is carried in
 \code{recommendation}; \code{ems_solve()} itself chooses nothing. No
-recommendation is made when one cannot be sound: a structurally
-singular system (fix the closure first), a container whose cores
-could not be read (pass \code{cores} and \code{memory}), or a system whose
-smallest estimate does not fit the memory. The evidence is
-assessed at the task count the recommendation names, and a
-system below the smallest measured size (300 thousand equations)
-is sent to \code{"LU"}, since every method solves it quickly.
+suggestion is made when the probe has no sound basis for one: a
+structurally singular system (fix the closure first), a
+container whose cores could not be read (pass \code{cores} and
+\code{memory}), or a system whose smallest estimate does not fit the
+memory. The evidence is assessed at the task count the
+suggestion names, and a system below the smallest measured size
+(300 thousand equations) is sent to \code{"LU"}, since every method
+solved such systems quickly.
+
+\code{ems_probe()} is experimental. Its rules come from a limited set
+of measured models and machines, and the condensation verdict
+and the suggested settings are starting points, not guarantees:
+a different method, task count or thread count may well be
+faster for a given model and machine. Users are encouraged to
+test other settings with \code{\link[=ems_solve]{ems_solve()}}, and to report cases
+where a suggestion is off at
+\url{https://github.com/teemsphere/teems/issues}.
 }
 \examples{
 \dontrun{

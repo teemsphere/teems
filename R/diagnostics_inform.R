@@ -1,4 +1,3 @@
-#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .inform_diagnostics <- function(elapsed_time,
@@ -11,20 +10,17 @@
   cat("-- Solver log --\n\n", append = TRUE, file = diagnostic_file)
   cat(paste(model_log, collapse = "\n"), "\n", append = TRUE, file = diagnostic_file)
 
-  if (any(grepl(pattern = "Accurate", model_log))) {
-    accuracy_output <- model_log[grep("Accurate", model_log)]
+  if (any(grepl(pattern = "^Accurate at ", model_log))) {
+    accuracy_output <- grep("^Accurate at ", model_log, value = TRUE)
+    zero_output <- grep("^Judged zero ", model_log, value = TRUE)
 
-    all_digits <- as.numeric(trimws(purrr::map_chr(
-      strsplit(accuracy_output, "digits|none"),
-      \(x) {
-        x[length(x)]
-      }
-    )))
+    all_digits <- as.numeric(sub(".*\\s", "", trimws(accuracy_output)))
+    judged_zero <- sum(as.numeric(sub(".*\\s", "", trimws(zero_output))))
 
     total_var <- sum(all_digits)
     a4digits <- sum(all_digits[1:3])
 
-    accurate_4 <- a4digits / total_var
+    accurate_4 <- if (total_var > 0) a4digits / total_var else 1
     accuracy <- sprintf("%.0f%%", accurate_4 * 100)
     a_threshold <- .o_accuracy_threshold()
     elapsed_time_raw <- elapsed_time[[3]]
@@ -62,6 +58,7 @@
       "\n-- Run summary --\n\n",
       sprintf("Elapsed time:       %s\n", elapsed_time_fmt),
       sprintf("Accuracy (4-digit): %s\n", accuracy),
+      sprintf("Judged zero:        %s\n", judged_zero),
       sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
       append = TRUE, file = diagnostic_file, sep = ""
     )

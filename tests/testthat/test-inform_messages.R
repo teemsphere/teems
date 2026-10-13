@@ -56,3 +56,37 @@ test_that("a finished run reports its elapsed time and accuracy", {
   expect_true(any(grepl("^Elapsed time: +1m 15s$", record)))
   expect_true(any(grepl("^Accuracy \\(4-digit\\): 98%$", record)))
 })
+
+test_that("results judged zero stay out of the accuracy share, and an all-zero run is not flagged", {
+  ems_option_set(verbose = FALSE)
+  withr::defer(ems_option_reset())
+  counts <- function(d6, d4, d1, zero) {
+    log <- c(
+      sprintf("Accurate at 6 digits        %d", d6),
+      "Accurate at 5 digits        0",
+      sprintf("Accurate at 4 digits        %d", d4),
+      "Accurate at 3 digits        0",
+      "Accurate at 2 digits        0",
+      sprintf("Accurate at 1 digit or none %d", d1),
+      sprintf("Judged zero (both below 1e-6) %d", zero)
+    )
+    return(log)
+  }
+  run_dir <- withr::local_tempdir()
+  expect_no_warning(.inform_diagnostics(
+    elapsed_time = c(0, 0, 1),
+    model_log = counts(0, 0, 0, 4478),
+    run_dir = run_dir,
+    call = NULL
+  ))
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("^Accuracy \\(4-digit\\): 100%$", record)))
+  expect_true(any(grepl("^Judged zero: +4478$", record)))
+  run_dir <- withr::local_tempdir()
+  expect_warning(.inform_diagnostics(
+    elapsed_time = c(0, 0, 1),
+    model_log = counts(40, 30, 30, 900),
+    run_dir = run_dir,
+    call = NULL
+  ), "70%")
+})

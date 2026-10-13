@@ -172,8 +172,7 @@
   return(shock)
 }
 
-#' @importFrom data.table CJ setnames fsetdiff fsetequal
-#' @importFrom utils capture.output
+#' @importFrom data.table CJ setnames
 #' @keywords internal
 #' @noRd
 #' @method .check_shk scenario
@@ -222,18 +221,12 @@
   template_shk[[int_col]] <- year_tbl$Value[r_idx]
   data.table::setnames(template_shk, old = shock$ls_upper, new = shock$set)
 
-  if (.o_check_shock_status()) {
-    if (!data.table::fsetequal(template_shk, shock$input[, !"Value"])) {
-      missing_tuples <- data.table::fsetdiff(template_shk, shock$input[, !"Value"])
-      n_missing_tuples <- nrow(missing_tuples)
-      missing_tuples <- utils::capture.output(print(missing_tuples))[-c(1:2)]
-      .cli_action(
-        shk_err$scen_missing_tup,
-        action = c("abort", "inform", "inform"),
-        call = call
-      )
-    }
-  }
+  is_full <- .check_scen_coverage(
+    template = template_shk,
+    shock = shock,
+    sets = sets,
+    call = call
+  )
 
   shock <- .year2time_set(
     shk = shock,
@@ -242,6 +235,6 @@
     call = call
   )
 
-  attr(shock, "is_full") <- TRUE
+  attr(shock, "is_full") <- is_full
   return(shock)
 }

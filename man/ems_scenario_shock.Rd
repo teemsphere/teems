@@ -4,7 +4,7 @@
 \alias{ems_scenario_shock}
 \title{Prepare a scenario shock}
 \usage{
-ems_scenario_shock(var, input)
+ems_scenario_shock(var, input, partial = FALSE)
 }
 \arguments{
 \item{var}{Character of length 1, the variable to be shocked.}
@@ -17,6 +17,11 @@ chronological years, plus one column per set index for the
 variable. Note that set names must conform to the
 model-specific hybrid format (e.g., \code{ACTSa}, \code{REGr}). Column
 order is inconsequential.}
+
+\item{partial}{Logical of length 1 (default \code{FALSE}). If \code{TRUE},
+\code{input} may cover a subset of the variable's aggregated tuples;
+only those are shocked, and they must be exogenous. Uncovered
+exogenous tuples keep a zero change.}
 }
 \value{
 A \code{list} object with shock configuration to be passed
@@ -27,9 +32,14 @@ Prepares heterogeneous absolute-value trajectory
 shocks. Inputs are aggregated according to the set mappings
 in \code{\link[=ems_data]{ems_data()}} and converted to percentage changes
 internally, making scenario shocks portable across
-aggregations. All tuples must be present in \code{input} at full
-pre-aggregation resolution. Partial variable scenario shocks
-are not permitted.
+aggregations. By default every tuple of the variable must be
+present in \code{input} at full pre-aggregation resolution. With
+\code{partial = TRUE}, only some aggregated tuples are shocked (e.g.,
+one region's GDP): every pre-aggregation tuple, in every year,
+that maps to a shocked aggregated tuple must be present, and an
+aggregated tuple covered in part stops the deployment by name.
+Values are summed over the pre-aggregation tuples, so scenario
+shocks suit additive variables (values and quantities).
 
 See the
 \href{https://teemsphere.github.io/scenario_shocks.html}{scenario

@@ -129,6 +129,18 @@ build_shk_err <- function() {
     scen_missing_tup = c(
       "{n_missing_tuples} tuple{?s} missing from the scenario shock: {.field {missing_tuples}}.",
       "Scenario shocks must cover all pre-aggregation tuples for associated sets.",
+      "To shock only some aggregated tuples, supply every pre-aggregation tuple behind each of them, in every year, and set {.code partial = TRUE}.",
+      "Call: {.code {deparse(call)}}"
+    ),
+    # test-ems_scenario_shock.R: "a scenario shock tuple outside the pre-aggregation sets aborts"
+    scen_extra_tup = c(
+      "{n_extra} scenario shock tuple{?s} for {.field {var_name}} {cli::qty(n_extra)}{?matches/match} no pre-aggregation element or time step: {.field {extra_tuples}}.",
+      "Call: {.code {deparse(call)}}"
+    ),
+    # test-ems_scenario_shock.R: "a partial scenario shock covering part of an aggregated tuple aborts"
+    scen_partial_tup = c(
+      "{n_part} aggregated tuple{?s} of {.field {var_name}} {cli::qty(n_part)}{?is/are} only partly covered by the scenario shock: {.field {part_tuples}}.",
+      "A partial scenario shock needs every pre-aggregation tuple, in every year, behind each aggregated tuple it shocks; {n_missing_tuples} {cli::qty(n_missing_tuples)}{?is/are} missing: {.field {missing_tuples}}.",
       "Call: {.code {deparse(call)}}"
     )
   )

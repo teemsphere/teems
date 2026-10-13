@@ -202,3 +202,69 @@ test_that("a scenario shock with a zero base-year value aborts", {
   nest_temp("scen_zero_base", write_dir)
   expect_snapshot_error(ems_deploy(dat, model, zero_base))
 })
+
+test_that("ems_scenario_shock errors when partial is not a single TRUE or FALSE", {
+  expect_snapshot_error(ems_scenario_shock("pop", df_input, partial = NA))
+  expect_snapshot_error(ems_scenario_shock("pop", df_input, partial = "yes"))
+})
+
+partial_traj <- function(regions) {
+  traj <- expand.grid(REGr = regions, Year = c(2023, 2024, 2025), stringsAsFactors = FALSE)
+  traj$Value <- 100 * (1 + match(traj$REGr, regions) / 100)^(traj$Year - 2023)
+  traj
+}
+
+test_that("a partial scenario shock covering whole aggregated tuples deploys", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  traj <- partial_traj(c("usa", "chn"))
+  nest_temp("scen_partial_none", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("pop", traj)))
+  nest_temp("scen_partial", write_dir)
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- testthat::capture_messages(
+    cmf <- ems_deploy(dat, model, ems_scenario_shock("pop", traj, partial = TRUE))
+  )
+  expect_true(any(grepl("covers 2 of 3 aggregated tuples", msgs, fixed = TRUE)))
+  shf <- readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  shf <- paste(shf, collapse = "\n")
+  expect_match(shf, "usa", fixed = TRUE)
+  expect_match(shf, "chn", fixed = TRUE)
+  expect_no_match(shf, "row", fixed = TRUE)
+})
+
+test_that("a partial scenario shock reproduces the full shock on the tuples it covers", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  regions <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG
+  full <- partial_traj(regions)
+  part <- full[full$REGr %in% c("usa", "chn"), ]
+  shk_lines <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- suppressMessages(ems_deploy(dat, model, shk))
+    readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  }
+  full_shf <- shk_lines(ems_scenario_shock("pop", full), "scen_full_ref")
+  part_shf <- shk_lines(ems_scenario_shock("pop", part, partial = TRUE), "scen_part_ref")
+  shk_values <- function(x) {
+    v <- suppressWarnings(as.numeric(x))
+    v[!is.na(v) & v != 0]
+  }
+  expect_length(shk_values(part_shf), 4L)
+  expect_true(all(shk_values(part_shf) %in% shk_values(full_shf)))
+})
+
+test_that("a partial scenario shock covering part of an aggregated tuple aborts", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  regions <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG
+  traj <- partial_traj(c("usa", setdiff(regions, c("usa", "chn"))[1:3]))
+  nest_temp("scen_partial_part", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("pop", traj, partial = TRUE)))
+})
+
+test_that("a scenario shock tuple outside the pre-aggregation sets aborts", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  regions <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG
+  traj <- partial_traj(c(regions, "zzz"))
+  nest_temp("scen_extra", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("pop", traj)))
+})

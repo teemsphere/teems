@@ -134,6 +134,11 @@ build_deploy_info <- function() {
     set_builder_empty = c(
       "{.field Set} builder {.val {bad_set}} selected no elements of {.field {src_set}} with {.code {builder_cond}}.",
       "The set is empty: statements over it have no tuples and sums over it are zero (GEMPACK manual 11.7.9)."
+    ),
+    # test-ems_scenario_shock.R: "a partial scenario shock covering whole aggregated tuples deploys"
+    scen_partial = c(
+      "The scenario shock to {.field {var_name}} covers {n_cov} of {n_agg} aggregated tuple{?s}: {.field {cov_tuples}}.",
+      "Exogenous tuples it does not cover keep a zero change."
     )
   )
 }

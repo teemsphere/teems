@@ -58,12 +58,23 @@
     var = "character",
     input = c("character", "data.frame")
   )
+  if ("partial" %in% names(shock)) {
+    checklist$partial <- "logical"
+  }
 
   .check_arg_class(
     args_list = shock,
     checklist = checklist,
     call = call
   )
+
+  if ("partial" %in% names(shock) && (length(shock$partial) != 1L || is.na(shock$partial))) {
+    bad_arg <- "partial"
+    .cli_action(gen_err$logical_flag,
+      action = "abort",
+      call = call
+    )
+  }
 
   shock$input <- .shk_preload(
     input = shock$input,

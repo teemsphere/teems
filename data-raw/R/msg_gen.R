@@ -58,6 +58,7 @@ build_gen_err <- function() {
     # test-chk_tab_preflight.R: "subsets by numbers abort"
     subset_by_numbers = "{.code Subset (by_numbers)} is obsolete and not supported; list the subset's elements by name (GEMPACK manual 10.2).",
     # test-solve_in_situ.R: "solve_in_situ errors when ignore_condense is not a single TRUE or FALSE"
+    # test-ems_scenario_shock.R: "ems_scenario_shock errors when partial is not a single TRUE or FALSE"
     logical_flag = "{.arg {bad_arg}} must be {.val TRUE} or {.val FALSE}."
   )
 }

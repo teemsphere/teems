@@ -27,13 +27,20 @@
     v$n_subintervals <- 1
   }
 
-  lock_path <- NULL
-  if (!isTRUE(v$terminal_run)) {
-    lock_path <- .solve_lock_acquire(
-      run_dir = dirname(paths$cmf),
-      timeID = timeID,
+  if (isTRUE(v$terminal_run) && .under_tempdir(paths$run)) {
+    run_dir <- paths$run
+    .cli_action(solve_wrn$terminal_tempdir,
+      action = c("warn", "inform"),
       call = call
     )
+  }
+
+  lock_path <- .solve_lock_acquire(
+    run_dir = dirname(paths$cmf),
+    timeID = timeID,
+    call = call
+  )
+  if (!isTRUE(v$terminal_run)) {
     on.exit(.solve_lock_release(lock_path), add = TRUE)
   }
 
@@ -65,6 +72,7 @@
   .clear_solution_files(run_dir = paths$run)
 
   if (isFALSE(cmds)) {
+    .solve_lock_release(lock_path)
     return(invisible(NULL))
   }
 
@@ -103,5 +111,15 @@
     output <- ems_compose(cmf_path = v$cmf_path)
     return(output)
   }
-  return(invisible(NULL))
+  cmf_path <- v$cmf_path
+  return(invisible(cmf_path))
+}
+
+#' @keywords internal
+#' @noRd
+.under_tempdir <- function(path) {
+  root <- normalizePath(tempdir(), "/", mustWork = FALSE)
+  path <- normalizePath(path, "/", mustWork = FALSE)
+  under <- identical(path, root) || startsWith(path, paste0(root, "/"))
+  return(under)
 }

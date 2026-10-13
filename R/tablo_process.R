@@ -41,11 +41,6 @@
     call = call
   )
 
-  tab <- .rewrite_tab_netcut(
-    tab = tab,
-    call = call
-  )
-
   condensed <- .cndns_model(
     tab = tab,
     backsolve = backsolve,
@@ -100,13 +95,6 @@
 
   .check_index_domains(
     extract = extract$model,
-    set_extract = extract$set,
-    call = call
-  )
-
-  .check_netcut(
-    var_extract = var_extract,
-    math_extract = math_extract,
     set_extract = extract$set,
     call = call
   )

@@ -54,8 +54,8 @@
     ),
     solver_args
   ))
-  if (is.null(sol)) {
-    return(invisible(NULL))
+  if (is.null(sol) || is.character(sol)) {
+    return(invisible(sol))
   }
   return(sol)
 }

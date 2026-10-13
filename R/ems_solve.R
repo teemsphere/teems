@@ -252,8 +252,9 @@
 #'   `range_test_initial`, `range_test_updated`), and for the
 #'   refinement step of `"DBBD"` solves (`refine`).
 #' @return A tibble of model output variables and coefficients.
-#'   `invisible(NULL)` if `suppress_outputs = TRUE`. Instructions
-#'   for terminal execution if `terminal_run = TRUE`.
+#'   The CMF path, invisibly, if `suppress_outputs = TRUE`; pass it
+#'   to [`ems_compose()`]. Instructions for terminal execution if
+#'   `terminal_run = TRUE`.
 #' @references Pearson, K.R. (1991), "Solving Nonlinear Economic
 #'   Models Accurately via a Linear Representation", Impact
 #'   Project Preliminary Working Paper No. IP-55, Monash
@@ -346,7 +347,7 @@ output <- .implement_solve(
   args_list = args_list,
   call = call
 )
-if (is.null(output)) {
+if (is.null(output) || is.character(output)) {
   invisible(output)
 } else {
   output

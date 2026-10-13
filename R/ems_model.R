@@ -19,16 +19,18 @@
 #'   equation by the `E_<variable>` convention; use named entries
 #'   for exceptions (e.g., `c(qgd = "E_qgdtot")`). Backsolved
 #'   variables must be endogenous; their values remain available
-#'   in solve outputs. Nominations are validated against the
-#'   GEMPACK substitution requirements (GEMPACK manual, section
-#'   14.1.10).
+#'   in solve outputs. Each nomination is checked to make sure
+#'   its equation can be solved for the variable (see GEMPACK
+#'   manual 14.1.10); a nomination that fails aborts with the
+#'   reason.
 #' @param ignore_condense Logical length 1 (default is `FALSE`).
-#'   If `TRUE`, `Substitute` and `Backsolve` statements found in the
-#'   model file are ignored (the equivalent of the GEMPACK `ICT`
-#'   option). In-TAB `Substitute` statements are always executed as
-#'   backsolves. In-TAB `Omit` statements hold the omitted variables
-#'   exogenous and unshocked, which is what omission means in
-#'   GEMPACK; the variables stay in the model and in the outputs.
+#'   If `TRUE`, in-TAB `Substitute`, `Backsolve` and `Omit`
+#'   statements are ignored. Otherwise `Substitute` statements
+#'   are executed as backsolves and `Omit` statements make the
+#'   omitted variables exogenous where the closure does not
+#'   already. The solver automatically drops
+#'   unshocked exogenous variables from the solve, and their zero
+#'   results remain in the outputs.
 #' @param ... A named pairlist assigning values to model
 #'   coefficients. Name must match a coefficient declared in the
 #'   model file. Value may be a length-1 numeric, a data frame or

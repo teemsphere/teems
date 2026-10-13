@@ -280,6 +280,12 @@ test_that("ems_data warns wrong initial year", {
   ))
 })
 
+test_that("integer time steps that start at the reference year do not warn (R1b-B3)", {
+  expect_no_warning(out <- .check_time_steps(2017, c(2017L, 2018L, 2020L), call = NULL))
+  expect_identical(out, c(0L, 1L, 3L))
+  expect_no_warning(.check_time_steps(2017L, c(2017, 2018, 2020), call = NULL))
+})
+
 test_that("ems_data errors when dots passed without names", {
   expect_snapshot_error(ems_data(
     dat_input,

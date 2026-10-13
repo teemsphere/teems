@@ -51,3 +51,18 @@ test_that("a malformed VPQ type statement aborts", {
 test_that("a Name statement for an undeclared variable warns", {
   expect_snapshot_warning(.resolve_vpqtype(vpq_tab("Variable (Name ghost VPQType Price)"), call = NULL))
 })
+
+test_that("a Variable default leaves VPQType statements alone (R1-B1)", {
+  out <- .expand_tab_defaults(
+    c("Variable (default = levels)", "Variable (begins p default VPQType Price)", "Variable pz"),
+    call = NULL
+  )
+  expect_identical(out, c("Variable (begins p default VPQType Price)", "Variable (levels) pz"))
+})
+
+test_that("the VPQType default = <type> spelling is accepted (R1-B2)", {
+  out <- .resolve_vpqtype(vpq_tab("Variable (begins p VPQType default = Price)", "Variable (all,r,REG) pgdp(r)"), call = NULL)
+  expect_identical(attr(out, "vpqtype")[["pgdp"]], "price")
+  out <- .resolve_vpqtype(vpq_tab("Variable (begins p VPQType default=Price)", "Variable (all,r,REG) pgdp(r)"), call = NULL)
+  expect_identical(attr(out, "vpqtype")[["pgdp"]], "price")
+})

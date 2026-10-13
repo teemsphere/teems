@@ -30,7 +30,7 @@
     )
   }
 
-  quant_idx <- purrr::map_chr(entry$quants, "idx")
+  quant_idx <- tolower(purrr::map_chr(entry$quants, "idx"))
   quant_set <- purrr::map_chr(entry$quants, "set")
   if (length(decl_sets) == 1L && is.na(decl_sets)) {
     decl_sets <- character()
@@ -39,6 +39,7 @@
   for (o in occ_at) {
     t <- all_terms[[o]]
     args <- t$var$args
+    args_lc <- tolower(args)
     occ <- .serialize_term(t)
 
     if (any(grepl("^\"", args))) {
@@ -53,34 +54,34 @@
       )
     }
 
-    sum_idx <- purrr::map_chr(t$quants, "idx")
-    if (any(args %in% sum_idx)) {
+    sum_idx <- tolower(purrr::map_chr(t$quants, "idx"))
+    if (any(args_lc %in% sum_idx)) {
       .abort_backsolve_rule(
         sprintf(txt$sum_index, occ), eq_name, var_name, call
       )
     }
 
-    if (!all(quant_idx %in% args)) {
-      missing_idx <- setdiff(quant_idx, args)
+    if (!all(quant_idx %in% args_lc)) {
+      missing_idx <- setdiff(quant_idx, args_lc)
       .abort_backsolve_rule(
         sprintf(txt$missing_index, paste(missing_idx, collapse = ","), occ),
         eq_name, var_name, call
       )
     }
 
-    if (anyDuplicated(args)) {
+    if (anyDuplicated(args_lc)) {
       .abort_backsolve_rule(
         sprintf(txt$repeated_index, occ), eq_name, var_name, call
       )
     }
 
-    if (!all(args %in% quant_idx)) {
+    if (!all(args_lc %in% quant_idx)) {
       .abort_backsolve_rule(
         sprintf(txt$unbound_arg, occ), eq_name, var_name, call
       )
     }
 
-    arg_sets <- quant_set[match(args, quant_idx)]
+    arg_sets <- quant_set[match(args_lc, quant_idx)]
     if (length(arg_sets) != length(decl_sets) ||
       !all(tolower(arg_sets) == tolower(decl_sets))) {
       .abort_backsolve_rule(
@@ -96,7 +97,7 @@
 
   first_args <- all_terms[[occ_at[[1]]]]$var$args
   for (o in occ_at[-1]) {
-    if (!identical(all_terms[[o]]$var$args, first_args)) {
+    if (!identical(tolower(all_terms[[o]]$var$args), tolower(first_args))) {
       .abort_backsolve_rule(
         sprintf(
           txt$mixed_patterns,

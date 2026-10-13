@@ -170,3 +170,137 @@ test_that("declared names are canonicalised to their declared spelling", {
   clash <- .canonical_names(c("Coefficient (all,r,REG) POP(r)", "Variable (all,r,REG) pop(r)", "Equation E_p (all,r,REG) pop(r) = POP(r)"))
   expect_identical(clash[3], "Equation E_p (all,r,REG) pop(r) = POP(r)")
 })
+
+test_that("qualifier groups are detected by position, not by substring (R1-B3, R1-B4, R1-B5)", {
+  txt <- paste0(
+    base_txt,
+    "\nVariable (percent_change) (all,r,REG) zpc(r);",
+    "\nCoefficient INITIALGDP;",
+    "\nFormula INITIALGDP = 2;",
+    "\nVariable LEVELSHIFT;",
+    "\nEquation E_ls LEVELSHIFT = 2*pfactwld;",
+    "\nCoefficient (non_parameter) (all,r,REG) NPW(r);",
+    "\nRead NPW from file GTAPDATA header \"NPW\";\n"
+  )
+  model <- process(write_tab(txt))
+  rows <- stats::setNames(model$qualifier_list, model$name)
+  expect_identical(rows[["zpc"]], "(percent_change)")
+  expect_true(is.na(rows[["INITIALGDP"]]))
+  expect_true(is.na(rows[["LEVELSHIFT"]]))
+  expect_identical(rows[["NPW"]], "(non_parameter)")
+  expect_false(.qual_is_parameter(rows[["NPW"]]))
+  expect_identical(.qual_is_parameter(c("(parameter)", "(real, parameter)", NA)), c(TRUE, TRUE, FALSE))
+})
+
+test_that("formula and equation bodies survive qualifier sniffing, labels and glued names (R1b-B1, R1b-B4, R1b-B5)", {
+  txt <- paste0(
+    base_txt,
+    "\nCoefficient INITIALW;",
+    "\nFormula INITIALW = 2;",
+    "\nCoefficient (all,c,COMM) LEVELSUMX(c);",
+    "\nFormula # copy # (all,c,COMM) LEVELSUMX(c) = 1;",
+    "\nCoefficient (all,c,COMM) BINIT(c);",
+    "\nFormula # initial value of B # (all,c,COMM: INITIALW ge 0) BINIT(c) = 1;",
+    "\nCoefficient (all,c,COMM) CNEST(c);",
+    "\nFormula (all,c,COMM: LEVELSUMX(MCOM(c)) > 0) CNEST(c) = 1;",
+    "\nMapping MCOM from COMM to COMM;",
+    "\nFormula (all,c,COMM) MCOM(c) = c;",
+    "\nVariable (all,c,COMM) xg(c);",
+    "\nEquation E_xg(all,c,COMM) xg(c) = 2*pfactwld;\n"
+  )
+  model <- process(write_tab(txt))
+  fml <- model[model$type == "Formula" & grepl("INITIALW|LEVELSUMX|BINIT|CNEST", model$tab), ]
+  expect_identical(fml$comp1, c("INITIALW", "LEVELSUMX(c)", "BINIT(c)", "CNEST(c)"))
+  expect_identical(fml$comp2, c("2", "1", "1", "1"))
+  expect_identical(fml$label, c(NA, "copy", "initial value of B", NA))
+  expect_true(all(is.na(fml$qualifier_list)))
+  expect_identical(model$name[model$type == "Equation" & grepl("xg", model$tab)], "E_xg")
+})
+
+test_that("a paren-led equation side and a comparison inside IF split at the top-level equals (R1b-B2)", {
+  txt <- paste0(
+    base_txt,
+    "\nCoefficient (all,c,COMM) CW(c);",
+    "\nFormula (all,c,COMM) CW(c) = $POS(c);",
+    "\nVariable (all,c,COMM) xb3(c);",
+    "\nVariable (all,c,COMM) zq(c);",
+    "\nVariable (all,c,COMM) xq(c);",
+    "\nEquation E_xb3 (all,c,COMM) (CW(c)+1)*xb3(c) = 2*pfactwld;",
+    "\nEquation E_xq (all,c,COMM) xq(c) = 3*pfactwld;",
+    "\nEquation E_zq (all,c,COMM) IF(CW(c) >= 2, CW(c))*zq(c) + zq(c) = xq(c);",
+    "\nBacksolve xq using E_xq;\n"
+  )
+  model <- process(write_tab(txt))
+  eqs <- model[model$type == "Equation" & model$name %in% c("E_xb3", "E_zq"), ]
+  expect_identical(eqs$comp1, c("(CW(c)+1)*xb3(c)", "IF[CW(c)>=2, CW(c)]*zq(c) + zq(c)"))
+  expect_identical(eqs$comp2, c("2*pfactwld", "3*pfactwld"))
+})
+
+test_that("a misspelt keyword after a declaration aborts; a first statement without a keyword aborts by name (R1-B6)", {
+  expect_snapshot_error(.check_statements("Coefficient A; Coeficient B;", call = NULL))
+  expect_snapshot_error(.check_statements("Foo X; Coefficient A;", call = NULL))
+  out <- .check_statements(
+    "Coefficient (all,r,REG) A(r); (all,r,REG) B(r) # lab #; C; Read A from file X header \"A\"; B from file X header \"B\";",
+    call = NULL
+  )
+  expect_identical(out[3], "Coefficient C")
+  expect_identical(out[5], "Read B from file X header \"B\"")
+})
+
+test_that("a partial Read of a non-mapping aborts and a quantified full Read passes (R1-B7)", {
+  decl <- "Coefficient (all,r,REG) V(r)"
+  expect_null(.chk_raw_reads(c(decl, "Read (all,r,REG) V(r) from file F header \"VV\""), call = NULL))
+  expect_snapshot_error(.chk_raw_reads(c(decl, "Read (all,r,REG) V(r,\"usa\") from file F header \"VV\""), call = NULL))
+  expect_snapshot_error(.chk_raw_reads(c(decl, "Read (all,r,SUBREG) V(r) from file F header \"VV\""), call = NULL))
+  txt <- paste0(
+    base_txt,
+    "\nCoefficient (all,r,REG) VQ(r);",
+    "\nRead (all,r,REG) VQ(r) from file GTAPDATA header \"VQ\";\n"
+  )
+  model <- process(write_tab(txt))
+  rd <- model[model$type == "Read" & model$name == "VQ", ]
+  expect_identical(rd$file, "GTAPDATA")
+  expect_true(is.na(rd$comp1))
+})
+
+test_that("a Read whose file name contains header or from file parses (R1b-B7)", {
+  txt <- paste0(
+    base_txt,
+    "\nFile MYHEADERS;",
+    "\nCoefficient AH;",
+    "\nRead AH from file MYHEADERS header \"AAAA\";\n"
+  )
+  model <- process(write_tab(txt))
+  rd <- model[model$type == "Read" & model$name == "AH", ]
+  expect_identical(rd$file, "MYHEADERS")
+  expect_identical(rd$header, "AAAA")
+  expect_snapshot_error(.parse_tab_read(
+    tibble::tibble(type = "Read", remainder = "AH from file MYHEADERS", row_id = 1L),
+    call = NULL
+  ))
+})
+
+test_that("backsolve rules compare index names case-insensitively (R2-B1)", {
+  txt <- paste0(
+    base_txt,
+    "\nVariable (all,c,COMM) xb(c);",
+    "\nEquation E_xb (all,c,COMM) xb(c) = 3*pfactwld;",
+    "\nVariable (all,I,COMM) pz(I);",
+    "\nEquation E_pz (all,I,COMM) pz(i) = 2*xb(I);",
+    "\nBacksolve xb using E_xb;\n"
+  )
+  model <- process(write_tab(txt))
+  expect_identical(model$condense[model$type == "Variable" & model$name == "xb"], "backsolve")
+  expect_match(model$tab[model$type == "Equation" & model$name == "E_pz"], "= 2*3*pfactwld", fixed = TRUE)
+})
+
+test_that("a set-builder bound index written in another case is rewritten to its indicator (R2-B3)", {
+  txt <- paste0(
+    base_txt,
+    "\nCoefficient (all,c,COMM) XK(c);",
+    "\nFormula (all,c,COMM) XK(c) = 1;",
+    "\nSet T8 = (all,c,COMM: sum{k,COMM, XK(K)} > 0.5);\n"
+  )
+  model <- process(write_tab(txt))
+  expect_match(model$tab[model$type == "Set" & model$name == "T8"], "SBI01(c) > 0.5", fixed = TRUE)
+})

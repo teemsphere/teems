@@ -34,23 +34,6 @@ file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
 layer_spec <- build_layer_spec()
 check_layer_spec(layer_spec)
 
-tab_qual <- c(
-  "nonzero_by_zero",
-  "zero_by_zero",
-  "\\bchange\\b",
-  "linear",
-  "orig_level",
-  "ge -?[.[:digit:]]",
-  "gt -?[.[:digit:]]",
-  "le -?[.[:digit:]]",
-  "lt -?[.[:digit:]]",
-  "integer",
-  "parameter",
-  "initial",
-  "\\breal\\b",
-  "levels"
-)
-
 supported_state <- c(
   "File", "Coefficient", "Read", "Update", "Set", "Subset",
   "Formula", "Assertion", "Variable", "Equation", "Write",
@@ -441,7 +424,6 @@ solver_error_map <- build_solver_error_map()
 usethis::use_data(
   vetted_db_versions,
   mappings,
-  tab_qual,
   supported_state,
   invalid_state,
   tab_reserved_words,

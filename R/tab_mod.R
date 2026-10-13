@@ -25,13 +25,13 @@
   purrr::pluck(model, "ls_mixed_idx", r_idx) <- NULL
   purrr::pluck(model, "header", r_idx) <- nme
 
-  param <- grepl("parameter", model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
+  param <- .qual_is_parameter(model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
 
   if (param) {
-    files <- stats::na.omit(model[grepl("parameter", model$qualifier_list), ]$file)
+    files <- stats::na.omit(model[.qual_is_parameter(model$qualifier_list), ]$file)
     file <- names(which.max(table(files)))
   } else {
-    files <- stats::na.omit(model[(!grepl("parameter", model$qualifier_list)) & (model$type == "Coefficient"), ]$file)
+    files <- stats::na.omit(model[!.qual_is_parameter(model$qualifier_list) & (model$type == "Coefficient"), ]$file)
     file <- names(which.max(table(files)))
   }
 

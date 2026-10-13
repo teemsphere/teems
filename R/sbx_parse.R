@@ -253,7 +253,7 @@
   rec <- \(x) .sbx_names(x, bound)
   out <- switch(node$t,
     id = c(
-      if (is.null(node$args) && node$name %in% bound) character(0) else node$name,
+      if (is.null(node$args) && tolower(node$name) %in% tolower(bound)) character(0) else node$name,
       unlist(lapply(node$args, rec))
     ),
     agg = c(node$set, .sbx_names(node$cond, c(bound, node$idx)), .sbx_names(node$body, c(bound, node$idx))),

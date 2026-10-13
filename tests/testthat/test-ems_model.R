@@ -902,43 +902,6 @@ test_that("a split backsolve equation is reported under verbose only", {
   expect_no_message(ems_model(bs_model, closure_file, backsolve = c(iftest = "E_iftest")))
 })
 
-test_that("netcut inflation warning (roadmap 6.5 E1)", {
-  warn_model <- write_modified_model(
-    model_file,
-    "Equation E_nctest # netcut probe # (all,e,ENDW)(all,a,ACTS)(all,r,REG)(all,t,FWDTIME) qfe(e,a,r,t+1) = qfe(e,a,r,t);"
-  )
-  expect_snapshot_warning(ems_model(warn_model, closure_file))
-})
-
-test_that("minimal intertemporal variables raise no netcut warning", {
-  # shipped GTAP-RE lead/lag variables (kb, pinv, rental) are REG x ALLTIME
-  expect_no_warning(ems_model(model_file, closure_file))
-})
-
-test_that("netcut proxy rewrite (roadmap 6.5 E2)", {
-  fix_model <- write_modified_model(
-    model_file,
-    paste(
-      "Variable (all,r,REG)(all,t,FWDTIME) nctv(r,t) # probe #;",
-      paste0(
-        "Equation E_nctv # probe # (all,r,REG)(all,t,FWDTIME) nctv(r,t) = ",
-        'qfe("capital","svces",r,t+1) - 0.5*qfe("capital","svces",r,t+1) - ',
-        '0.5*qfe("capital","crops",r,t+1);'
-      ),
-      sep = "\n"
-    )
-  )
-  expect_snapshot(model <- ems_model(fix_model, closure_file))
-  # one proxy per distinct element slice; repeated references share it
-  expect_true(all(c("NCV1", "E_NCV1", "NCV2", "E_NCV2") %in% model$name))
-  probe <- model$tab[grepl("E_nctv ", model$tab, fixed = TRUE)]
-  expect_match(probe, "NCV1(r,t+1)", fixed = TRUE)
-  expect_match(probe, "NCV2(r,t+1)", fixed = TRUE)
-  expect_no_match(probe, "qfe", fixed = TRUE)
-  # the rewritten model is minimal: no netcut warning remains
-  expect_no_warning(ems_model(fix_model, closure_file))
-})
-
 test_that("partial read statement", {
   err_model <- write_modified_model(
     model_file,
@@ -1027,17 +990,19 @@ test_that("ems_model errors when invalid closure pure element entry present pres
   expect_snapshot_error(ems_deploy(dat, model))
 })
 
-test_that("ems_model errors when duplicate closure entry present preswap", {
+test_that("a duplicate closure entry preswap is exogenous once, as the solver reads it (R4-B4)", {
   mod_closure <- readLines(closure_file)
   mod_closure <- mod_closure[-1]
   append_cls <- c("exogenous", "pop")
   mod_closure <- c(append_cls, mod_closure)
-  invalid_cls <- file.path(dirname(closure_file), "invalid.cls")
-  writeLines(mod_closure, invalid_cls)
+  dup_cls <- file.path(dirname(closure_file), "dup.cls")
+  writeLines(mod_closure, dup_cls)
 
-  model <- ems_model(model_file, invalid_cls)
-  nest_temp("invalid_closure4", write_dir)
-  expect_snapshot_error(ems_deploy(dat, model))
+  model <- ems_model(model_file, dup_cls)
+  nest_temp("dup_closure", write_dir)
+  cmf <- ems_deploy(dat, model)
+  cls <- readLines(list.files(dirname(cmf), pattern = "\\.cls$", full.names = TRUE))
+  expect_length(grep("^\\s*pop\\s*$", cls), 1L)
 })
 
 test_that("ems_model errors dots passed without names", {
@@ -1635,6 +1600,16 @@ test_that("xSet and xSubset lines in the closure file define sets", {
   expect_true(any(grepl("^Subset BIG is subset of REG", model$tab[model$type == "Subset"])))
 })
 
+test_that("the condensation block runs with both Zerodivide defaults off (D1-B3)", {
+  model <- ems_model(model_file, closure_file, backsolve = "qgdp")
+  tab <- model$tab
+  first_csub <- which(model$type == "Coefficient" & grepl("CSUB", tab, fixed = TRUE))[1]
+  expect_match(tab[first_csub - 2L], "^Zerodivide \\(zero_by_zero\\) off\\s*;$")
+  expect_match(tab[first_csub - 1L], "^Zerodivide \\(nonzero_by_zero\\) off\\s*;$")
+  plain <- ems_model(model_file, closure_file, ignore_condense = TRUE)
+  expect_false(any(grepl("Zerodivide \\(zero_by_zero\\) off", plain$tab)))
+})
+
 unlink(write_dir, recursive = TRUE)
 
 
@@ -1715,3 +1690,4 @@ test_that("an identifier ending in E before a sign is not an exponent", {
   expect_identical(terms$sign, c("+", "-", "+", "-", "-"))
   expect_identical(terms$body, c("y(i)*A2E", "y(i)", "1e-3*x(i)", "cub06b_4E", "x(i)"))
 })
+

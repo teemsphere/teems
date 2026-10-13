@@ -12,7 +12,7 @@
   for (i in which(kw == "variable")) {
     text <- gsub("#[^#]*#", "", tab[i])
     if (grepl(stmt_rx, text, ignore.case = TRUE)) {
-      toks <- strsplit(trimws(tolower(sub(stmt_rx, "\\1", text, ignore.case = TRUE))), "\\s+")[[1]]
+      toks <- strsplit(trimws(tolower(gsub("=", " ", sub(stmt_rx, "\\1", text, ignore.case = TRUE), fixed = TRUE))), "\\s+")[[1]]
       vpq_stmt <- trimws(tab[i])
       if (identical(toks[1], "begins") && length(toks) == 5L &&
         setequal(toks[3:4], c("default", "vpqtype"))) {

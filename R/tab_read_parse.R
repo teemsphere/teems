@@ -1,5 +1,4 @@
-#' @importFrom purrr map_chr map2_chr
-#' @importFrom utils tail
+#' @importFrom purrr map_chr
 #' @keywords internal
 #' @noRd
 .parse_tab_read <- function(extract,
@@ -10,41 +9,28 @@
   reads$remainder <- .strip_read_qualifier(reads$remainder)
   reads$remainder <- gsub("\\bheader\\s*\"", "header \"", reads$remainder, ignore.case = TRUE)
   part <- grepl("^\\s*\\(\\s*all\\s*,", reads$remainder, ignore.case = TRUE)
+  decls <- paste("Coefficient", extract$remainder[tolower(extract$type) == "coefficient"])
+  full <- part & .read_is_full(paste("Read", reads$remainder), decls)
   part_set <- rep(NA_character_, nrow(reads))
-  part_set[part] <- trimws(sub("^\\s*\\(\\s*all\\s*,[^,]*,([^)]*)\\).*$", "\\1", reads$remainder[part], ignore.case = TRUE))
-  reads$remainder[part] <- sub("^\\s*\\([^)]*\\)\\s*([^ (]+)\\s*\\([^)]*\\)", "\\1", reads$remainder[part])
-  if (any(grepl("\\(", reads$remainder))) {
-    .cli_action(model_err$invalid_read,
+  part_set[part & !full] <- trimws(sub("^\\s*\\(\\s*all\\s*,[^,]*,([^)]*)\\).*$", "\\1", reads$remainder[part & !full], ignore.case = TRUE))
+  reads$remainder[part] <- sub("^\\s*(\\([^)]*\\)\\s*)+([^ (]+)\\s*\\([^)]*\\)", "\\2", reads$remainder[part])
+  m <- regmatches(reads$remainder, regexec(
+    "^\\s*([A-Za-z_][A-Za-z0-9_@]*)\\s+from\\s+file\\s+([A-Za-z_][A-Za-z0-9_@]*)\\s+header\\s+\"([^\"]*)\"\\s*$",
+    reads$remainder,
+    ignore.case = TRUE
+  ))
+  bad <- lengths(m) == 0L
+  if (any(bad)) {
+    bad_reads <- trimws(paste("Read", reads$remainder[bad]))
+    .cli_action(model_err$read_malformed,
       action = "abort",
       call = call
     )
   }
   reads$type <- "Read"
-  reads$name <- purrr::map_chr(strsplit(reads$remainder, " "), 1)
-  reads$header <- purrr::map_chr(strsplit(reads$remainder, " "), \(r) {
-    utils::tail(r, 1)
-  })
-
-  reads$remainder <- purrr::map2_chr(
-    reads$name,
-    reads$remainder,
-    \(n, r) {
-      sub(n, "", r)
-    }
-  )
-
-  reads$remainder <- purrr::map2_chr(
-    reads$header,
-    reads$remainder,
-    \(h, r) {
-      gsub(h, "", r)
-    }
-  )
-
-  reads$header <- gsub("\"", "", reads$header)
-  reads$remainder <- gsub("from file", "", reads$remainder, ignore.case = TRUE)
-  reads$remainder <- gsub("header", "", reads$remainder, ignore.case = TRUE)
-  reads$file <- trimws(reads$remainder)
+  reads$name <- purrr::map_chr(m, 2)
+  reads$file <- purrr::map_chr(m, 3)
+  reads$header <- purrr::map_chr(m, 4)
   reads$remainder <- NULL
   reads$label <- NA
   reads$qualifier_list <- qual

@@ -187,7 +187,7 @@
   rhs <- .sbx_parse(model$comp2[r])
   binds <- list()
   for (q in quants) {
-    binds[[q$idx]] <- list(set = q$set, ele = .sbx_set_ele(q$set, ctx))
+    binds[[tolower(q$idx)]] <- list(set = q$set, ele = .sbx_set_ele(q$set, ctx))
   }
   qidx <- names(binds)
   qele <- lapply(binds, `[[`, "ele")
@@ -222,8 +222,8 @@
     a <- lhs$args[[k]]
     e <- if (a$t == "str") {
       rep(a$v, nrow(grid))
-    } else if (a$t == "id" && is.null(a$args) && a$name %in% qidx) {
-      tolower(grid[[a$name]])
+    } else if (a$t == "id" && is.null(a$args) && tolower(a$name) %in% qidx) {
+      tolower(grid[[tolower(a$name)]])
     } else {
       .sbx_fail(.sbx_reason("unsupported", model$tab[r]))
     }

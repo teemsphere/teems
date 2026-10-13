@@ -25,9 +25,9 @@
 
     x `Read (by_elements)` target "pop" is not a declared mapping (GEMPACK manual 10.13.1).
 
-# partial reads of a coefficient abort
+# partial reads of a coefficient abort; a quantified full read passes (R1-B7)
 
-    x Partial Read statements are not supported.
+    x Partial Read statement is not supported: "Read (all,c,MARG_COMM) TESTC(c) from file GTAPDATA header \"TC\"".
 
 # mapping without a read aborts
 
@@ -35,7 +35,7 @@
 
 # partial reads still abort with by_elements allowed
 
-    x Partial Read statements are not supported.
+    x Partial Read statement is not supported: "Read (LOWER) pop from file GTAPDATA header \"POP\"".
 
 # a mapping over a conflicted intersection set aborts
 

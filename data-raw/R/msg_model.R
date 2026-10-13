@@ -410,7 +410,10 @@ build_model_err <- function() {
     invalid_coeff = "{.arg {nme}} is not declared in the model.",
     # test-ems_model.R: "partial read statement"
     # test-tab_mapping.R: "partial reads of a coefficient abort"
-    invalid_read = "Partial {.field Read} statements are not supported.",
+    # test-chk_statements.R: "a partial Read of a non-mapping aborts and a quantified full Read passes"
+    invalid_read = "{cli::qty(bad_reads)}Partial {.field Read} statement{?s} {?is/are} not supported: {.val {bad_reads}}.",
+    # test-chk_statements.R: "a Read whose file name contains header or from file parses"
+    read_malformed = "{cli::qty(bad_reads)}Read statement{?s} not of the form {.code Read <coefficient> from file <file> header \"<header>\"}: {.val {bad_reads}}.",
     # test-ems_model.R: "a value for a coefficient that is neither read nor assigned aborts"
     invalid_mod = "{.arg {nme}} is neither read in nor assigned on the LHS of a formula in the model.",
     # test-ems_model.R: "a numeric for a coefficient with more than one defining Formula aborts"
@@ -427,6 +430,11 @@ build_model_err <- function() {
     # probably a redundant check but if a weird unrecognized statement is found then there needs to be a way of distinguishing between an implied statement and an unrecognized statement
     # not in tests: unreachable failsafe
     unsupported_tab = "Unsupported Tablo declarations detected: {.field {unsupported}}.",
+    # test-chk_statements.R: "a misspelt keyword after a declaration aborts"
+    stmt_bad_continuation = c(
+      "Statement {.val {bad_stmt}} has no TABLO keyword and is not a continuation of the preceding {.field {prev_kw}} statement.",
+      "A statement without a keyword continues the previous statement type (GEMPACK manual 4.2); a misspelt keyword reads as two names."
+    ),
     # test-ems_model.R: "invalid intertemporal header"
     invalid_int_header = c(
       "Intertemporal {header_descr} {.val {timestep_header}} not found in loaded data.",
@@ -627,11 +635,6 @@ build_model_err <- function() {
 
 build_model_info <- function() {
   list(
-    # test-ems_model.R: "netcut proxy rewrite (roadmap 6.5 E2)"
-    netcut_rewrite = c(
-      "Inter-period links on element slices rewritten onto minimal intertemporal proxies: {.field {proxy_summary}}.",
-      "Proxy variables (NCV*) and their linking equations (E_NCV*) appear in solve outputs."
-    ),
     # test-ems_model.R: "in-TAB Substitute executes as backsolve"
     substitute_as_backsolve = c(
       "In-TAB {.field Substitute} statement{?s} for {.val {sub_var}} executed as backsolve{?s}.",
@@ -640,7 +643,7 @@ build_model_info <- function() {
     # test-ems_model.R: "in-TAB Omit statements exogenize the omitted variables"
     omit_exogenous = c(
       "In-TAB {.field Omit} statement{?s} for {.val {omit_var}} applied as exogenous, unshocked closure entries.",
-      "Omission removes a variable from the solved system in GEMPACK; TEEMS keeps it in the model and holds it fixed, so its values remain available in solve outputs."
+      "Unshocked exogenous variables are dropped from the solved system; their zero results remain in the solve outputs."
     ),
     # test-ems_model.R: "ranked PostSim sets are flattened to their base set"
     ranked_set_flattened = c(
@@ -661,12 +664,6 @@ build_model_wrn <- function() {
   list(
     # test-tab_vpqtype.R: "a Name statement for an undeclared variable warns"
     vpqtype_orphan = "{.code (Name ... VPQType ...)} for undeclared
-    variable{?s} {.field {orphan}} ignored (GEMPACK manual 57.2).",
-    # test-ems_model.R: "netcut inflation warning"
-    netcut_inflation = c(
-      "Multidimensional {.field {offenders}} referenced with a lead or lag in {.field {lag_eqs}}.",
-      "Every element of a lead/lagged variable joins the dense border (netcut) of the bordered matrix methods (SBBD/DBBD/NDBBD); each non-time dimension multiplies the border size.",
-      "Link periods through a minimal intertemporal proxy instead, e.g. {.code capital(REG,TIME) = qo(\"capital\",REG,TIME)}, and place the lead/lag on the proxy."
-    )
+    variable{?s} {.field {orphan}} ignored (GEMPACK manual 57.2)."
   )
 }

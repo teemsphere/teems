@@ -61,11 +61,12 @@
   }
   
   if (any(!state_decl %in% tolower(supported_state))) {
-    for (s in seq_len(length(statements))) {
+    state_check <- paste0("^(", paste(supported_state, collapse = "|"), ")(?![A-Za-z0-9_@])")
+    for (s in seq_along(statements)[-1]) {
       statement <- strsplit(statements[s], split = " ")[[1]][1]
-      state_check <- paste0("^(", paste(supported_state, collapse = "|"), ")(?![A-Za-z0-9_@])")
       if (!grepl(state_check, statement, ignore.case = TRUE, perl = TRUE)) {
         implicit_stat <- strsplit(statements[s - 1], split = " ")[[1]][1]
+        .chk_implicit_continuation(statements[s], implicit_stat, call = call)
         statements[s] <- paste(implicit_stat, statements[s])
       }
     }
@@ -116,4 +117,25 @@
   )
   statements <- gsub("\\s{2,}", " ", out)
   return(statements)
+}
+
+#' @keywords internal
+#' @noRd
+.chk_implicit_continuation <- function(statement,
+                                       implicit_stat,
+                                       call) {
+  if (!tolower(implicit_stat) %in% c("variable", "coefficient")) {
+    return(invisible(NULL))
+  }
+  rest <- .split_tab_qualifiers(gsub("#[^#]*#", "", statement))$rest
+  rest <- .split_tab_quantifiers(rest)$rest
+  if (grepl("^[A-Za-z_][A-Za-z0-9_@]*\\s+[A-Za-z_]", rest)) {
+    bad_stmt <- trimws(statement)
+    prev_kw <- implicit_stat
+    .cli_action(model_err$stmt_bad_continuation,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  return(invisible(NULL))
 }

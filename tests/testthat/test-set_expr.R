@@ -225,3 +225,10 @@ test_that("set definitions that never resolve abort by name", {
     )
   )
 })
+
+test_that("union and intersect are operators only as whole words outside quotes (R2-B5)", {
+  expect_identical(
+    .set_expr_tokens('= CUSTOMSUNION - "eunion" + DISINTERSECTED union REG intersect X'),
+    c("CUSTOMSUNION", "-", "\"eunion\"", "+", "DISINTERSECTED", "^", "REG", "&", "X")
+  )
+})

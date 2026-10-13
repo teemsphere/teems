@@ -34,6 +34,7 @@
   }
   part <- !is.na(model$comp1[reads])
   if (any(part & !tgt_all %in% all_maps)) {
+    bad_reads <- trimws(model$tab[reads][part & !tgt_all %in% all_maps])
     .cli_action(model_err$invalid_read,
       action = "abort",
       call = call

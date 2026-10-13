@@ -96,17 +96,8 @@
     }
   )
 
-  safety_count <- 0
-  exit_loop <- nrow(set_extract) - 2
-  while (any(purrr::map_lgl(set_extract$mapping, is.null))) {
-    safety_count <- safety_count + 1
-    if (safety_count > exit_loop) {
-      null_sets <- names(set_extract$mapping)[purrr::map_lgl(set_extract$mapping, is.null)]
-      .cli_action(deploy_err$while_loop,
-        action = "abort",
-        call = call
-      )
-    }
+  unresolved <- which(purrr::map_lgl(set_extract$mapping, is.null))
+  while (length(unresolved) > 0L) {
 
     set_extract$mapping <- purrr::pmap(
       list(
@@ -137,8 +128,17 @@
         return(m)
       }
     )
+    still <- which(purrr::map_lgl(set_extract$mapping, is.null))
+    if (length(still) == length(unresolved)) {
+      null_sets <- names(set_extract$mapping)[still]
+      .cli_action(deploy_err$while_loop,
+        action = "abort",
+        call = call
+      )
+    }
+    unresolved <- still
   }
-  
+
   set_extract$ele <- purrr::map(set_extract$mapping, \(s) {
     unique(s$mapping)
   })

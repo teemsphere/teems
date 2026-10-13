@@ -29,6 +29,9 @@
       next
     }
     toks <- .tab_qualifier_groups(statements[i])$groups
+    if (kw[i] == "Variable" && any(grepl("^\\s*(begins|name)\\b", toks, ignore.case = TRUE))) {
+      next
+    }
     toks <- tolower(gsub("[[:space:]]", "", unlist(strsplit(toks, ",", fixed = TRUE))))
     add <- character(0)
     for (cl in seq_along(classes)) {

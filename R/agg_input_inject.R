@@ -38,7 +38,7 @@
       purrr::pluck(.data, header) <- input
     } else {
       classes <- setdiff(class(input), grep("_", class(input), value = TRUE))
-      param <- grepl("parameter", model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
+      param <- .qual_is_parameter(model[(model$name == nme) & (model$type == "Coefficient"), ]$qualifier_list)
       type <- if (param) {
         "par"
       } else {

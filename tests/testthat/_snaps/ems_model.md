@@ -138,23 +138,9 @@
     x IF condition references variable "PGDP": Equation E_ifvc (all,r,REG)(all,t,ALLTIME) ifvc(r,t) = IF[pgdp(r,t) > 0, pgdp(r,t)].
     i Conditions are evaluated from coefficient values only (GEMPACK manual 11.4.6/11.4.8).
 
-# netcut inflation warning (roadmap 6.5 E1)
-
-    ! Multidimensional qfe(ENDW,ACTS,REG,ALLTIME) referenced with a lead or lag in E_nctest.
-    i Every element of a lead/lagged variable joins the dense border (netcut) of the bordered matrix methods (SBBD/DBBD/NDBBD); each non-time dimension multiplies the border size.
-    i Link periods through a minimal intertemporal proxy instead, e.g. `capital(REG,TIME) = qo("capital",REG,TIME)`, and place the lead/lag on the proxy.
-
-# netcut proxy rewrite (roadmap 6.5 E2)
-
-    Code
-      model <- ems_model(fix_model, closure_file)
-    Message
-      i Inter-period links on element slices rewritten onto minimal intertemporal proxies: NCV1 = qfe("capital","crops",r,t) and NCV2 = qfe("capital","svces",r,t).
-      i Proxy variables (NCV*) and their linking equations (E_NCV*) appear in solve outputs.
-
 # partial read statement
 
-    x Partial Read statements are not supported.
+    x Partial Read statement is not supported: "Read (all,i,COM) INTINP(i,\"wool\") FROM FILE params".
 
 # data frame input missing a set
 
@@ -182,10 +168,6 @@
 
     x The closure entry tuple pop("zzz","2") is invalid under the current set mapping.
 
-# ems_model errors when duplicate closure entry present preswap
-
-    x 9 tuples for "pop" in the pre-swap closure with multiple entries: 1: chn 0, 2: chn 1, 3: chn 2, 4: row 0, 5: row 1, 6: row 2, 7: usa 0, 8: usa 1, and 9: usa 2.
-
 # ems_model errors dots passed without names
 
     x Coefficients to modify must be passed as named pairs: `RDLT = 1`.
@@ -196,7 +178,7 @@
       model <- ems_model(omit_model, closure_file)
     Message
       i In-TAB Omit statements for "atall", "avaall", and "qgdp" applied as exogenous, unshocked closure entries.
-      i Omission removes a variable from the solved system in GEMPACK; TEEMS keeps it in the model and holds it fixed, so its values remain available in solve outputs.
+      i Unshocked exogenous variables are dropped from the solved system; their zero results remain in the solve outputs.
 
 # in-TAB Substitute executes as backsolve with a message
 

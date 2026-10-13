@@ -175,10 +175,24 @@ test_that("integer and partial reads of a mapping parse", {
   expect_identical(rd$comp1, c(NA, "MARG_COMM"))
 })
 
-test_that("partial reads of a coefficient abort", {
-  expect_preflight_error(
-    "Read (all,r,REG) POP(r) from file GTAPDATA header \"POP\";"
+test_that("partial reads of a coefficient abort; a quantified full read passes (R1-B7)", {
+  expect_preflight_error(paste(
+    "Coefficient (all,c,COMM) TESTC(c);",
+    "Read (all,c,MARG_COMM) TESTC(c) from file GTAPDATA header \"TC\";",
+    sep = "\n"
+  ))
+  model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Coefficient (all,r,REG) TESTP(r);",
+      "Read (all,r,REG) TESTP(r) from file GTAPDATA header \"TP\";",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
   )
+  rd <- model[model$type == "Read" & model$name == "TESTP", ]
+  expect_identical(rd$header, "TP")
+  expect_true(is.na(rd$comp1))
 })
 
 test_that("mapping without a read aborts", {
@@ -393,7 +407,7 @@ test_that("onto coverage is re-checked on the aggregated sets", {
 # --- = "dev") against a current rebuild) ------------------------------
 
 solver_has_mapping <- function() {
-  img <- paste0("teems:", .resolve_docker_tag())
+  img <- paste0("teems:", .o_docker_tag())
   if (!.docker_image_present(img)) {
     return(FALSE)
   }

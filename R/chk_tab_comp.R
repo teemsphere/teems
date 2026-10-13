@@ -30,11 +30,7 @@
   is_lev <- typ == "variable" & !is.na(model$qualifier_list) &
     grepl("\\blevels\\b", model$qualifier_list, ignore.case = TRUE)
   lev_names <- tolower(model$name[is_lev])
-  par_names <- tolower(model$name[
-    typ == "coefficient" & !is.na(model$qualifier_list) &
-      grepl("\\bparameter\\b", model$qualifier_list, ignore.case = TRUE) &
-      !grepl("\\bnon_parameter\\b", model$qualifier_list, ignore.case = TRUE)
-  ])
+  par_names <- tolower(model$name[typ == "coefficient" & .qual_is_parameter(model$qualifier_list)])
   for (statement in comp_stmts) {
     cp <- .parse_comp_stmt(statement, call = call)
     comp_name <- cp$name

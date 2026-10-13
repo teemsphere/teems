@@ -153,9 +153,9 @@
 .sbx_eval_agg <- function(node, binds, ctx) {
   ele <- .sbx_set_ele(node$set, ctx)
   inner <- binds
-  inner[[node$idx]] <- list(set = node$set, ele = ele)
+  inner[[tolower(node$idx)]] <- list(set = node$set, ele = ele)
   body <- .sbx_num(.sbx_eval(node$body, inner, ctx))
-  loop <- .sbx_val(ele, node$idx, stats::setNames(list(ele), node$idx))
+  loop <- .sbx_val(ele, tolower(node$idx), stats::setNames(list(ele), tolower(node$idx)))
   parts <- list(body, loop)
   if (!is.null(node$cond)) {
     parts <- c(parts, list(.sbx_num(.sbx_eval(node$cond, inner, ctx))))
@@ -167,8 +167,8 @@
   } else {
     keep <- rep(TRUE, length(v))
   }
-  others <- setdiff(j$idx, node$idx)
-  perm <- match(c(others, node$idx), j$idx)
+  others <- setdiff(j$idx, tolower(node$idx))
+  perm <- match(c(others, tolower(node$idx)), j$idx)
   dims <- lengths(j$ele)
   n_other <- prod(lengths(j$ele[others]))
   arr_v <- matrix(as.vector(aperm(array(v, dims), perm)), nrow = n_other)
@@ -242,10 +242,10 @@
     ref <- .sbx_set_ele(set_node$name, ctx)
   } else {
     arg <- node$args[[1]]
-    if (arg$t != "id" || is.null(binds[[arg$name]])) {
+    if (arg$t != "id" || is.null(binds[[tolower(arg$name)]])) {
       .sbx_fail(.sbx_reason("unsupported", "$POS"))
     }
-    ref <- binds[[arg$name]]$ele
+    ref <- binds[[tolower(arg$name)]]$ele
   }
   x$v <- as.numeric(match(tolower(x$v), ref))
   x$v[is.na(x$v)] <- 0
@@ -258,9 +258,9 @@
 .sbx_eval_id <- function(node, binds, ctx) {
   nm <- node$name
   if (is.null(node$args)) {
-    b <- binds[[nm]]
+    b <- binds[[tolower(nm)]]
     if (!is.null(b)) {
-      val <- .sbx_val(b$ele, nm, stats::setNames(list(b$ele), nm))
+      val <- .sbx_val(b$ele, tolower(nm), stats::setNames(list(b$ele), tolower(nm)))
       return(val)
     }
     arr <- .sbx_coef(nm, ctx)

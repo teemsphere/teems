@@ -90,7 +90,7 @@ test_that("data errors map to the data abort", {
 
 test_that("runtime errors map to the numeric abort", {
   paths <- local_solver_log(
-    "Error: division by zero in a formula; Zerodivide (nonzero_by_zero) is off -- set a default with Zerodivide (nonzero_by_zero) default <value> or guard with ID01"
+    "Error: division by zero in Formula zdte; Zerodivide (nonzero_by_zero) is off -- set a default with Zerodivide (nonzero_by_zero) default <value> or guard with ID01"
   )
   expect_error(check_log(paths), "runtime error")
   expect_error(check_log(paths), "10.11.1")
@@ -285,7 +285,7 @@ test_that(".map_solver_errors classifies representative catalog lines", {
     "element range 'g5 - g2' in set badb runs backwards (GEMPACK manual 11.2.2)",
     "Read without a header is not supported (use 'Read X from file <log> header \"H\"')",
     "variable qq is not declared",
-    "zero divided by zero in a formula while Zerodivide (zero_by_zero) is off",
+    "zero divided by zero in Formula zdtd while Zerodivide (zero_by_zero) is off",
     "assertion failed (Assertions = warn/no in the CMF file suppresses/downgrades this abort)",
     "set product element a_very_long_element_b_very_long_element in the definition of AB exceeds 255 characters",
     "r is not a coefficient, variable or number and cannot be an arithmetic operand (an index or quoted element compares through $POS, GEMPACK manual 11.5.6/11.4.11)",

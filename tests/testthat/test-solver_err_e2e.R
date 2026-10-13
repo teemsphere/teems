@@ -97,7 +97,7 @@ test_that("0/0 with zero_by_zero off maps to a named runtime abort (Z1)", {
     )
   )
   expect_match(msg, "runtime error")
-  expect_match(msg, "zero divided by zero in a formula", fixed = TRUE)
+  expect_match(msg, "zero divided by zero in Formula zdtd", fixed = TRUE)
   expect_match(msg, "10.11.1", fixed = TRUE)
 })
 
@@ -113,7 +113,7 @@ test_that("1/0 with nonzero_by_zero off maps to a named runtime abort (Z2)", {
     )
   )
   expect_match(msg, "runtime error")
-  expect_match(msg, "division by zero in a formula", fixed = TRUE)
+  expect_match(msg, "division by zero in Formula zdte", fixed = TRUE)
   expect_match(msg, "10.11.1", fixed = TRUE)
 })
 

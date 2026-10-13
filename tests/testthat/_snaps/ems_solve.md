@@ -102,7 +102,7 @@
     Condition
       Error in `ems_solve()`:
       x The solver stopped on 1 runtime error while evaluating model values:
-      i coefficient vdgb has an updated value below its declared lower bound 0.000000
+      i coefficient vdgb has an updated value below its declared lower bound 0
       i See GEMPACK manual section "25.4.4".
       i Full log: '<cache>/solve/solve_err_error/out/solver_out_HHMM.txt'.
 

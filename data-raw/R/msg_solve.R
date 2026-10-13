@@ -15,8 +15,15 @@ build_solve_err <- function() {
     ),
     # not in tests: the solver run succeeded but listed no Jacobian export
     homog_no_jacobian = "The solver run for the homogeneity check left no
-    Jacobian export ({.file sol.jac}); see its log in the {.file _homogeneity}
+    Jacobian export ({.file sol.jac}); see its log in the {.file out/homogeneity}
     copy of the deployment.",
+    # test-ems_homogeneity.R: "unknown or unused solver arguments abort"
+    homog_unknown_args = c(
+      "{cli::qty(unknown)}Unknown argument{?s} {.val {unknown}} in {.code ...}.",
+      "The dots take the {.fun teems::ems_solve} arguments of the simulation run (for example {.arg matrix_method}, {.arg n_tasks}, {.arg solution_method}, {.arg steps})."
+    ),
+    # test-ems_homogeneity.R: "unknown or unused solver arguments abort"
+    homog_args_no_simulate = "{cli::qty(given)}Argument{?s} {.val {given}} in {.code ...} appl{?ies/y} to the simulation run only; set {.code simulate = TRUE} or drop {?it/them}.",
     # .solve_lock_acquire()
     # test-ems_solve.R: "a second solve in one deploy directory is refused by name"
     # test-solve_lock_acquire.R: "a lock whose owner is still running is refused"
@@ -276,7 +283,22 @@ build_solve_err <- function() {
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_sudo = "Docker is installed but cannot be called without sudo.",
     # not in tests: not simulated (Docker absent or misconfigured)
-    docker_not_running = "Docker is installed but the daemon is not running. Start Docker Desktop and try again.",
+    docker_not_running = "Docker is installed but its daemon cannot be reached: start Docker (Docker Desktop, or the dockerd service) and try again.",
+    # test-ems_solve.R: "LU refuses more than one task and the bordered methods refuse more tasks than blocks"
+    lu_tasks = c(
+      "{.arg n_tasks} must be {.val 1} with {.code matrix_method = \"LU\"}: the sequential LU path runs on one rank and every extra rank only replicates the model tables.",
+      "Use {.val SBBD}, {.val DBBD} or {.val NDBBD} to spread the system over {n_tasks} tasks."
+    ),
+    # test-ems_solve.R: "LU refuses more than one task and the bordered methods refuse more tasks than blocks"
+    tasks_blocks = c(
+      "{.arg n_tasks} ({n_tasks}) exceeds the {n_blocks} {block_kind}{?s} this deployment can split {.val {matrix_method}} over.",
+      "Use at most {n_blocks} task{?s}, or another {.arg matrix_method}."
+    ),
+    # test-ems_RK.R: "an h_init above the uniform step is refused by name"
+    h_init_steps = c(
+      "{.arg h_init} ({h_init}) exceeds the uniform first step {.code 1/steps} = {signif(1 / steps, 4)}.",
+      "The solver starts from the smaller of the two; raise {.arg steps} or lower {.arg h_init}."
+    ),
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_x_image = "The {.val {image_name}} Docker image is not present.",
     # test-solve_in_situ.R: "solve_in_situ errors when model directory doesn't exist"
@@ -294,29 +316,31 @@ build_solve_err <- function() {
       "The solve was interrupted (solver exit status {status}); its partial solution files were removed.",
       "Log up to the interruption: {.path {paths$diag_out}}."
     ),
-    # test-chk_solver_version.R: the version handshake (release plan
-    # 1.1.0): abort by default, downgraded to a warning under
-    # ems_option_set(version_check = "warn")
     # test-chk_solver_version.R: "a silent image (pre-1.1) aborts by name"
     solver_version_none = c(
       "The {.val {image}} image gives no answer to {.code teems-solver -version}: its solver predates the versioned interface, and teems {pkg_version} requires teems-solver {min_version} or later.",
-      "Pull or rebuild a current image (see the teems-solver repository), or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+      "Pull or rebuild a current image (see the teems-solver repository)."
     ),
     # test-chk_solver_version.R: "a major-version mismatch aborts by name"
     solver_version_major = c(
       "The {.val {image}} image carries teems-solver {solver_version}, whose major version is not the {pkg_major}.x interface teems {pkg_version} drives.",
-      "Use a teems-solver {pkg_major}.x image, or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+      "Use a teems-solver {pkg_major}.x image."
     ),
     # test-chk_solver_version.R: "a solver below the package floor aborts by name"
     solver_version_floor = c(
       "The {.val {image}} image carries teems-solver {solver_version}; teems {pkg_version} requires {min_version} or later.",
-      "Pull or rebuild a current image, or set {.code ems_option_set(version_check = \"warn\")} to run against it anyway."
+      "Pull or rebuild a current image."
     )
   )
 }
 
 build_solve_wrn <- function() {
   list(
+    # test-ems_solve.R: "a terminal run prepared under the session tempdir warns"
+    terminal_tempdir = c(
+      "{.arg terminal_run} prepared the run under the R session temporary directory {.path {run_dir}}, which R deletes when this session ends.",
+      "Deploy with {.fun ems_option_set} {.arg tempdir} set to a persistent directory before closing R, or run the command from this session."
+    ),
     # test-auto_method.R: "the memory fit check refuses a run past the error band and warns inside it"
     memory_tight = c(
       "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit.",
@@ -334,8 +358,6 @@ build_solve_wrn <- function() {
       "Condensation is counterproductive on intertemporal models: bordered runs solve slower condensed, and a fully condensed {.val LU} run is slower still than plain {.val SBBD}.",
       "Deploy without {.arg backsolve} and solve with {.val SBBD}."
     ),
-    # test-ems_options.R: "docker tag auto-selection"
-    docker_tag_auto = "Using image {.field teems:{tag}} (matches host CPU capability {.val {level}}). Set {.arg docker_tag} via {.fn ems_option_set} to override.",
     # test-ems_solve.R: "condensed intertemporal deployments are warned against (roadmap 6.2)"
     condense_memory = "The memory estimate does not cover condensed {.val {matrix_method}} runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.",
     # test-ems_solve.R: "ems_solve warns when poor accuracy"
@@ -431,6 +453,11 @@ build_solve_info <- function() {
     ),
     # test-ems_solve.R: "ems_solve informs terminal run"
     terminal_run = "{.arg terminal_run} activated. To solve and compose outputs:",
+    # test-ems_homogeneity.R: "a change variable whose levels differ across elements is shocked per component"
+    homog_unshocked = c(
+      "{cli::qty(unshocked)}Exogenous change variable{?s} {.val {unshocked}} {?was/were} not shocked: {?its/their} closure entries are partial and the pre-simulation levels differ across elements.",
+      "{?Its/Their} rows are omitted from the simulated verdict; shock {?it/them} by hand with a per-component {.fun ems_custom_shock} to test {?it/them}."
+    ),
     # .solve_lock_acquire()
     # test-solve_lock_acquire.R: "a lock whose owner has ended is taken over"
     # test-ems_solve.R: "a lock left by a dead R process is taken over"

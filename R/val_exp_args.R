@@ -25,6 +25,14 @@
     checklist = checklist,
     call = call
   )
+
+  model <- a$model
+  a$model <- rlang::arg_match(
+    model,
+    basename(list.dirs(system.file("models", package = "teems"), recursive = FALSE)),
+    error_call = call
+  )
+
   a <- .data_inputs(a = a, call = call)
 
   if (!dir.exists(a$path) || file.access(a$path, 2) != 0L) {
@@ -38,24 +46,18 @@
   a$path <- normalizePath(a$path, "/")
   
   if (a$type %=% "scripts") {
-    if (is.null(a$dat_input) ||
-      xor(is.null(a$par_input), is.null(a$set_input))) {
+    if (is.null(a$dat_input) || is.null(a$par_input) ||
+      is.null(a$set_input)) {
       .cli_action(exp_err$missing_input,
         action = "abort",
         call = call
       )
     }
 
-    if (!is.list(a$dat_input)) {
-      a$dat_input <- normalizePath(a$dat_input, "/", FALSE)
-    }
-
-    if (!is.list(a$par_input)) {
-      a$par_input <- normalizePath(a$par_input, "/", FALSE)
-    }
-
-    if (!is.list(a$set_input)) {
-      a$set_input <- normalizePath(a$set_input, "/", FALSE)
+    for (nm in c("dat_input", "par_input", "set_input")) {
+      if (is.character(a[[nm]])) {
+        a[[nm]] <- normalizePath(a[[nm]], "/", FALSE)
+      }
     }
   }
 

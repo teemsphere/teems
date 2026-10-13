@@ -34,6 +34,14 @@
         )
       }
     }
+    if (!is.null(a$rk_h0) && a$rk_h0 > 1 / a$steps) {
+      h_init <- a$rk_h0
+      steps <- a$steps
+      .cli_action(solve_err$h_init_steps,
+        action = c("abort", "inform"),
+        call = call
+      )
+    }
     if (!all(is.numeric(a$eps_tolerance), length(a$eps_tolerance) == 1, a$eps_tolerance > 0)) {
       .cli_action(solve_err$epstol_range,
         action = "abort",

@@ -59,8 +59,13 @@ build_shk_err <- function() {
     # test-ems_uniform_shock.R: "ems_uniform_shock errors when full var shock is applied to not fully exogenous variable"
     x_full_exo = c(
       "{.field {raw_shock$var}} is not fully exogenous; full shocks require full exogeneity.",
-      "If fully exogenous with multiple closure entries, consolidate into a single {.val {raw_shock$var}} entry.",
+      "Shock only its exogenous components, or swap the endogenous ones in with {.fun ems_swap}.",
       "Call: {.code {deparse(call)}}"
+    ),
+    # test-ems_custom_shock.R: "a custom shock on a scalar variable points to ems_uniform_shock"
+    cust_scalar = c(
+      "{.field {var_name}} is a scalar variable, so it has no set columns to shock by tuple.",
+      "Shock it with {.fun ems_uniform_shock} instead."
     ),
     # test-ems_uniform_shock.R: "ems_uniform_shock errors when part var shock is applied to fully endogenous variable"
     x_full_exo_part = c(

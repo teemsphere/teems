@@ -109,6 +109,27 @@ test_that("ems_uniform_shock errors when full var shock is applied to not fully 
   expect_snapshot_error(ems_deploy(dat, model, invalid_shk))
 })
 
+test_that("a full shock is accepted when the variable is exogenous across several closure entries (R4-B5)", {
+  nest_temp("uni_full_split_entries", write_dir)
+  cmf <- ems_deploy(
+    dat, model,
+    shock = ems_uniform_shock("qfd", 1),
+    swap_in = list(ems_swap("qfd", REGr = "chn"), ems_swap("qfd", REGr = "row"), ems_swap("qfd", REGr = "usa")),
+    swap_out = "tfd"
+  )
+  lines <- readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  expect_length(grep("^Shock qfd", lines), 1L)
+})
+
+test_that("a redeploy with another shock leaves a single shock file (R4-B1)", {
+  nest_temp("uni_redeploy_other", write_dir)
+  first <- ems_deploy(dat, model, ems_uniform_shock("pop", 1, REGr = "row"))
+  second <- ems_deploy(dat, model, ems_uniform_shock("aoall", 1, REGr = "row"))
+  shf <- list.files(dirname(second), pattern = "\\.shf$")
+  expect_length(shf, 1L)
+  expect_false(grepl("[0-9]{4}\\.shf$", shf))
+})
+
 test_that("ems_uniform_shock errors when part var shock is applied to fully endogenous variable", {
   invalid_shk <- ems_uniform_shock("qfd", 1, REGr = "row")
   nest_temp("uni_x_full_exo_part", write_dir)

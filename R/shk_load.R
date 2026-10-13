@@ -44,7 +44,7 @@
     ), collapse = "")
   }
 
-  file <- paste0(paste(paste(shock_id, format(x = Sys.time(), "%H%M"), sep = "_"), collapse = "_"), ".shf")
+  file <- paste0(shock_id, ".shf")
   attr(final_shocks, "file") <- file
 
   return(final_shocks)

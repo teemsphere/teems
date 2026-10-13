@@ -68,6 +68,7 @@
     closure = closure,
     size_metadata = size_metadata,
     n_comp_active = n_comp_active,
+    swap_out = v$swap_out,
     call = call
   )
   metadata$vpqtype <- attr(v$model, "vpqtype")
@@ -76,6 +77,7 @@
   metadata$n_comp_active <- n_comp_active
   metadata$n_exo_ele <- size_metadata$n_exo_ele
   metadata$n_reg <- size_metadata$n_reg
+  metadata$n_ele_max <- size_metadata$n_ele_max
   time_steps <- attr(args_list$.data, "time_steps")
   metadata$n_time <- if (is.null(time_steps)) {
     0L

@@ -24,7 +24,8 @@
     system_size = n_var_ele - n_exo_ele,
     n_var_ele = n_var_ele,
     n_exo_ele = n_exo_ele,
-    n_reg = length(sets$ele$REG)
+    n_reg = length(sets$ele$REG),
+    n_ele_max = max(lengths(sets$ele))
   )
   return(metadata)
 }

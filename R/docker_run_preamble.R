@@ -11,11 +11,11 @@
                                  run_dir) {
   preamble <- paste(
     paste0(
-      "docker run --rm --init -e TINI_KILL_PROCESS_GROUP=1 --name ",
+      "docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name ",
       .container_name(timeID), " ", .docker_user_flag(), "--mount"
     ),
     .shell_quote(paste("type=bind", paste0("src=", run_dir), "dst=/opt/teems", sep = ",")),
-    paste0("teems", ":", .resolve_docker_tag()),
+    paste0("teems", ":", .o_docker_tag()),
     "/bin/bash -c"
   )
   return(preamble)

@@ -55,6 +55,17 @@
     i A component may be shocked only once; the solver does not let a later shock override an earlier one.
     i Split the shocks so their components are disjoint, or combine them into a single `ems_custom_shock()`.
 
+# a custom shock on a scalar variable points to ems_uniform_shock (R4-B8)
+
+    x pfactwld is a scalar variable, so it has no set columns to shock by tuple.
+    i Shock it with `ems_uniform_shock()` instead.
+
+# a full custom shock on a partly swapped-out variable names the shock call (R4-B6)
+
+    x pop is not fully exogenous; full shocks require full exogeneity.
+    i Shock only its exogenous components, or swap the endogenous ones in with `ems_swap()`.
+    i Call: `ems_custom_shock(var = "pop", input = expand.grid(REGr = c("chn", ` and ` "usa", "row"), ALLTIMEt = 0:2, Value = 1, stringsAsFactors = FALSE))`
+
 # ems_custom_shock errors when the variable is fully endogenous
 
     x No exogenous components in qgdp; partial shocks require at least one.

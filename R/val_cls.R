@@ -1,4 +1,4 @@
-#' @importFrom utils capture.output
+#' @importFrom utils head
 #' @importFrom purrr map_chr
 #' @importFrom data.table rbindlist
 #' @keywords internal
@@ -15,6 +15,7 @@
     call = model_call
   )
   
+  closure <- closure[!duplicated(as.character(closure))]
   closure <- lapply(closure,
     .exp_cls_entry,
     var_extract = var_extract,
@@ -30,7 +31,7 @@
     if (any(duplicated(over_check))) {
       overlap <- over_check[duplicated(over_check)]
       n_overlap <- nrow(overlap)
-      overlap <- utils::capture.output(print(overlap))[-c(1, 2)]
+      overlap <- utils::head(do.call(paste, c(unique(overlap), sep = ",")), 10L)
       .cli_action(model_err$pre_overlap_ele,
         action = "abort",
         call = model_call

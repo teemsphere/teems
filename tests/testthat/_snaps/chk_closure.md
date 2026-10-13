@@ -47,3 +47,8 @@
     ! Equation quantifier set "MYSTERY" could not be sized before deployment, so the closure count check (endogenous elements = equation elements) was skipped.
     i A closure that does not square the system will be reported by the solver instead.
 
+# a closure entry with the wrong number of arguments aborts by name (R4-B3)
+
+    x Closure entry "tfd(COMM,REG)" does not carry the declared number of indices (3).
+    i Write one argument per declared set of the variable (a set, a subset or a quoted element), or the bare variable name for all of its components.
+

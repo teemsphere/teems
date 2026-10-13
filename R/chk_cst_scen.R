@@ -8,6 +8,13 @@
                             call) {
   
   ls_mixed <- purrr::pluck(var_extract, "ls_mixed_idx", shock$var)
+  if (is.null(ls_mixed) || all(is.na(ls_mixed))) {
+    var_name <- shock$var
+    .cli_action(shk_err$cust_scalar,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
   canon <- .canonical_mixed(shock$set, ls_mixed)
   if (!identical(canon, shock$set)) {
     shock$input <- data.table::copy(shock$input)

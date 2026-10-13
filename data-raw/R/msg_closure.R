@@ -19,6 +19,11 @@ build_cls_err <- function() {
     # see cls_err$not_square
     # test-chk_closure.R: "over-exogenized closures name endogenizing candidates"
     square_nearest = "No single variable matches the gap exactly; nearest by element count: %s.",
+    # test-chk_closure.R: "a closure entry with the wrong number of arguments aborts by name"
+    arity = c(
+      "{cli::qty(bad_entries)}Closure entr{?y/ies} {.val {bad_entries}} {?does/do} not carry the declared number of indices ({n_declared}).",
+      "Write one argument per declared set of the variable (a set, a subset or a quoted element), or the bare variable name for all of its components."
+    ),
     # test-chk_closure.R: "unknown closure variables suggest candidates"
     unknown_var = c(
       "{cli::qty(var_discrepancy)}Closure variable{?s}

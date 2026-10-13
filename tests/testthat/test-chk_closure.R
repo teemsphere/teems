@@ -174,3 +174,28 @@ test_that("unresolvable quantifier sets warn and skip the count check", {
     )
   )
 })
+
+test_that("a closure entry with the wrong number of arguments aborts by name (R4-B3)", {
+  var_extract <- tibble::tibble(
+    name = c("tfd", "pop", "pfactwld"),
+    condense = NA_character_,
+    ls_upper_idx = list(c("COMM", "ACTS", "REG"), "REG", NA_character_)
+  )
+  expect_snapshot_error(.check_closure(c("tfd(COMM,REG)", "pop"), var_extract, call = NULL))
+  expect_identical(
+    .check_closure(c("tfd(COMM,ACTS,REG)", "pop", "tfd(COMM,\"food\",\"usa\")", "pfactwld"), var_extract, call = NULL),
+    c("tfd(COMM,ACTS,REG)", "pop", "tfd(COMM,\"food\",\"usa\")", "pfactwld")
+  )
+})
+
+test_that("unsquare-closure candidates rank the swapped-out variables first (X1-B4)", {
+  var_extract <- tibble::tibble(
+    name = c("psave", "qsave", "afreg", "pfactwld"),
+    ls_upper_idx = list("REG", "REG", "REG", NA_character_)
+  )
+  sets <- list(ele = list(REG = c("a", "b", "c")))
+  default <- .square_candidates(3, var_extract, sets, list())
+  preferred <- .square_candidates(3, var_extract, sets, list(), prefer = "afreg")
+  expect_match(default, "psave, qsave, afreg")
+  expect_match(preferred, "afreg, psave, qsave")
+})

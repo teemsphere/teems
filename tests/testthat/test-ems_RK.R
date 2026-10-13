@@ -20,6 +20,12 @@ exec_cmd <- function(dir) {
   readLines(file.path(dir, "model_exec.txt"), warn = FALSE)
 }
 
+test_that("an h_init above the uniform step is refused by name (R5-B3)", {
+  d <- withr::local_tempdir()
+  cmf <- mk_cmf(d)
+  expect_snapshot_error(ems_RK(cmf, steps = 4L, h_init = 0.5, terminal_run = TRUE))
+})
+
 test_that("RK controls pass through the ems_solve dots", {
   d <- withr::local_tempdir()
   cmf <- mk_cmf(d)

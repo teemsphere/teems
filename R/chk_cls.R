@@ -49,7 +49,39 @@
       call = call
     )
   }
+  .chk_cls_arity(closure, cls_var, var_extract, call = call)
   return(closure)
+}
+
+#' @importFrom purrr map_int
+#' @keywords internal
+#' @noRd
+.chk_cls_arity <- function(closure,
+                           cls_var,
+                           var_extract,
+                           call) {
+  if (!"ls_upper_idx" %in% names(var_extract)) {
+    return(invisible(NULL))
+  }
+  has_args <- grepl("(", closure, fixed = TRUE)
+  if (!any(has_args)) {
+    return(invisible(NULL))
+  }
+  n_args <- lengths(strsplit(sub("^[^(]*\\(([^)]*)\\).*$", "\\1", closure[has_args]), ",", fixed = TRUE))
+  n_declared <- purrr::map_int(cls_var[has_args], \(v) {
+    idx <- var_extract$ls_upper_idx[[match(v, var_extract$name)]]
+    if (is.null(idx) || all(is.na(idx))) 0L else length(idx)
+  })
+  bad <- n_args != n_declared
+  if (any(bad)) {
+    bad_entries <- closure[has_args][bad]
+    n_declared <- n_declared[bad]
+    .cli_action(cls_err$arity,
+      action = c("abort", "inform"),
+      call = call
+    )
+  }
+  return(invisible(NULL))
 }
 
 #' @importFrom utils adist head

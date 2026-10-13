@@ -34,6 +34,17 @@ dat <- ems_data(
 
 model <- ems_model(model_file, closure_file, ignore_condense = TRUE)
 
+test_that("a variable listed twice in the closure is exogenous once; overlapping entries name the tuples (R4-B4)", {
+  nest_temp("deploy_dup_closure", write_dir)
+  dup_cls <- write_modified_closure(closure_file, "pop")
+  cmf <- ems_deploy(dat, ems_model(model_file, dup_cls, ignore_condense = TRUE))
+  cls <- readLines(list.files(dirname(cmf), pattern = "\\.cls$", full.names = TRUE))
+  expect_length(grep("^\\s*pop\\s*$", cls), 1L)
+  nest_temp("deploy_overlap_closure", write_dir)
+  overlap_cls <- write_modified_closure(closure_file, "pop(\"usa\",ALLTIME)")
+  expect_snapshot_error(ems_deploy(dat, ems_model(model_file, overlap_cls, ignore_condense = TRUE)))
+})
+
 test_that("ems_deploy errors when .data is missing", {
   expect_snapshot_error(ems_deploy())
 })

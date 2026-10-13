@@ -30,6 +30,11 @@ test_that("ems_example errors when path is missing", {
   expect_snapshot_error(ems_example("GTAPv7"))
 })
 
+test_that("ems_example errors when model is not a shipped example", {
+  expect_snapshot_error(ems_example("ORANI-G", write_dir))
+  expect_snapshot_error(ems_example("GTAPv8", write_dir))
+})
+
 test_that("ems_example errors when path does not exist", {
   expect_snapshot(
     ems_example("GTAPv7", file.path(write_dir, "not_a_dir")),
@@ -65,8 +70,15 @@ test_that("ems_example closure_file is a .cls file", {
   expect_true(grepl("\\.cls$", result[["closure_file"]]))
 })
 
+test_that("example script inputs are written as R literals (R5-B7)", {
+  d <- ems_test_dir(write_dir, "literal_inputs")
+  p <- .inject_script("x <- 1", "s.R", "C:\\Users\\me\\b.har", "p.har", "s.har", d, "a.tab", "a.cls", call = NULL)
+  expect_no_error(parse(p))
+  expect_identical(parse(p)[[2]][[3]], "C:\\Users\\me\\b.har")
+})
+
 test_that("ems_example generates every script of a model", {
-  for (model in c("GTAPv6", "GTAPv7", "GTAP-RE", "GTAP-AEZ", "GTAP-E", "GTAP-EP", "ORANI-G")) {
+  for (model in c("GTAPv6", "GTAPv7", "GTAP-RE", "GTAP-AEZ", "GTAP-E", "GTAP-EP")) {
     scripts <- ems_example(
       model,
       ems_test_dir(write_dir, paste0("gen_", model)),
@@ -86,8 +98,18 @@ test_that("ems_example generates every script of a model", {
 })
 
 test_that("ems_example examples run without error", {
-  # The following example requires input data. See
+  # The following examples require input data. See
   # https://teemsphere.github.io/ to get started.
+
+  # Generate GTAPv7 example scripts
+  expect_type(ems_example(
+    model = "GTAPv7",
+    path = write_dir,
+    type = "scripts",
+    dat_input = Sys.getenv("GTAP12_dat"),
+    par_input = Sys.getenv("GTAP12_par"),
+    set_input = Sys.getenv("GTAP12_set")
+  ), "character")
 
   # Generate GTAP-RE example scripts
   expect_type(ems_example(
@@ -99,17 +121,17 @@ test_that("ems_example examples run without error", {
     set_input = Sys.getenv("GTAP12_set")
   ), "character")
 
-  # Generate GTAPv7 example scripts from a v6.2 format database
+  # Generate GTAPv6 example scripts from a v7 format database
   converted <- GTAP_convert(
-    dat_har = Sys.getenv("GTAP10A_dat"),
-    par_har = Sys.getenv("GTAP10A_par"),
-    set_har = Sys.getenv("GTAP10A_set"),
-    target = "GTAPv7"
+    dat_har = Sys.getenv("GTAP12_dat"),
+    par_har = Sys.getenv("GTAP12_par"),
+    set_har = Sys.getenv("GTAP12_set"),
+    target = "GTAPv6"
   )
 
   expect_type(converted, "list")
   expect_type(ems_example(
-    model = "GTAPv7",
+    model = "GTAPv6",
     path = write_dir,
     type = "scripts",
     dat_input = converted$dat,

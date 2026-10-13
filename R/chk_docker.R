@@ -10,9 +10,10 @@
     )
   }
 
-  docker_access <- system2("docker", "info", stdout = FALSE, stderr = FALSE) == 0
+  info <- suppressWarnings(system2("docker", "info", stdout = TRUE, stderr = TRUE))
+  docker_access <- (attr(info, "status") %|||% 0L) == 0L
   if (!docker_access) {
-    if (Sys.info()[["sysname"]] == "Linux") {
+    if (Sys.info()[["sysname"]] == "Linux" && any(grepl("permission denied", info, ignore.case = TRUE))) {
       .cli_action(solve_err$docker_sudo,
         action    = "abort",
         url       = "https://docs.docker.com/engine/install/linux-postinstall/",
@@ -27,8 +28,9 @@
     }
   }
 
-  image_out <- system2("docker", c("images", "-q", image_name), stdout = TRUE, stderr = FALSE)
-  if (!any(nzchar(image_out))) {
+  image <- paste0(image_name, ":", .o_docker_tag())
+  if (!.docker_image_present(image)) {
+    image_name <- image
     .cli_action(solve_err$docker_x_image,
       action = "abort",
       url = "https://github.com/teemsphere/teems-solver",
@@ -38,7 +40,7 @@
   }
 
   .check_solver_version(
-    image = paste0(image_name, ":", .resolve_docker_tag(quiet = TRUE)),
+    image = image,
     call = call
   )
 

@@ -76,10 +76,12 @@
 #'   own units, so welfare-decomposition accumulators in $ millions can
 #'   reject every step; every element is still reported in
 #'   `error_estimate`.
-#' @param h_init Numeric length 1 in (0, 1] (default `NULL`): the
-#'   first step length. Absent, the solver starts from `1/steps` and
-#'   caps it from the initial gradient so that no element moves by
-#'   more than about half its level in the first attempt.
+#' @param h_init Numeric length 1 in (0, `1/steps`] (default `NULL`):
+#'   the first step length. Absent, the solver starts from `1/steps`.
+#'   Under `adaptive`, the first attempt is additionally capped from
+#'   the initial gradient (a level ratio of exp(5) on the log chart,
+#'   90 points on the percent chart); fixed-step runs take the value
+#'   as given.
 #' @param guard Numeric length 1 greater than 1 (default `NULL`,
 #'   solver default `1e30`), `chart = "log"` only: the level ratio
 #'   beyond which a stage state is rejected and the step retried.

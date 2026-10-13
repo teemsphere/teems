@@ -1,3 +1,7 @@
+# a variable listed twice in the closure is exogenous once; overlapping entries name the tuples (R4-B4)
+
+    x 3 tuples for "pop" in the pre-swap closure with multiple entries: usa,0, usa,1, and usa,2.
+
 # ems_deploy errors when .data is missing
 
     x argument `.data` is missing, with no default

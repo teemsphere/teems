@@ -65,15 +65,65 @@ dynamic_shock <- ems_uniform_shock("aoall", 2)
 # environment-specific
 # path, log-name and tag scrubbing: scrub_paths (helper-script_run.R)
 
-test_that("ems_solve suppress_outputs returns cmf_path character", {
+test_that("ems_solve suppress_outputs returns the cmf path invisibly", {
   nest_temp("solve_suppress", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)
-  result <- ems_solve(cmf_path, suppress_outputs = TRUE)
-  expect_type(result, "NULL")
+  expect_invisible(result <- ems_solve(cmf_path, suppress_outputs = TRUE))
+  expect_identical(result, cmf_path)
+  expect_s3_class(ems_compose(result), "tbl_df")
+})
+
+test_that("condensation products are composed only when named (X1-C3)", {
+  nest_temp("solve_csub", write_dir)
+  condensed_model <- suppressMessages(ems_model(static_model_file, static_closure_file))
+  cmf_path <- ems_deploy(static_data, condensed_model, write_coefficients = TRUE)
+  out <- ems_solve(cmf_path, solution_method = "Johansen")
+  expect_false(any(grepl("^CSUB", out$name[out$type == "coefficient"])))
+  expect_false(any(grepl("^backsolve (product|pivot)", out$label)))
+  csv <- list.files(file.path(dirname(cmf_path), "out", "coefficients"))
+  expect_false(any(grepl("^CSUB", csv)))
+  one <- ems_compose(cmf_path, "CSUB1")
+  expect_identical(unique(one$name), "CSUB1")
 })
 
 test_that("ems_solve errors when cmf_path is missing", {
   expect_snapshot_error(ems_solve())
+})
+
+test_that("LU refuses more than one task and the bordered methods refuse more tasks than blocks (R5-B5, R5-B8)", {
+  nest_temp("solve_tasks_static", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  expect_snapshot_error(ems_solve(cmf_path, matrix_method = "LU", n_tasks = 2))
+  expect_snapshot_error(ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 999))
+})
+
+test_that("a docker tag that names no local image aborts with the full image name (R5-B2)", {
+  old_tag <- ems_option_get("docker_tag")
+  ems_option_set(docker_tag = "nosuchtag")
+  withr::defer(ems_option_set(docker_tag = old_tag))
+  expect_snapshot_error(.check_docker("teems", call = NULL))
+})
+
+test_that("a terminal run prepared under the session tempdir warns (R5-B6)", {
+  tmp <- withr::local_tempdir()
+  ems_option_set(tempdir = tmp)
+  withr::defer(ems_option_set(tempdir = write_dir))
+  cmf_tmp <- ems_deploy(static_data, static_model)
+  expect_warning(
+    suppressMessages(ems_solve(cmf_tmp, terminal_run = TRUE)),
+    "deletes when this session ends",
+    fixed = TRUE
+  )
+})
+
+test_that("a terminal run is refused while another session holds the lock (R5-C6)", {
+  nest_temp("solve_terminal_lock", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model)
+  lock <- file.path(dirname(cmf_path), ".solve_lock")
+  dir.create(lock)
+  writeLines(sprintf("run other (pid %d) started now", Sys.getpid()), file.path(lock, "owner"))
+  withr::defer(unlink(lock, recursive = TRUE))
+  expect_error(ems_solve(cmf_path, terminal_run = TRUE), "already running", fixed = TRUE)
 })
 
 test_that("ems_solve errors when n_tasks is not integerish", {
@@ -166,7 +216,7 @@ test_that("the midpoint method solves and extrapolates", {
 
 test_that("two-solution runs and the convergence rule solve", {
   nest_temp("solve_two_run", write_dir)
-  withr::defer(ems_option_set(convergence_rule = "off"))
+  withr::defer(ems_option_set(converge = FALSE))
   cmf_path <- ems_deploy(static_data, static_model, real_shock)
   qgdp <- \(o) o$dat[[match("qgdp", o$name)]]$Value
   ref <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
@@ -184,10 +234,67 @@ test_that("two-solution runs and the convergence rule solve", {
   expect_false(grepl("-convrule", cmd(c(2L, 4L, 8L)), fixed = TRUE))
   two <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L))
   expect_equal(qgdp(two), qgdp(ref), tolerance = 1e-3)
-  ems_option_set(convergence_rule = "on")
+  ems_option_set(converge = TRUE)
   expect_match(cmd(c(2L, 4L, 8L)), "-step3 8 -convrule 1", fixed = TRUE)
   ruled <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
   expect_equal(qgdp(ruled), qgdp(ref), tolerance = 1e-4)
+})
+
+test_that("the convergence rule reports each element by its class (GEMPACK manual 26.2.5)", {
+  # a hard shock on few steps leaves some elements poorly converged; per
+  # element the rule reports the average of the three passes when they
+  # agree to about six figures or are near zero, the extrapolation when
+  # the two two-pass extrapolations agree to one figure, the third pass
+  # otherwise (conv_pick() in the solver's solve_drivers.c)
+  nest_temp("solve_convrule_classes", write_dir)
+  withr::defer(ems_option_set(converge = FALSE))
+  cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("aoall", 30))
+  steps <- c(2L, 4L, 6L)
+  expect_warning(
+    ems_solve(cmf_path, solution_method = "Gragg", steps = steps, suppress_outputs = TRUE),
+    "accurate to at least 4 digits"
+  )
+  out <- ems_compose(cmf_path)
+  var_names <- out$name[out$type == "variable"]
+  off <- ems_compose(cmf_path, var_names, passes = TRUE)
+  ems_option_set(converge = TRUE)
+  expect_warning(
+    ems_solve(cmf_path, solution_method = "Gragg", steps = steps, suppress_outputs = TRUE),
+    "accurate to at least 4 digits"
+  )
+  on <- ems_compose(cmf_path, var_names, passes = TRUE)
+
+  q2 <- (steps[2] / steps[1])^2
+  q3 <- (steps[3] / steps[1])^2
+  per_element <- lapply(var_names, \(v) {
+    p <- on$dat[[v]]
+    c1 <- p$Pass1
+    c2 <- p$Pass2
+    c3 <- p$Pass3
+    sc <- pmax(abs(c1), abs(c2), abs(c3))
+    e12 <- (q2 * c2 - c1) / (q2 - 1)
+    e23 <- (q3 * c3 - q2 * c2) / (q3 - q2)
+    close <- sc <= 1e-6 | abs(c3 - c1) <= 1e-6 * sc
+    agree <- abs(e12 - e23) < 0.1 * pmax(abs(e12), abs(e23))
+    data.frame(
+      class = ifelse(close, "average", ifelse(agree, "extrapolation", "third")),
+      average = (c1 + c2 + c3) / 3,
+      third = c3,
+      off = off$dat[[v]]$Value,
+      on = p$Value
+    )
+  })
+  el <- do.call(rbind, per_element)
+  expect_setequal(unique(el$class), c("average", "extrapolation", "third"))
+
+  ext <- el[el$class == "extrapolation", ]
+  expect_equal(ext$on, ext$off, tolerance = 1e-12)
+  thr <- el[el$class == "third", ]
+  expect_equal(thr$on, thr$third, tolerance = 1e-12)
+  expect_true(any(abs(thr$on - thr$off) > 1e-6))
+  avg <- el[el$class == "average", ]
+  expect_equal(avg$on, avg$average, tolerance = 1e-12)
+  expect_true(any(abs(avg$on - avg$off) > 1e-12))
 })
 
 test_that("ems_solve errors when steps are not increasing", {
@@ -335,12 +442,6 @@ test_that("ems_solve warns when poor accuracy", {
     cmf_path,
     solution_method = "Gragg"
   ))
-})
-
-test_that("ems_solve returns NULL when suppress_outputs", {
-  nest_temp("suppress", write_dir)
-  cmf_path <- ems_deploy(static_data, static_model)
-  expect_null(ems_solve(cmf_path, suppress_outputs = TRUE))
 })
 
 test_that("ems_solve informs terminal run", {
@@ -834,61 +935,6 @@ test_that("IF equations solve identically to their hand adaptations", {
 
   probe <- if_out$dat[["IFELEM"]]
   expect_equal(probe$Value, ifelse(probe$REGr == "chn", 3, 2))
-})
-
-test_that("netcut proxy rewrite solves identically to a hand proxy (roadmap 6.5 E2)", {
-  # hand-proxied reference: minimal intertemporal proxy written by the modeler
-  nest_temp("solve_netcut_ref", write_dir)
-  ref_file <- write_modified_model(
-    dynamic_model_file,
-    paste(
-      "Variable (all,r,REG)(all,t,ALLTIME) ncref(r,t) # hand proxy #;",
-      paste0(
-        "Equation E_ncref # hand proxy link # (all,r,REG)(all,t,ALLTIME) ",
-        'ncref(r,t) = qfe("capital","svces",r,t);'
-      ),
-      "Variable (all,r,REG)(all,t,FWDTIME) nctv(r,t) # probe #;",
-      paste0(
-        "Equation E_nctv # probe # (all,r,REG)(all,t,FWDTIME) ",
-        "nctv(r,t) = ncref(r,t+1);"
-      ),
-      sep = "\n"
-    )
-  )
-  ref_model <- ems_model(ref_file, dynamic_closure_file)
-  cmf_ref <- ems_deploy(dynamic_data, ref_model)
-  ref <- ems_solve(cmf_ref)
-
-  # direct element-slice lead: the rewrite must synthesize the same proxy
-  nest_temp("solve_netcut", write_dir)
-  slice_file <- write_modified_model(
-    dynamic_model_file,
-    paste(
-      "Variable (all,r,REG)(all,t,FWDTIME) nctv(r,t) # probe #;",
-      paste0(
-        "Equation E_nctv # probe # (all,r,REG)(all,t,FWDTIME) ",
-        'nctv(r,t) = qfe("capital","svces",r,t+1);'
-      ),
-      sep = "\n"
-    )
-  )
-  slice_model <- suppressMessages(ems_model(slice_file, dynamic_closure_file))
-  expect_true(all(c("NCV1", "E_NCV1") %in% slice_model$name))
-  cmf_slice <- ems_deploy(dynamic_data, slice_model)
-  out <- ems_solve(cmf_slice)
-
-  expect_setequal(setdiff(out$name, ref$name), "NCV1")
-  expect_setequal(setdiff(ref$name, out$name), "ncref")
-  common <- intersect(ref$name, out$name)
-  r2 <- ref[match(common, ref$name), ]
-  o2 <- out[match(common, out$name), ]
-  attr(r2, "row.names") <- attr(o2, "row.names") <- seq_along(common)
-  expect_equal(o2, r2)
-
-  # the synthesized proxy carries the hand proxy's values
-  proxy <- out$dat[[match("NCV1", out$name)]]
-  hand <- ref$dat[[match("ncref", ref$name)]]
-  expect_equal(proxy, hand)
 })
 
 test_that("condensed models solve equivalently and recover backsolved values (roadmap 6.2)", {

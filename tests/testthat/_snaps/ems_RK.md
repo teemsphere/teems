@@ -1,3 +1,8 @@
+# an h_init above the uniform step is refused by name (R5-B3)
+
+    x `h_init` (0.5) exceeds the uniform first step `1/steps` = 0.25.
+    i The solver starts from the smaller of the two; raise `steps` or lower `h_init`.
+
 # unknown dot arguments abort
 
     x Unknown argument `bogus_argument` passed to `...`.

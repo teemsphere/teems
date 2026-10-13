@@ -23,14 +23,8 @@
   )
 
   assignments <- paste(names(assignments), purrr::map_chr(assignments, \(x) {
-    if (is.call(x)) {
-      deparse(x)
-    } else {
-      paste0('"', x, '"')
-    }
+    paste(deparse(x), collapse = "")
   }), sep = " = ")
-
-  assignments <- sub("\"NULL\"", "NULL", assignments)
 
   if (file.exists(sub_path)) {
     unlink(sub_path)

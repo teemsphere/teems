@@ -35,7 +35,7 @@
 # ems_uniform_shock errors when full var shock is applied to not fully exogenous variable
 
     x qe is not fully exogenous; full shocks require full exogeneity.
-    i If fully exogenous with multiple closure entries, consolidate into a single "qe" entry.
+    i Shock only its exogenous components, or swap the endogenous ones in with `ems_swap()`.
     i Call: `ems_uniform_shock(var = "qe", value = 1)`
 
 # ems_uniform_shock errors when part var shock is applied to fully endogenous variable

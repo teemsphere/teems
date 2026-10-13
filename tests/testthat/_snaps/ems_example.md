@@ -6,6 +6,15 @@
 
     x argument `path` is missing, with no default
 
+# ems_example errors when model is not a shipped example
+
+    `model` must be one of "GTAP-AEZ", "GTAP-E", "GTAP-EP", "GTAP-RE", "GTAPv6", or "GTAPv7", not "ORANI-G".
+
+---
+
+    `model` must be one of "GTAP-AEZ", "GTAP-E", "GTAP-EP", "GTAP-RE", "GTAPv6", or "GTAPv7", not "GTAPv8".
+    i Did you mean "GTAPv6"?
+
 # ems_example errors when path does not exist
 
     Code
@@ -16,5 +25,5 @@
 
 # ems_example errors when type is scripts and an input is missing
 
-    x `dat_input` (with `par_input` and `set_input` for a GTAP database) must be provided when `type` is "scripts".
+    x `dat_input`, `par_input` and `set_input` must be provided when `type` is "scripts".
 

@@ -137,6 +137,25 @@ test_that("custom and uniform shocks sharing a component abort", {
   expect_snapshot_error(ems_deploy(dat, model, shock = list(cst, uni)))
 })
 
+test_that("a custom shock on a scalar variable points to ems_uniform_shock (R4-B8)", {
+  static_files <- ems_example("GTAPv7", file.path(write_dir, "tmp"))
+  static_dat <- ems_data(dat_input, par_input, set_input, REG = "big3", ACTS = "macro_sector", ENDW = "labor_agg")
+  static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
+  scalar <- ems_custom_shock("pfactwld", data.frame(Value = 2))
+  nest_temp("cust_scalar", write_dir)
+  expect_snapshot_error(ems_deploy(static_dat, static_model, scalar))
+})
+
+test_that("a full custom shock on a partly swapped-out variable names the shock call (R4-B6)", {
+  full <- ems_custom_shock("pop", expand.grid(REGr = c("chn", "usa", "row"), ALLTIMEt = 0:2, Value = 1, stringsAsFactors = FALSE))
+  nest_temp("cust_full_swapped", write_dir)
+  expect_snapshot_error(ems_deploy(
+    dat, model, full,
+    swap_in = ems_swap("qgdp", REGr = "usa"),
+    swap_out = ems_swap("pop", REGr = "usa")
+  ))
+})
+
 test_that("ems_custom_shock errors when the variable is fully endogenous", {
   endo <- ems_custom_shock("qgdp", data.frame(REGr = "row", ALLTIMEt = 0, Value = 1))
   nest_temp("cust_x_full_exo_part", write_dir)

@@ -17,9 +17,11 @@
 .construct_shk.custom <- function(raw_shock,
                                     closure,
                                     sets,
+                                    var_extract,
                                     ...) {
   
   is_full <- attr(raw_shock, "is_full")
+  call <- attr(raw_shock, "call")
 
   if (.o_check_shock_status()) {
     cls_entries <- closure[purrr::map_lgl(closure, \(c) {
@@ -27,7 +29,6 @@
     })]
 
     if (length(cls_entries) %=% 0L) {
-      call <- attr(raw_shock, "call")
       .cli_action(
         if (is_full) shk_err$x_full_exo else shk_err$x_full_exo_part,
         action = if (is_full) c("abort", "inform", "inform") else c("abort", "inform"),
@@ -36,11 +37,11 @@
     }
 
     if (is_full) {
-      if (!inherits(cls_entries[[1]], "full")) {
+      if (!.cls_entries_cover(cls_entries, raw_shock$var, var_extract, sets)) {
         .cli_action(
           shk_err$x_full_exo,
           action = c("abort", "inform", "inform"),
-          call = attr(raw_shock, "call")
+          call = call
         )
       }
     } else {
@@ -59,7 +60,6 @@
           x_exo_parts <- trimws(utils::capture.output(print(x_exo_parts)))
           x_exo_parts <- x_exo_parts[-c(1, 2)]
 
-          call <- attr(raw_shock, "call")
           .cli_action(shk_err$cust_endo_tup,
             action = c("abort", "inform"),
             call = call
@@ -154,8 +154,10 @@
     raw_shock$ls_upper %=% "null_set"
   if (attr(raw_shock, "full_var")) {
     if (.o_check_shock_status()) {
-      full_vars <- purrr::map_chr(closure[purrr::map_lgl(closure, inherits, "full")], attr, "var_name")
-      if (!raw_shock$var %in% full_vars) {
+      cls_entries <- closure[purrr::map_lgl(closure, \(c) {
+        attr(c, "var_name") %=% raw_shock$var
+      })]
+      if (!.cls_entries_cover(cls_entries, raw_shock$var, var_extract, sets)) {
         .cli_action(
           shk_err$x_full_exo,
           action = c("abort", "inform", "inform"),
@@ -238,4 +240,33 @@
 
   shock <- list(shock)
   return(shock)
+}
+
+#' @importFrom purrr map_lgl map pluck
+#' @importFrom data.table CJ setnames rbindlist fsetequal
+#' @keywords internal
+#' @noRd
+.cls_entries_cover <- function(cls_entries,
+                               var_name,
+                               var_extract,
+                               sets) {
+  if (length(cls_entries) == 0L) {
+    return(FALSE)
+  }
+  if (any(purrr::map_lgl(cls_entries, inherits, "full"))) {
+    return(TRUE)
+  }
+  var_sets <- purrr::pluck(var_extract, "ls_upper_idx", var_name)
+  if (is.null(var_sets) || all(is.na(var_sets))) {
+    return(TRUE)
+  }
+  grid <- do.call(
+    data.table::CJ,
+    c(with(sets$ele, mget(var_sets, ifnotfound = "")), sorted = FALSE)
+  )
+  data.table::setnames(grid, make.unique(var_sets))
+  have <- data.table::rbindlist(purrr::map(cls_entries, attr, "ele"), use.names = FALSE)
+  data.table::setnames(have, names(grid))
+  covered <- data.table::fsetequal(unique(have), grid)
+  return(covered)
 }

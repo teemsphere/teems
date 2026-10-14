@@ -113,7 +113,7 @@ build_solve_err <- function() {
     # test-ems_solve.R: "ems_solve errors when steps is not one to three whole numbers"
     step_length = c(
       "{.arg steps} must be one, two or three positive whole numbers.",
-      "One count (e.g. {.code steps = 8L}) is a single multi-step run without extrapolation; two or three increasing counts (e.g. {.code c(2L, 4L, 8L)}) are extrapolated, and three also give an accuracy estimate."
+      "One count (e.g. {.code steps = 8L}) is a single multi-step run without extrapolation; two or three increasing counts (e.g. {.code c(2L, 4L, 6L)}) are extrapolated, and three also give an accuracy estimate."
     ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
     step_single_rk = c(

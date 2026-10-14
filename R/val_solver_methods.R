@@ -16,7 +16,7 @@
     a$steps <- if (is_rk) {
       4L
     } else {
-      c(2L, 4L, 8L)
+      c(2L, 4L, 6L)
     }
   }
 

@@ -24,12 +24,12 @@
 # ems_solve errors when steps is not one to three whole numbers
 
     x `steps` must be one, two or three positive whole numbers.
-    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated, and three also give an accuracy estimate.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 6L)`) are extrapolated, and three also give an accuracy estimate.
 
 ---
 
     x `steps` must be one, two or three positive whole numbers.
-    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 8L)`) are extrapolated, and three also give an accuracy estimate.
+    i One count (e.g. `steps = 8L`) is a single multi-step run without extrapolation; two or three increasing counts (e.g. `c(2L, 4L, 6L)`) are extrapolated, and three also give an accuracy estimate.
 
 # ems_solve errors when Gragg steps mix parity
 
@@ -132,7 +132,7 @@
 
 # ems_solve warns when poor accuracy
 
-    ! Only 32% of endogenous results (their levels values) accurate to at least 4 significant figures, below the 80% threshold.
+    ! Only 33% of endogenous results (their levels values) accurate to at least 4 significant figures, below the 80% threshold.
     i Adjust with `accuracy_threshold`, `accuracy_figures` or `accuracy_criterion` in `teems::ems_option_set()`.
 
 # ems_solve informs terminal run
@@ -141,7 +141,7 @@
       ems_solve(cmf_path, terminal_run = TRUE)
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill
@@ -173,7 +173,7 @@
       i Condensation pays under "LU"; deploy without `backsolve` for bordered runs.
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -refine 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -refine 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill
@@ -198,7 +198,7 @@
       i The memory estimate does not cover condensed "SBBD" runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 8   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill

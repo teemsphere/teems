@@ -57,7 +57,7 @@ static_model <- suppressMessages(suppressWarnings(
 # shock scales every price uniformly and cannot discriminate a defect)
 real_shock <- ems_uniform_shock("aoall", 5)
 # the intertemporal model at three time steps is under-resolved by
-# Gragg 2-4-8 on two subintervals under +5 (43% of variables to four
+# Gragg 2-4-6 on two subintervals under +5 (43% of variables to four
 # digits, an accuracy warning); +2 resolves it without one
 dynamic_shock <- ems_uniform_shock("aoall", 2)
 

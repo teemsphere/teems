@@ -30,8 +30,8 @@
 #'   [`solve_in_situ()`].
 #' @param steps_approx_run Integer length 1 (default `NULL`), the
 #'   number of Euler steps in the approximate run. The solver default
-#'   is the accurate method's step sum (e.g. 14 for Gragg
-#'   `steps = c(2L, 4L, 8L)`). More steps track state changes more
+#'   is the accurate method's step sum (e.g. 12 for Gragg
+#'   `steps = c(2L, 4L, 6L)`). More steps track state changes more
 #'   precisely; steps may additionally be redone (shortened) around a
 #'   state change, so the executed count can exceed the request.
 #' @param redo_steps Logical length 1 (default `NULL`, solver default

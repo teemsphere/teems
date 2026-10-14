@@ -66,7 +66,7 @@ the model file are ignored, as for \code{\link[=ems_model]{ems_model()}} (in-TAB
 that produced the closure and shock files.}
 
 \item{solution_method}{The solution method to be used, default
-is \code{"Gragg"} with \code{steps = c(2L, 4L, 8L)}. Choices:
+is \code{"Gragg"} with \code{steps = c(2L, 4L, 6L)}. Choices:
 \itemize{
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
@@ -144,7 +144,7 @@ and accurate run; the Runge-Kutta methods take subintervals
 only there.}
 
 \item{steps}{Integer (default is \code{NULL}, resolved per method:
-\code{c(2L, 4L, 8L)} for the extrapolating methods, \code{4L} for the
+\code{c(2L, 4L, 6L)} for the extrapolating methods, \code{4L} for the
 Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"} and
 \code{"Euler"} take a vector of length 3: the three counts must
 increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and must be

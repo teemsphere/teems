@@ -34,17 +34,18 @@ test_that("EFVE overrides are reported", {
   expect_no_message(.inform_efve(metadata = list(efve_overrides = overrides), call = NULL))
 })
 
-local_accuracy_stats <- function(run_dir, linear, levels, judged_zero, subintervals = 1L) {
+local_accuracy_stats <- function(run_dir, linear, levels, judged_zero, subintervals = 1L, data = NULL) {
   bin_dir <- file.path(run_dir, "out", "variables", "bin")
   dir.create(bin_dir, recursive = TRUE)
   stats <- list(
     version = 2L,
     accuracy = list(
-      population = "endogenous+backsolved",
+      covers = "endogenous+backsolved",
       summarised = sum(levels),
       subintervals = subintervals,
       linear = list(figures = linear, judged_zero = judged_zero),
-      levels = list(figures = levels)
+      levels = list(figures = levels),
+      data = data
     )
   )
   jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE)
@@ -69,7 +70,7 @@ test_that("a finished run reports its elapsed time and accuracy", {
   ))
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_true(any(grepl("^Elapsed time: +1m 15s$", record)))
-  expect_true(any(grepl("^Accuracy \\(levels, 4 figures\\): 98%$", record)))
+  expect_true(any(grepl("^Accuracy \\(solution, 4 figures\\): 98%$", record)))
   expect_true(any(grepl("^ +3 +2 +2$", record)))
 })
 
@@ -85,7 +86,7 @@ test_that("the accuracy share is judged on levels figures, judged-zero results c
     call = NULL
   ))
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
-  expect_true(any(grepl("^Accuracy \\(levels, 4 figures\\): 100%$", record)))
+  expect_true(any(grepl("^Accuracy \\(solution, 4 figures\\): 100%$", record)))
   expect_true(any(grepl("^Judged zero: +4478$", record)))
   run_dir <- withr::local_tempdir()
   local_accuracy_stats(
@@ -112,4 +113,63 @@ test_that("a run without an accuracy summary reports nothing", {
   ))
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_false(any(grepl("^-- Run summary --$", record)))
+})
+
+test_that("the accuracy criterion picks the summary judged, and a run without updated data falls back to the solution", {
+  withr::defer(ems_option_reset())
+  ems_option_set(verbose = FALSE)
+  data_file <- function(name, figures, zero) {
+    return(list(name = name, values = sum(figures) + zero, figures = figures, judged_zero = zero))
+  }
+  files <- list(
+    data_file("gtapdata", c(0, 0, 20, 20, 0, 0, 40), 20),
+    data_file("extra", c(0, 0, 0, 0, 0, 0, 20), 0)
+  )
+  data <- list(
+    subintervals = 1L,
+    files = files,
+    all = list(values = 120, figures = c(0, 0, 20, 20, 0, 0, 60), judged_zero = 20)
+  )
+  stats <- function(data) {
+    run_dir <- withr::local_tempdir(.local_envir = parent.frame())
+    local_accuracy_stats(run_dir,
+      linear = c(0, 0, 0, 0, 0, 10, 90),
+      levels = c(0, 0, 0, 0, 0, 10, 90),
+      judged_zero = 0,
+      data = data
+    )
+    return(run_dir)
+  }
+  judge <- function(run_dir) {
+    .inform_diagnostics(elapsed_time = c(0, 0, 1), model_log = "solver log", run_dir = run_dir, call = NULL)
+    record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+    return(grep("^Accuracy \\(", record, value = TRUE))
+  }
+
+  run_dir <- stats(data)
+  expect_no_warning(line <- judge(run_dir))
+  expect_identical(line, "Accuracy (solution, 4 figures): 100%")
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("^Updated data values: 120", record)))
+  expect_true(any(grepl("gtapdata +extra +all files", record)))
+  expect_true(any(grepl("^Data judged zero: +20  0  20$", record)))
+
+  ems_option_set(accuracy_criterion = "data")
+  expect_warning(line <- judge(stats(data)), "of updated data values accurate to at least 4")
+  expect_identical(line, "Accuracy (data, 4 figures): 67%")
+
+  ems_option_set(accuracy_criterion = "both")
+  expect_no_warning(line <- judge(stats(data)))
+  expect_identical(line, "Accuracy (both, 4 figures): 82%")
+
+  ems_option_set(accuracy_criterion = "data", accuracy_figures = 3)
+  expect_no_warning(line <- judge(stats(data)))
+  expect_identical(line, "Accuracy (data, 3 figures): 83%")
+
+  ems_option_set(accuracy_figures = 6, accuracy_threshold = 0.95)
+  run_dir <- stats(NULL)
+  expect_warning(line <- judge(run_dir), "of endogenous results \\(their levels values\\) accurate to at least 6")
+  expect_identical(line, "Accuracy (solution, 6 figures): 90%")
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("^Accuracy criterion: data \\(no updated data; judged on the solution\\)$", record)))
 })

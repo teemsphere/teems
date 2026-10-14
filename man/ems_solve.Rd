@@ -259,15 +259,19 @@ solve on its share of the shock.
 
 \strong{Judging accuracy.} The extrapolating methods solve at three
 step counts, and the agreement between the three solutions gives
-an accuracy summary over the endogenous results. Its measure is
-the share of results whose levels values are accurate to at
-least four significant figures, the criterion GEMPACK calls
-\code{solution}. A percent-change result usually has more accurate
-figures in its levels value than in the percentage itself. A
-warning is given when the share falls below the
-\code{accuracy_threshold} option (default 80\%, see
-\code{\link[=ems_option_set]{ems_option_set()}}), and the full summary is written to
-\code{model_diagnostics.txt} in the run directory. When this happens,
+an accuracy summary over the endogenous results, and another
+over the values read from data files and updated. By default
+the measure is the share of results whose levels values are
+accurate to at least four significant figures, the criterion
+GEMPACK calls \code{solution}. A percent-change result usually has
+more accurate figures in its levels value than in the
+percentage itself. The \code{accuracy_criterion} and
+\code{accuracy_figures} options switch to the updated data or both
+summaries and change the figures required. A warning is given
+when the share falls below the \code{accuracy_threshold} option
+(default 80\%, see \code{\link[=ems_option_set]{ems_option_set()}}), and both summaries are
+written to \code{model_diagnostics.txt} in the run directory. When
+this happens,
 take more steps (for example \code{steps = c(4L, 8L, 16L)}), raise
 \code{n_subintervals}, or switch to adaptive \code{"DoPri54"}, which
 estimates the error of every result (see \code{\link[=ems_RK]{ems_RK()}}). With one

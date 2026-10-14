@@ -187,6 +187,25 @@ test_that("the converge option is validated, stored and reset", {
   expect_false(ems_option_get("converge"))
 })
 
+test_that("the accuracy figures and criterion options are validated, stored and reset", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("accuracy_figures"), 4L)
+  expect_identical(ems_option_get("accuracy_criterion"), "solution")
+  ems_option_set(accuracy_figures = 5, accuracy_criterion = "both")
+  expect_identical(ems_option_get("accuracy_figures"), 5L)
+  expect_identical(ems_option_get()$accuracy_criterion, "both")
+  expect_identical(.o_accuracy_figures(), 5L)
+  expect_identical(.o_accuracy_criterion(), "both")
+  expect_snapshot_error(ems_option_set(accuracy_figures = 7))
+  expect_error(ems_option_set(accuracy_figures = 2.5), "accuracy_figures")
+  expect_error(ems_option_set(accuracy_figures = c(3, 4)), "accuracy_figures")
+  expect_snapshot_error(ems_option_set(accuracy_criterion = "levels"))
+  expect_error(ems_option_set(accuracy_criterion = c("data", "both")), "accuracy_criterion")
+  ems_option_reset()
+  expect_identical(ems_option_get("accuracy_figures"), 4L)
+  expect_identical(ems_option_get("accuracy_criterion"), "solution")
+})
+
 test_that("ems_option_reset restores default docker_tag", {
   ems_option_set(docker_tag = "v1.0")
   ems_option_reset()

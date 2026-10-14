@@ -27,9 +27,30 @@
   levels <- as.numeric(acc$levels$figures)
   judged_zero <- as.numeric(acc$linear$judged_zero)
   summarised <- as.numeric(acc$summarised)
+  data_acc <- acc$data
+  has_data <- isTRUE(as.numeric(data_acc$all$values) > 0)
 
-  accurate_4 <- if (summarised > 0) sum(levels[5:7]) / summarised else 1
-  accuracy <- sprintf("%.0f%%", accurate_4 * 100)
+  figures <- .o_accuracy_figures()
+  criterion <- .o_accuracy_criterion()
+  judged <- if (!has_data) "solution" else criterion
+  above <- seq.int(figures + 1L, 7L)
+  solution_count <- c(sum(levels[above]), summarised)
+  data_count <- if (has_data) {
+    c(
+      sum(as.numeric(data_acc$all$figures)[above]) + as.numeric(data_acc$all$judged_zero),
+      as.numeric(data_acc$all$values)
+    )
+  } else {
+    c(0, 0)
+  }
+  counted <- switch(judged,
+    solution = solution_count,
+    data = data_count,
+    both = solution_count + data_count
+  )
+  accurate_share <- if (counted[2] > 0) counted[1] / counted[2] else 1
+  accuracy <- sprintf("%.0f%%", accurate_share * 100)
+  covers <- solve_info$accuracy_covers[[judged]]
   a_threshold <- .o_accuracy_threshold()
   elapsed_time_raw <- elapsed_time[[3]]
 
@@ -47,7 +68,7 @@
     action = "inform"
   )
 
-  below_threshold <- round(accurate_4, 2) < a_threshold
+  below_threshold <- round(accurate_share, 2) < a_threshold
   a_threshold_fmt <- sprintf("%.0f%%", a_threshold * 100)
 
   if (below_threshold) {
@@ -62,11 +83,13 @@
     )
   }
 
+  criterion_note <- if (judged %=% criterion) criterion else sprintf("%s (no updated data; judged on the solution)", criterion)
   figures_table <- sprintf("%7d  %7.0f  %13.0f", 6:0, rev(linear), rev(levels))
   cat(
     "\n-- Run summary --\n\n",
     sprintf("Elapsed time:       %s\n", elapsed_time_fmt),
-    sprintf("Accuracy (levels, 4 figures): %s\n", accuracy),
+    sprintf("Accuracy (%s, %d figures): %s\n", judged, figures, accuracy),
+    sprintf("Accuracy criterion: %s\n", criterion_note),
     sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
     sprintf("Results summarised: %.0f (endogenous and backsolved)\n", summarised),
     sprintf("Subintervals:       %.0f\n", as.numeric(acc$subintervals)),
@@ -75,6 +98,29 @@
     sprintf("Judged zero:        %.0f\n", judged_zero),
     append = TRUE, file = diagnostic_file, sep = ""
   )
+  if (has_data) {
+    data_files <- data_acc$files
+    file_figures <- data_files$figures
+    data_cols <- lapply(seq_len(nrow(data_files)), \(i) {
+      row <- if (is.matrix(file_figures)) file_figures[i, ] else file_figures[[i]]
+      as.numeric(row)
+    })
+    names(data_cols) <- data_files$name
+    if (length(data_cols) > 1L) {
+      data_cols[["all files"]] <- as.numeric(data_acc$all$figures)
+    }
+    data_zero <- c(as.numeric(data_files$judged_zero), if (length(data_cols) > nrow(data_files)) as.numeric(data_acc$all$judged_zero))
+    data_rows <- vapply(7:1, \(k) {
+      paste(c(sprintf("%7d", k - 1L), sprintf("%12.0f", vapply(data_cols, `[`, numeric(1), k))), collapse = "  ")
+    }, character(1))
+    cat(
+      sprintf("\nUpdated data values: %.0f (read from data files and updated)\n", as.numeric(data_acc$all$values)),
+      paste(c("figures", sprintf("%12s", names(data_cols))), collapse = "  "), "\n",
+      paste0(data_rows, "\n"),
+      sprintf("Data judged zero:   %s\n", paste(sprintf("%.0f", data_zero), collapse = "  ")),
+      append = TRUE, file = diagnostic_file, sep = ""
+    )
+  }
 
   return(invisible(NULL))
 }

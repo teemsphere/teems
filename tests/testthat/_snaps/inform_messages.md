@@ -25,5 +25,5 @@
       run_dir = run_dir, call = NULL)
     Message
       i Elapsed time: 1m 15s
-      i 98% of endogenous results accurate to at least 4 significant figures in their levels values.
+      i 98% of endogenous results (their levels values) accurate to at least 4 significant figures.
 

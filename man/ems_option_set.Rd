@@ -9,6 +9,8 @@ ems_option_set(
   verbose = NULL,
   ndigits = NULL,
   accuracy_threshold = NULL,
+  accuracy_figures = NULL,
+  accuracy_criterion = NULL,
   full_exclude = NULL,
   check_shock_status = NULL,
   timestep_header = NULL,
@@ -38,9 +40,22 @@ magnitude keep \code{ndigits} significant digits instead, so
 small nonzero data are never rounded to zero.}
 
 \item{accuracy_threshold}{Numeric length 1 (default \code{0.8}).
-The share of endogenous results whose levels values must be
-accurate to at least four significant figures; a warning is
-generated if the share is lower.}
+The share of results that must be accurate to at least
+\code{accuracy_figures} significant figures under
+\code{accuracy_criterion}; a warning is generated if the share is
+lower.}
+
+\item{accuracy_figures}{Integer length 1 from 1 to 6 (default
+\code{4}). The significant figures a result must reach to count as
+accurate.}
+
+\item{accuracy_criterion}{Character length 1 (default
+\code{"solution"}). Which accuracy summary is judged: \code{"solution"}
+the levels values of the endogenous results, \code{"data"} the
+values read from data files and updated, \code{"both"} the two
+together. The criteria of GEMPACK's automatic accuracy (GEMPACK
+manual 26.4), whose default is \code{"data"}. A run that updates no
+data is judged on the solution under \code{"data"} and \code{"both"}.}
 
 \item{full_exclude}{A character vector of variable length
 (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers to fully exclude from all aspects

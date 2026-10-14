@@ -15,9 +15,20 @@
 #'   magnitude keep `ndigits` significant digits instead, so
 #'   small nonzero data are never rounded to zero.
 #' @param accuracy_threshold Numeric length 1 (default `0.8`).
-#'   The share of endogenous results whose levels values must be
-#'   accurate to at least four significant figures; a warning is
-#'   generated if the share is lower.
+#'   The share of results that must be accurate to at least
+#'   `accuracy_figures` significant figures under
+#'   `accuracy_criterion`; a warning is generated if the share is
+#'   lower.
+#' @param accuracy_figures Integer length 1 from 1 to 6 (default
+#'   `4`). The significant figures a result must reach to count as
+#'   accurate.
+#' @param accuracy_criterion Character length 1 (default
+#'   `"solution"`). Which accuracy summary is judged: `"solution"`
+#'   the levels values of the endogenous results, `"data"` the
+#'   values read from data files and updated, `"both"` the two
+#'   together. The criteria of GEMPACK's automatic accuracy (GEMPACK
+#'   manual 26.4), whose default is `"data"`. A run that updates no
+#'   data is judged on the solution under `"data"` and `"both"`.
 #' @param full_exclude A character vector of variable length
 #'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
 #'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
@@ -86,6 +97,8 @@ ems_option_set <- function(tempdir = NULL,
                            verbose = NULL,
                            ndigits = NULL,
                            accuracy_threshold = NULL,
+                           accuracy_figures = NULL,
+                           accuracy_criterion = NULL,
                            full_exclude = NULL,
                            check_shock_status = NULL,
                            timestep_header = NULL,
@@ -109,6 +122,12 @@ ems_option_set <- function(tempdir = NULL,
   }
   if (!is.null(accuracy_threshold)) {
     ems_options$set_accuracy_threshold(accuracy_threshold, call = call)
+  }
+  if (!is.null(accuracy_figures)) {
+    ems_options$set_accuracy_figures(accuracy_figures, call = call)
+  }
+  if (!is.null(accuracy_criterion)) {
+    ems_options$set_accuracy_criterion(accuracy_criterion, call = call)
   }
   if (!is.null(full_exclude)) {
     ems_options$set_full_exclude(full_exclude, call = call)
@@ -163,9 +182,12 @@ ems_option_set <- function(tempdir = NULL,
 #'   * `"ndigits"` Integer. Number of digits to the right of
 #'     the decimal point written to file for numeric type double
 #'     (at least `ndigits` significant digits for small values).
-#'   * `"accuracy_threshold"` Numeric. Share of endogenous
-#'     results whose levels values must be accurate to at least
-#'     four significant figures.
+#'   * `"accuracy_threshold"` Numeric. Share of results that must
+#'     be accurate to at least `accuracy_figures` figures.
+#'   * `"accuracy_figures"` Integer. Significant figures a result
+#'     must reach to count as accurate (the default is `4`).
+#'   * `"accuracy_criterion"` Character. `"solution"` (the
+#'     default), `"data"` or `"both"`: the accuracy summary judged.
 #'   * `"full_exclude"` Character vector. Headers to
 #'     fully exclude from all aspects of the model run.
 #'   * `"check_shock_status"` Logical. If `FALSE`, no
@@ -218,6 +240,8 @@ ems_option_get <- function(name = NULL) {
          verbose            = ems_options$get_verbose(),
          ndigits            = ems_options$get_ndigits(),
          accuracy_threshold = ems_options$get_accuracy_threshold(),
+         accuracy_figures   = ems_options$get_accuracy_figures(),
+         accuracy_criterion = ems_options$get_accuracy_criterion(),
          full_exclude       = ems_options$get_full_exclude(),
          check_shock_status = ems_options$get_check_shock_status(),
          timestep_header    = ems_options$get_timestep_header(),

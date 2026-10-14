@@ -28,6 +28,20 @@
 
 #' @noRd
 #' @keywords internal
+.o_accuracy_figures <- function() {
+  accuracy_figures <- ems_option_get("accuracy_figures")
+  return(accuracy_figures)
+}
+
+#' @noRd
+#' @keywords internal
+.o_accuracy_criterion <- function() {
+  accuracy_criterion <- ems_option_get("accuracy_criterion")
+  return(accuracy_criterion)
+}
+
+#' @noRd
+#' @keywords internal
 .o_check_shock_status <- function() {
   shock_status <- ems_option_get("check_shock_status")
   return(shock_status)

@@ -26,6 +26,10 @@ build_gen_err <- function() {
     opt_random_seed = "{.arg random_seed} must be a single whole number from 0 to 2147483647.",
     # test-ems_options.R: "ems_option_set rejects invalid values"
     opt_accuracy_threshold = "{.arg accuracy_threshold} must be a numeric between 0 and 1.",
+    # test-ems_options.R: "the accuracy figures and criterion options are validated, stored and reset"
+    opt_accuracy_figures = "{.arg accuracy_figures} must be a single whole number from 1 to 6.",
+    # test-ems_options.R: "the accuracy figures and criterion options are validated, stored and reset"
+    opt_accuracy_criterion = "{.arg accuracy_criterion} must be one of {.val solution}, {.val data} or {.val both}.",
     # test-ems_options.R: "ems_option_set rejects invalid values"
     opt_check_shock_status = "{.arg check_shock_status} must be TRUE or FALSE.",
     # test-ems_options.R: "ems_option_set rejects invalid values"

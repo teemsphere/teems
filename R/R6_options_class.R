@@ -13,6 +13,8 @@ options_class <- R6::R6Class(
     verbose = NULL,
     ndigits = NULL,
     accuracy_threshold = NULL,
+    accuracy_figures = NULL,
+    accuracy_criterion = NULL,
     full_exclude = NULL,
     check_shock_status = NULL,
     timestep_header = NULL,
@@ -29,6 +31,8 @@ options_class <- R6::R6Class(
                           verbose = NULL,
                           ndigits = NULL,
                           accuracy_threshold = NULL,
+                          accuracy_figures = NULL,
+                          accuracy_criterion = NULL,
                           full_exclude = NULL,
                           check_shock_status = NULL,
                           timestep_header = NULL,
@@ -44,6 +48,8 @@ options_class <- R6::R6Class(
       self$verbose <- verbose
       self$ndigits <- ndigits
       self$accuracy_threshold <- accuracy_threshold
+      self$accuracy_figures <- accuracy_figures
+      self$accuracy_criterion <- accuracy_criterion
       self$full_exclude <- full_exclude
       self$check_shock_status <- check_shock_status
       self$timestep_header <- timestep_header
@@ -63,6 +69,8 @@ options_class <- R6::R6Class(
         verbose = self$get_verbose(),
         ndigits = self$get_ndigits(),
         accuracy_threshold = self$get_accuracy_threshold(),
+        accuracy_figures = self$get_accuracy_figures(),
+        accuracy_criterion = self$get_accuracy_criterion(),
         full_exclude = self$get_full_exclude(),
         check_shock_status = self$get_check_shock_status(),
         timestep_header = self$get_timestep_header(),
@@ -82,6 +90,8 @@ options_class <- R6::R6Class(
       self$set_verbose(list$verbose)
       self$set_ndigits(list$ndigits)
       self$set_accuracy_threshold(list$accuracy_threshold)
+      self$set_accuracy_figures(list$accuracy_figures)
+      self$set_accuracy_criterion(list$accuracy_criterion)
       self$set_full_exclude(list$full_exclude)
       self$set_check_shock_status(list$check_shock_status)
       self$set_timestep_header(list$timestep_header)
@@ -100,6 +110,8 @@ options_class <- R6::R6Class(
       self$verbose <- NULL
       self$ndigits <- NULL
       self$accuracy_threshold <- NULL
+      self$accuracy_figures <- NULL
+      self$accuracy_criterion <- NULL
       self$full_exclude <- NULL
       self$check_shock_status <- NULL
       self$timestep_header <- NULL
@@ -131,6 +143,14 @@ options_class <- R6::R6Class(
 
     get_accuracy_threshold = function() {
       self$accuracy_threshold %|||% 0.8
+    },
+
+    get_accuracy_figures = function() {
+      self$accuracy_figures %|||% 4L
+    },
+
+    get_accuracy_criterion = function() {
+      self$accuracy_criterion %|||% "solution"
     },
 
     get_check_shock_status = function() {
@@ -196,6 +216,21 @@ options_class <- R6::R6Class(
     set_accuracy_threshold = function(accuracy_threshold, call = rlang::caller_env()) {
       self$validate_accuracy_threshold(accuracy_threshold, call = call)
       self$accuracy_threshold <- accuracy_threshold
+    },
+
+    set_accuracy_figures = function(accuracy_figures, call = rlang::caller_env()) {
+      if (!is.null(accuracy_figures)) {
+        self$validate_accuracy_figures(accuracy_figures, call = call)
+        accuracy_figures <- as.integer(accuracy_figures)
+      }
+      self$accuracy_figures <- accuracy_figures
+    },
+
+    set_accuracy_criterion = function(accuracy_criterion, call = rlang::caller_env()) {
+      if (!is.null(accuracy_criterion)) {
+        self$validate_accuracy_criterion(accuracy_criterion, call = call)
+      }
+      self$accuracy_criterion <- accuracy_criterion
     },
 
     set_check_shock_status = function(check_shock_status, call = rlang::caller_env()) {
@@ -279,6 +314,20 @@ options_class <- R6::R6Class(
       }
     },
 
+    validate_accuracy_figures = function(accuracy_figures, call = rlang::caller_env()) {
+      if (!rlang::is_integerish(accuracy_figures, n = 1L, finite = TRUE) ||
+        accuracy_figures < 1 || accuracy_figures > 6) {
+        cli::cli_abort(gen_err$opt_accuracy_figures, call = call)
+      }
+    },
+
+    validate_accuracy_criterion = function(accuracy_criterion, call = rlang::caller_env()) {
+      if (!is.character(accuracy_criterion) || length(accuracy_criterion) != 1L ||
+        !accuracy_criterion %in% c("solution", "data", "both")) {
+        cli::cli_abort(gen_err$opt_accuracy_criterion, call = call)
+      }
+    },
+
     validate_check_shock_status = function(check_shock_status, call = rlang::caller_env()) {
       if (!is.logical(check_shock_status) || length(check_shock_status) != 1 || is.na(check_shock_status)) {
         cli::cli_abort(gen_err$opt_check_shock_status, call = call)
@@ -347,6 +396,8 @@ options_class <- R6::R6Class(
       self$validate_tempdir(self$get_tempdir())
       self$validate_ndigits(self$get_ndigits())
       self$validate_accuracy_threshold(self$get_accuracy_threshold())
+      self$validate_accuracy_figures(self$get_accuracy_figures())
+      self$validate_accuracy_criterion(self$get_accuracy_criterion())
       self$validate_check_shock_status(self$get_check_shock_status())
       self$validate_timestep_header(self$get_timestep_header())
       self$validate_n_timestep_header(self$get_n_timestep_header())

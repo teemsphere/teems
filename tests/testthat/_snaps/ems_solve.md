@@ -119,8 +119,8 @@
 
 # ems_solve warns when poor accuracy
 
-    ! Only 32% of endogenous results accurate to at least 4 significant figures in their levels values, below the 80% threshold.
-    i Adjust with `accuracy_threshold` in `teems::ems_option_set()`.
+    ! Only 32% of endogenous results (their levels values) accurate to at least 4 significant figures, below the 80% threshold.
+    i Adjust with `accuracy_threshold`, `accuracy_figures` or `accuracy_criterion` in `teems::ems_option_set()`.
 
 # ems_solve informs terminal run
 

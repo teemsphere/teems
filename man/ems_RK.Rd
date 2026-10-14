@@ -84,35 +84,36 @@ for static models partitioned by their regional set.
 \item \code{"SBBD"}: Singly bordered block diagonal, parallel solution
 for intertemporal models partitioned along the time chain.
 \item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
-intertemporal models whose \code{"SBBD"} host copy does not fit the
-memory available.
-\code{\link[=ems_probe]{ems_probe()}} (experimental) suggests the method and the
-tasks and threads to run it with for a deployment and a machine,
-and prints the call to paste (see Details).
+intertemporal models whose \code{"SBBD"} host copy does not fit
+the memory available. \code{\link[=ems_probe]{ems_probe()}} (experimental)
+suggests the method and the tasks and threads to run it with
+for a deployment and a machine, and prints the call to paste
+(see Details).
 }}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
 == "LU".}
 
-\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP threads
-per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give byte-identical
-results at any thread count; \code{"DBBD"} with more than one thread
-agrees only to rounding (see the
-\href{https://teemsphere.github.io/solve.html}{solving} chapter
-of the user manual).}
+\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP
+threads per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give
+byte-identical results at any thread count; \code{"DBBD"} with
+more than one thread agrees only to rounding (see the
+\href{https://teemsphere.github.io/solve.html}{solving}
+chapter of the user manual).}
 
 \item{precision}{Character length 1, \code{"single"} (default) or
-\code{"double"}: floating-point precision of the solver's coefficient
-storage. \code{"single"} halves memory traffic and suffices for
-ordinary step counts. \code{"double"} selects the double-precision
-solver binary shipped in the same image, removing the
-single-precision update-rounding floor that deep extrapolation
-ladders and many-step large-shock runs otherwise converge onto
-(per-pass rounding accumulates with step count, so beyond the
-floor extra steps stop helping). Roughly doubles
-coefficient-array memory. The effective precision is recorded in
-\code{sol.stats.json} and the model diagnostics solve record.}
+\code{"double"}: floating-point precision of the solver's
+coefficient storage. \code{"single"} halves memory traffic and
+suffices for ordinary step counts. \code{"double"} selects the
+double-precision solver binary shipped in the same image,
+removing the single-precision update-rounding floor that
+deep extrapolation ladders and many-step large-shock runs
+otherwise converge onto (per-pass rounding accumulates with
+step count, so beyond the floor extra steps stop helping).
+Roughly doubles coefficient-array memory. The effective
+precision is recorded in \code{sol.stats.json} and the model
+diagnostics solve record.}
 
 \item{n_subintervals}{Integer length 1 (default is \code{1L}),
 number of subintervals for the applied shock. More
@@ -123,9 +124,9 @@ and accurate run; the Runge-Kutta methods take subintervals
 only there.}
 
 \item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
-Solver log detail: \code{0} restricts output to errors, warnings, and
-the accuracy summary; \code{1} adds phase progress and timings;
-\code{2} adds per-rank and per-block debug detail.}
+Solver log detail: \code{0} restricts output to errors, warnings,
+and the accuracy summary; \code{1} adds phase progress and
+timings; \code{2} adds per-rank and per-block debug detail.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
@@ -138,20 +139,21 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{accuracy_vars}{Character vector of variable names (default
-\code{NULL}). When given, the accuracy summary of a three-solution
-\code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run covers just these
-variables, exogenous ones included, instead of every endogenous
-result (GEMPACK's \code{XAC-retained}, GEMPACK manual 26.2.6). Under
-the \code{"solution"} and \code{"both"} accuracy criteria (see
-\code{\link[=ems_option_set]{ems_option_set()}}) the warning then judges only them, so a run
-can be held to the results it is about.}
+\item{accuracy_vars}{Character vector of variable names
+(default \code{NULL}). When given, the accuracy summary of a
+three-solution \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run
+covers just these variables, exogenous ones included,
+instead of every endogenous result. Under the \code{"solution"}
+and \code{"both"} accuracy criteria (see \code{\link[=ems_option_set]{ems_option_set()}})
+the warning then judges only them, so a run can be held to
+the results it is about.}
 
-\item{complementarity}{A \code{teems_complementarity} object built by
-\code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
-models with active \code{Complementarity} statements (see GEMPACK manual
-ch. 51). \code{NULL} applies the solver defaults; ignored by the
-solver when the model has no active complementarity component.}
+\item{complementarity}{A \code{teems_complementarity} object built
+by \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run
+controls for models with active \code{Complementarity} statements
+(see GEMPACK manual ch. 51). \code{NULL} applies the solver
+defaults; ignored by the solver when the model has no active
+complementarity component.}
 
 \item{max_retries}{Integer length 1 (default \code{3L}). How many
 times a step that fails a step check is retried shorter
@@ -165,12 +167,12 @@ are combined in. \code{"log"} (default) carries each
 percentage-change variable as the logarithm of its level
 ratio, so levels stay positive whatever the step and no
 percentage-change variable can reach \verb{-100\%}; the methods
-keep their order (Munthe-Kaas 1999). \code{"percent"} combines the
-stages in percentage changes from the initial level.}
+keep their order (Munthe-Kaas 1999). \code{"percent"} combines
+the stages in percentage changes from the initial level.}
 
-\item{error_norm}{Character length 1. Whether the worst element
-(\code{"max"}, default) or the root mean square over elements
-(\code{"rms"}) is compared with \code{eps_tolerance}.}
+\item{error_norm}{Character length 1. Whether the worst
+element (\code{"max"}, default) or the root mean square over
+elements (\code{"rms"}) is compared with \code{eps_tolerance}.}
 
 \item{controller}{Character length 1, the step-size rule:
 \code{"std"} (default), or \code{"pi"}, which also weighs the previous
@@ -179,11 +181,11 @@ paths.}
 
 \item{scope}{Character length 1, which elements the accept
 test looks at: \code{"pct"} (default), the percentage-change
-variables, whose error estimate is dimensionless; or \code{"all"},
-which adds the ordinary-change variables. Their estimate is
-in their own units, so an accumulator in dollars can reject
-every step early in the path. \code{error_estimate} is reported
-for every element either way.}
+variables, whose error estimate is dimensionless; or
+\code{"all"}, which adds the ordinary-change variables. Their
+estimate is in their own units, so an accumulator in dollars
+can reject every step early in the path. \code{error_estimate} is
+reported for every element either way.}
 
 \item{h_init}{Numeric length 1 in (0, \code{1/steps}] (default
 \code{NULL}, which is \code{1/steps}), the first step length. Under
@@ -191,11 +193,11 @@ adaptive control the first step is also capped from the
 initial gradient.}
 
 \item{guard}{Numeric length 1 greater than 1 (default \code{NULL},
-no guard), \code{chart = "log"} only: the level ratio beyond which
-a stage is rejected and the step retried.}
+no guard), \code{chart = "log"} only: the level ratio beyond
+which a stage is rejected and the step retried.}
 
-\item{...}{Named extras, as \code{...} of \code{\link[=ems_solve]{ems_solve()}}: the
-MA48 workspace guesses (\code{laA}, \code{laD}, \code{laDi}) and the expert
+\item{...}{Named extras, as \code{...} of \code{\link[=ems_solve]{ems_solve()}}: the MA48
+workspace guesses (\code{laA}, \code{laD}, \code{laDi}) and the expert
 solver flags. The Runge-Kutta controls are formal arguments
 here, so their \verb{rk_*} names are refused.}
 }

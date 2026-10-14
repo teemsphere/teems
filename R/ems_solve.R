@@ -11,26 +11,22 @@
 #'   is `"Gragg"` with `steps = c(2L, 4L, 6L)`. Choices:
 #'   * `"Gragg"`: Gragg's method (the smoothed modified midpoint
 #'   method; Pearson 1991). The shock is applied over a sequence
-#'   of linearized steps — a Euler first step, midpoint
-#'   "leapfrog" steps, and a terminal smoothing pass — and the
-#'   sequence is repeated for each of the three step counts in
-#'   `steps`. The three solutions are then combined by Richardson
+#'   of linearized steps (a Euler first step, midpoint "leapfrog"
+#'   steps, and a terminal smoothing pass) and the sequence is
+#'   repeated for each of the three step counts in `steps`. The
+#'   three solutions are then combined by Richardson
 #'   extrapolation, giving rapid error decay as steps increase
 #'   plus an accuracy estimate from the agreement between levels.
-#'   See also:
-#'   \href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
-#'   solution methods}
 #'   * `"Johansen"`: The one-step Johansen method is fast however it
-#'   should only be used as a rough approximation due to handling of
-#'   nonlinear equations. See:
-#'   \href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
+#'   should only be used as a rough approximation due to handling
+#'   of nonlinear equations.
 #'   * `"Euler"`: The forward Euler method, computed for each of
 #'   the three step counts in `steps` and combined by Richardson
 #'   extrapolation. Converges more slowly than `"Gragg"` (its
 #'   truncation error shrinks linearly in the step size, so the
-#'   extrapolated accuracy gains one order per solution instead of
-#'   two) but it is the most robust of the multistep methods: each
-#'   step uses only the current state, so it tolerates
+#'   extrapolated accuracy gains one order per solution instead
+#'   of two) but it is the most robust of the multistep methods:
+#'   each step uses only the current state, so it tolerates
 #'   near-asymptote levels and severe shocks — including exact
 #'   `-100%` shocks — where the midpoint family can become
 #'   unstable. Any strictly increasing step counts are permitted.
@@ -39,13 +35,13 @@
 #'   by Richardson extrapolation over `steps` like `"Gragg"`. It
 #'   never takes the exogenous variables past their end point, so
 #'   it suits shocks of exactly `-100%`, which Gragg's final pass
-#'   cannot take (GEMPACK manual 30.2).
+#'   cannot take.
 #'   * `"RK2"`, `"Heun"`, `"RK4"`: Explicit Runge-Kutta methods (the
 #'   midpoint rule, the explicit trapezoid rule and the classic
-#'   fourth-order method; Schiffmann 2022). A single solution
-#'   is computed with the one step count in `steps` — no Richardson
-#'   extrapolation — with each step built from 2 (`"RK2"`, `"Heun"`)
-#'   or 4 (`"RK4"`) staged linear solves. `"RK4"`
+#'   fourth-order method; Schiffmann 2022). A single solution is
+#'   computed with the one step count in `steps` — no Richardson
+#'   extrapolation — with each step built from 2 (`"RK2"`,
+#'   `"Heun"`) or 4 (`"RK4"`) staged linear solves. `"RK4"`
 #'   reaches a given accuracy in far fewer steps than the
 #'   extrapolating methods.
 #'   * `"BoSha32"`, `"DoPri54"`: Embedded Runge-Kutta pairs
@@ -67,11 +63,11 @@
 #'   * `"SBBD"`: Singly bordered block diagonal, parallel solution
 #'   for intertemporal models partitioned along the time chain.
 #'   * `"NDBBD"`: Nested doubly bordered block diagonal, for
-#'   intertemporal models whose `"SBBD"` host copy does not fit the
-#'   memory available.
-#'   [`ems_probe()`] (experimental) suggests the method and the
-#'   tasks and threads to run it with for a deployment and a machine,
-#'   and prints the call to paste (see Details).
+#'   intertemporal models whose `"SBBD"` host copy does not fit
+#'   the memory available. [`ems_probe()`] (experimental)
+#'   suggests the method and the tasks and threads to run it with
+#'   for a deployment and a machine, and prints the call to paste
+#'   (see Details).
 #' @param n_subintervals Integer length 1 (default is `1L`),
 #'   number of subintervals for the applied shock. More
 #'   subintervals may alleviate accuracy issues stemming from
@@ -81,44 +77,43 @@
 #'   only there.
 #' @param steps Integer (default is `NULL`, resolved per method:
 #'   `c(2L, 4L, 6L)` for the extrapolating methods, `4L` for the
-#'   Runge-Kutta methods). `"Gragg"`, `"Midpoint"`, `"Johansen"` and
-#'   `"Euler"` take a vector of length 3: the three counts must
-#'   increase for `"Gragg"`, `"Midpoint"` and `"Euler"`, and must be
-#'   all even or all odd for `"Gragg"` and `"Midpoint"` (even counts
-#'   are recommended). `"Gragg"`, `"Midpoint"` and `"Euler"` also
-#'   take a single count, a single multi-step run
-#'   without Richardson extrapolation (GEMPACK's single Euler
-#'   N-step run, as used by recursive-dynamic models), or two
-#'   increasing counts, extrapolated from two solutions (GEMPACK's
-#'   `steps = 2 4;`); no extrapolation accuracy estimate is then
-#'   available.
-#'   `"RK2"`, `"Heun"`, `"RK4"`, `"BoSha32"` and `"DoPri54"` take a
-#'   single count of 1 or more. A larger number of steps may
-#'   improve accuracy for some model runs.
+#'   Runge-Kutta methods). `"Gragg"`, `"Midpoint"`, `"Johansen"`
+#'   and `"Euler"` take a vector of length 3: the three counts
+#'   must increase for `"Gragg"`, `"Midpoint"` and `"Euler"`, and
+#'   must be all even or all odd for `"Gragg"` and `"Midpoint"`
+#'   (even counts are recommended). `"Gragg"`, `"Midpoint"` and
+#'   `"Euler"` also take a single count, a single multi-step run
+#'   without Richardson extrapolation, or two increasing counts,
+#'   extrapolated from two solutions; no extrapolation accuracy
+#'   estimate is then available. `"RK2"`, `"Heun"`, `"RK4"`,
+#'   `"BoSha32"` and `"DoPri54"` take a single count of 1 or
+#'   more. A larger number of steps may improve accuracy for some
+#'   model runs.
 #' @param n_tasks Integer length 1 (default is `1L`), number of
 #'   tasks to run in parallel. Must be `1L` if `"matrix_method"`
 #'   == "LU".
-#' @param n_threads Integer length 1 (default `1L`), OpenMP threads
-#'   per MPI task. `"LU"`, `"SBBD"` and `"NDBBD"` give byte-identical
-#'   results at any thread count; `"DBBD"` with more than one thread
-#'   agrees only to rounding (see the
-#'   \href{https://teemsphere.github.io/solve.html}{solving} chapter
-#'   of the user manual).
+#' @param n_threads Integer length 1 (default `1L`), OpenMP
+#'   threads per MPI task. `"LU"`, `"SBBD"` and `"NDBBD"` give
+#'   byte-identical results at any thread count; `"DBBD"` with
+#'   more than one thread agrees only to rounding (see the
+#'   \href{https://teemsphere.github.io/solve.html}{solving}
+#'   chapter of the user manual).
 #' @param precision Character length 1, `"single"` (default) or
-#'   `"double"`: floating-point precision of the solver's coefficient
-#'   storage. `"single"` halves memory traffic and suffices for
-#'   ordinary step counts. `"double"` selects the double-precision
-#'   solver binary shipped in the same image, removing the
-#'   single-precision update-rounding floor that deep extrapolation
-#'   ladders and many-step large-shock runs otherwise converge onto
-#'   (per-pass rounding accumulates with step count, so beyond the
-#'   floor extra steps stop helping). Roughly doubles
-#'   coefficient-array memory. The effective precision is recorded in
-#'   `sol.stats.json` and the model diagnostics solve record.
+#'   `"double"`: floating-point precision of the solver's
+#'   coefficient storage. `"single"` halves memory traffic and
+#'   suffices for ordinary step counts. `"double"` selects the
+#'   double-precision solver binary shipped in the same image,
+#'   removing the single-precision update-rounding floor that
+#'   deep extrapolation ladders and many-step large-shock runs
+#'   otherwise converge onto (per-pass rounding accumulates with
+#'   step count, so beyond the floor extra steps stop helping).
+#'   Roughly doubles coefficient-array memory. The effective
+#'   precision is recorded in `sol.stats.json` and the model
+#'   diagnostics solve record.
 #' @param verbosity Integer length 1, `0`, `1` (default) or `2`.
-#'   Solver log detail: `0` restricts output to errors, warnings, and
-#'   the accuracy summary; `1` adds phase progress and timings;
-#'   `2` adds per-rank and per-block debug detail.
+#'   Solver log detail: `0` restricts output to errors, warnings,
+#'   and the accuracy summary; `1` adds phase progress and
+#'   timings; `2` adds per-rank and per-block debug detail.
 #' @param suppress_outputs Logical length 1 (default is `FALSE`).
 #'   When `TRUE` solver outputs are not automatically converted
 #'   into structured data with [`ems_compose()`].
@@ -128,166 +123,168 @@
 #'   programs prior to running from the terminal. When `TRUE`
 #'   solver outputs are not automatically converted into
 #'   structured data with [`ems_compose()`].
-#' @param complementarity A `teems_complementarity` object built by
-#'   [`ems_complementarity()`] (default is `NULL`), run controls for
-#'   models with active `Complementarity` statements (see GEMPACK manual
-#'   ch. 51). `NULL` applies the solver defaults; ignored by the
-#'   solver when the model has no active complementarity component.
-#' @param accuracy_vars Character vector of variable names (default
-#'   `NULL`). When given, the accuracy summary of a three-solution
-#'   `"Gragg"`, `"Midpoint"` or `"Euler"` run covers just these
-#'   variables, exogenous ones included, instead of every endogenous
-#'   result (GEMPACK's `XAC-retained`, GEMPACK manual 26.2.6). Under
-#'   the `"solution"` and `"both"` accuracy criteria (see
-#'   [`ems_option_set()`]) the warning then judges only them, so a run
-#'   can be held to the results it is about.
-#' @param ... Additional named solver arguments; anything else is an
-#'   error, never a silently ignored flag. Effective values of recorded
-#'   flags land in `sol.stats.json` regardless of how they were passed.
-#'   Three groups are accepted:
+#' @param complementarity A `teems_complementarity` object built
+#'   by [`ems_complementarity()`] (default is `NULL`), run
+#'   controls for models with active `Complementarity` statements
+#'   (see GEMPACK manual ch. 51). `NULL` applies the solver
+#'   defaults; ignored by the solver when the model has no active
+#'   complementarity component.
+#' @param accuracy_vars Character vector of variable names
+#'   (default `NULL`). When given, the accuracy summary of a
+#'   three-solution `"Gragg"`, `"Midpoint"` or `"Euler"` run
+#'   covers just these variables, exogenous ones included,
+#'   instead of every endogenous result. Under the `"solution"`
+#'   and `"both"` accuracy criteria (see [`ems_option_set()`])
+#'   the warning then judges only them, so a run can be held to
+#'   the results it is about.
+#' @param ... Additional named solver arguments; anything else is
+#'   an error, never a silently ignored flag. Effective values of
+#'   recorded flags land in `sol.stats.json` regardless of how
+#'   they were passed. Three groups are accepted:
 #'
 #'   **Expert solver flags**, with the solver default applied when a
 #'   flag is absent:
 #'   * `postsim` (logical, default `TRUE`): `FALSE` skips the TAB's
-#'     `PostSim` sections.
+#'   `PostSim` sections.
 #'   * `inmemory` (logical, default `TRUE` except for `"NDBBD"`): keep
-#'     value arrays and block factors resident in memory rather than in
-#'     scratch files. The solver falls back to scratch with a warning
-#'     when the estimated need exceeds the memory available.
+#'   value arrays and block factors resident in memory rather
+#'   than in scratch files. The solver falls back to scratch with
+#'   a warning when the estimated need exceeds the memory
+#'   available.
 #'   * `fastrefac` (logical, default `FALSE`): persistent-pivot
-#'     refactorization; under `"DBBD"` it helps only small systems,
-#'     whose block orderings repeat from step to step.
+#'   refactorization; under `"DBBD"` it helps only small systems,
+#'   whose block orderings repeat from step to step.
 #'   * `ma48_cntl2` (numeric in (0, 1], default each library's own:
-#'     MA48 0.1, HSL_MP48 0.01): MA48/HSL_MP48 pivot threshold
-#'     `CNTL(2)`, at every factorization including the
-#'     `"DBBD"`/`"NDBBD"` rank probes, so it can also move their block
-#'     sizes; a calibration knob, not a tuning recommendation.
+#'   MA48 0.1, HSL_MP48 0.01): MA48/HSL_MP48 pivot threshold
+#'   `CNTL(2)`, at every factorization including the
+#'   `"DBBD"`/`"NDBBD"` rank probes, so it can also move their
+#'   block sizes; a calibration knob, not a tuning
+#'   recommendation.
 #'   * `ma48_cntl4` (numeric >= 0, default `1e-4`): MA48 `CNTL(4)` in
-#'     the MA48/MA51 rank probes that size the `"DBBD"`/`"NDBBD"`
-#'     blocks; pivots below it count as zero (`0` = MA48's own
-#'     default, exact zeros only). A calibration knob, not a tuning
-#'     recommendation.
+#'   the MA48/MA51 rank probes that size the `"DBBD"`/`"NDBBD"`
+#'   blocks; pivots below it count as zero (`0` = MA48's own
+#'   default, exact zeros only). A calibration knob, not a tuning
+#'   recommendation.
 #'   * `nsbbdblocks` (integer, default `2`): HSL MC66 `nblocks`, the
-#'     number of row blocks MC66 partitions `"SBBD"` into; used only
-#'     with `withmc66 = TRUE`.
+#'   number of row blocks MC66 partitions `"SBBD"` into; used
+#'   only with `withmc66 = TRUE`.
 #'   * `withmc66` (logical, default `FALSE`): MC66 row ordering for
-#'     SBBD.
+#'   SBBD.
 #'   * `smllthreads` (integer, default the run's thread count): OpenMP
-#'     threads for the `"NDBBD"` interface factorization and
-#'     back-substitution.
+#'   threads for the `"NDBBD"` interface factorization and
+#'   back-substitution.
 #'   * `nowrites` (logical, default `FALSE`): skip the solver-side
-#'     output-file dumps; coefficient composition then has nothing to
-#'     read. Distinct from `suppress_outputs`, which only skips the
-#'     R-side composition.
+#'   output-file dumps; coefficient composition then has nothing
+#'   to read. Distinct from `suppress_outputs`, which only skips
+#'   the R-side composition.
 #'   * `condest` (logical, default `FALSE`): per-solve quality
-#'     diagnostics on the `"LU"` matrix method: componentwise backward
-#'     error and scaled condition numbers via HSL MA60/MC71, logged per
-#'     linear solve with run maxima recorded under `condest` in
-#'     `sol.stats.json`. Diagnostic only (solutions are unchanged) and
-#'     informative only for nonzero shocks.
+#'   diagnostics on the `"LU"` matrix method: componentwise
+#'   backward error and scaled condition numbers via HSL
+#'   MA60/MC71, logged per linear solve with run maxima recorded
+#'   under `condest` in `sol.stats.json`. Diagnostic only
+#'   (solutions are unchanged) and informative only for nonzero
+#'   shocks.
 #'   * `jacdump` (logical, default `FALSE`): write the base-point
-#'     Jacobian of the condensed system over every variable element,
-#'     before the first step, to `sol.jac` with its row map in
-#'     `sol.jac.json`; the run then solves as asked.
+#'   Jacobian of the condensed system over every variable
+#'   element, before the first step, to `sol.jac` with its row
+#'   map in `sol.jac.json`; the run then solves as asked.
 #'
 #'   **Runge-Kutta step controls**: `adaptive`, `eps_tolerance`,
 #'   `max_retries` and `retry_adjust`; see [`ems_RK()`] for their
 #'   documentation and RK-tuned defaults.
 #'
 #'   **MA48 workspace initial guesses**, integer percents of the system
-#'   nonzeros. When omitted, a previous run of the same deployment
-#'   warm-starts them from its recorded `la_used` in `sol.stats.json`,
-#'   else package defaults apply; the solver grows the workspace itself
-#'   if any guess proves too small.
+#'   nonzeros. When omitted, a previous run of the same
+#'   deployment warm-starts them from its recorded `la_used` in
+#'   `sol.stats.json`, else package defaults apply; the solver
+#'   grows the workspace itself if any guess proves too small.
 #'   * `laA`: `"LU"`/`"SBBD"` and the diagonal blocks.
 #'   * `laD`: the `"DBBD"`/`"NDBBD"` interface systems.
 #'   * `laDi`: `"NDBBD"` intermediate interfaces.
-#' @details **What a solve does.** The model is written in linearized
-#'   (percentage-change) form, and the shock is applied as a path from
-#'   the base data, which is the initial solution, to the post-shock
-#'   equilibrium (Pearson 1991). Each step along the path solves one
-#'   or more linear systems in the model's Jacobian (a Gragg run of N
-#'   steps makes N + 1 passes, a `"DoPri54"` step 7 stages) and then
-#'   updates the data.
-#'   `"Johansen"` takes that path in a single step, so its error grows
-#'   with the size of the shock. The multistep methods divide the path
-#'   into smaller steps, so the linearization error shrinks as the
-#'   number of steps rises, and the extrapolating methods then remove
-#'   most of the error that remains. Computing time grows with the
-#'   total number of steps,
-#'   and with `n_subintervals`, since each subinterval repeats the full
-#'   solve on its share of the shock.
+#' @details **What a solve does.** The model is written in
+#'   linearized (percentage-change) form, and the shock is
+#'   applied as a path from the base data, which is the initial
+#'   solution, to the post-shock equilibrium (Pearson 1991). Each
+#'   step along the path solves one or more linear systems in the
+#'   model's Jacobian (a Gragg run of N steps makes N + 1 passes,
+#'   a `"DoPri54"` step 7 stages) and then updates the data.
+#'   `"Johansen"` takes that path in a single step, so its error
+#'   grows with the size of the shock. The multistep methods
+#'   divide the path into smaller steps, so the linearization
+#'   error shrinks as the number of steps rises, and the
+#'   extrapolating methods then remove most of the error that
+#'   remains. Computing time grows with the total number of
+#'   steps, and with `n_subintervals`, since each subinterval
+#'   repeats the full solve on its share of the shock.
 #'
 #'   **Judging accuracy.** The extrapolating methods solve at three
-#'   step counts, and the agreement between the three solutions gives
-#'   an accuracy summary over the endogenous results, and another
-#'   over the values read from data files and updated. By default
-#'   the measure is the share of nonzero results whose levels values
-#'   are accurate to at least four significant figures (results
-#'   judged zero, both extrapolations below 1e-6, are counted apart), the criterion
-#'   GEMPACK calls `solution`. A percent-change result usually has
-#'   more accurate figures in its levels value than in the
+#'   step counts, and the agreement between the three solutions
+#'   gives an accuracy summary over the endogenous results, and
+#'   another over the values read from data files and updated. By
+#'   default the measure is the share of nonzero results whose
+#'   levels values are accurate to at least four significant
+#'   figures (results judged zero, both extrapolations below
+#'   1e-6, are counted apart). A percent-change result usually
+#'   has more accurate figures in its levels value than in the
 #'   percentage itself. The `accuracy_criterion` and
-#'   `accuracy_figures` options switch to the updated data or both
-#'   summaries and change the figures required. A warning is given
-#'   when the share falls below the `accuracy_threshold` option
-#'   (default 80%, see [`ems_option_set()`]), and both summaries are
-#'   written to `model_diagnostics.txt` in the run directory. When
-#'   this happens, raise `n_subintervals` first: a few steps over
-#'   several subintervals beat many steps over one, and a midpoint
-#'   instability is cured by restarting the integrator, not by more
-#'   steps (GEMPACK manual 26.1; Schiffmann 2022). More steps (for
-#'   example `steps = c(4L, 6L, 8L)`) help while the totals stay
-#'   modest. Adaptive `"DoPri54"` estimates the error of every result
-#'   (see [`ems_RK()`]). With one
-#'   or two step counts there is no estimate. If adding steps stops
-#'   improving accuracy, the run has reached the rounding limit of
-#'   single precision, and `precision = "double"` is the remedy.
+#'   `accuracy_figures` options switch to the updated data or
+#'   both summaries and change the figures required. A warning is
+#'   given when the share falls below the `accuracy_threshold`
+#'   option (default 80%, see [`ems_option_set()`]), and both
+#'   summaries are written to `model_diagnostics.txt` in the run
+#'   directory. When this happens, raise `n_subintervals` first:
+#'   a few steps over several subintervals beat many steps over
+#'   one, and a midpoint instability is cured by restarting the
+#'   integrator, not by more steps (GEMPACK manual 26.1;
+#'   Schiffmann 2022). More steps (for example `steps = c(4L, 6L,
+#'   8L)`) help while the totals stay modest. Adaptive
+#'   `"DoPri54"` estimates the error of every result (see
+#'   [`ems_RK()`]). With one or two step counts there is no
+#'   estimate. If adding steps stops improving accuracy, the run
+#'   has reached the rounding limit of single precision, and
+#'   `precision = "double"` is the remedy.
 #'
 #'   **Choosing a method.** The default `"Gragg"` with `c(2L, 4L, 6L)`
-#'   suits most static policy shocks. `"Johansen"` is a quick check
-#'   that a new model and closure run, but its results should not be
-#'   reported. Shocks that drive a CES or CET share close to zero, or
-#'   a variable close to `-100%`, can make the midpoint methods
-#'   unstable (Schiffmann 2022). In those cases use `"Euler"` (GEMPACK
-#'   manual 30.2), which may still converge slowly, or adaptive
+#'   suits most static policy shocks. `"Johansen"` is a quick
+#'   check that a new model and closure run, but its results
+#'   should not be reported. Shocks that drive a CES or CET share
+#'   close to zero, or a variable close to `-100%`, can make the
+#'   midpoint methods unstable (Schiffmann 2022). In those cases
+#'   use `"Euler"`, which may still converge slowly, or adaptive
 #'   `"DoPri54"` or `"BoSha32"`, whose robustness exceeds Euler's
-#'   (Schiffmann 2022); a shock of exactly `-100%` needs `"Midpoint"`
-#'   or `"Euler"`. A single step count, without extrapolation, suits
-#'   models whose updates must follow the steps themselves.
+#'   (Schiffmann 2022); a shock of exactly `-100%` needs
+#'   `"Midpoint"` or `"Euler"`. A single step count, without
+#'   extrapolation, suits models whose updates must follow the
+#'   steps themselves.
 #'
 #'   **Size, matrix method and resources.** The linear system has one
-#'   row for each endogenous variable element left after condensation.
-#'   Its size grows with the number of regions times the number of
-#'   commodities, and for intertemporal models it also grows with the
-#'   number of periods. `"LU"` factorizes the whole system at once. It
-#'   works for every model and is usually best for static models, with
+#'   row for each endogenous variable element left after
+#'   condensation. Its size grows with the number of regions
+#'   times the number of commodities, and for intertemporal
+#'   models it also grows with the number of periods. `"LU"`
+#'   factorizes the whole system at once. It works for every
+#'   model and is usually best for static models, with
 #'   `n_threads` set to the available cores. The bordered methods
-#'   divide the system into blocks that are solved in parallel and
-#'   joined through a smaller border system:
-#'   * Static models are split by region, using `"DBBD"`, which treats
-#'     the regions as separable economies (Kompas and Van Ha 2019).
-#'   * Intertemporal models are split by period, using `"SBBD"` (Van Ha
-#'     and Kompas 2016; applied to GTAP-INT by Van Ha et al. 2017).
-#'   * `"NDBBD"` nests these splits for systems too large to hold as
-#'     one, such as GTAP-INT at full disaggregation (Kompas and Van Ha
-#'     2019).
+#'   divide the system into blocks that are solved in parallel
+#'   and joined through a smaller border system.
 #'
-#'   With a bordered method, `n_tasks` is the number of processes that
-#'   share the blocks, and `n_threads` is the number of threads each
-#'   process runs. `n_tasks * n_threads` should not exceed the
-#'   available cores. [`ems_probe()`] measures a deployed model and the
-#'   machine, then recommends `matrix_method`, `n_tasks` and
-#'   `n_threads`. Treat its recommendation as a starting point.
+#'   With a bordered method, `n_tasks` is the number of processes
+#'   that share the blocks, and `n_threads` is the number of
+#'   threads each process runs. `n_tasks * n_threads` should not
+#'   exceed the available cores. [`ems_probe()`] measures a
+#'   deployed model and the machine, then recommends
+#'   `matrix_method`, `n_tasks` and `n_threads`. Treat its
+#'   recommendation as a starting point.
 #'
 #'   **Memory.** Before a run starts, its peak memory is estimated
-#'   and compared with the memory available to the container. A run
-#'   that will not fit is refused, and the message lists remedies such
-#'   as a coarser aggregation, fewer tasks or `"NDBBD"`.
+#'   and compared with the memory available to the container. A
+#'   run that will not fit is refused, and the message lists
+#'   remedies such as a coarser aggregation, fewer tasks or
+#'   `"NDBBD"`.
 #'
 #'   **Reproducibility.** `ems_solve()` makes no choices of its own.
-#'   A run uses exactly the arguments given, so it can be reproduced
-#'   from its record in `sol.stats.json`.
+#'   A run uses exactly the arguments given, so it can be
+#'   reproduced from its record in `sol.stats.json`.
 #' @seealso [`ems_deploy()`] for generating `"cmf_path"`.
 #'   [`solve_in_situ()`] for calling the solver on existing input
 #'   files. [`ems_compose()`] for structuring data when
@@ -297,9 +294,9 @@
 #'   `range_test_initial`, `range_test_updated`), and for the
 #'   refinement step of `"DBBD"` solves (`refine`).
 #' @return A tibble of model output variables and coefficients.
-#'   The CMF path, invisibly, if `suppress_outputs = TRUE`; pass it
-#'   to [`ems_compose()`]. Instructions for terminal execution if
-#'   `terminal_run = TRUE`.
+#'   The CMF path, invisibly, if `suppress_outputs = TRUE`; pass
+#'   it to [`ems_compose()`]. Instructions for terminal execution
+#'   if `terminal_run = TRUE`.
 #' @references Pearson, K.R. (1991), "Solving Nonlinear Economic
 #'   Models Accurately via a Linear Representation", Impact
 #'   Project Preliminary Working Paper No. IP-55, Monash
@@ -318,17 +315,17 @@
 #'   Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 #'   models in parallel using a singly bordered block diagonal
 #'   ordering technique", Economic Modelling, vol. 52, pp. 3-12.
-#'   \doi{10.1016/j.econmod.2015.07.011}
+#'   \url{https://doi.org/10.1016/j.econmod.2015.07.011}
 #'
 #'   Van Ha, P., Kompas, T., Nguyen, H.T.M. and Long, C.H. (2017),
 #'   "Building a better trade model to determine local effects: A
 #'   regional and intertemporal GTAP model", Economic Modelling,
-#'   vol. 67, pp. 102-113. \doi{10.1016/j.econmod.2016.10.015}
+#'   vol. 67, pp. 102-113. \url{https://doi.org/10.1016/j.econmod.2016.10.015}
 #'
 #'   Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
 #'   resolved: The effects of climate change and trade barriers in
 #'   large dimensional modelling", Economic Modelling, vol. 80,
-#'   pp. 103-110. \doi{10.1016/j.econmod.2018.08.011}
+#'   pp. 103-110. \url{https://doi.org/10.1016/j.econmod.2018.08.011}
 #'
 #'   HSL (2026), A collection of Fortran codes for large scale
 #'   scientific computation. \url{https://www.hsl.rl.ac.uk/}

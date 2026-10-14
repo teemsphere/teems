@@ -31,26 +31,22 @@ is \code{"Gragg"} with \code{steps = c(2L, 4L, 6L)}. Choices:
 \itemize{
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
-of linearized steps — a Euler first step, midpoint
-"leapfrog" steps, and a terminal smoothing pass — and the
-sequence is repeated for each of the three step counts in
-\code{steps}. The three solutions are then combined by Richardson
+of linearized steps (a Euler first step, midpoint "leapfrog"
+steps, and a terminal smoothing pass) and the sequence is
+repeated for each of the three step counts in \code{steps}. The
+three solutions are then combined by Richardson
 extrapolation, giving rapid error decay as steps increase
 plus an accuracy estimate from the agreement between levels.
-See also:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
-solution methods}
 \item \code{"Johansen"}: The one-step Johansen method is fast however it
-should only be used as a rough approximation due to handling of
-nonlinear equations. See:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
+should only be used as a rough approximation due to handling
+of nonlinear equations.
 \item \code{"Euler"}: The forward Euler method, computed for each of
 the three step counts in \code{steps} and combined by Richardson
 extrapolation. Converges more slowly than \code{"Gragg"} (its
 truncation error shrinks linearly in the step size, so the
-extrapolated accuracy gains one order per solution instead of
-two) but it is the most robust of the multistep methods: each
-step uses only the current state, so it tolerates
+extrapolated accuracy gains one order per solution instead
+of two) but it is the most robust of the multistep methods:
+each step uses only the current state, so it tolerates
 near-asymptote levels and severe shocks — including exact
 \verb{-100\%} shocks — where the midpoint family can become
 unstable. Any strictly increasing step counts are permitted.
@@ -59,13 +55,13 @@ the terminal smoothing pass (N passes for N steps), combined
 by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
 never takes the exogenous variables past their end point, so
 it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
-cannot take (GEMPACK manual 30.2).
+cannot take.
 \item \code{"RK2"}, \code{"Heun"}, \code{"RK4"}: Explicit Runge-Kutta methods (the
 midpoint rule, the explicit trapezoid rule and the classic
-fourth-order method; Schiffmann 2022). A single solution
-is computed with the one step count in \code{steps} — no Richardson
-extrapolation — with each step built from 2 (\code{"RK2"}, \code{"Heun"})
-or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
+fourth-order method; Schiffmann 2022). A single solution is
+computed with the one step count in \code{steps} — no Richardson
+extrapolation — with each step built from 2 (\code{"RK2"},
+\code{"Heun"}) or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
 reaches a given accuracy in far fewer steps than the
 extrapolating methods.
 \item \code{"BoSha32"}, \code{"DoPri54"}: Embedded Runge-Kutta pairs
@@ -90,11 +86,11 @@ for static models partitioned by their regional set.
 \item \code{"SBBD"}: Singly bordered block diagonal, parallel solution
 for intertemporal models partitioned along the time chain.
 \item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
-intertemporal models whose \code{"SBBD"} host copy does not fit the
-memory available.
-\code{\link[=ems_probe]{ems_probe()}} (experimental) suggests the method and the
-tasks and threads to run it with for a deployment and a machine,
-and prints the call to paste (see Details).
+intertemporal models whose \code{"SBBD"} host copy does not fit
+the memory available. \code{\link[=ems_probe]{ems_probe()}} (experimental)
+suggests the method and the tasks and threads to run it with
+for a deployment and a machine, and prints the call to paste
+(see Details).
 }}
 
 \item{n_subintervals}{Integer length 1 (default is \code{1L}),
@@ -107,48 +103,47 @@ only there.}
 
 \item{steps}{Integer (default is \code{NULL}, resolved per method:
 \code{c(2L, 4L, 6L)} for the extrapolating methods, \code{4L} for the
-Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"} and
-\code{"Euler"} take a vector of length 3: the three counts must
-increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and must be
-all even or all odd for \code{"Gragg"} and \code{"Midpoint"} (even counts
-are recommended). \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"} also
-take a single count, a single multi-step run
-without Richardson extrapolation (GEMPACK's single Euler
-N-step run, as used by recursive-dynamic models), or two
-increasing counts, extrapolated from two solutions (GEMPACK's
-\verb{steps = 2 4;}); no extrapolation accuracy estimate is then
-available.
-\code{"RK2"}, \code{"Heun"}, \code{"RK4"}, \code{"BoSha32"} and \code{"DoPri54"} take a
-single count of 1 or more. A larger number of steps may
-improve accuracy for some model runs.}
+Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"}
+and \code{"Euler"} take a vector of length 3: the three counts
+must increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and
+must be all even or all odd for \code{"Gragg"} and \code{"Midpoint"}
+(even counts are recommended). \code{"Gragg"}, \code{"Midpoint"} and
+\code{"Euler"} also take a single count, a single multi-step run
+without Richardson extrapolation, or two increasing counts,
+extrapolated from two solutions; no extrapolation accuracy
+estimate is then available. \code{"RK2"}, \code{"Heun"}, \code{"RK4"},
+\code{"BoSha32"} and \code{"DoPri54"} take a single count of 1 or
+more. A larger number of steps may improve accuracy for some
+model runs.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
 == "LU".}
 
-\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP threads
-per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give byte-identical
-results at any thread count; \code{"DBBD"} with more than one thread
-agrees only to rounding (see the
-\href{https://teemsphere.github.io/solve.html}{solving} chapter
-of the user manual).}
+\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP
+threads per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give
+byte-identical results at any thread count; \code{"DBBD"} with
+more than one thread agrees only to rounding (see the
+\href{https://teemsphere.github.io/solve.html}{solving}
+chapter of the user manual).}
 
 \item{precision}{Character length 1, \code{"single"} (default) or
-\code{"double"}: floating-point precision of the solver's coefficient
-storage. \code{"single"} halves memory traffic and suffices for
-ordinary step counts. \code{"double"} selects the double-precision
-solver binary shipped in the same image, removing the
-single-precision update-rounding floor that deep extrapolation
-ladders and many-step large-shock runs otherwise converge onto
-(per-pass rounding accumulates with step count, so beyond the
-floor extra steps stop helping). Roughly doubles
-coefficient-array memory. The effective precision is recorded in
-\code{sol.stats.json} and the model diagnostics solve record.}
+\code{"double"}: floating-point precision of the solver's
+coefficient storage. \code{"single"} halves memory traffic and
+suffices for ordinary step counts. \code{"double"} selects the
+double-precision solver binary shipped in the same image,
+removing the single-precision update-rounding floor that
+deep extrapolation ladders and many-step large-shock runs
+otherwise converge onto (per-pass rounding accumulates with
+step count, so beyond the floor extra steps stop helping).
+Roughly doubles coefficient-array memory. The effective
+precision is recorded in \code{sol.stats.json} and the model
+diagnostics solve record.}
 
 \item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
-Solver log detail: \code{0} restricts output to errors, warnings, and
-the accuracy summary; \code{1} adds phase progress and timings;
-\code{2} adds per-rank and per-block debug detail.}
+Solver log detail: \code{0} restricts output to errors, warnings,
+and the accuracy summary; \code{1} adds phase progress and
+timings; \code{2} adds per-rank and per-block debug detail.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
@@ -161,25 +156,26 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{complementarity}{A \code{teems_complementarity} object built by
-\code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
-models with active \code{Complementarity} statements (see GEMPACK manual
-ch. 51). \code{NULL} applies the solver defaults; ignored by the
-solver when the model has no active complementarity component.}
+\item{complementarity}{A \code{teems_complementarity} object built
+by \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run
+controls for models with active \code{Complementarity} statements
+(see GEMPACK manual ch. 51). \code{NULL} applies the solver
+defaults; ignored by the solver when the model has no active
+complementarity component.}
 
-\item{accuracy_vars}{Character vector of variable names (default
-\code{NULL}). When given, the accuracy summary of a three-solution
-\code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run covers just these
-variables, exogenous ones included, instead of every endogenous
-result (GEMPACK's \code{XAC-retained}, GEMPACK manual 26.2.6). Under
-the \code{"solution"} and \code{"both"} accuracy criteria (see
-\code{\link[=ems_option_set]{ems_option_set()}}) the warning then judges only them, so a run
-can be held to the results it is about.}
+\item{accuracy_vars}{Character vector of variable names
+(default \code{NULL}). When given, the accuracy summary of a
+three-solution \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run
+covers just these variables, exogenous ones included,
+instead of every endogenous result. Under the \code{"solution"}
+and \code{"both"} accuracy criteria (see \code{\link[=ems_option_set]{ems_option_set()}})
+the warning then judges only them, so a run can be held to
+the results it is about.}
 
-\item{...}{Additional named solver arguments; anything else is an
-error, never a silently ignored flag. Effective values of recorded
-flags land in \code{sol.stats.json} regardless of how they were passed.
-Three groups are accepted:
+\item{...}{Additional named solver arguments; anything else is
+an error, never a silently ignored flag. Effective values of
+recorded flags land in \code{sol.stats.json} regardless of how
+they were passed. Three groups are accepted:
 
 \strong{Expert solver flags}, with the solver default applied when a
 flag is absent:
@@ -187,44 +183,47 @@ flag is absent:
 \item \code{postsim} (logical, default \code{TRUE}): \code{FALSE} skips the TAB's
 \code{PostSim} sections.
 \item \code{inmemory} (logical, default \code{TRUE} except for \code{"NDBBD"}): keep
-value arrays and block factors resident in memory rather than in
-scratch files. The solver falls back to scratch with a warning
-when the estimated need exceeds the memory available.
+value arrays and block factors resident in memory rather
+than in scratch files. The solver falls back to scratch with
+a warning when the estimated need exceeds the memory
+available.
 \item \code{fastrefac} (logical, default \code{FALSE}): persistent-pivot
 refactorization; under \code{"DBBD"} it helps only small systems,
 whose block orderings repeat from step to step.
 \item \code{ma48_cntl2} (numeric in (0, 1], default each library's own:
 MA48 0.1, HSL_MP48 0.01): MA48/HSL_MP48 pivot threshold
 \code{CNTL(2)}, at every factorization including the
-\code{"DBBD"}/\code{"NDBBD"} rank probes, so it can also move their block
-sizes; a calibration knob, not a tuning recommendation.
+\code{"DBBD"}/\code{"NDBBD"} rank probes, so it can also move their
+block sizes; a calibration knob, not a tuning
+recommendation.
 \item \code{ma48_cntl4} (numeric >= 0, default \code{1e-4}): MA48 \code{CNTL(4)} in
 the MA48/MA51 rank probes that size the \code{"DBBD"}/\code{"NDBBD"}
 blocks; pivots below it count as zero (\code{0} = MA48's own
 default, exact zeros only). A calibration knob, not a tuning
 recommendation.
 \item \code{nsbbdblocks} (integer, default \code{2}): HSL MC66 \code{nblocks}, the
-number of row blocks MC66 partitions \code{"SBBD"} into; used only
-with \code{withmc66 = TRUE}.
+number of row blocks MC66 partitions \code{"SBBD"} into; used
+only with \code{withmc66 = TRUE}.
 \item \code{withmc66} (logical, default \code{FALSE}): MC66 row ordering for
 SBBD.
 \item \code{smllthreads} (integer, default the run's thread count): OpenMP
 threads for the \code{"NDBBD"} interface factorization and
 back-substitution.
 \item \code{nowrites} (logical, default \code{FALSE}): skip the solver-side
-output-file dumps; coefficient composition then has nothing to
-read. Distinct from \code{suppress_outputs}, which only skips the
-R-side composition.
+output-file dumps; coefficient composition then has nothing
+to read. Distinct from \code{suppress_outputs}, which only skips
+the R-side composition.
 \item \code{condest} (logical, default \code{FALSE}): per-solve quality
-diagnostics on the \code{"LU"} matrix method: componentwise backward
-error and scaled condition numbers via HSL MA60/MC71, logged per
-linear solve with run maxima recorded under \code{condest} in
-\code{sol.stats.json}. Diagnostic only (solutions are unchanged) and
-informative only for nonzero shocks.
+diagnostics on the \code{"LU"} matrix method: componentwise
+backward error and scaled condition numbers via HSL
+MA60/MC71, logged per linear solve with run maxima recorded
+under \code{condest} in \code{sol.stats.json}. Diagnostic only
+(solutions are unchanged) and informative only for nonzero
+shocks.
 \item \code{jacdump} (logical, default \code{FALSE}): write the base-point
-Jacobian of the condensed system over every variable element,
-before the first step, to \code{sol.jac} with its row map in
-\code{sol.jac.json}; the run then solves as asked.
+Jacobian of the condensed system over every variable
+element, before the first step, to \code{sol.jac} with its row
+map in \code{sol.jac.json}; the run then solves as asked.
 }
 
 \strong{Runge-Kutta step controls}: \code{adaptive}, \code{eps_tolerance},
@@ -232,10 +231,10 @@ before the first step, to \code{sol.jac} with its row map in
 documentation and RK-tuned defaults.
 
 \strong{MA48 workspace initial guesses}, integer percents of the system
-nonzeros. When omitted, a previous run of the same deployment
-warm-starts them from its recorded \code{la_used} in \code{sol.stats.json},
-else package defaults apply; the solver grows the workspace itself
-if any guess proves too small.
+nonzeros. When omitted, a previous run of the same
+deployment warm-starts them from its recorded \code{la_used} in
+\code{sol.stats.json}, else package defaults apply; the solver
+grows the workspace itself if any guess proves too small.
 \itemize{
 \item \code{laA}: \code{"LU"}/\code{"SBBD"} and the diagonal blocks.
 \item \code{laD}: the \code{"DBBD"}/\code{"NDBBD"} interface systems.
@@ -244,9 +243,9 @@ if any guess proves too small.
 }
 \value{
 A tibble of model output variables and coefficients.
-The CMF path, invisibly, if \code{suppress_outputs = TRUE}; pass it
-to \code{\link[=ems_compose]{ems_compose()}}. Instructions for terminal execution if
-\code{terminal_run = TRUE}.
+The CMF path, invisibly, if \code{suppress_outputs = TRUE}; pass
+it to \code{\link[=ems_compose]{ems_compose()}}. Instructions for terminal execution
+if \code{terminal_run = TRUE}.
 }
 \description{
 Calls the
@@ -256,94 +255,89 @@ Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
 \details{
-\strong{What a solve does.} The model is written in linearized
-(percentage-change) form, and the shock is applied as a path from
-the base data, which is the initial solution, to the post-shock
-equilibrium (Pearson 1991). Each step along the path solves one
-or more linear systems in the model's Jacobian (a Gragg run of N
-steps makes N + 1 passes, a \code{"DoPri54"} step 7 stages) and then
-updates the data.
-\code{"Johansen"} takes that path in a single step, so its error grows
-with the size of the shock. The multistep methods divide the path
-into smaller steps, so the linearization error shrinks as the
-number of steps rises, and the extrapolating methods then remove
-most of the error that remains. Computing time grows with the
-total number of steps,
-and with \code{n_subintervals}, since each subinterval repeats the full
-solve on its share of the shock.
+\strong{What a solve does.} The model is written in
+linearized (percentage-change) form, and the shock is
+applied as a path from the base data, which is the initial
+solution, to the post-shock equilibrium (Pearson 1991). Each
+step along the path solves one or more linear systems in the
+model's Jacobian (a Gragg run of N steps makes N + 1 passes,
+a \code{"DoPri54"} step 7 stages) and then updates the data.
+\code{"Johansen"} takes that path in a single step, so its error
+grows with the size of the shock. The multistep methods
+divide the path into smaller steps, so the linearization
+error shrinks as the number of steps rises, and the
+extrapolating methods then remove most of the error that
+remains. Computing time grows with the total number of
+steps, and with \code{n_subintervals}, since each subinterval
+repeats the full solve on its share of the shock.
 
 \strong{Judging accuracy.} The extrapolating methods solve at three
-step counts, and the agreement between the three solutions gives
-an accuracy summary over the endogenous results, and another
-over the values read from data files and updated. By default
-the measure is the share of nonzero results whose levels values
-are accurate to at least four significant figures (results
-judged zero, both extrapolations below 1e-6, are counted apart), the criterion
-GEMPACK calls \code{solution}. A percent-change result usually has
-more accurate figures in its levels value than in the
+step counts, and the agreement between the three solutions
+gives an accuracy summary over the endogenous results, and
+another over the values read from data files and updated. By
+default the measure is the share of nonzero results whose
+levels values are accurate to at least four significant
+figures (results judged zero, both extrapolations below
+1e-6, are counted apart). A percent-change result usually
+has more accurate figures in its levels value than in the
 percentage itself. The \code{accuracy_criterion} and
-\code{accuracy_figures} options switch to the updated data or both
-summaries and change the figures required. A warning is given
-when the share falls below the \code{accuracy_threshold} option
-(default 80\%, see \code{\link[=ems_option_set]{ems_option_set()}}), and both summaries are
-written to \code{model_diagnostics.txt} in the run directory. When
-this happens, raise \code{n_subintervals} first: a few steps over
-several subintervals beat many steps over one, and a midpoint
-instability is cured by restarting the integrator, not by more
-steps (GEMPACK manual 26.1; Schiffmann 2022). More steps (for
-example \code{steps = c(4L, 6L, 8L)}) help while the totals stay
-modest. Adaptive \code{"DoPri54"} estimates the error of every result
-(see \code{\link[=ems_RK]{ems_RK()}}). With one
-or two step counts there is no estimate. If adding steps stops
-improving accuracy, the run has reached the rounding limit of
-single precision, and \code{precision = "double"} is the remedy.
+\code{accuracy_figures} options switch to the updated data or
+both summaries and change the figures required. A warning is
+given when the share falls below the \code{accuracy_threshold}
+option (default 80\%, see \code{\link[=ems_option_set]{ems_option_set()}}), and both
+summaries are written to \code{model_diagnostics.txt} in the run
+directory. When this happens, raise \code{n_subintervals} first:
+a few steps over several subintervals beat many steps over
+one, and a midpoint instability is cured by restarting the
+integrator, not by more steps (GEMPACK manual 26.1;
+Schiffmann 2022). More steps (for example \code{steps = c(4L, 6L, 8L)}) help while the totals stay modest. Adaptive
+\code{"DoPri54"} estimates the error of every result (see
+\code{\link[=ems_RK]{ems_RK()}}). With one or two step counts there is no
+estimate. If adding steps stops improving accuracy, the run
+has reached the rounding limit of single precision, and
+\code{precision = "double"} is the remedy.
 
 \strong{Choosing a method.} The default \code{"Gragg"} with \code{c(2L, 4L, 6L)}
-suits most static policy shocks. \code{"Johansen"} is a quick check
-that a new model and closure run, but its results should not be
-reported. Shocks that drive a CES or CET share close to zero, or
-a variable close to \verb{-100\%}, can make the midpoint methods
-unstable (Schiffmann 2022). In those cases use \code{"Euler"} (GEMPACK
-manual 30.2), which may still converge slowly, or adaptive
+suits most static policy shocks. \code{"Johansen"} is a quick
+check that a new model and closure run, but its results
+should not be reported. Shocks that drive a CES or CET share
+close to zero, or a variable close to \verb{-100\%}, can make the
+midpoint methods unstable (Schiffmann 2022). In those cases
+use \code{"Euler"}, which may still converge slowly, or adaptive
 \code{"DoPri54"} or \code{"BoSha32"}, whose robustness exceeds Euler's
-(Schiffmann 2022); a shock of exactly \verb{-100\%} needs \code{"Midpoint"}
-or \code{"Euler"}. A single step count, without extrapolation, suits
-models whose updates must follow the steps themselves.
+(Schiffmann 2022); a shock of exactly \verb{-100\%} needs
+\code{"Midpoint"} or \code{"Euler"}. A single step count, without
+extrapolation, suits models whose updates must follow the
+steps themselves.
 
 \strong{Size, matrix method and resources.} The linear system has one
-row for each endogenous variable element left after condensation.
-Its size grows with the number of regions times the number of
-commodities, and for intertemporal models it also grows with the
-number of periods. \code{"LU"} factorizes the whole system at once. It
-works for every model and is usually best for static models, with
+row for each endogenous variable element left after
+condensation. Its size grows with the number of regions
+times the number of commodities, and for intertemporal
+models it also grows with the number of periods. \code{"LU"}
+factorizes the whole system at once. It works for every
+model and is usually best for static models, with
 \code{n_threads} set to the available cores. The bordered methods
-divide the system into blocks that are solved in parallel and
-joined through a smaller border system:
-\itemize{
-\item Static models are split by region, using \code{"DBBD"}, which treats
-the regions as separable economies (Kompas and Van Ha 2019).
-\item Intertemporal models are split by period, using \code{"SBBD"} (Van Ha
-and Kompas 2016; applied to GTAP-INT by Van Ha et al. 2017).
-\item \code{"NDBBD"} nests these splits for systems too large to hold as
-one, such as GTAP-INT at full disaggregation (Kompas and Van Ha
-2019).
-}
+divide the system into blocks that are solved in parallel
+and joined through a smaller border system.
 
-With a bordered method, \code{n_tasks} is the number of processes that
-share the blocks, and \code{n_threads} is the number of threads each
-process runs. \code{n_tasks * n_threads} should not exceed the
-available cores. \code{\link[=ems_probe]{ems_probe()}} measures a deployed model and the
-machine, then recommends \code{matrix_method}, \code{n_tasks} and
-\code{n_threads}. Treat its recommendation as a starting point.
+With a bordered method, \code{n_tasks} is the number of processes
+that share the blocks, and \code{n_threads} is the number of
+threads each process runs. \code{n_tasks * n_threads} should not
+exceed the available cores. \code{\link[=ems_probe]{ems_probe()}} measures a
+deployed model and the machine, then recommends
+\code{matrix_method}, \code{n_tasks} and \code{n_threads}. Treat its
+recommendation as a starting point.
 
 \strong{Memory.} Before a run starts, its peak memory is estimated
-and compared with the memory available to the container. A run
-that will not fit is refused, and the message lists remedies such
-as a coarser aggregation, fewer tasks or \code{"NDBBD"}.
+and compared with the memory available to the container. A
+run that will not fit is refused, and the message lists
+remedies such as a coarser aggregation, fewer tasks or
+\code{"NDBBD"}.
 
 \strong{Reproducibility.} \code{ems_solve()} makes no choices of its own.
-A run uses exactly the arguments given, so it can be reproduced
-from its record in \code{sol.stats.json}.
+A run uses exactly the arguments given, so it can be
+reproduced from its record in \code{sol.stats.json}.
 }
 \examples{
 \dontrun{
@@ -382,17 +376,17 @@ Studies, Victoria University, Melbourne (14 April).
 Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 models in parallel using a singly bordered block diagonal
 ordering technique", Economic Modelling, vol. 52, pp. 3-12.
-\doi{10.1016/j.econmod.2015.07.011}
+\url{https://doi.org/10.1016/j.econmod.2015.07.011}
 
 Van Ha, P., Kompas, T., Nguyen, H.T.M. and Long, C.H. (2017),
 "Building a better trade model to determine local effects: A
 regional and intertemporal GTAP model", Economic Modelling,
-vol. 67, pp. 102-113. \doi{10.1016/j.econmod.2016.10.015}
+vol. 67, pp. 102-113. \url{https://doi.org/10.1016/j.econmod.2016.10.015}
 
 Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
 resolved: The effects of climate change and trade barriers in
 large dimensional modelling", Economic Modelling, vol. 80,
-pp. 103-110. \doi{10.1016/j.econmod.2018.08.011}
+pp. 103-110. \url{https://doi.org/10.1016/j.econmod.2018.08.011}
 
 HSL (2026), A collection of Fortran codes for large scale
 scientific computation. \url{https://www.hsl.rl.ac.uk/}

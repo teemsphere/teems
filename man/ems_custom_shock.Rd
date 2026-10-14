@@ -12,7 +12,8 @@ ems_custom_shock(var, input)
 \item{input}{Path to a CSV file, or a data frame or data frame
 extension (e.g., tibble, data.table). Must contain one
 column named \code{"Value"} with the shock for each tuple
-(percentage or ordinary change, as the variable is declared), plus one column per set index for the variable.
+(percentage or ordinary change, as the variable is
+declared), plus one column per set index for the variable.
 Note that set names must conform to the model-specific
 hybrid format (e.g., \code{ACTSa}, \code{REGr}). Column order is
 inconsequential.}
@@ -24,8 +25,8 @@ to the \code{shock} argument of \code{\link[=ems_deploy]{ems_deploy()}}.
 \description{
 Prepares heterogeneous shocks specified on a
 tuple-by-tuple basis, in the variable's own form (percentage
-or ordinary change). Only the tuples present
-in \code{input} are shocked.
+or ordinary change). Only the tuples present in \code{input} are
+shocked.
 }
 \examples{
 # Set elements

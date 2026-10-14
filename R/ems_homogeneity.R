@@ -66,6 +66,9 @@
 #'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' \dontrun{
+#' # The following example requires a deployment from ems_deploy()
+#' # and the teems solver to be built. See
+#' # https://teemsphere.github.io/ to get started.
 #' check <- ems_homogeneity(cmf_path, type = "nominal")
 #' check$equations
 #' }

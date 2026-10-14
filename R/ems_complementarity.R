@@ -63,7 +63,7 @@
 #'   vol. 23, pp. 325-341. A preliminary version was Centre of Policy
 #'   Studies and the Impact Project Preliminary Working Paper No.
 #'   IP-78, Melbourne (April 2002).
-#'   \url{http://www.copsmodels.com/elecpapr/ip-78.htm}
+#'   \url{https://www.copsmodels.com/elecpapr/ip-78.htm}
 #'
 #'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
 #'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy

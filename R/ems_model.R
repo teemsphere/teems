@@ -48,9 +48,11 @@
 #' @seealso [`ems_example()`] for writing teems example models and scripts to file. [`ems_deploy()`] for loading the output of this
 #'   function as well as conducting closure swaps.
 #' @examples
-#' # Simple static model retrieval and load
+#' # Simple static model without condensation retrieval and load
 #' GTAPv7 <- ems_example("GTAPv7", tempdir())
-#' ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
+#' ems_model(GTAPv7[["model_file"]],
+#'           GTAPv7[["closure_file"]],
+#'           ignore_condense = TRUE)
 #'
 #' # Retrieve intertemporal model
 #' GTAP_RE <- ems_example("GTAP-RE", tempdir())

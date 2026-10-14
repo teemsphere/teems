@@ -25,6 +25,8 @@
 #'   are written. Defaults to the `tempdir` option.
 #' @examples
 #' \dontrun{
+#' # The following example requires input data and the teems solver
+#' # to be built. See https://teemsphere.github.io/ to get started.
 #' ems_calculate(
 #'   model_file = "path/to/gtapview.tab",
 #'   GTAPSETS = "path/to/sets.har",

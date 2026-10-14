@@ -70,9 +70,11 @@ aggregations specified in \code{\link[=ems_data]{ems_data()}} and all tuples mus
 be present.
 }
 \examples{
-# Simple static model retrieval and load
+# Simple static model without condensation retrieval and load
 GTAPv7 <- ems_example("GTAPv7", tempdir())
-ems_model(GTAPv7[["model_file"]], GTAPv7[["closure_file"]])
+ems_model(GTAPv7[["model_file"]],
+          GTAPv7[["closure_file"]],
+          ignore_condense = TRUE)
 
 # Retrieve intertemporal model
 GTAP_RE <- ems_example("GTAP-RE", tempdir())

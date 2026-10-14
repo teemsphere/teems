@@ -185,7 +185,7 @@ test_that("GTAP_convert from v7 to v6", {
     gdyn,
     v6,
     all.equal,
-    check.attributes = F,
+    check.attributes = FALSE,
     tolerance = 1e-4
   )
 
@@ -252,7 +252,7 @@ test_that("GTAP_convert from v6 to v7", {
     gdyn,
     normalv7,
     all.equal,
-    check.attributes = F,
+    check.attributes = FALSE,
     tolerance = 1e-5
   )
 

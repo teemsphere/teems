@@ -71,7 +71,7 @@
 #' # Generate GTAP-AEZ example scripts (a GTAP-AEZ database is
 #' # required; ems_data() prepares its AEZ layer automatically)
 #' ems_example(model = "GTAP-AEZ",
-#'             path = tempdir(),
+#'             path = "path/to/example/scripts",
 #'             type = "scripts",
 #'             dat_input = "aez_data/gsdfdat.har",
 #'             par_input = "aez_data/gsdfpar.har",
@@ -80,7 +80,7 @@
 #' # Generate GTAP-E example scripts (a GTAP-E database is required;
 #' # ems_data() prepares its energy layer automatically)
 #' ems_example(model = "GTAP-E",
-#'             path = tempdir(),
+#'             path = "path/to/example/scripts",
 #'             type = "scripts",
 #'             dat_input = "e_data/gsdfdat.har",
 #'             par_input = "e_data/gsdfpar.har",
@@ -90,7 +90,7 @@
 #' # required; ems_data() prepares its energy and power layer
 #' # automatically)
 #' ems_example(model = "GTAP-EP",
-#'             path = tempdir(),
+#'             path = "path/to/example/scripts",
 #'             type = "scripts",
 #'             dat_input = "power_data/gsdfdat.har",
 #'             par_input = "power_data/gsdfpar.har",

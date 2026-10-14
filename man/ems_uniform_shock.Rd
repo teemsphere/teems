@@ -16,8 +16,9 @@ variable's own form (percentage or ordinary change).}
 subset of the variable's elements. Each name must use the
 model-specific set-index format (set name concatenated with
 its index letter, e.g., \code{REGr}, \code{COMMc}). Value may consist
-of one or more elements or a subset. When omitted, the shock
-is applied to all variable tuples.}
+of one or more elements or a subset. In an intertemporal
+model, \verb{Year = <year>} may stand in for the time set. When
+omitted, the shock is applied to all variable tuples.}
 }
 \value{
 A \code{list} object with shock configuration to be passed

@@ -14,8 +14,9 @@
 #'   subset of the variable's elements. Each name must use the
 #'   model-specific set-index format (set name concatenated with
 #'   its index letter, e.g., `REGr`, `COMMc`). Value may consist
-#'   of one or more elements or a subset. When omitted, the shock
-#'   is applied to all variable tuples.
+#'   of one or more elements or a subset. In an intertemporal
+#'   model, `Year = <year>` may stand in for the time set. When
+#'   omitted, the shock is applied to all variable tuples.
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function. [`ems_swap()`] for changing the standard model
 #'   closure.

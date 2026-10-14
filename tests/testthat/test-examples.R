@@ -30,6 +30,41 @@ skip_if_no_solver <- function() {
           "teems image not available")
 }
 
+test_that("ems_option_set, ems_option_get and ems_option_reset examples run", {
+  # the examples reset the options; the state this file runs under is put
+  # back afterwards
+  opts <- ems_option_get()
+  withr::defer(do.call(ems_option_set, opts))
+  env <- example_env()
+  vals <- run_examples(example_exprs("ems_option_set"), env)
+  expect_type(vals[["ems_option_get"]], "character")
+  vals <- run_examples(example_exprs("ems_option_get"), env)
+  expect_type(vals[[1]], "list")
+  expect_type(vals[[2]], "integer")
+  vals <- run_examples(example_exprs("ems_option_reset"), env)
+  gets <- vals[names(vals) == "ems_option_get"]
+  expect_length(gets, 2L)
+  expect_false(gets[[1]])
+  expect_true(gets[[2]])
+})
+
+test_that("ems_swap examples run", {
+  vals <- run_examples(example_exprs("ems_swap"), example_env())
+  expect_length(vals, 8L)
+  breadth <- vapply(vals, function(s) class(s[[1]])[2], character(1))
+  expect_identical(unname(breadth), rep(c("full", "partial"), c(2L, 6L)))
+  depth <- vapply(vals, function(s) class(s[[1]])[1], character(1))
+  expect_identical(unname(depth), rep(c("single", "multi", "single"), c(4L, 2L, 2L)))
+})
+
+test_that("ems_uniform_shock examples run", {
+  vals <- run_examples(example_exprs("ems_uniform_shock"), example_env())
+  expect_length(vals, 3L)
+  for (s in vals) {
+    expect_s3_class(s[[1]], "uniform")
+  }
+})
+
 test_that("ems_model examples run", {
   env <- example_env()
   vals <- run_examples(example_exprs("ems_model"), env)

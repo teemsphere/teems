@@ -403,39 +403,4 @@ test_that("ems_deploy accepts a shock file", {
   expect_all_true(abs(outputs$dat$pfactwld$Value - 1) < 1e-6)
 })
 
-test_that("ems_deploy examples work", {
-  # The following examples require input data. See
-  # https://teemsphere.github.io/ to get started.
-
-  # Uniform shock applied to full variable with value 1
-  shock <- ems_uniform_shock("qfd", value = 1)
-
-  # Full variable swap, qfd for tfd
-  cmf_path <- ems_deploy(
-    .data = dat,
-    model = model,
-    shock = shock,
-    swap_in = "qfd",
-    swap_out = "tfd"
-  )
-
-  expect_true(is.character(cmf_path))
-  # Partial variable swap (element "row" of set REG with index r)
-  yp_row <- ems_swap("yp", REGr = "row")
-  dppriv_row <- ems_swap("dppriv", REGr = "row")
-
-  # Swap part of yp for part of dppriv; qfd for tfd
-  subdir <- "examples"
-  nest_temp(subdir, write_dir)
-  cmf_path <- ems_deploy(
-   .data = dat,
-   model = model,
-   shock = shock,
-   swap_in = list(yp_row, "qfd"),
-   swap_out = list(dppriv_row, "tfd")
-  )
-  expect_true(is.character(cmf_path))
-})
-
-
 unlink(write_dir, recursive = TRUE)

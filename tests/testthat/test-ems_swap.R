@@ -366,25 +366,4 @@ test_that("a partial swap-out of a mixed entry keeps its subset", {
   expect_false(any(grepl("^tfd\\(COMM", cls)))
 })
 
-test_that("ems_swap examples work", {
-  # Full variable swaps
-  expect_type(ems_swap("tfd"), "list") # out
-  expect_type(ems_swap("qfd"), "list") # in
-
-  # Partial variable swaps with uniform "PROD_COMM" set
-  # application (note distinction between "REGr" and "REGs") in
-  # the classic GTAP model (version 6.2)
-  expect_type(ems_swap("tfd", TRAD_COMMi = "food", REGr = "chn"), "list") # out
-  expect_type(ems_swap("qfd", TRAD_COMMi = "food", REGs = "chn"), "list") # in
-
-  # Partial variable, multiple element swaps with uniform "ACTS"
-  # set application in the standard GTAP model (version 7.0).
-  expect_type(ems_swap("tfd", COMMc = c("food", "crops"), REGr = "usa"), "list") # out
-  expect_type(ems_swap("qfd", COMMc = c("food", "crops"), REGr = "usa"), "list") # in
-
-  # Valid subsets may also be selected.
-  expect_type(ems_swap("txs", COMMc = "NMRG", ALLTIMEt = "FWDTIME"), "list") # out
-  expect_type(ems_swap("qxs", COMMc = "NMRG", ALLTIMEt = "FWDTIME"), "list") # in
-})
-
 unlink(write_dir, recursive = TRUE)

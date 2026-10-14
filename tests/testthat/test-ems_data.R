@@ -396,44 +396,6 @@ test_that("subsetting an ems_data object keeps its class and metadata", {
   expect_identical(sub[["VDFB"]], agg_data[["VDFB"]])
 })
 
-test_that("ems_data examples work", {
-  # The following examples require input data. See
-  # https://teemsphere.github.io/ to get started.
-
-  # Data for a static model using internal mappings
-  v7_data <- ems_data(Sys.getenv("GTAP12_dat"),
-                      Sys.getenv("GTAP12_par"),
-                      Sys.getenv("GTAP12_set"),
-                      REG = "AR5",
-                      ACTS = "food",
-                      ENDW = "labor_diff")
-
-  check <- attr(v7_data, "metadata")$data_format == "GTAPv7"
-  expect_true(check)
-  # Data for an intertemporal model with explicit time steps
-  int_data <- ems_data(Sys.getenv("GTAP10A_dat"),
-                       Sys.getenv("GTAP10A_par"),
-                       Sys.getenv("GTAP10A_set"),
-                       REG = "WB23",
-                       PROD_COMM = "services",
-                       ENDW_COMM = "labor_agg",
-                       time_steps = c(0, 1, 2, 4, 6, 8, 10, 15))
-
-  check <- attr(int_data, "metadata")$data_format == "GTAPv6"
-  expect_true(check)
-  # Data for an intertemporal model with chronological time
-  # steps and a user-provided mapping for the ENDW set
-  int_data <- ems_data(Sys.getenv("GTAP12_dat"),
-                       Sys.getenv("GTAP12_par"),
-                       Sys.getenv("GTAP12_set"),
-                       REG = "R32",
-                       ACTS = "medium",
-                       ENDW = "labor_agg",
-                       time_steps = c(2023, 2025, 2027, 2030, 2035))
-  check <- attr(int_data, "metadata")$data_format == "GTAPv7"
-  expect_true(check)
-})
-
 test_that("ems_data prepares a GTAP-AEZ database in place", {
   skip_if(!nzchar(Sys.getenv("GTAP12AEZ_dat")), "GTAP12AEZ_* inputs not set")
   # loaded with verbose on: the layer announces itself

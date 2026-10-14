@@ -1326,23 +1326,6 @@ test_that("GTAPv7 in-TAB condensation solves equivalently and the PostSim report
   expect_true(all(c("alloc_a1", "tot_e1") %in% tolower(welfare[[2]])))
 })
 
-test_that("ems_solve examples work", {
-  nest_temp("solve_examples", write_dir)
-  cmf_path <- ems_deploy(dynamic_data,
-                         dynamic_model)
-  # The following examples require the teems solver to be built.
-  # See https://teemsphere.github.io/ to get started.
-
-  # Solving a static model with Johansen:
-  expect_s3_class(ems_solve(cmf_path), "tbl_df")
-
-  # Solving a dynamic model with the SBBD method:
-  expect_s3_class(ems_solve(cmf_path,
-            solution_method = "Gragg",
-            matrix_method = "SBBD",
-            n_tasks = 6), "tbl_df")
-})
-
 test_that("a run with -jacdump leaves a Jacobian that its solution satisfies (e2e)", {
   nest_temp("solve_jacdump", write_dir)
   cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("aoall", 5))

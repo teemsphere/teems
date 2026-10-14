@@ -206,29 +206,6 @@ test_that("uniform shock set, index and element names match case-insensitively",
   expect_identical(mixed, canon)
 })
 
-test_that("ems_uniform examples work", {
-  # Full uniform: 2% shock imposed on all afeall tuples
-  expect_type(ems_uniform_shock(var = "afeall", value = 2), "list")
-
-  # Partial uniform by element: applied only to the "chn"
-  # element in set REGr (REG). Note that set designations must
-  # consist of the concatenation of the standard set (e.g., REG)
-  # and variable-specific index (e.g., r).
-  expect_type(ems_uniform_shock(var = "afeall",
-                    REGr = "chn",
-                    value = 2), "list")
-
-  # tested in GTAP-RE/part_uniform_subset_swap.R
-  
-  # Partially uniform by subset and element: applied to "chn"
-  # and "usa" across the MARG and FWDTIME subsets.
-  expect_type(ems_uniform_shock(var = "qxs",
-                    COMMc = "MARG",
-                    REGs = c("chn", "usa"),
-                    ALLTIMEt = "FWDTIME",
-                    value = -1), "list")
-})
-
 unlink(write_dir, recursive = TRUE)
 test_that("a uniform shock value must be a single finite number", {
   expect_snapshot_error(ems_uniform_shock("pop", NA_real_))

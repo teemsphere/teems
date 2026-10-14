@@ -282,3 +282,85 @@ test_that("a scenario shock on a change variable deploys ordinary changes", {
   v <- v[!is.na(v) & v != 0]
   expect_equal(sum(v), 3 * length(regions))
 })
+
+# aoall(a,r,t) is exogenous in the GTAP-RE closure and mapped on two
+# dimensions (ACTS by macro_sector, REG by big3), so a scenario shock on
+# it sums over both mappings and the partial coverage is judged per
+# (activity, region) aggregate
+traj3 <- function(acts, regs) {
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  traj <- expand.grid(ACTSa = acts, REGr = regs, Year = c(2023, 2024, 2025),
+                      stringsAsFactors = FALSE)
+  ia <- match(traj$ACTSa, maps$ACTS$ACTS)
+  ir <- match(traj$REGr, maps$REG$REG)
+  traj$Value <- (10 + ia + 100 * ir) * (1 + (ia + ir) / 2000)^(traj$Year - 2023)
+  traj
+}
+
+crops_usa_expected <- function(traj) {
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  members <- traj$ACTSa %in% maps$ACTS$ACTS[maps$ACTS$macro_sector == "crops"] &
+    traj$REGr %in% maps$REG$REG[maps$REG$big3 == "usa"]
+  s <- tapply(traj$Value[members], traj$Year[members], sum)
+  as.numeric((s[c("2024", "2025")] - s[["2023"]]) / s[["2023"]] * 100)
+}
+
+shf_numbers <- function(cmf) {
+  shf <- readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  v <- suppressWarnings(as.numeric(unlist(strsplit(shf, "[[:space:]]+"))))
+  v[!is.na(v) & v != 0]
+}
+
+expect_contains_value <- function(values, expected) {
+  for (e in expected) {
+    expect_lt(min(abs(values - e)), 1e-9 * abs(e))
+  }
+}
+
+test_that("a scenario shock on a variable mapped on two dimensions sums over both", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  full <- traj3(maps$ACTS$ACTS, maps$REG$REG)
+  nest_temp("scen_3d_full", write_dir)
+  cmf <- suppressMessages(ems_deploy(dat, model, ems_scenario_shock("aoall", full)))
+  values <- shf_numbers(cmf)
+  expect_length(values, 5L * 3L * 2L)
+  expect_contains_value(values, crops_usa_expected(full))
+})
+
+test_that("a partial scenario shock on two mapped dimensions covers one aggregate", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  part <- traj3(maps$ACTS$ACTS[maps$ACTS$macro_sector == "crops"],
+                maps$REG$REG[maps$REG$big3 == "usa"])
+  nest_temp("scen_3d_partial", write_dir)
+  ems_option_set(verbose = TRUE)
+  withr::defer(ems_option_set(verbose = FALSE))
+  msgs <- testthat::capture_messages(
+    cmf <- ems_deploy(dat, model, ems_scenario_shock("aoall", part, partial = TRUE))
+  )
+  expect_true(any(grepl("covers 1 of 15 aggregated tuples", msgs, fixed = TRUE)))
+  values <- shf_numbers(cmf)
+  expect_length(values, 2L)
+  expect_contains_value(values, crops_usa_expected(part))
+})
+
+test_that("a partial scenario shock missing a member on the second dimension aborts", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  crops <- maps$ACTS$ACTS[maps$ACTS$macro_sector == "crops"]
+  part <- traj3(crops[-1], maps$REG$REG[maps$REG$big3 == "usa"])
+  nest_temp("scen_3d_member", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("aoall", part, partial = TRUE)))
+})
+
+test_that("a partial scenario shock missing a year for a covered tuple aborts", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  maps <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7
+  crops <- maps$ACTS$ACTS[maps$ACTS$macro_sector == "crops"]
+  usa <- maps$REG$REG[maps$REG$big3 == "usa"]
+  part <- traj3(crops, usa)
+  part <- part[!(part$ACTSa == crops[1] & part$REGr == usa[1] & part$Year == 2024), ]
+  nest_temp("scen_3d_year", write_dir)
+  expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("aoall", part, partial = TRUE)))
+})

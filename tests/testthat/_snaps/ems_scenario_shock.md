@@ -67,3 +67,15 @@
     x 3 scenario shock tuples for pop match no pre-aggregation element or time step: zzz,2023, zzz,2024, and zzz,2025.
     i Call: `ems_scenario_shock(var = "pop", input = traj)`
 
+# a partial scenario shock missing a member on the second dimension aborts
+
+    x 1 aggregated tuple of aoall is only partly covered by the scenario shock: crops,usa.
+    i A partial scenario shock needs every pre-aggregation tuple, in every year, behind each aggregated tuple it shocks; 3 are missing: c_b,usa,2023, c_b,usa,2024, and c_b,usa,2025.
+    i Call: `ems_scenario_shock(var = "aoall", input = part, partial = TRUE)`
+
+# a partial scenario shock missing a year for a covered tuple aborts
+
+    x 1 aggregated tuple of aoall is only partly covered by the scenario shock: crops,usa.
+    i A partial scenario shock needs every pre-aggregation tuple, in every year, behind each aggregated tuple it shocks; 1 is missing: c_b,usa,2024.
+    i Call: `ems_scenario_shock(var = "aoall", input = part, partial = TRUE)`
+

@@ -77,6 +77,19 @@ test_that("ems_custom_shock examples run", {
   expect_identical(env$pop_data$Year, 2023:2030)
 })
 
+test_that("ems_scenario_shock examples run", {
+  env <- example_env()
+  vals <- run_examples(example_exprs("ems_scenario_shock"), env)
+  shocks <- vals[names(vals) == "ems_scenario_shock"]
+  expect_length(shocks, 2L)
+  for (s in shocks) {
+    expect_s3_class(s[[1]], "scenario")
+    expect_true(s[[1]]$partial)
+    expect_identical(nrow(s[[1]]$input), 12L)
+  }
+  expect_equal(shocks[[1]][[1]]$input$Value, shocks[[2]][[1]]$input$Value)
+})
+
 test_that("ems_model examples run", {
   env <- example_env()
   vals <- run_examples(example_exprs("ems_model"), env)

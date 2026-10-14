@@ -268,3 +268,17 @@ test_that("a scenario shock tuple outside the pre-aggregation sets aborts", {
   nest_temp("scen_extra", write_dir)
   expect_snapshot_error(ems_deploy(dat, model, ems_scenario_shock("pop", traj)))
 })
+
+test_that("a scenario shock on a change variable deploys ordinary changes", {
+  dir.create(write_dir, showWarnings = FALSE, recursive = TRUE)
+  regions <- getFromNamespace("mappings", "teems")$GTAPv12$GTAPv7$REG$REG
+  traj <- expand.grid(REGr = regions, Year = c(2023, 2024, 2025), stringsAsFactors = FALSE)
+  traj$Value <- 1000 * match(traj$REGr, regions) + (traj$Year - 2023)
+  nest_temp("scen_change_var", write_dir)
+  cmf <- ems_deploy(dat, model, ems_scenario_shock("del_tbal", traj),
+                    swap_in = "del_tbal", swap_out = "cgdslack")
+  shf <- readLines(list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE))
+  v <- suppressWarnings(as.numeric(unlist(strsplit(shf, "[[:space:]]+"))))
+  v <- v[!is.na(v) & v != 0]
+  expect_equal(sum(v), 3 * length(regions))
+})

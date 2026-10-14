@@ -87,8 +87,14 @@
 .construct_shk.scenario <- function(raw_shock,
                                       closure,
                                       sets,
+                                      var_extract,
                                       ...) {
   Value <- NULL
+
+  var_name <- .levels_linear_alias(raw_shock$var, var_extract)
+  quals <- var_extract$qualifier_list[match(tolower(var_name), tolower(var_extract$name))]
+  quals <- strsplit(tolower(gsub("[()[:space:]]", "", quals)), ",", fixed = TRUE)[[1]]
+  is_change <- "change" %in% quals
 
   set_ele <- with(sets$ele, mget(raw_shock$ls_upper))
   template_shk <- do.call(data.table::CJ, c(set_ele, sorted = FALSE))
@@ -111,7 +117,7 @@
 
   value[, let(Value = {
     baseline <- Value[get(int_col) == 0]
-    (Value - baseline) / baseline * 100
+    if (is_change) Value - baseline else (Value - baseline) / baseline * 100
   }), by = non_int_col]
 
   bad <- value[!is.finite(Value), ]

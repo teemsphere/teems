@@ -51,8 +51,8 @@ swap out.
 
 A closure must leave as many endogenous variable elements as
 there are equations, so in a working closure, every element
-swapped in needs one swapped out; \code{\link[=ems_deploy]{ems_deploy()}} stops
-with the arithmetic when the counts differ.
+swapped in needs one swapped out; \code{\link[=ems_deploy]{ems_deploy()}} aborts
+when a closure is invalid.
 }
 \examples{
 # Full variable swaps

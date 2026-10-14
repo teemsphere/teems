@@ -35,8 +35,8 @@
 #'
 #'   A closure must leave as many endogenous variable elements as
 #'   there are equations, so in a working closure, every element
-#'   swapped in needs one swapped out; [`ems_deploy()`] stops
-#'   with the arithmetic when the counts differ.
+#'   swapped in needs one swapped out; [`ems_deploy()`] aborts
+#'   when a closure is invalid.
 #' @seealso [`ems_model()`] for parsing and modifying model and
 #'   closure files. [`ems_deploy()`] for loading the output of
 #'   this function.

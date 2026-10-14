@@ -41,6 +41,12 @@ local_accuracy_stats <- function(run_dir, linear, levels, judged_zero, subinterv
     version = 2L,
     accuracy = list(
       covers = "endogenous+backsolved",
+      required_figures = 3L,
+      codes = list(
+        XMA = list(results = 90L, lowest_figures = 6L),
+        FC0 = list(results = 2L, lowest_figures = NA),
+        "MD!" = list(results = 1L, lowest_figures = 0L)
+      ),
       summarised = sum(levels),
       subintervals = subintervals,
       linear = list(figures = linear, judged_zero = judged_zero),
@@ -48,7 +54,7 @@ local_accuracy_stats <- function(run_dir, linear, levels, judged_zero, subinterv
       data = data
     )
   )
-  jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE)
+  jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE, na = "null")
   return(invisible(run_dir))
 }
 
@@ -72,6 +78,10 @@ test_that("a finished run reports its elapsed time and accuracy", {
   expect_true(any(grepl("^Elapsed time: +1m 15s$", record)))
   expect_true(any(grepl("^Accuracy \\(solution, 4 figures\\): 98%$", record)))
   expect_true(any(grepl("^ +3 +2 +2$", record)))
+  expect_true(any(grepl("^Required figures \\(XRA\\): 3$", record)))
+  expect_true(any(grepl("^XMA +90 +6$", record)))
+  expect_true(any(grepl("^FC0 +2$", record)))
+  expect_true(any(grepl("^MD! +1 +0$", record)))
 })
 
 test_that("the accuracy share is judged on levels figures, judged-zero results counting at 6", {

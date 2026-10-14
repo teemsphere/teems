@@ -32,11 +32,14 @@
 #'   `LevelsFigures` the same for the variable's levels value,
 #'   which a percent-change result usually has more of. `Error` is
 #'   the difference between the two extrapolations in the units of
-#'   `Value`, and `Summarised` is `FALSE` for exogenous elements,
+#'   `Value`, `Code` is the convergence code of GEMPACK manual
+#'   26.2.3 (for example `"CX"`, confidence in the extrapolated
+#'   result, or `"MD!"`, monotonic but appearing to diverge), and
+#'   `Summarised` is `FALSE` for exogenous elements,
 #'   which the run's accuracy summary leaves out. With
 #'   subintervals, `Pass1`–`Pass3` and `Error` describe the last
-#'   subinterval, and the figures are the lowest over all
-#'   subintervals. An error is raised for a run that wrote no
+#'   subinterval, the figures are the lowest over all subintervals
+#'   and the code the worst. An error is raised for a run that wrote no
 #'   separate solutions.
 #' @details Every variable whose pre-simulation level is known
 #'   gains the columns `PreLevel` and `PostLevel`, plus `Change`

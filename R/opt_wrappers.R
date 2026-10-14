@@ -42,6 +42,13 @@
 
 #' @noRd
 #' @keywords internal
+.o_required_figures <- function() {
+  required_figures <- ems_option_get("required_figures")
+  return(required_figures)
+}
+
+#' @noRd
+#' @keywords internal
 .o_check_shock_status <- function() {
   shock_status <- ems_option_get("check_shock_status")
   return(shock_status)

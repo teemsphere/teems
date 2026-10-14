@@ -234,18 +234,22 @@ test_that("two-solution runs and the convergence rule solve", {
   expect_false(grepl("-convrule", cmd(c(2L, 4L, 8L)), fixed = TRUE))
   two <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L))
   expect_equal(qgdp(two), qgdp(ref), tolerance = 1e-3)
+  ems_option_set(required_figures = 3)
+  expect_match(cmd(c(2L, 4L, 8L)), "-step3 8 -rqf 3", fixed = TRUE)
+  expect_false(grepl("-rqf", cmd(c(2L, 4L)), fixed = TRUE))
+  ems_options$set_required_figures(NULL)
   ems_option_set(converge = TRUE)
   expect_match(cmd(c(2L, 4L, 8L)), "-step3 8 -convrule 1", fixed = TRUE)
   ruled <- ems_solve(cmf_path, solution_method = "Gragg", steps = c(2L, 4L, 8L))
   expect_equal(qgdp(ruled), qgdp(ref), tolerance = 1e-4)
 })
 
-test_that("the convergence rule reports each element by its class (GEMPACK manual 26.2.5)", {
+test_that("the convergence rule reports each element by its convergence code (GEMPACK manual 26.2.5)", {
   # a hard shock on few steps leaves some elements poorly converged; per
-  # element the rule reports the average of the three passes when they
-  # agree to about six figures or are near zero, the extrapolation when
-  # the two two-pass extrapolations agree to one figure, the third pass
-  # otherwise (conv_pick() in the solver's solve_drivers.c)
+  # element the rule reports the average of the three passes for the
+  # codes MVC/OVC/MN0/ON0, the third pass for the ?/! codes and the
+  # extrapolation otherwise (conv_pick() in the solver's solve_drivers.c);
+  # the codes are the same with the rule on and off
   nest_temp("solve_convrule_classes", write_dir)
   withr::defer(ems_option_set(converge = FALSE))
   cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("aoall", 30))
@@ -262,37 +266,34 @@ test_that("the convergence rule reports each element by its class (GEMPACK manua
   )
   on <- ems_compose(cmf_path, var_names, passes = TRUE)
 
-  q2 <- (steps[2] / steps[1])^2
-  q3 <- (steps[3] / steps[1])^2
   per_element <- lapply(var_names, \(v) {
     p <- on$dat[[v]]
-    c1 <- p$Pass1
-    c2 <- p$Pass2
-    c3 <- p$Pass3
-    sc <- pmax(abs(c1), abs(c2), abs(c3))
-    e12 <- (q2 * c2 - c1) / (q2 - 1)
-    e23 <- (q3 * c3 - q2 * c2) / (q3 - q2)
-    close <- sc <= 1e-6 | abs(c3 - c1) <= 1e-6 * sc
-    agree <- abs(e12 - e23) < 0.1 * pmax(abs(e12), abs(e23))
     data.frame(
-      class = ifelse(close, "average", ifelse(agree, "extrapolation", "third")),
-      average = (c1 + c2 + c3) / 3,
-      third = c3,
+      class = ifelse(p$Code %in% c("MVC", "OVC", "MN0", "ON0"), "average",
+        ifelse(grepl("[?!]", p$Code), "third", "extrapolation")
+      ),
+      code = p$Code,
+      average = (p$Pass1 + p$Pass2 + p$Pass3) / 3,
+      third = p$Pass3,
       off = off$dat[[v]]$Value,
+      off_code = off$dat[[v]]$Code,
       on = p$Value
     )
   })
   el <- do.call(rbind, per_element)
-  expect_setequal(unique(el$class), c("average", "extrapolation", "third"))
+  expect_true(all(c("extrapolation", "third") %in% el$class))
+  expect_identical(el$code, el$off_code)
 
   ext <- el[el$class == "extrapolation", ]
   expect_equal(ext$on, ext$off, tolerance = 1e-12)
   thr <- el[el$class == "third", ]
   expect_equal(thr$on, thr$third, tolerance = 1e-12)
   expect_true(any(abs(thr$on - thr$off) > 1e-6))
+  # this model leaves no result very close or near zero without the
+  # extrapolations agreeing to working precision (XMA); the solver's
+  # accuracy kit covers averaging on GTAPv7
   avg <- el[el$class == "average", ]
   expect_equal(avg$on, avg$average, tolerance = 1e-12)
-  expect_true(any(abs(avg$on - avg$off) > 1e-12))
 })
 
 test_that("ems_solve errors when steps are not increasing", {

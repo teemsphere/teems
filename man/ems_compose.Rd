@@ -32,11 +32,14 @@ a result judged zero, both extrapolations below 1e-6), and
 \code{LevelsFigures} the same for the variable's levels value,
 which a percent-change result usually has more of. \code{Error} is
 the difference between the two extrapolations in the units of
-\code{Value}, and \code{Summarised} is \code{FALSE} for exogenous elements,
+\code{Value}, \code{Code} is the convergence code of GEMPACK manual
+26.2.3 (for example \code{"CX"}, confidence in the extrapolated
+result, or \code{"MD!"}, monotonic but appearing to diverge), and
+\code{Summarised} is \code{FALSE} for exogenous elements,
 which the run's accuracy summary leaves out. With
 subintervals, \code{Pass1}–\code{Pass3} and \code{Error} describe the last
-subinterval, and the figures are the lowest over all
-subintervals. An error is raised for a run that wrote no
+subinterval, the figures are the lowest over all subintervals
+and the code the worst. An error is raised for a run that wrote no
 separate solutions.}
 }
 \value{

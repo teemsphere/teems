@@ -11,6 +11,7 @@ ems_option_set(
   accuracy_threshold = NULL,
   accuracy_figures = NULL,
   accuracy_criterion = NULL,
+  required_figures = NULL,
   full_exclude = NULL,
   check_shock_status = NULL,
   timestep_header = NULL,
@@ -56,6 +57,12 @@ values read from data files and updated, \code{"both"} the two
 together. The criteria of GEMPACK's automatic accuracy (GEMPACK
 manual 26.4), whose default is \code{"data"}. A run that updates no
 data is judged on the solution under \code{"data"} and \code{"both"}.}
+
+\item{required_figures}{Integer length 1 from 1 to 6 (default
+\code{NULL}, none). Results of a three-solution \code{"Gragg"},
+\code{"Midpoint"} or \code{"Euler"} run whose two extrapolations agree to
+at least this many figures get the convergence code \code{XRA} in the
+accuracy summary (GEMPACK manual 26.2.6, RQF). Reporting only.}
 
 \item{full_exclude}{A character vector of variable length
 (default is \code{c("DREL", "DVER", "XXCR", "XXCD", "XXCP", "SLUG", "EFLG")}). Headers to fully exclude from all aspects

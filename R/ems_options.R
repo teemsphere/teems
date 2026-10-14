@@ -29,6 +29,11 @@
 #'   together. The criteria of GEMPACK's automatic accuracy (GEMPACK
 #'   manual 26.4), whose default is `"data"`. A run that updates no
 #'   data is judged on the solution under `"data"` and `"both"`.
+#' @param required_figures Integer length 1 from 1 to 6 (default
+#'   `NULL`, none). Results of a three-solution `"Gragg"`,
+#'   `"Midpoint"` or `"Euler"` run whose two extrapolations agree to
+#'   at least this many figures get the convergence code `XRA` in the
+#'   accuracy summary (GEMPACK manual 26.2.6, RQF). Reporting only.
 #' @param full_exclude A character vector of variable length
 #'   (default is `c("DREL", "DVER", "XXCR", "XXCD", "XXCP",
 #'   "SLUG", "EFLG")`). Headers to fully exclude from all aspects
@@ -99,6 +104,7 @@ ems_option_set <- function(tempdir = NULL,
                            accuracy_threshold = NULL,
                            accuracy_figures = NULL,
                            accuracy_criterion = NULL,
+                           required_figures = NULL,
                            full_exclude = NULL,
                            check_shock_status = NULL,
                            timestep_header = NULL,
@@ -128,6 +134,9 @@ ems_option_set <- function(tempdir = NULL,
   }
   if (!is.null(accuracy_criterion)) {
     ems_options$set_accuracy_criterion(accuracy_criterion, call = call)
+  }
+  if (!is.null(required_figures)) {
+    ems_options$set_required_figures(required_figures, call = call)
   }
   if (!is.null(full_exclude)) {
     ems_options$set_full_exclude(full_exclude, call = call)
@@ -188,6 +197,8 @@ ems_option_set <- function(tempdir = NULL,
 #'     must reach to count as accurate (the default is `4`).
 #'   * `"accuracy_criterion"` Character. `"solution"` (the
 #'     default), `"data"` or `"both"`: the accuracy summary judged.
+#'   * `"required_figures"` Integer or `NULL` (the default). Figures
+#'     for the convergence code `XRA`.
 #'   * `"full_exclude"` Character vector. Headers to
 #'     fully exclude from all aspects of the model run.
 #'   * `"check_shock_status"` Logical. If `FALSE`, no
@@ -242,6 +253,7 @@ ems_option_get <- function(name = NULL) {
          accuracy_threshold = ems_options$get_accuracy_threshold(),
          accuracy_figures   = ems_options$get_accuracy_figures(),
          accuracy_criterion = ems_options$get_accuracy_criterion(),
+         required_figures   = ems_options$get_required_figures(),
          full_exclude       = ems_options$get_full_exclude(),
          check_shock_status = ems_options$get_check_shock_status(),
          timestep_header    = ems_options$get_timestep_header(),

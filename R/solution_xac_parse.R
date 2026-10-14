@@ -35,15 +35,19 @@
     levels_figures <- rep(NA_integer_, length(figures))
     error <- rep(NA_real_, length(figures))
     summarised <- rep(NA, length(figures))
+    code_number <- integer(length(figures))
   } else {
     error <- read_column(32 + 24 * nrow, 8L, "double")
     byte_base <- 32 + 32 * nrow
     figures <- read_column(byte_base, 1L, "integer")
     levels_figures <- read_column(byte_base + nrow, 1L, "integer")
+    code_number <- read_column(byte_base + 2 * nrow, 1L, "integer")
     flags <- read_column(byte_base + 3 * nrow, 1L, "integer")
     summarised <- bitwAnd(flags, 1L) > 0L
   }
   figures[figures == 7L] <- NA_integer_
+  code_names <- c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")
+  code <- ifelse(code_number >= 1L & code_number <= 16L, code_names[pmax(code_number, 1L)], NA_character_)
   xac <- data.table::data.table(
     Pass1 = passes[[1]],
     Pass2 = passes[[2]],
@@ -51,6 +55,7 @@
     Error = error,
     Figures = figures,
     LevelsFigures = levels_figures,
+    Code = code,
     Summarised = summarised
   )
   return(xac)

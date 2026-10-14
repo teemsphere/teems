@@ -119,7 +119,7 @@
     var_extract$ls_upper_idx
   )
 
-  value_cols <- c("Value", "error_estimate", "Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Summarised", "PreLevel", "PostLevel", "Change", "PercentChange")
+  value_cols <- c("Value", "error_estimate", "Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Code", "Summarised", "PreLevel", "PostLevel", "Change", "PercentChange")
   lax_check <- all(unlist(purrr::map2(
     var_extract$ls_upper_idx,
     purrr::map(data_dt, colnames),

@@ -24,6 +24,8 @@ be accurate to at least \code{accuracy_figures} figures.
 must reach to count as accurate (the default is \code{4}).
 \item \code{"accuracy_criterion"} Character. \code{"solution"} (the
 default), \code{"data"} or \code{"both"}: the accuracy summary judged.
+\item \code{"required_figures"} Integer or \code{NULL} (the default). Figures
+for the convergence code \code{XRA}.
 \item \code{"full_exclude"} Character vector. Headers to
 fully exclude from all aspects of the model run.
 \item \code{"check_shock_status"} Logical. If \code{FALSE}, no

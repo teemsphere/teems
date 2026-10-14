@@ -206,6 +206,18 @@ test_that("the accuracy figures and criterion options are validated, stored and 
   expect_identical(ems_option_get("accuracy_criterion"), "solution")
 })
 
+test_that("the required_figures option is validated, stored, reset and sent as -rqf", {
+  withr::defer(ems_option_reset())
+  expect_null(ems_option_get("required_figures"))
+  ems_option_set(required_figures = 3)
+  expect_identical(ems_option_get("required_figures"), 3L)
+  expect_identical(.o_required_figures(), 3L)
+  expect_snapshot_error(ems_option_set(required_figures = 0))
+  expect_error(ems_option_set(required_figures = "3"), "required_figures")
+  ems_option_reset()
+  expect_null(ems_option_get("required_figures"))
+})
+
 test_that("ems_option_reset restores default docker_tag", {
   ems_option_set(docker_tag = "v1.0")
   ems_option_reset()

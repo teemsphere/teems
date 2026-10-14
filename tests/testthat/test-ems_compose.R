@@ -243,7 +243,8 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
   w <- vapply(1:3, \(i) prod(x[-i] / (x[-i] - x[i])), numeric(1))
   for (nm in c("qgdp", "qfd")) {
     d <- out$dat[[nm]]
-    expect_true(all(c("Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Summarised") %in% names(d)), label = nm)
+    expect_true(all(c("Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Code", "Summarised") %in% names(d)), label = nm)
+    expect_true(all(d$Code %in% c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")), label = nm)
     expect_true(all(d$Figures %in% c(0:6, NA)), label = nm)
     expect_true(all(d$LevelsFigures >= d$Figures | is.na(d$Figures)), label = nm)
     expect_true(all(d$Summarised), label = nm)

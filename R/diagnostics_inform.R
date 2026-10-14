@@ -98,6 +98,21 @@
     sprintf("Judged zero:        %.0f\n", judged_zero),
     append = TRUE, file = diagnostic_file, sep = ""
   )
+  codes <- acc$codes
+  if (length(codes) > 0L) {
+    code_rows <- vapply(names(codes), \(nm) {
+      lowest <- as.numeric(unlist(codes[[nm]]$lowest_figures))
+      lowest_txt <- if (length(lowest) == 0L || is.na(lowest[1])) "" else sprintf("%14.0f", lowest[1])
+      row <- sprintf("%-4s  %7.0f  %s", nm, as.numeric(codes[[nm]]$results), lowest_txt)
+      return(trimws(row, which = "right"))
+    }, character(1))
+    cat(
+      if (!is.null(acc$required_figures)) sprintf("\nRequired figures (XRA): %.0f\n", as.numeric(acc$required_figures)),
+      "\ncode  results  lowest figures\n",
+      paste0(code_rows, "\n"),
+      append = TRUE, file = diagnostic_file, sep = ""
+    )
+  }
   if (has_data) {
     data_files <- data_acc$files
     file_figures <- data_files$figures

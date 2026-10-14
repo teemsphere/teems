@@ -306,6 +306,8 @@ build_solve_err <- function() {
       "{.arg h_init} ({h_init}) exceeds the uniform first step {.code 1/steps} = {signif(1 / steps, 4)}.",
       "The solver starts from the smaller of the two; raise {.arg steps} or lower {.arg h_init}."
     ),
+    # test-ems_RK.R: "the dot form of a Runge-Kutta control is refused in ems_RK"
+    rk_control_dots = "{.arg {rk_dots}} {?is/are} the {.fn ems_solve} dot form of {.arg {rk_formals}}; {.fn ems_RK} takes the formal argument{?s}.",
     # not in tests: not simulated (Docker absent or misconfigured)
     docker_x_image = "The {.val {image_name}} Docker image is not present.",
     # test-solve_in_situ.R: "solve_in_situ errors when model directory doesn't exist"

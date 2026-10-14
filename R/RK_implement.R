@@ -20,7 +20,17 @@
       rk_controller = a$controller,
       rk_scope = a$scope,
       rk_h0 = a$h_init,
-      rk_guard = a$guard
+      rk_guard = a$guard,
+      matrix_method = a$matrix_method,
+      n_subintervals = a$n_subintervals,
+      n_tasks = a$n_tasks,
+      n_threads = a$n_threads,
+      precision = a$precision,
+      verbosity = a$verbosity,
+      suppress_outputs = a$suppress_outputs,
+      terminal_run = a$terminal_run,
+      complementarity = a$complementarity,
+      accuracy_vars = a$accuracy_vars
     ),
     a$solve_args
   )

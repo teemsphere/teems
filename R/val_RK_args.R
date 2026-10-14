@@ -33,6 +33,14 @@
     values = c("pct", "all"),
     error_call = call
   )
+  rk_dots <- intersect(names(a$solve_args), names(.rk_control_formals))
+  if (length(rk_dots) > 0L) {
+    rk_formals <- unname(.rk_control_formals[rk_dots])
+    .cli_action(solve_err$rk_control_dots,
+      action = "abort",
+      call = call
+    )
+  }
   if (is.null(a$adaptive)) {
     a$adaptive <- if (a$solution_method %in% c("BoSha32", "DoPri54")) {
       "yes"
@@ -42,3 +50,14 @@
   }
   return(a)
 }
+
+#' @keywords internal
+#' @noRd
+.rk_control_formals <- c(
+  rk_chart = "chart",
+  rk_norm = "error_norm",
+  rk_controller = "controller",
+  rk_scope = "scope",
+  rk_h0 = "h_init",
+  rk_guard = "guard"
+)

@@ -3,6 +3,14 @@
     x `h_init` (0.5) exceeds the uniform first step `1/steps` = 0.25.
     i The solver starts from the smaller of the two; raise `steps` or lower `h_init`.
 
+# the dot form of a Runge-Kutta control is refused in ems_RK
+
+    x `rk_chart` is the `ems_solve()` dot form of `chart`; `ems_RK()` takes the formal argument.
+
+---
+
+    x `rk_h0` and `rk_guard` are the `ems_solve()` dot form of `h_init` and `guard`; `ems_RK()` takes the formal arguments.
+
 # unknown dot arguments abort
 
     x Unknown argument `bogus_argument` passed to `...`.

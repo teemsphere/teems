@@ -44,6 +44,36 @@ test_that("RK controls pass through the ems_solve dots", {
   expect_match(cmd, "-maxretries 5", fixed = TRUE)
 })
 
+test_that("the dot form of a Runge-Kutta control is refused in ems_RK", {
+  d <- local_run_dir()
+  cmf <- mk_cmf(d)
+  expect_snapshot_error(ems_RK(cmf, rk_chart = "percent", terminal_run = TRUE))
+  expect_snapshot_error(ems_RK(cmf, rk_h0 = 0.1, rk_guard = 5, terminal_run = TRUE))
+})
+
+test_that("the promoted ems_solve arguments forward by name", {
+  d <- local_run_dir()
+  cmf <- mk_cmf(d)
+  out <- suppressMessages(ems_RK(
+    cmf,
+    solution_method = "RK4",
+    steps = 2L,
+    matrix_method = "DBBD",
+    n_tasks = 2L,
+    n_threads = 3L,
+    precision = "double",
+    verbosity = 2L,
+    terminal_run = TRUE
+  ))
+  cmd <- exec_cmd(d)
+  expect_match(cmd, "-solmed RK4", fixed = TRUE)
+  expect_match(cmd, "-matsol 2 ", fixed = TRUE)
+  expect_match(cmd, "mpiexec -n 2 ", fixed = TRUE)
+  expect_match(cmd, "-maxthreads 3", fixed = TRUE)
+  expect_match(cmd, "teems-solver-f64", fixed = TRUE)
+  expect_match(cmd, "-verbosity 2", fixed = TRUE)
+})
+
 test_that("unknown dot arguments abort", {
   d <- local_run_dir()
   cmf <- mk_cmf(d)

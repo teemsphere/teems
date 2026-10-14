@@ -201,8 +201,8 @@
 #'   * `laA`: `"LU"`/`"SBBD"` and the diagonal blocks.
 #'   * `laD`: the `"DBBD"`/`"NDBBD"` interface systems.
 #'   * `laDi`: `"NDBBD"` intermediate interfaces.
-#' @details **What a solve does.** The model is written in
-#'   linearized (percentage-change) form, and the shock is
+#' @section Solving:
+#'   The model is written in linearized (percentage-change) form, and the shock is
 #'   applied as a path from the base data, which is the initial
 #'   solution, to the post-shock equilibrium (Pearson 1991). Each
 #'   step along the path solves one or more linear systems in the
@@ -215,10 +215,9 @@
 #'   extrapolating methods then remove most of the error that
 #'   remains. Computing time grows with the total number of
 #'   steps, and with `n_subintervals`, since each subinterval
-#'   repeats the full solve on its share of the shock.
-#'
-#'   **Judging accuracy.** The extrapolating methods solve at three
-#'   step counts, and the agreement between the three solutions
+#'   repeats the full solve on its share of the shock. A run can be reproduced from its record in `sol.stats.json`.
+#' @section Accuracy:
+#'   The extrapolating methods solve at three step counts, and the agreement between the three solutions
 #'   gives an accuracy summary over the endogenous results, and
 #'   another over the values read from data files and updated. By
 #'   default the measure is the share of nonzero results whose
@@ -243,9 +242,8 @@
 #'   estimate. If adding steps stops improving accuracy, the run
 #'   has reached the rounding limit of single precision, and
 #'   `precision = "double"` is the remedy.
-#'
-#'   **Choosing a method.** The default `"Gragg"` with `c(2L, 4L, 6L)`
-#'   suits most static policy shocks. `"Johansen"` is a quick
+#' @section Solution method:
+#'   The default `"Gragg"` with `c(2L, 4L, 6L)` suits most static policy shocks. `"Johansen"` is a quick
 #'   check that a new model and closure run, but its results
 #'   should not be reported. Shocks that drive a CES or CET share
 #'   close to zero, or a variable close to `-100%`, can make the
@@ -256,9 +254,8 @@
 #'   `"Midpoint"` or `"Euler"`. A single step count, without
 #'   extrapolation, suits models whose updates must follow the
 #'   steps themselves.
-#'
-#'   **Size, matrix method and resources.** The linear system has one
-#'   row for each endogenous variable element left after
+#' @section Size, matrix method and resources:
+#'   The linear system has one row for each endogenous variable element left after
 #'   condensation. Its size grows with the number of regions
 #'   times the number of commodities, and for intertemporal
 #'   models it also grows with the number of periods. `"LU"`
@@ -276,15 +273,6 @@
 #'   `matrix_method`, `n_tasks` and `n_threads`. Treat its
 #'   recommendation as a starting point.
 #'
-#'   **Memory.** Before a run starts, its peak memory is estimated
-#'   and compared with the memory available to the container. A
-#'   run that will not fit is refused, and the message lists
-#'   remedies such as a coarser aggregation, fewer tasks or
-#'   `"NDBBD"`.
-#'
-#'   **Reproducibility.** `ems_solve()` makes no choices of its own.
-#'   A run uses exactly the arguments given, so it can be
-#'   reproduced from its record in `sol.stats.json`.
 #' @seealso [`ems_deploy()`] for generating `"cmf_path"`.
 #'   [`solve_in_situ()`] for calling the solver on existing input
 #'   files. [`ems_compose()`] for structuring data when

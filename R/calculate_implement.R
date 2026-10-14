@@ -23,6 +23,7 @@
     suppress_outputs = FALSE,
     terminal_run = FALSE,
     complementarity = NULL,
+    accuracy_vars = NULL,
     adaptive = "no",
     eps_tolerance = 0.01,
     max_retries = 3L,

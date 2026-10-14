@@ -55,9 +55,10 @@ raised as an error: the printed object names the
 undetermined variables and the over-constrained equations,
 \code{plot(x, type = "dm")} locates them and \code{x$defects} lists
 every element.
+}
+\section{Condensation}{
 
-\strong{Condensation.} Backsolving shrinks the system but
-densifies the blocks the parallel methods split along; on
+Backsolving shrinks the system but densifies the blocks the parallel methods split along; on
 GTAP-RE the standard condensation makes \code{"SBBD"} runs much
 slower. The probe's verdict on the deployment is in
 \code{x$condense$verdict}:
@@ -74,9 +75,11 @@ measured.
 equations or more; \code{backsolve} in \code{\link[=ems_model]{ems_model()}} may help.
 \item \code{"none"}: no verdict.
 }
+}
 
-\strong{Recommendation.} From the measured structure, the deploy
-metadata and a memory model per method, the probe suggests a
+\section{Recommendation}{
+
+From the measured structure, the deploy metadata and a memory model per method, the probe suggests a
 matrix method with its tasks and threads for the machine
 (the container's, or the \code{cores} and \code{memory} given). It
 prints as a ready-to-paste \code{\link[=ems_solve]{ems_solve()}} call and is kept
@@ -90,15 +93,15 @@ size measured, is sent to \code{"LU"}. The rules and the
 measurements behind them are in the
 \href{https://teemsphere.github.io/solve.html}{solving} and
 \href{https://teemsphere.github.io/benchmarks.html}{benchmarks}
-chapters of the manual.
-
-\code{ems_probe()} is experimental. Its rules come from a limited
+chapters of the manual. \code{ems_probe()} is experimental: its rules
+come from a limited
 set of models and machines, so a different method, task
 count or thread count may be faster for yours. Try
 alternatives with \code{\link[=ems_solve]{ems_solve()}}, and report a suggestion
 that is off at
 \url{https://github.com/teemsphere/teems/issues}.
 }
+
 \examples{
 \dontrun{
 # The following examples require the teems solver to be built.

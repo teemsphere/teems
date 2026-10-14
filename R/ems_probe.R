@@ -31,9 +31,8 @@
 #'   undetermined variables and the over-constrained equations,
 #'   `plot(x, type = "dm")` locates them and `x$defects` lists
 #'   every element.
-#'
-#'   **Condensation.** Backsolving shrinks the system but
-#'   densifies the blocks the parallel methods split along; on
+#' @section Condensation:
+#'   Backsolving shrinks the system but densifies the blocks the parallel methods split along; on
 #'   GTAP-RE the standard condensation makes `"SBBD"` runs much
 #'   slower. The probe's verdict on the deployment is in
 #'   `x$condense$verdict`:
@@ -48,9 +47,8 @@
 #'   * `"candidate"`: uncondensed, `"LU"`-bound and a million
 #'   equations or more; `backsolve` in [`ems_model()`] may help.
 #'   * `"none"`: no verdict.
-#'
-#'   **Recommendation.** From the measured structure, the deploy
-#'   metadata and a memory model per method, the probe suggests a
+#' @section Recommendation:
+#'   From the measured structure, the deploy metadata and a memory model per method, the probe suggests a
 #'   matrix method with its tasks and threads for the machine
 #'   (the container's, or the `cores` and `memory` given). It
 #'   prints as a ready-to-paste [`ems_solve()`] call and is kept
@@ -64,9 +62,8 @@
 #'   measurements behind them are in the
 #'   \href{https://teemsphere.github.io/solve.html}{solving} and
 #'   \href{https://teemsphere.github.io/benchmarks.html}{benchmarks}
-#'   chapters of the manual.
-#'
-#'   `ems_probe()` is experimental. Its rules come from a limited
+#'   chapters of the manual. `ems_probe()` is experimental: its rules
+#'   come from a limited
 #'   set of models and machines, so a different method, task
 #'   count or thread count may be faster for yours. Try
 #'   alternatives with [`ems_solve()`], and report a suggestion

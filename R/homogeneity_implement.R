@@ -364,6 +364,7 @@
     }
     err <- abs(d$Value - expected) / pmax(1, pmin(abs(d$Value), abs(expected)))
     keys <- setdiff(names(d), c("Value", "error_estimate", "PreLevel", "PostLevel", "Change", "PercentChange", "Year"))
+    keys <- keys[!startsWith(keys, "Year_")]
     labels <- if (length(keys) > 0L) {
       paste0(nm, "(", do.call(paste, c(as.list(d[, keys, with = FALSE]), sep = ",")), ")")
     } else {

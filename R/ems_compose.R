@@ -9,15 +9,19 @@
 #'   (`"BoSha32"`, `"DoPri54"`; see [`ems_solve()`]) each
 #'   variable's data.table carries an additional `error_estimate`
 #'   column: the solver's component-by-component estimate of the
-#'   cumulative solution error, `|delta| / max(1, |Value|)`.
+#'   cumulative solution error, `|delta| / max(1, |Value|)`. It is an
+#'   indicator for finding the least settled results, not a bound on
+#'   the error (it behaved as an upper bound in GEMPACK's tests,
+#'   Schiffmann 2022).
 #' @inheritParams ems_solve
 #' @param which Character vector of variable length (default
 #'   `"all"`). When `"all"`, all model variables and all model
 #'   coefficients (updated, post-simulation values, plus any
-#'   PostSim coefficients typed `"postsim"`) are returned.
-#'   Otherwise, a character vector of variable and/or coefficient
-#'   names to retrieve — an error is raised for any name not
-#'   found. Note that some coefficient names differ from their
+#'   PostSim coefficients typed `"postsim"`) are returned, except
+#'   the condensation coefficients (`CSUB<n>`), which are returned
+#'   only when named. Otherwise, a character vector of variable
+#'   and/or coefficient names to retrieve, matched without regard
+#'   to case — an error is raised for any name not found. Note that some coefficient names differ from their
 #'   associated headers (e.g., VTWR/VTMFSD). Coefficient values
 #'   are read from the solver's binary coefficient dump
 #'   (`sol.cof`/`sol.cbin`), selectively for named coefficients.

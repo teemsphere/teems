@@ -99,11 +99,12 @@ by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
 never takes the exogenous variables past their end point, so
 it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
 cannot take (GEMPACK manual 30.2).
-\item \code{"RK2"}, \code{"RK4"}: Explicit Runge-Kutta methods (the midpoint
-method and the classic fourth-order method; Schiffmann 2022).
-A single solution is computed with the one step count in
-\code{steps} — no Richardson extrapolation — with each step built
-from 2 (\code{"RK2"}) or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
+\item \code{"RK2"}, \code{"Heun"}, \code{"RK4"}: Explicit Runge-Kutta methods (the
+midpoint rule, the explicit trapezoid rule and the classic
+fourth-order method; Schiffmann 2022). A single solution
+is computed with the one step count in \code{steps} — no Richardson
+extrapolation — with each step built from 2 (\code{"RK2"}, \code{"Heun"})
+or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
 reaches a given accuracy in far fewer steps than the
 extrapolating methods.
 \item \code{"BoSha32"}, \code{"DoPri54"}: Embedded Runge-Kutta pairs
@@ -167,15 +168,12 @@ choices.}
 
 \item{eps_tolerance}{Numeric length 1 (default is \code{0.01}), the
 per-step error-metric bound targeted by \code{adaptive} control.
-Ignored when \code{adaptive = "no"}. The default is the measured
-accuracy-per-factorization optimum: four correct digits on 92-96\%
-of elements at a third of the factorizations of \code{0.1}'s
-Gragg-equivalent (teems-solver rk_comparison, 2026-09). See
-\code{\link[=ems_RK]{ems_RK()}}.}
+Ignored when \code{adaptive = "no"}. On large shocks, \code{0.01} reaches
+four correct digits on most elements. See \code{\link[=ems_RK]{ems_RK()}}.}
 
 \item{max_retries}{Integer length 1 (default \code{3L}),
 \code{adaptive = "yes"} only: retries of a step
-failing the -100\% crossing check. See \code{\link[=ems_RK]{ems_RK()}}.}
+failing a step check. See \code{\link[=ems_RK]{ems_RK()}}.}
 
 \item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{0.5}), adaptive control only: the step-length
 multiplier applied on each retry. See \code{\link[=ems_RK]{ems_RK()}}.}
@@ -185,9 +183,11 @@ tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
 == "LU".}
 
 \item{n_threads}{Integer length 1 (default \code{1L}), OpenMP threads
-per MPI task. Results with more than one thread are numerically
-equivalent but not bit-reproducible across thread counts
-(parallel reduction order).}
+per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give byte-identical
+results at any thread count; \code{"DBBD"} with more than one thread
+agrees only to rounding (see the
+\href{https://teemsphere.github.io/solve.html}{solving} chapter
+of the user manual).}
 
 \item{precision}{Character length 1, \code{"single"} (default) or
 \code{"double"}: floating-point precision of the solver's coefficient

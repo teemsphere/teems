@@ -29,8 +29,14 @@
 #'   the net of the swaps that name it, so a variable may be
 #'   swapped in whole and a slice of it swapped back out, or a
 #'   swap reversed by its mirror. Swaps are rejected only when no
-#'   order of them is valid on the closure, such as a tuple swapped
-#'   in twice.
+#'   order of them is valid on the closure, such as a tuple
+#'   swapped in twice or a endogenous variable designated for a
+#'   swap out.
+#'
+#'   A closure must leave as many endogenous variable elements as
+#'   there are equations, so in a working closure, every element
+#'   swapped in needs one swapped out; [`ems_deploy()`] stops
+#'   with the arithmetic when the counts differ.
 #' @seealso [`ems_model()`] for parsing and modifying model and
 #'   closure files. [`ems_deploy()`] for loading the output of
 #'   this function.

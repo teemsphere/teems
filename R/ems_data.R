@@ -81,8 +81,10 @@
 #'
 #'   On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
 #'   FlexAgg's aggpar programs: coal, oil and gas mining are
-#'   recalibrated to the target supply elasticities (SPLY) and
-#'   the other fuels take 1. Two results are then overridden,
+#'   recalibrated to the target supply elasticities (SPLY),
+#'   assuming as Burniaux and Truong (2002) do a Leontief top nest
+#'   and perfectly elastic supply of every input other than the
+#'   natural resource, and the other fuels take 1. Two results are then overridden,
 #'   reported when `verbose` is on, and listed in the metadata: a
 #'   recalibrated value below 0.1, which a natural-resource rent
 #'   too small to carry its target produces, keeps the aggregated
@@ -92,6 +94,9 @@
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function. [`GTAP_convert()`] for converting GTAP HAR files
 #'   and data formats.
+#' @references Burniaux, J.-M. and Truong, T.P. (2002), "GTAP-E: An
+#'   Energy-Environmental Version of the GTAP Model", GTAP Technical
+#'   Paper No. 16, Center for Global Trade Analysis, Purdue University.
 #' @examples
 #' \dontrun{
 #' # The following examples require input data. See
@@ -119,12 +124,12 @@
 #'                      par_weights = c(ESBM = "value"))
 #'
 #' # Data for an intertemporal model with explicit time steps
-#' int_data <- ems_data("v6_data/gsddat.har",
-#'                      "v6_data/gsdpar.har",
-#'                      "v6_data/gsdset.har",
+#' int_data <- ems_data("v7_data/gsdfdat.har",
+#'                      "v7_data/gsdfpar.har",
+#'                      "v7_data/gsdfset.har",
 #'                      REG = "WB23",
-#'                      PROD_COMM = "services",
-#'                      ENDW_COMM = "labor_agg",
+#'                      ACTS = "services",
+#'                      ENDW = "labor_agg",
 #'                      time_steps = c(0, 1, 2, 4, 6, 8, 10, 15))
 #'
 #' # Data for an intertemporal model with chronological time

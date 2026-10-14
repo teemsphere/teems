@@ -29,10 +29,11 @@ to the \code{shock} argument of \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
 Prepares heterogeneous absolute-value trajectory
-shocks. Inputs are aggregated according to the set mappings
-in \code{\link[=ems_data]{ems_data()}} and converted to percentage changes
-internally, making scenario shocks portable across
-aggregations. By default every tuple of the variable must be
+shocks for intertemporal models. Inputs are aggregated
+according to the set mappings in \code{\link[=ems_data]{ems_data()}} and converted
+internally to percentage changes (ordinary changes for a
+variable declared \code{(change)}), making scenario shocks portable
+across aggregations. By default every tuple of the variable must be
 present in \code{input} at full pre-aggregation resolution. With
 \code{partial = TRUE}, only some aggregated tuples are shocked (e.g.,
 one region's GDP): every pre-aggregation tuple, in every year,

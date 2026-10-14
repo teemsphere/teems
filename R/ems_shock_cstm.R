@@ -1,15 +1,16 @@
 #' @title Prepare a custom shock
 #' @export
-#' @description Prepares heterogeneous percentage-change shocks
-#'   specified on a tuple-by-tuple basis. Only the tuples present
+#' @description Prepares heterogeneous shocks specified on a
+#'   tuple-by-tuple basis, in the variable's own form (percentage
+#'   or ordinary change). Only the tuples present
 #'   in `input` are shocked.
 #' @return A `list` object with shock configuration to be passed
 #'   to the `shock` argument of [`ems_deploy()`].
 #' @inheritParams ems_uniform_shock
 #' @param input Path to a CSV file, or a data frame or data frame
 #'   extension (e.g., tibble, data.table). Must contain one
-#'   column named `"Value"` with the percentage-change shock for
-#'   each tuple, plus one column per set index for the variable.
+#'   column named `"Value"` with the shock for each tuple
+#'   (percentage or ordinary change, as the variable is declared), plus one column per set index for the variable.
 #'   Note that set names must conform to the model-specific
 #'   hybrid format (e.g., `ACTSa`, `REGr`). Column order is
 #'   inconsequential.

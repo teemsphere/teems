@@ -39,14 +39,11 @@
 #'   choices.
 #' @param eps_tolerance Numeric length 1 (default is `0.01`), the
 #'   per-step error-metric bound targeted by `adaptive` control.
-#'   Ignored when `adaptive = "no"`. The default is the measured
-#'   accuracy-per-factorization optimum: four correct digits on 92-96%
-#'   of elements at a third of the factorizations of `0.1`'s
-#'   Gragg-equivalent (teems-solver rk_comparison, 2026-09). See
-#'   [`ems_RK()`].
+#'   Ignored when `adaptive = "no"`. On large shocks, `0.01` reaches
+#'   four correct digits on most elements. See [`ems_RK()`].
 #' @param max_retries Integer length 1 (default `3L`),
 #'   `adaptive = "yes"` only: retries of a step
-#'   failing the -100% crossing check. See [`ems_RK()`].
+#'   failing a step check. See [`ems_RK()`].
 #' @param retry_adjust Numeric length 1 in (0, 1) (default `0.5`), adaptive control only: the step-length
 #'   multiplier applied on each retry. See [`ems_RK()`].
 #' @param solver_args Named list (default `NULL`). The additional

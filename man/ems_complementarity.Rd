@@ -85,8 +85,9 @@ IP-78, Melbourne (April 2002).
 \url{https://www.copsmodels.com/elecpapr/ip-78.htm}
 
 Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
-(2018), GEMPACK manual, GEMPACK Software, Centre of Policy
-Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+(2024), GEMPACK manual (documents Release 12.2), GEMPACK
+Software, Centre of Policy Studies, Victoria University,
+Melbourne, ISBN 978-1-921654-34-3.
 \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 }
 \seealso{

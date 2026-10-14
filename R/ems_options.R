@@ -76,7 +76,8 @@
 #'   accuracy to that of `"LU"`. Refinement holds the system matrix
 #'   and the block factorizations through each solve, so it raises
 #'   peak memory; the memory estimate counts it. `"LU"` and
-#'   `"SBBD"` are backward-stable and need no refinement;
+#'   `"SBBD"` are in practice as accurate as a single LU solve and
+#'   are not refined;
 #'   `"NDBBD"` is not refined, as it cannot yet keep its
 #'   factorization for a second solve.
 #' @param converge Logical length 1 (default `FALSE`). If `TRUE`,

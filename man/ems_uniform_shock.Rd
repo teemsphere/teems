@@ -9,8 +9,8 @@ ems_uniform_shock(var, value, ...)
 \arguments{
 \item{var}{Character of length 1, the variable to be shocked.}
 
-\item{value}{Numeric length 1, percentage-change value of the
-shock.}
+\item{value}{Numeric length 1, value of the shock in the
+variable's own form (percentage or ordinary change).}
 
 \item{...}{Optional named arguments restricting the shock to a
 subset of the variable's elements. Each name must use the
@@ -25,8 +25,10 @@ to the \code{shock} argument of \code{\link[=ems_deploy]{ems_deploy()}}.
 }
 \description{
 Prepares a uniform shock to be implemented as a
-single percentage-change value uniformly across all or a
-subset of variable tuples.
+single value uniformly across all or a subset of variable
+tuples, in the variable's own form: a percentage change for a
+percent-change variable, an ordinary change for a change
+variable.
 }
 \examples{
 # Full uniform: 2\% shock imposed on all afeall tuples

@@ -2,7 +2,7 @@
 #' @export
 #' @description Calls the
 #'   \href{https://github.com/teemsphere/teems-solver}{teems-solver}
-#'   Docker image to solve the constrained optimization problem.
+#'   Docker image to solve the model's nonlinear equation system.
 #'   Runs singularity, accuracy, and error checks on the results
 #'   and structures outputs with [`ems_compose()`].
 #' @param cmf_path Character length 1, path to the CMF file
@@ -40,11 +40,12 @@
 #'   never takes the exogenous variables past their end point, so
 #'   it suits shocks of exactly `-100%`, which Gragg's final pass
 #'   cannot take (GEMPACK manual 30.2).
-#'   * `"RK2"`, `"RK4"`: Explicit Runge-Kutta methods (the midpoint
-#'   method and the classic fourth-order method; Schiffmann 2022).
-#'   A single solution is computed with the one step count in
-#'   `steps` — no Richardson extrapolation — with each step built
-#'   from 2 (`"RK2"`) or 4 (`"RK4"`) staged linear solves. `"RK4"`
+#'   * `"RK2"`, `"Heun"`, `"RK4"`: Explicit Runge-Kutta methods (the
+#'   midpoint rule, the explicit trapezoid rule and the classic
+#'   fourth-order method; Schiffmann 2022). A single solution
+#'   is computed with the one step count in `steps` — no Richardson
+#'   extrapolation — with each step built from 2 (`"RK2"`, `"Heun"`)
+#'   or 4 (`"RK4"`) staged linear solves. `"RK4"`
 #'   reaches a given accuracy in far fewer steps than the
 #'   extrapolating methods.
 #'   * `"BoSha32"`, `"DoPri54"`: Embedded Runge-Kutta pairs
@@ -98,9 +99,11 @@
 #'   tasks to run in parallel. Must be `1L` if `"matrix_method"`
 #'   == "LU".
 #' @param n_threads Integer length 1 (default `1L`), OpenMP threads
-#'   per MPI task. Results with more than one thread are numerically
-#'   equivalent but not bit-reproducible across thread counts
-#'   (parallel reduction order).
+#'   per MPI task. `"LU"`, `"SBBD"` and `"NDBBD"` give byte-identical
+#'   results at any thread count; `"DBBD"` with more than one thread
+#'   agrees only to rounding (see the
+#'   \href{https://teemsphere.github.io/solve.html}{solving} chapter
+#'   of the user manual).
 #' @param precision Character length 1, `"single"` (default) or
 #'   `"double"`: floating-point precision of the solver's coefficient
 #'   storage. `"single"` halves memory traffic and suffices for
@@ -203,7 +206,9 @@
 #'   (percentage-change) form, and the shock is applied as a path from
 #'   the base data, which is the initial solution, to the post-shock
 #'   equilibrium (Pearson 1991). Each step along the path solves one
-#'   linear system in the model's Jacobian and then updates the data.
+#'   or more linear systems in the model's Jacobian (a Gragg run of N
+#'   steps makes N + 1 passes, a `"DoPri54"` step 7 stages) and then
+#'   updates the data.
 #'   `"Johansen"` takes that path in a single step, so its error grows
 #'   with the size of the shock. The multistep methods divide the path
 #'   into smaller steps, so the linearization error shrinks as the
@@ -217,8 +222,9 @@
 #'   step counts, and the agreement between the three solutions gives
 #'   an accuracy summary over the endogenous results, and another
 #'   over the values read from data files and updated. By default
-#'   the measure is the share of results whose levels values are
-#'   accurate to at least four significant figures, the criterion
+#'   the measure is the share of nonzero results whose levels values
+#'   are accurate to at least four significant figures (results
+#'   judged zero, both extrapolations below 1e-6, are counted apart), the criterion
 #'   GEMPACK calls `solution`. A percent-change result usually has
 #'   more accurate figures in its levels value than in the
 #'   percentage itself. The `accuracy_criterion` and
@@ -227,10 +233,13 @@
 #'   when the share falls below the `accuracy_threshold` option
 #'   (default 80%, see [`ems_option_set()`]), and both summaries are
 #'   written to `model_diagnostics.txt` in the run directory. When
-#'   this happens,
-#'   take more steps (for example `steps = c(4L, 8L, 16L)`), raise
-#'   `n_subintervals`, or switch to adaptive `"DoPri54"`, which
-#'   estimates the error of every result (see [`ems_RK()`]). With one
+#'   this happens, raise `n_subintervals` first: a few steps over
+#'   several subintervals beat many steps over one, and a midpoint
+#'   instability is cured by restarting the integrator, not by more
+#'   steps (GEMPACK manual 26.1; Schiffmann 2022). More steps (for
+#'   example `steps = c(4L, 6L, 8L)`) help while the totals stay
+#'   modest. Adaptive `"DoPri54"` estimates the error of every result
+#'   (see [`ems_RK()`]). With one
 #'   or two step counts there is no estimate. If adding steps stops
 #'   improving accuracy, the run has reached the rounding limit of
 #'   single precision, and `precision = "double"` is the remedy.
@@ -240,8 +249,10 @@
 #'   that a new model and closure run, but its results should not be
 #'   reported. Shocks that drive a CES or CET share close to zero, or
 #'   a variable close to `-100%`, can make the midpoint methods
-#'   unstable (Schiffmann 2022). In those cases `"Euler"` is the most
-#'   robust choice, and a shock of exactly `-100%` needs `"Midpoint"`
+#'   unstable (Schiffmann 2022). In those cases use `"Euler"` (GEMPACK
+#'   manual 30.2), which may still converge slowly, or adaptive
+#'   `"DoPri54"` or `"BoSha32"`, whose robustness exceeds Euler's
+#'   (Schiffmann 2022); a shock of exactly `-100%` needs `"Midpoint"`
 #'   or `"Euler"`. A single step count, without extrapolation, suits
 #'   models whose updates must follow the steps themselves.
 #'
@@ -254,9 +265,10 @@
 #'   `n_threads` set to the available cores. The bordered methods
 #'   divide the system into blocks that are solved in parallel and
 #'   joined through a smaller border system:
-#'   * Static models are split by region, using `"DBBD"`.
+#'   * Static models are split by region, using `"DBBD"`, which treats
+#'     the regions as separable economies (Kompas and Van Ha 2019).
 #'   * Intertemporal models are split by period, using `"SBBD"` (Van Ha
-#'     and Kompas 2016).
+#'     and Kompas 2016; applied to GTAP-INT by Van Ha et al. 2017).
 #'   * `"NDBBD"` nests these splits for systems too large to hold as
 #'     one, such as GTAP-INT at full disaggregation (Kompas and Van Ha
 #'     2019).
@@ -294,18 +306,24 @@
 #'   University (revised June 2002).
 #'
 #'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
-#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
-#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   (2024), GEMPACK manual (documents Release 12.2), GEMPACK
+#'   Software, Centre of Policy Studies, Victoria University,
+#'   Melbourne, ISBN 978-1-921654-34-3.
 #'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #'
 #'   Schiffmann, F. (2022), "Runge Kutta integrators for fast and
 #'   accurate solutions in GEMPACK", GEMPACK Software, Centre of Policy
-#'   Studies, Victoria University, Melbourne.
+#'   Studies, Victoria University, Melbourne (14 April).
 #'
 #'   Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 #'   models in parallel using a singly bordered block diagonal
 #'   ordering technique", Economic Modelling, vol. 52, pp. 3-12.
 #'   \doi{10.1016/j.econmod.2015.07.011}
+#'
+#'   Van Ha, P., Kompas, T., Nguyen, H.T.M. and Long, C.H. (2017),
+#'   "Building a better trade model to determine local effects: A
+#'   regional and intertemporal GTAP model", Economic Modelling,
+#'   vol. 67, pp. 102-113. \doi{10.1016/j.econmod.2016.10.015}
 #'
 #'   Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
 #'   resolved: The effects of climate change and trade barriers in

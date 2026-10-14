@@ -15,7 +15,10 @@
 #'   the per-step error estimate that `adaptive` control acts on.
 #'   `"Heun"` (the explicit trapezoid rule) and `"RK2"` (the midpoint
 #'   rule) cost the same two solves per step; Heun is
-#'   strong-stability-preserving, the midpoint rule is not.
+#'   strong-stability-preserving, the midpoint rule is not. When most
+#'   adaptive retries come from step checks rather than from
+#'   `eps_tolerance`, the cheaper steps of `"BoSha32"` can beat
+#'   `"DoPri54"` (Schiffmann 2022).
 #' @param steps Integer length 1 (default `4L`), the initial number
 #'   of steps. Runge-Kutta methods use no Richardson extrapolation,
 #'   so no step-count triple is involved; under `adaptive` control
@@ -29,19 +32,23 @@
 #'   * `"yes"`: After each step the worst per-component error
 #'   metric is compared against `eps_tolerance`; failing steps are
 #'   redone with a smaller step size and passing steps adjust the
-#'   next step size (at most halving or doubling it). A step on
-#'   which a percentage-change variable crosses `-100%` is also
-#'   retried at a reduced step size.
+#'   next step size (at most halving or doubling it). A step that
+#'   fails a step check (a percentage-change variable crossing
+#'   `-100%`, a coefficient range test, a TAB assertion or the
+#'   `guard` of the log chart) is also retried at a reduced step
+#'   size, as in GEMPACK (GEMPACK manual 26.5.1).
 #'   * `"accuracy-only"`: As `"yes"`, but only the error metric is
 #'   acted on; check failures are ignored.
 #' @param eps_tolerance Numeric length 1 (default `0.01`), the
 #'   per-step error-metric bound targeted by `adaptive` control. On
 #'   large shocks, `0.01` reaches four correct digits on most
 #'   elements; `0.001` gains the last digits at roughly 1.6x the
-#'   cost, and `0.1` is loose. Ignored when `adaptive = "no"`.
+#'   cost. GEMPACK suggests `0.1` for most simulations (Schiffmann
+#'   2022), which measured rougher on large shocks. Ignored when
+#'   `adaptive = "no"`.
 #' @param max_retries Integer length 1 (default `3L`),
 #'   `adaptive = "yes"` only: how many times a step
-#'   failing the -100% crossing check is retried at reduced length
+#'   failing a step check is retried at reduced length
 #'   before the run aborts.
 #' @param retry_adjust Numeric length 1 in (0, 1) (default `0.5`),
 #'   adaptive control only: the step-length
@@ -88,7 +95,8 @@
 #' @seealso [`ems_solve()`] for the general interface and the full
 #'   argument documentation.
 #' @references Schiffmann, F. (2022), "Runge Kutta integrators for
-#'   fast and accurate solutions in GEMPACK".
+#'   fast and accurate solutions in GEMPACK", GEMPACK Software, Centre
+#'   of Policy Studies, Victoria University, Melbourne (14 April).
 #'
 #'   Butcher, J.C. (2015), "Runge-Kutta Methods for Ordinary
 #'   Differential Equations", in M. Al-Baali, L. Grandinetti and A.
@@ -107,8 +115,9 @@
 #'   Mathematical Software, vol. 17, pp. 533-554.
 #'
 #'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
-#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
-#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   (2024), GEMPACK manual (documents Release 12.2), GEMPACK
+#'   Software, Centre of Policy Studies, Victoria University,
+#'   Melbourne, ISBN 978-1-921654-34-3.
 #'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' \dontrun{

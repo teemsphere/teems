@@ -67,8 +67,10 @@
 #'   method and the tasks and threads to run it with on this machine
 #'   (or on the `cores` and `memory` given), from the measured
 #'   structure, the deploy metadata and a peak-memory model per
-#'   method (see [`ems_solve()`] Details for the rules and their
-#'   provenance). The suggestion prints with the object as a
+#'   method (the rules and the measurements behind them are in the
+#'   \href{https://teemsphere.github.io/solve.html}{solving} and
+#'   \href{https://teemsphere.github.io/benchmarks.html}{benchmarks}
+#'   chapters of the user manual). The suggestion prints with the object as a
 #'   ready-to-paste [`ems_solve()`] call and is carried in
 #'   `recommendation`; `ems_solve()` itself chooses nothing. No
 #'   suggestion is made when the probe has no sound basis for one: a

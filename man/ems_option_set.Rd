@@ -114,7 +114,8 @@ iterative refinement after every linear solve of
 accuracy to that of \code{"LU"}. Refinement holds the system matrix
 and the block factorizations through each solve, so it raises
 peak memory; the memory estimate counts it. \code{"LU"} and
-\code{"SBBD"} are backward-stable and need no refinement;
+\code{"SBBD"} are in practice as accurate as a single LU solve and
+are not refined;
 \code{"NDBBD"} is not refined, as it cannot yet keep its
 factorization for a second solve.}
 

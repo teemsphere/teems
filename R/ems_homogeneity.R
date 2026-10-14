@@ -37,7 +37,10 @@
 #'   found it pinned, or when it stays at exactly zero where a change is
 #'   expected (an inactive element, including backsolved ones). The
 #'   check works on the system as deployed, so a condensed model's
-#'   equations carry the substituted ones (manual 57.4.5).
+#'   equations carry the substituted ones, and a faulty substituted
+#'   equation contaminates those it enters; the GEMPACK manual (57.4.5)
+#'   recommends testing the uncondensed system, deployed from a model
+#'   loaded with `ems_model(..., ignore_condense = TRUE)`.
 #'
 #'   With `simulate = TRUE`, the deployment is also solved (Johansen)
 #'   with every exogenous variable shocked by the change its type
@@ -61,8 +64,9 @@
 #'   per typed variable on the same terms.
 #' @references
 #'   Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
-#'   (2018), GEMPACK manual, GEMPACK Software, Centre of Policy
-#'   Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+#'   (2024), GEMPACK manual (documents Release 12.2), GEMPACK
+#'   Software, Centre of Policy Studies, Victoria University,
+#'   Melbourne, ISBN 978-1-921654-34-3.
 #'   \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 #' @examples
 #' \dontrun{

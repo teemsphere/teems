@@ -60,11 +60,12 @@ by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
 never takes the exogenous variables past their end point, so
 it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
 cannot take (GEMPACK manual 30.2).
-\item \code{"RK2"}, \code{"RK4"}: Explicit Runge-Kutta methods (the midpoint
-method and the classic fourth-order method; Schiffmann 2022).
-A single solution is computed with the one step count in
-\code{steps} — no Richardson extrapolation — with each step built
-from 2 (\code{"RK2"}) or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
+\item \code{"RK2"}, \code{"Heun"}, \code{"RK4"}: Explicit Runge-Kutta methods (the
+midpoint rule, the explicit trapezoid rule and the classic
+fourth-order method; Schiffmann 2022). A single solution
+is computed with the one step count in \code{steps} — no Richardson
+extrapolation — with each step built from 2 (\code{"RK2"}, \code{"Heun"})
+or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
 reaches a given accuracy in far fewer steps than the
 extrapolating methods.
 \item \code{"BoSha32"}, \code{"DoPri54"}: Embedded Runge-Kutta pairs
@@ -126,9 +127,11 @@ tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
 == "LU".}
 
 \item{n_threads}{Integer length 1 (default \code{1L}), OpenMP threads
-per MPI task. Results with more than one thread are numerically
-equivalent but not bit-reproducible across thread counts
-(parallel reduction order).}
+per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give byte-identical
+results at any thread count; \code{"DBBD"} with more than one thread
+agrees only to rounding (see the
+\href{https://teemsphere.github.io/solve.html}{solving} chapter
+of the user manual).}
 
 \item{precision}{Character length 1, \code{"single"} (default) or
 \code{"double"}: floating-point precision of the solver's coefficient
@@ -248,7 +251,7 @@ to \code{\link[=ems_compose]{ems_compose()}}. Instructions for terminal executio
 \description{
 Calls the
 \href{https://github.com/teemsphere/teems-solver}{teems-solver}
-Docker image to solve the constrained optimization problem.
+Docker image to solve the model's nonlinear equation system.
 Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
@@ -257,7 +260,9 @@ and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 (percentage-change) form, and the shock is applied as a path from
 the base data, which is the initial solution, to the post-shock
 equilibrium (Pearson 1991). Each step along the path solves one
-linear system in the model's Jacobian and then updates the data.
+or more linear systems in the model's Jacobian (a Gragg run of N
+steps makes N + 1 passes, a \code{"DoPri54"} step 7 stages) and then
+updates the data.
 \code{"Johansen"} takes that path in a single step, so its error grows
 with the size of the shock. The multistep methods divide the path
 into smaller steps, so the linearization error shrinks as the
@@ -271,8 +276,9 @@ solve on its share of the shock.
 step counts, and the agreement between the three solutions gives
 an accuracy summary over the endogenous results, and another
 over the values read from data files and updated. By default
-the measure is the share of results whose levels values are
-accurate to at least four significant figures, the criterion
+the measure is the share of nonzero results whose levels values
+are accurate to at least four significant figures (results
+judged zero, both extrapolations below 1e-6, are counted apart), the criterion
 GEMPACK calls \code{solution}. A percent-change result usually has
 more accurate figures in its levels value than in the
 percentage itself. The \code{accuracy_criterion} and
@@ -281,10 +287,13 @@ summaries and change the figures required. A warning is given
 when the share falls below the \code{accuracy_threshold} option
 (default 80\%, see \code{\link[=ems_option_set]{ems_option_set()}}), and both summaries are
 written to \code{model_diagnostics.txt} in the run directory. When
-this happens,
-take more steps (for example \code{steps = c(4L, 8L, 16L)}), raise
-\code{n_subintervals}, or switch to adaptive \code{"DoPri54"}, which
-estimates the error of every result (see \code{\link[=ems_RK]{ems_RK()}}). With one
+this happens, raise \code{n_subintervals} first: a few steps over
+several subintervals beat many steps over one, and a midpoint
+instability is cured by restarting the integrator, not by more
+steps (GEMPACK manual 26.1; Schiffmann 2022). More steps (for
+example \code{steps = c(4L, 6L, 8L)}) help while the totals stay
+modest. Adaptive \code{"DoPri54"} estimates the error of every result
+(see \code{\link[=ems_RK]{ems_RK()}}). With one
 or two step counts there is no estimate. If adding steps stops
 improving accuracy, the run has reached the rounding limit of
 single precision, and \code{precision = "double"} is the remedy.
@@ -294,8 +303,10 @@ suits most static policy shocks. \code{"Johansen"} is a quick check
 that a new model and closure run, but its results should not be
 reported. Shocks that drive a CES or CET share close to zero, or
 a variable close to \verb{-100\%}, can make the midpoint methods
-unstable (Schiffmann 2022). In those cases \code{"Euler"} is the most
-robust choice, and a shock of exactly \verb{-100\%} needs \code{"Midpoint"}
+unstable (Schiffmann 2022). In those cases use \code{"Euler"} (GEMPACK
+manual 30.2), which may still converge slowly, or adaptive
+\code{"DoPri54"} or \code{"BoSha32"}, whose robustness exceeds Euler's
+(Schiffmann 2022); a shock of exactly \verb{-100\%} needs \code{"Midpoint"}
 or \code{"Euler"}. A single step count, without extrapolation, suits
 models whose updates must follow the steps themselves.
 
@@ -309,9 +320,10 @@ works for every model and is usually best for static models, with
 divide the system into blocks that are solved in parallel and
 joined through a smaller border system:
 \itemize{
-\item Static models are split by region, using \code{"DBBD"}.
+\item Static models are split by region, using \code{"DBBD"}, which treats
+the regions as separable economies (Kompas and Van Ha 2019).
 \item Intertemporal models are split by period, using \code{"SBBD"} (Van Ha
-and Kompas 2016).
+and Kompas 2016; applied to GTAP-INT by Van Ha et al. 2017).
 \item \code{"NDBBD"} nests these splits for systems too large to hold as
 one, such as GTAP-INT at full disaggregation (Kompas and Van Ha
 2019).
@@ -358,18 +370,24 @@ Project Preliminary Working Paper No. IP-55, Monash
 University (revised June 2002).
 
 Horridge, J.M., Jerie, M., Mustakinov, D. and Schiffmann, F.
-(2018), GEMPACK manual, GEMPACK Software, Centre of Policy
-Studies, Victoria University, Melbourne, ISBN 978-1-921654-34-3.
+(2024), GEMPACK manual (documents Release 12.2), GEMPACK
+Software, Centre of Policy Studies, Victoria University,
+Melbourne, ISBN 978-1-921654-34-3.
 \url{https://ideas.repec.org/p/cop/wpaper/gpman.html}
 
 Schiffmann, F. (2022), "Runge Kutta integrators for fast and
 accurate solutions in GEMPACK", GEMPACK Software, Centre of Policy
-Studies, Victoria University, Melbourne.
+Studies, Victoria University, Melbourne (14 April).
 
 Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 models in parallel using a singly bordered block diagonal
 ordering technique", Economic Modelling, vol. 52, pp. 3-12.
 \doi{10.1016/j.econmod.2015.07.011}
+
+Van Ha, P., Kompas, T., Nguyen, H.T.M. and Long, C.H. (2017),
+"Building a better trade model to determine local effects: A
+regional and intertemporal GTAP model", Economic Modelling,
+vol. 67, pp. 102-113. \doi{10.1016/j.econmod.2016.10.015}
 
 Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
 resolved: The effects of climate change and trade barriers in

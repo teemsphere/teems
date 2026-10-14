@@ -17,15 +17,20 @@ ems_example(
 \item{model}{Character vector of length 1, name of model.
 Options include:
 \itemize{
-\item \code{"GTAPv7"}: Standard GTAP model
-\item \code{"GTAP-RE"}: GTAP Rational Expectations
-\item \code{"GTAP-AEZ"}: GTAP-AEZ land-use model on the GTAPv7.1 core
+\item \code{"GTAPv7"}: Standard GTAP model (version 7.1)
+\item \code{"GTAP-RE"}: Intertemporal GTAP with rational expectations:
+forward-looking investment, all periods solved at once
+\item \code{"GTAP-AEZ"}: GTAPv7 with land use by agro-ecological zone,
+land entering production as a CES composite of the zones
 (requires a GTAP-AEZ database)
-\item \code{"GTAP-E"}: GTAP-E energy and carbon model on the GTAPv7.1
-core (requires a GTAP-E database)
-\item \code{"GTAP-EP"}: GTAP-E with the GTAP-Power electricity
-technologies (requires a GTAP-Power database)
-\item \code{"GTAPv6"}: Classic GTAP model
+\item \code{"GTAP-E"}: GTAPv7 with energy substitution and carbon taxes,
+a capital-energy composite inside value added (requires a
+GTAP-E database)
+\item \code{"GTAP-EP"}: GTAP-E with electricity split into transmission
+and distribution and generation, and generation into
+base-load and peak-load technologies (requires a GTAP-Power
+database)
+\item \code{"GTAPv6"}: Classic GTAP model (version 6.2)
 }}
 
 \item{path}{Character vector of length 1. Directory where

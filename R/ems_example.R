@@ -10,15 +10,20 @@
 #'   script files.
 #' @param model Character vector of length 1, name of model.
 #'   Options include:
-#'   * `"GTAPv7"`: Standard GTAP model
-#'   * `"GTAP-RE"`: GTAP Rational Expectations
-#'   * `"GTAP-AEZ"`: GTAP-AEZ land-use model on the GTAPv7.1 core
+#'   * `"GTAPv7"`: Standard GTAP model (version 7.1)
+#'   * `"GTAP-RE"`: Intertemporal GTAP with rational expectations:
+#'     forward-looking investment, all periods solved at once
+#'   * `"GTAP-AEZ"`: GTAPv7 with land use by agro-ecological zone,
+#'     land entering production as a CES composite of the zones
 #'     (requires a GTAP-AEZ database)
-#'   * `"GTAP-E"`: GTAP-E energy and carbon model on the GTAPv7.1
-#'     core (requires a GTAP-E database)
-#'   * `"GTAP-EP"`: GTAP-E with the GTAP-Power electricity
-#'     technologies (requires a GTAP-Power database)
-#'   * `"GTAPv6"`: Classic GTAP model
+#'   * `"GTAP-E"`: GTAPv7 with energy substitution and carbon taxes,
+#'     a capital-energy composite inside value added (requires a
+#'     GTAP-E database)
+#'   * `"GTAP-EP"`: GTAP-E with electricity split into transmission
+#'     and distribution and generation, and generation into
+#'     base-load and peak-load technologies (requires a GTAP-Power
+#'     database)
+#'   * `"GTAPv6"`: Classic GTAP model (version 6.2)
 #' @param path Character vector of length 1. Directory where
 #'   files will be written.
 #' @param type Character vector of length 1, (default is

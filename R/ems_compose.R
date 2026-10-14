@@ -39,7 +39,13 @@
 #'   which the run's accuracy summary leaves out. With
 #'   subintervals, `Pass1`–`Pass3` and `Error` describe the last
 #'   subinterval, the figures are the lowest over all subintervals
-#'   and the code the worst. An error is raised for a run that wrote no
+#'   and the code the worst. The output then carries an `accuracy`
+#'   attribute, one row per variable: `Elements`, `Summarised`,
+#'   `MinFigures` and `MinLevelsFigures` (a result judged zero counts
+#'   as 6), `ShareFigures` and `ShareLevelsFigures` (the share at
+#'   `accuracy_figures` or more, see [`ems_option_set()`]),
+#'   `WorstCode` and `MaxError`. Read it with
+#'   `attr(output, "accuracy")`. An error is raised for a run that wrote no
 #'   separate solutions.
 #' @details Every variable whose pre-simulation level is known
 #'   gains the columns `PreLevel` and `PostLevel`, plus `Change`

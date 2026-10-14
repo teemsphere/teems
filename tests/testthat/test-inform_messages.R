@@ -206,3 +206,32 @@ test_that("a summary of selected variables says so in the warning and the run su
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_true(any(grepl("^Results summarised: 18 \\(variables qgdp, aoall\\)$", record)))
 })
+
+test_that("the least accurate results follow a low-accuracy warning", {
+  withr::defer(ems_option_reset())
+  ems_option_set(verbose = FALSE)
+  run_dir <- withr::local_tempdir()
+  bin_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(bin_dir, recursive = TRUE)
+  least <- data.frame(
+    result = c("u(row)", "qo(food,usa)"),
+    figures = c(0L, 1L), levels_figures = c(0L, 1L), code = c("MD?", "FCX"),
+    value = c(118427.8, 2.5), error = c(59445.8, 0.01)
+  )
+  stats <- list(accuracy = list(
+    covers = "endogenous+backsolved", summarised = 10L, subintervals = 1L,
+    linear = list(figures = c(5, 5, 0, 0, 0, 0, 0), judged_zero = 0),
+    levels = list(figures = c(5, 5, 0, 0, 0, 0, 0)),
+    order = list(within = 6L, lower = 1L, higher = 1L, oscillating = 1L, not_measured = 1L),
+    expected_order = 2L,
+    least_accurate = least
+  ))
+  jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE)
+  expect_snapshot(
+    .inform_diagnostics(elapsed_time = c(0, 0, 1), model_log = "solver log", run_dir = run_dir, call = NULL),
+    transform = \(x) sub("[0-9.]+s$", "<t>", x)
+  )
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("^Observed order of convergence \\(expected 2\\): 6 within 0.5 of it, 1 lower, 1 higher, 1 oscillating, 1 not measured$", record)))
+  expect_true(any(grepl("^  u\\(row\\)  0  0  MD\\?  118427.8  5.945e\\+04$", record)))
+})

@@ -1,4 +1,5 @@
 #' @importFrom jsonlite read_json
+#' @importFrom utils head
 #' @keywords internal
 #' @noRd
 .inform_diagnostics <- function(elapsed_time,
@@ -83,6 +84,16 @@
       action = "inform"
     )
   }
+  least_accurate <- acc$least_accurate
+  has_least <- is.data.frame(least_accurate) && nrow(least_accurate) > 0L
+  if (below_threshold && has_least) {
+    shown <- utils::head(least_accurate, 5L)
+    least <- paste(sprintf("%s (%d levels figure%s, %s)", shown$result, as.integer(shown$levels_figures),
+      ifelse(as.integer(shown$levels_figures) == 1L, "", "s"), shown$code), collapse = ", ")
+    .cli_action(solve_info$accuracy_least,
+      action = "inform"
+    )
+  }
 
   criterion_note <- if (judged %=% criterion) criterion else sprintf("%s (no updated data; judged on the solution)", criterion)
   figures_table <- sprintf("%7d  %7.0f  %13.0f", 6:0, rev(linear), rev(levels))
@@ -99,6 +110,24 @@
     sprintf("Judged zero:        %.0f\n", judged_zero),
     append = TRUE, file = diagnostic_file, sep = ""
   )
+  if (!is.null(acc$order)) {
+    order_counts <- vapply(c("within", "lower", "higher", "oscillating", "not_measured"), \(k) as.numeric(acc$order[[k]] %|||% 0), numeric(1))
+    cat(
+      sprintf(
+        "\nObserved order of convergence (expected %.0f): %.0f within 0.5 of it, %.0f lower, %.0f higher, %.0f oscillating, %.0f not measured\n",
+        as.numeric(acc$expected_order %|||% NA), order_counts[1], order_counts[2], order_counts[3], order_counts[4], order_counts[5]
+      ),
+      append = TRUE, file = diagnostic_file, sep = ""
+    )
+  }
+  if (has_least) {
+    cat(
+      "\nLeast accurate results (levels figures, figures, code, value, error):\n",
+      paste0(sprintf("  %s  %d  %d  %s  %.7g  %.4g", least_accurate$result, as.integer(least_accurate$levels_figures),
+        as.integer(least_accurate$figures), least_accurate$code, as.numeric(least_accurate$value), as.numeric(least_accurate$error)), "\n"),
+      append = TRUE, file = diagnostic_file, sep = ""
+    )
+  }
   codes <- acc$codes
   if (length(codes) > 0L) {
     code_rows <- vapply(names(codes), \(nm) {

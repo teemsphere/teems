@@ -39,7 +39,13 @@ result, or \code{"MD!"}, monotonic but appearing to diverge), and
 which the run's accuracy summary leaves out. With
 subintervals, \code{Pass1}–\code{Pass3} and \code{Error} describe the last
 subinterval, the figures are the lowest over all subintervals
-and the code the worst. An error is raised for a run that wrote no
+and the code the worst. The output then carries an \code{accuracy}
+attribute, one row per variable: \code{Elements}, \code{Summarised},
+\code{MinFigures} and \code{MinLevelsFigures} (a result judged zero counts
+as 6), \code{ShareFigures} and \code{ShareLevelsFigures} (the share at
+\code{accuracy_figures} or more, see \code{\link[=ems_option_set]{ems_option_set()}}),
+\code{WorstCode} and \code{MaxError}. Read it with
+\code{attr(output, "accuracy")}. An error is raised for a run that wrote no
 separate solutions.}
 }
 \value{

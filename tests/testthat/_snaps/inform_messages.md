@@ -27,3 +27,17 @@
       i Elapsed time: 1m 15s
       i 98% of endogenous results (their levels values) accurate to at least 4 significant figures.
 
+# the least accurate results follow a low-accuracy warning
+
+    Code
+      .inform_diagnostics(elapsed_time = c(0, 0, 1), model_log = "solver log",
+      run_dir = run_dir, call = NULL)
+    Message
+      i Elapsed time: <t>
+    Condition
+      Warning in `.inform_diagnostics()`:
+      ! Only 0% of endogenous results (their levels values) accurate to at least 4 significant figures, below the 80% threshold.
+      i Adjust with `accuracy_threshold`, `accuracy_figures` or `accuracy_criterion` in `teems::ems_option_set()`.
+    Message
+      i Least accurate: u(row) (0 levels figures, MD?), qo(food,usa) (1 levels figure, FCX). The full list and the convergence codes are in 'model_diagnostics.txt'.
+

@@ -169,6 +169,9 @@
     time_steps   = timesteps,
     call         = call
   )
+  if (isTRUE(v$passes)) {
+    attr(output, "accuracy") <- .passes_accuracy(output)
+  }
 
   return(output)
 }

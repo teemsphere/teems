@@ -253,6 +253,16 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
     extrapolated <- w[1] * d$Pass1 + w[2] * d$Pass2 + w[3] * d$Pass3
     expect_equal(extrapolated, d$Value, tolerance = 1e-9, label = nm)
   }
+  acc <- attr(out, "accuracy")
+  expect_setequal(acc$Variable, c("qgdp", "qfd"))
+  expect_true(all(c("Elements", "Summarised", "MinFigures", "MinLevelsFigures", "ShareFigures",
+    "ShareLevelsFigures", "WorstCode", "MaxError") %in% names(acc)))
+  qfd <- out$dat[[match("qfd", out$name)]]
+  row <- acc[acc$Variable == "qfd", ]
+  expect_identical(row$Elements, nrow(qfd))
+  expect_identical(row$MinLevelsFigures, min(qfd$LevelsFigures))
+  expect_equal(row$MaxError, max(qfd$Error))
+  expect_true(all(acc$ShareFigures >= 0 & acc$ShareFigures <= 1))
   plain <- ems_compose(shocked, "qgdp")
   expect_false(any(c("Pass1", "Figures") %in% names(plain$dat$qgdp)))
 })

@@ -476,6 +476,8 @@ build_solve_info <- function() {
                            "If no errors or singularities are detected, use the following expression to structure solver binary outputs: {.run ems_compose({cmf_path})}"),
     # test-inform_messages.R: "a finished run reports its elapsed time and accuracy"
     accuracy = "{.emph {accuracy}} of {covers} accurate to at least {figures} significant figures.",
+    # test-inform_messages.R: "the least accurate results follow a low-accuracy warning"
+    accuracy_least = "Least accurate: {least}. The full list and the convergence codes are in {.file model_diagnostics.txt}.",
     # test-inform_messages.R: "the accuracy criterion picks the summary judged, and a run without updated data falls back to the solution"
     accuracy_covers = list(
       solution = "endogenous results (their levels values)",

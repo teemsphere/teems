@@ -25,15 +25,16 @@ elements and attributes.}
 \item \code{NULL}: the files are read as they are, with no conversion
 or preparation.
 \item \code{"GTAPv6"} or \code{"GTAPv7"}: converts a standard GTAP database to
-the v6.2 or v7 data format. Version conversion applies to the
-standard GTAP database only.
+the v6.2 or v7 data format. Version conversion applies to
+the standard GTAP database only.
 \item \code{"GTAP-AEZ"}, \code{"GTAP-E"} or \code{"GTAP-EP"}: prepares a v7-format
 GTAP-AEZ, GTAP-E (12a) or GTAP-Power (12a) database for the
-corresponding model, adding the sets and parameters the model
-reads that the database does not ship. These targets do not
-convert between data formats: a v6-format database (the GTAP
-10a layers) is refused. \code{\link[=ems_data]{ems_data()}} applies the same
-preparation on its own when it detects one of these databases.
+corresponding model, adding the sets and parameters the
+model reads that the database does not ship. These targets
+do not convert between data formats: a v6-format database
+(the GTAP 10a layers) is refused. \code{\link[=ems_data]{ems_data()}} applies the
+same preparation on its own when it detects one of these
+databases.
 }}
 }
 \value{
@@ -42,14 +43,14 @@ each containing a list of arrays corresponding to database
 headers. Suitable for direct use with \code{\link[=ems_data]{ems_data()}}.
 }
 \description{
-\code{GTAP_convert()} reads a GTAP database's HAR files
-into lists of arrays at full resolution, without any
-aggregation. With \code{target} it can also convert a standard GTAP
-database between the classic v6.2 and standard v7 data formats,
-or prepare a GTAP-AEZ, GTAP-E or GTAP-Power database for its
+\code{GTAP_convert()} reads a GTAP database's HAR
+files into lists of arrays at full resolution. With \code{target}
+it can also convert a standard GTAP database between the
+classic v6.2 and standard v7 data formats, or prepare a
+GTAP-AEZ, GTAP-E or GTAP-Power database for the respective
 model. The output can be inspected or modified in R, passed
-directly to \code{\link[=ems_data]{ems_data()}} via its \code{dat_input}, \code{par_input}, and
-\code{set_input} arguments, or written to disk for later use.
+directly to \code{\link[=ems_data]{ems_data()}} via its \code{dat_input}, \code{par_input},
+and \code{set_input} arguments, or written to disk for later use.
 }
 \examples{
 \dontrun{

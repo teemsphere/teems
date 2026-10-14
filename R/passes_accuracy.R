@@ -7,22 +7,22 @@
   is_var <- output$type == "variable"
   rows <- lapply(which(is_var), \(i) {
     d <- output$dat[[i]]
-    if (!"Figures" %in% names(d)) {
+    if (!"figures" %in% names(d)) {
       return(NULL)
     }
-    fig <- ifelse(is.na(d$Figures), 6L, d$Figures)
-    code_rank <- match(d$Code, code_order)
+    fig <- ifelse(is.na(d$figures), 6L, d$figures)
+    code_rank <- match(d$code, code_order)
     worst <- if (all(is.na(code_rank))) NA_character_ else code_order[max(code_rank, na.rm = TRUE)]
     row <- data.table::data.table(
       Variable = output$name[i],
-      Elements = nrow(d),
-      Summarised = sum(d$Summarised %in% TRUE),
-      MinFigures = if (nrow(d) > 0L) min(fig) else NA_integer_,
-      MinLevelsFigures = if (nrow(d) > 0L) min(d$LevelsFigures) else NA_integer_,
-      ShareFigures = mean(fig >= figures),
-      ShareLevelsFigures = mean(d$LevelsFigures >= figures),
-      WorstCode = worst,
-      MaxError = if (nrow(d) > 0L) max(d$Error) else NA_real_
+      elements = nrow(d),
+      summarised = sum(d$summarised %in% TRUE),
+      min_figures = if (nrow(d) > 0L) min(fig) else NA_integer_,
+      min_levels_figures = if (nrow(d) > 0L) min(d$levels_figures) else NA_integer_,
+      share_figures = mean(fig >= figures),
+      share_levels_figures = mean(d$levels_figures >= figures),
+      worst_code = worst,
+      max_error = if (nrow(d) > 0L) max(d$error) else NA_real_
     )
     return(row)
   })

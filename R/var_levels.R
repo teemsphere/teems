@@ -75,13 +75,13 @@
 .add_levels <- function(dt,
                         pre) {
   x <- dt$Value
-  dt$PreLevel <- as.numeric(pre)
+  dt$pre_level <- as.numeric(pre)
   if (isTRUE(attr(pre, "change"))) {
-    dt$PostLevel <- dt$PreLevel + x
-    dt$PercentChange <- ifelse(dt$PreLevel == 0, NA_real_, 100 * x / dt$PreLevel)
+    dt$post_level <- dt$pre_level + x
+    dt$percent_change <- ifelse(dt$pre_level == 0, NA_real_, 100 * x / dt$pre_level)
   } else {
-    dt$PostLevel <- dt$PreLevel * (1 + x / 100)
-    dt$Change <- dt$PostLevel - dt$PreLevel
+    dt$post_level <- dt$pre_level * (1 + x / 100)
+    dt$change <- dt$post_level - dt$pre_level
   }
   return(dt)
 }

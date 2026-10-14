@@ -211,14 +211,14 @@ test_that("variables with an ORIG_LEVEL carry their pre- and post-simulation lev
   out <- ems_solve(null_cmf, solution_method = "Johansen")
   vars <- out[out$type == "variable", ]
   qfd <- vars$dat[["qfd"]]
-  expect_true(all(c("PreLevel", "PostLevel", "Change") %in% names(qfd)))
+  expect_true(all(c("pre_level", "post_level", "change") %in% names(qfd)))
   vdfb <- out$dat[[which(out$name == "VDFB" & out$type == "coefficient")]]
   keys <- setdiff(names(vdfb), c("Value", "Year"))
   joined <- merge(qfd, vdfb, by = keys, suffixes = c("", ".coef"))
   expect_equal(nrow(joined), nrow(qfd))
-  expect_equal(joined$PreLevel, joined$Value.coef, tolerance = 1e-6)
-  expect_true(all(vars$dat[["pds"]]$PreLevel == 1))
-  expect_false("PreLevel" %in% names(vars$dat[["del_taxrgc"]]))
+  expect_equal(joined$pre_level, joined$Value.coef, tolerance = 1e-6)
+  expect_true(all(vars$dat[["pds"]]$pre_level == 1))
+  expect_false("pre_level" %in% names(vars$dat[["del_taxrgc"]]))
 })
 
 test_that("levels follow the solution in a shocked run", {
@@ -227,8 +227,8 @@ test_that("levels follow the solution in a shocked run", {
   out <- ems_solve(shocked, solution_method = "Johansen")
   for (nm in c("qfd", "pds", "qgdp")) {
     d <- out$dat[[nm]]
-    expect_equal(d$PostLevel, d$PreLevel * (1 + d$Value / 100), tolerance = 1e-9, label = nm)
-    expect_equal(d$Change, d$PostLevel - d$PreLevel, tolerance = 1e-9, label = nm)
+    expect_equal(d$post_level, d$pre_level * (1 + d$Value / 100), tolerance = 1e-9, label = nm)
+    expect_equal(d$change, d$post_level - d$pre_level, tolerance = 1e-9, label = nm)
     expect_true(any(d$Value != 0), label = nm)
   }
 })
@@ -243,28 +243,28 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
   w <- vapply(1:3, \(i) prod(x[-i] / (x[-i] - x[i])), numeric(1))
   for (nm in c("qgdp", "qfd")) {
     d <- out$dat[[nm]]
-    expect_true(all(c("Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Code", "Summarised") %in% names(d)), label = nm)
-    expect_true(all(d$Code %in% c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")), label = nm)
-    expect_true(all(d$Figures %in% c(0:6, NA)), label = nm)
-    expect_true(all(d$LevelsFigures >= d$Figures | is.na(d$Figures)), label = nm)
-    expect_true(all(d$Summarised), label = nm)
-    expect_true(all(d$Error >= 0), label = nm)
-    expect_true(any(d$Pass1 != d$Value), label = nm)
-    extrapolated <- w[1] * d$Pass1 + w[2] * d$Pass2 + w[3] * d$Pass3
+    expect_true(all(c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarised") %in% names(d)), label = nm)
+    expect_true(all(d$code %in% c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")), label = nm)
+    expect_true(all(d$figures %in% c(0:6, NA)), label = nm)
+    expect_true(all(d$levels_figures >= d$figures | is.na(d$figures)), label = nm)
+    expect_true(all(d$summarised), label = nm)
+    expect_true(all(d$error >= 0), label = nm)
+    expect_true(any(d$pass1 != d$Value), label = nm)
+    extrapolated <- w[1] * d$pass1 + w[2] * d$pass2 + w[3] * d$pass3
     expect_equal(extrapolated, d$Value, tolerance = 1e-9, label = nm)
   }
   acc <- attr(out, "accuracy")
   expect_setequal(acc$Variable, c("qgdp", "qfd"))
-  expect_true(all(c("Elements", "Summarised", "MinFigures", "MinLevelsFigures", "ShareFigures",
-    "ShareLevelsFigures", "WorstCode", "MaxError") %in% names(acc)))
+  expect_true(all(c("elements", "summarised", "min_figures", "min_levels_figures", "share_figures",
+    "share_levels_figures", "worst_code", "max_error") %in% names(acc)))
   qfd <- out$dat[[match("qfd", out$name)]]
   row <- acc[acc$Variable == "qfd", ]
-  expect_identical(row$Elements, nrow(qfd))
-  expect_identical(row$MinLevelsFigures, min(qfd$LevelsFigures))
-  expect_equal(row$MaxError, max(qfd$Error))
-  expect_true(all(acc$ShareFigures >= 0 & acc$ShareFigures <= 1))
+  expect_identical(row$elements, nrow(qfd))
+  expect_identical(row$min_levels_figures, min(qfd$levels_figures))
+  expect_equal(row$max_error, max(qfd$error))
+  expect_true(all(acc$share_figures >= 0 & acc$share_figures <= 1))
   plain <- ems_compose(shocked, "qgdp")
-  expect_false(any(c("Pass1", "Figures") %in% names(plain$dat$qgdp)))
+  expect_false(any(c("pass1", "figures") %in% names(plain$dat$qgdp)))
 })
 
 test_that("passes = TRUE on a run without separate solutions aborts", {

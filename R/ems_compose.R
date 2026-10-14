@@ -9,56 +9,62 @@
 #'   (`"BoSha32"`, `"DoPri54"`; see [`ems_solve()`]) each
 #'   variable's data.table carries an additional `error_estimate`
 #'   column: the solver's component-by-component estimate of the
-#'   cumulative solution error, `|delta| / max(1, |Value|)`. It is an
-#'   indicator for finding the least settled results, not a bound on
-#'   the error (it behaved as an upper bound in GEMPACK's tests,
-#'   Schiffmann 2022).
+#'   cumulative solution error, `|delta| / max(1, |Value|)`.
+#'   Sorting on `error_estimate` ranks the results by how settled
+#'   they are; the estimate is an indicator, not a bound on the
+#'   error.
 #' @inheritParams ems_solve
 #' @param which Character vector of variable length (default
-#'   `"all"`). When `"all"`, all model variables and all model
-#'   coefficients (updated, post-simulation values, plus any
-#'   PostSim coefficients typed `"postsim"`) are returned, except
-#'   the condensation coefficients (`CSUB<n>`), which are returned
-#'   only when named. Otherwise, a character vector of variable
-#'   and/or coefficient names to retrieve, matched without regard
-#'   to case — an error is raised for any name not found. Note that some coefficient names differ from their
-#'   associated headers (e.g., VTWR/VTMFSD). Coefficient values
-#'   are read from the solver's binary coefficient dump
-#'   (`sol.cof`/`sol.cbin`), selectively for named coefficients.
+#'   `"all"`). When `"all"`, all model variables and coefficients
+#'   (updated, post-simulation values, plus any PostSim
+#'   coefficients typed `"postsim"`) are returned. Condensation
+#'   coefficients (`CSUB<n>`) are returned only when named.
+#'   Otherwise, a character vector of variable and/or coefficient
+#'   names to retrieve (case insensitive). Note that some
+#'   coefficient names differ from their associated headers
+#'   (e.g., VTWR/VTMFSD). Coefficient values are read from the
+#'   solver's binary coefficient dump (`sol.cof`/`sol.cbin`).
 #' @param passes Logical length 1 (default `FALSE`). When `TRUE`,
-#'   each variable's data.table gains the separate solutions that
-#'   a three-pass `"Gragg"`, `"Midpoint"` or `"Euler"` run
-#'   extrapolates from: `Pass1`, `Pass2` and `Pass3` for the
-#'   solutions with the fewest to the most steps, in the units of
-#'   `Value`. `Figures` is the number of significant figures to
-#'   which the two two-pass extrapolations agree (0 to 6, `NA` for
-#'   a result judged zero, both extrapolations below 1e-6), and
-#'   `LevelsFigures` the same for the variable's levels value,
-#'   which a percent-change result usually has more of. `Error` is
-#'   the difference between the two extrapolations in the units of
-#'   `Value`, `Code` is the convergence code of GEMPACK manual
-#'   26.2.3 (for example `"CX"`, confidence in the extrapolated
-#'   result, or `"MD!"`, monotonic but appearing to diverge), and
-#'   `Summarised` is `FALSE` for exogenous elements,
-#'   which the run's accuracy summary leaves out. With
-#'   subintervals, `Pass1`–`Pass3` and `Error` describe the last
-#'   subinterval, the figures are the lowest over all subintervals
-#'   and the code the worst. The output then carries an `accuracy`
-#'   attribute, one row per variable: `Elements`, `Summarised`,
-#'   `MinFigures` and `MinLevelsFigures` (a result judged zero counts
-#'   as 6), `ShareFigures` and `ShareLevelsFigures` (the share at
-#'   `accuracy_figures` or more, see [`ems_option_set()`]),
-#'   `WorstCode` and `MaxError`. Read it with
-#'   `attr(output, "accuracy")`. An error is raised for a run that wrote no
-#'   separate solutions.
+#'   each variable's data.table gains the three separate
+#'   solutions of a `"Gragg"`, `"Midpoint"` or `"Euler"` run and
+#'   their accuracy columns, and the output gains an `accuracy`
+#'   attribute (see Details). An error is raised for a run that
+#'   wrote no separate solutions.
 #' @details Every variable whose pre-simulation level is known
-#'   gains the columns `PreLevel` and `PostLevel`, plus `Change`
-#'   (the ordinary change) for a percent-change variable or
-#'   `PercentChange` for a change variable. The level is known
-#'   for a variable declared with `ORIG_LEVEL=` (a coefficient
-#'   over exactly the variable's sets, or a number) and for a
-#'   levels variable; pre-simulation values come from the
-#'   solver's `sol.cbin0`.
+#'   gains the columns `pre_level` and `post_level`, plus
+#'   `change` (the ordinary change) for a percent-change variable
+#'   or `percent_change` for a change variable. The level is
+#'   known for a variable declared with `ORIG_LEVEL=` (a
+#'   coefficient over exactly the variable's sets, or a number)
+#'   and for a levels variable; pre-simulation values come from
+#'   the solver's `sol.cbin0`.
+#'
+#'   With `passes = TRUE`, each variable's data.table gains, in
+#'   the units of `Value` where applicable:
+#'   * `pass1` to `pass3`: the separate solutions, fewest to most
+#'   steps.
+#'   * `figures`: the significant figures on which the two
+#'   extrapolations agree (0 to 6, `NA` when both are below
+#'   1e-6); `levels_figures`: the same for the levels value.
+#'   * `error`: the difference between the two extrapolations.
+#'   * `code`: the convergence code, best `"XMA"` to worst
+#'   `"OD!"`; see GEMPACK manual 26.2.3.
+#'   * `summarised`: whether the element counts in the run's
+#'     accuracy summary: `TRUE` for endogenous and backsolved
+#'     results (of the `accuracy_vars` variables when those are
+#'     given), `FALSE` for exogenous elements, whose values the
+#'     shock sets.
+#'
+#'   With subintervals, `figures` and `levels_figures` are the
+#'   lowest over the subintervals and `code` the worst; `pass1`
+#'   to `pass3` and `error` come from the last subinterval alone,
+#'   each pass compounded onto the extrapolated result of the
+#'   subintervals before it. The per-variable summary,
+#'   `attr(output, "accuracy")`, has `elements`, `summarised`,
+#'   `min_figures`, `min_levels_figures` (a zero result counts as
+#'   6), `share_figures`, `share_levels_figures` (share at
+#'   `accuracy_figures` or more, see [`ems_option_set()`]),
+#'   `worst_code` and `max_error`.
 #' @seealso [`ems_solve()`] for solving the CGE model.
 #' @examples
 #' \dontrun{

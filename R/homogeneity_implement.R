@@ -372,15 +372,15 @@
       return(NULL)
     }
     if (isTRUE(change[[nm]])) {
-      if (!"PreLevel" %in% names(d)) {
+      if (!"pre_level" %in% names(d)) {
         return(NULL)
       }
-      expected <- e * d$PreLevel / 100
+      expected <- e * d$pre_level / 100
     } else {
       expected <- rep(e, nrow(d))
     }
     err <- abs(d$Value - expected) / pmax(1, pmin(abs(d$Value), abs(expected)))
-    keys <- setdiff(names(d), c("Value", "error_estimate", "PreLevel", "PostLevel", "Change", "PercentChange", "Year"))
+    keys <- setdiff(names(d), c("Value", "error_estimate", "pre_level", "post_level", "change", "percent_change", "Year"))
     keys <- keys[!startsWith(keys, "Year_")]
     labels <- if (length(keys) > 0L) {
       paste0(nm, "(", do.call(paste, c(as.list(d[, keys, with = FALSE]), sep = ",")), ")")

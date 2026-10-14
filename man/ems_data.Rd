@@ -59,7 +59,8 @@ An unnamed element sets the method for every weighted
 parameter; elements named after a parameter header (e.g.
 \code{c("share", ESBM = "value")}) override it for that
 parameter. The CDE parameters (INCP, SUBP) are weighted by
-value under either method. Has no effect when only dat_input is given, since that route does not aggregate.}
+value under either method. Has no effect when only dat_input
+is given, since that route does not aggregate.}
 
 \item{...}{A named pairlist assigning set mappings to model
 sets that are explicitly read (not constructed via any set
@@ -111,15 +112,15 @@ no set mappings may be supplied on this route.
 On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
 FlexAgg's aggpar programs: coal, oil and gas mining are
 recalibrated to the target supply elasticities (SPLY),
-assuming as Burniaux and Truong (2002) do a Leontief top nest
-and perfectly elastic supply of every input other than the
-natural resource, and the other fuels take 1. Two results are then overridden,
-reported when \code{verbose} is on, and listed in the metadata: a
-recalibrated value below 0.1, which a natural-resource rent
-too small to carry its target produces, keeps the aggregated
-member value; and an aggregate whose members all carry the
-database placeholder 1e-6 (the technologies without energy
-inputs) takes 1.
+assuming as Burniaux and Truong (2002) do a Leontief top
+nest and perfectly elastic supply of every input other than
+the natural resource, and the other fuels take 1. Two
+results are then overridden, reported when \code{verbose} is on,
+and listed in the metadata: a recalibrated value below 0.1,
+which a natural-resource rent too small to carry its target
+produces, keeps the aggregated member value; and an
+aggregate whose members all carry the database placeholder
+1e-6 (the technologies without energy inputs) takes 1.
 }
 \examples{
 \dontrun{
@@ -166,11 +167,6 @@ int_data <- ems_data("v7_data/gsdfdat.har",
                      ENDW = "user/endowment/mapping.csv",
                      time_steps = c(2023, 2025, 2027, 2030, 2035))
 }           
-}
-\references{
-Burniaux, J.-M. and Truong, T.P. (2002), "GTAP-E: An
-Energy-Environmental Version of the GTAP Model", GTAP Technical
-Paper No. 16, Center for Global Trade Analysis, Purdue University.
 }
 \seealso{
 \code{\link[=ems_deploy]{ems_deploy()}} for loading the output of this

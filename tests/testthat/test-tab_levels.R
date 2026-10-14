@@ -393,7 +393,7 @@ test_that("ADD_HOMOTOPY takes the data onto a levels equation (manual 26.7.1, e2
   out <- suppressMessages(ems_solve(cmf_path, solution_method = "Gragg", steps = c(20L, 40L, 80L)))
   hv1 <- out$dat[[which(out$name == "HV1")]]
   expect_equal(hv1$Value, c(-2, (-4 + sqrt(24)) / 4 - 4, -6), tolerance = 1e-3)
-  expect_equal(hv1$PostLevel, c(1, (-4 + sqrt(24)) / 4, -1), tolerance = 1e-3)
+  expect_equal(hv1$post_level, c(1, (-4 + sqrt(24)) / 4, -1), tolerance = 1e-3)
   homo <- out$dat[[which(out$name == "HOMOTOPY")]]
-  expect_equal(homo$PostLevel, 0, tolerance = 1e-6)
+  expect_equal(homo$post_level, 0, tolerance = 1e-6)
 })

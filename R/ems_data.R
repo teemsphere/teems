@@ -47,7 +47,8 @@
 #'   parameter; elements named after a parameter header (e.g.
 #'   `c("share", ESBM = "value")`) override it for that
 #'   parameter. The CDE parameters (INCP, SUBP) are weighted by
-#'   value under either method. Has no effect when only dat_input is given, since that route does not aggregate.
+#'   value under either method. Has no effect when only dat_input
+#'   is given, since that route does not aggregate.
 #' @param ... A named pairlist assigning set mappings to model
 #'   sets that are explicitly read (not constructed via any set
 #'   operation defined in the model file). Set mappings can be
@@ -82,21 +83,18 @@
 #'   On the GTAP-E and GTAP-Power layers ELFVAEN (EFVE) follows
 #'   FlexAgg's aggpar programs: coal, oil and gas mining are
 #'   recalibrated to the target supply elasticities (SPLY),
-#'   assuming as Burniaux and Truong (2002) do a Leontief top nest
-#'   and perfectly elastic supply of every input other than the
-#'   natural resource, and the other fuels take 1. Two results are then overridden,
-#'   reported when `verbose` is on, and listed in the metadata: a
-#'   recalibrated value below 0.1, which a natural-resource rent
-#'   too small to carry its target produces, keeps the aggregated
-#'   member value; and an aggregate whose members all carry the
-#'   database placeholder 1e-6 (the technologies without energy
-#'   inputs) takes 1.
+#'   assuming as Burniaux and Truong (2002) do a Leontief top
+#'   nest and perfectly elastic supply of every input other than
+#'   the natural resource, and the other fuels take 1. Two
+#'   results are then overridden, reported when `verbose` is on,
+#'   and listed in the metadata: a recalibrated value below 0.1,
+#'   which a natural-resource rent too small to carry its target
+#'   produces, keeps the aggregated member value; and an
+#'   aggregate whose members all carry the database placeholder
+#'   1e-6 (the technologies without energy inputs) takes 1.
 #' @seealso [`ems_deploy()`] for loading the output of this
 #'   function. [`GTAP_convert()`] for converting GTAP HAR files
 #'   and data formats.
-#' @references Burniaux, J.-M. and Truong, T.P. (2002), "GTAP-E: An
-#'   Energy-Environmental Version of the GTAP Model", GTAP Technical
-#'   Paper No. 16, Center for Global Trade Analysis, Purdue University.
 #' @examples
 #' \dontrun{
 #' # The following examples require input data. See

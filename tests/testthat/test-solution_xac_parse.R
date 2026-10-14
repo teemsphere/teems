@@ -44,32 +44,32 @@ test_that("pass solutions and accuracy columns are read for every variable in .b
   xac <- .parse_solution_xac(prefix, vars)
   expect_identical(
     names(xac),
-    c("Pass1", "Pass2", "Pass3", "Error", "Figures", "LevelsFigures", "Code", "Summarised")
+    c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarised")
   )
-  expect_identical(xac$Pass1, xac_passes[, 1])
-  expect_identical(xac$Pass3, xac_passes[, 3])
-  expect_identical(xac$Error, xac_error)
-  expect_identical(xac$Figures, c(6L, 5L, NA, 3L, 0L))
-  expect_identical(xac$LevelsFigures, xac_levels)
-  expect_identical(xac$Code, c("XMA", "CX", "C0", NA, "OD!"))
-  expect_identical(xac$Summarised, c(TRUE, TRUE, TRUE, FALSE, TRUE))
+  expect_identical(xac$pass1, xac_passes[, 1])
+  expect_identical(xac$pass3, xac_passes[, 3])
+  expect_identical(xac$error, xac_error)
+  expect_identical(xac$figures, c(6L, 5L, NA, 3L, 0L))
+  expect_identical(xac$levels_figures, xac_levels)
+  expect_identical(xac$code, c("XMA", "CX", "C0", NA, "OD!"))
+  expect_identical(xac$summarised, c(TRUE, TRUE, TRUE, FALSE, TRUE))
 })
 
 test_that("a version 1 pass file from an older solver is still read", {
   prefix <- local_xac(xac_passes, c(6L, 5L, 4L, 3L, 1L), version = 1L)
   xac <- .parse_solution_xac(prefix, data.frame(begadd = 0, matsize = 5))
-  expect_identical(xac$Figures, c(6L, 5L, 4L, 3L, 1L))
-  expect_true(all(is.na(xac$LevelsFigures)))
-  expect_true(all(is.na(xac$Error)))
-  expect_true(all(is.na(xac$Code)))
+  expect_identical(xac$figures, c(6L, 5L, 4L, 3L, 1L))
+  expect_true(all(is.na(xac$levels_figures)))
+  expect_true(all(is.na(xac$error)))
+  expect_true(all(is.na(xac$code)))
 })
 
 test_that("a selection reads only the selected variables' rows", {
   prefix <- local_xac2()
   xac <- .parse_solution_xac(prefix, data.frame(begadd = 2, matsize = 3))
-  expect_identical(xac$Pass2, xac_passes[3:5, 2])
-  expect_identical(xac$Error, xac_error[3:5])
-  expect_identical(xac$LevelsFigures, xac_levels[3:5])
+  expect_identical(xac$pass2, xac_passes[3:5, 2])
+  expect_identical(xac$error, xac_error[3:5])
+  expect_identical(xac$levels_figures, xac_levels[3:5])
 })
 
 test_that("a pass file the run did not list as complete is not read", {

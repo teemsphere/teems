@@ -49,14 +49,14 @@
   code_names <- c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")
   code <- ifelse(code_number >= 1L & code_number <= 16L, code_names[pmax(code_number, 1L)], NA_character_)
   xac <- data.table::data.table(
-    Pass1 = passes[[1]],
-    Pass2 = passes[[2]],
-    Pass3 = passes[[3]],
-    Error = error,
-    Figures = figures,
-    LevelsFigures = levels_figures,
-    Code = code,
-    Summarised = summarised
+    pass1 = passes[[1]],
+    pass2 = passes[[2]],
+    pass3 = passes[[3]],
+    error = error,
+    figures = figures,
+    levels_figures = levels_figures,
+    code = code,
+    summarised = summarised
   )
   return(xac)
 }

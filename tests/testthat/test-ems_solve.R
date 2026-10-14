@@ -269,14 +269,14 @@ test_that("the convergence rule reports each element by its convergence code (GE
   per_element <- lapply(var_names, \(v) {
     p <- on$dat[[v]]
     data.frame(
-      class = ifelse(p$Code %in% c("MVC", "OVC", "MN0", "ON0"), "average",
-        ifelse(grepl("[?!]", p$Code), "third", "extrapolation")
+      class = ifelse(p$code %in% c("MVC", "OVC", "MN0", "ON0"), "average",
+        ifelse(grepl("[?!]", p$code), "third", "extrapolation")
       ),
-      code = p$Code,
-      average = (p$Pass1 + p$Pass2 + p$Pass3) / 3,
-      third = p$Pass3,
+      code = p$code,
+      average = (p$pass1 + p$pass2 + p$pass3) / 3,
+      third = p$pass3,
       off = off$dat[[v]]$Value,
-      off_code = off$dat[[v]]$Code,
+      off_code = off$dat[[v]]$code,
       on = p$Value
     )
   })
@@ -310,9 +310,9 @@ test_that("accuracy_vars selects the variables of the accuracy summary", {
   n_sel <- sub("^Results summarised: ([0-9]+) .*", "\\1", grep("^Results summarised:", record, value = TRUE))
   expect_true(any(grepl("^Results summarised: [0-9]+ \\(variables qgdp, aoall\\)$", record)))
   out <- ems_compose(cmf_path, c("qgdp", "aoall", "qo"), passes = TRUE)
-  expect_true(all(out$dat$qgdp$Summarised))
-  expect_true(all(out$dat$aoall$Summarised))
-  expect_false(any(out$dat$qo$Summarised))
+  expect_true(all(out$dat$qgdp$summarised))
+  expect_true(all(out$dat$aoall$summarised))
+  expect_false(any(out$dat$qo$summarised))
   expect_identical(as.integer(n_sel), nrow(out$dat$qgdp) + nrow(out$dat$aoall))
 
   expect_error(

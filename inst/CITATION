@@ -47,13 +47,12 @@ bibentry(
   year     = year,
   note     = paste("R package version", version),
   url      = "https://CRAN.R-project.org/package=teems",
-  ## Once a Zenodo release DOI exists, uncomment and cite the *concept* DOI so
-  ## the reference always resolves to the current version:
-  # doi    = "10.5281/zenodo.XXXXXXX",
+  doi      = "10.32614/CRAN.package.teems",
   textVersion = paste0(
     "Cantele, M., Kompas, T., Pham, H. V., & Ingram, M. (", year, "). ",
     "teems: Trade and Environment Equilibrium Modeling System. ",
     "R package version ", version, ". ",
-    "https://CRAN.R-project.org/package=teems"
+    "https://CRAN.R-project.org/package=teems. ",
+    "doi:10.32614/CRAN.package.teems"
   )
 )

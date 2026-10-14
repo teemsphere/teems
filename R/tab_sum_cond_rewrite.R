@@ -10,6 +10,10 @@
   }
   synth <- new.env(parent = emptyenv())
   synth$tab <- tab
+  synth$names <- unique(toupper(unlist(regmatches(
+    tab,
+    gregexpr("[A-Za-z_][A-Za-z0-9_@]*", tab, perl = TRUE)
+  ))))
   synth$maps <- .tab_mappings(tab)
   out <- as.list(tab)
   deferred <- character(0)

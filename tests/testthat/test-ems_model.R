@@ -1654,6 +1654,25 @@ test_that("equation IF and sum-condition indicators follow every Formula (GEMPAC
   expect_true(all(indicators > max(equations)))
 })
 
+test_that("a sum-condition indicator skips helper names the TAB already declares", {
+  tab <- c(
+    "File DATA # data #",
+    "Set S # elements # (e1, e2, e3)",
+    "Coefficient (all,i,S) A(i) # switch #",
+    "Coefficient (all,i,S) IFC1(i) # user-declared IFC1 #",
+    "Formula (all,i,S) A(i) = 1",
+    "Formula (all,i,S) IFC1(i) = 2",
+    "Variable (all,i,S) x(i) # x #",
+    "Variable (all,i,S) y(i) # y #",
+    "Equation E_y (all,i,S) y(i) = sum{j,S: A(j) > 0.5, x(j)} + x(i)"
+  )
+  out <- .rewrite_sum_conditions(tab, call = NULL)
+  declared <- sub("^Coefficient .* (IFC[0-9]+)\\(.*$", "\\1", grep("^Coefficient .* IFC[0-9]+\\(", out, value = TRUE))
+  expect_length(declared, 2L)
+  expect_identical(anyDuplicated(declared), 0L)
+  expect_false("IFC1" %in% declared[-1L])
+})
+
 test_that("an identifier ending in E before a sign is not an exponent", {
   terms <- .split_tab_terms("y(i)*A2E-y(i) + 1e-3*x(i) - cub06b_4E-x(i)")
   expect_identical(terms$sign, c("+", "-", "+", "-", "-"))

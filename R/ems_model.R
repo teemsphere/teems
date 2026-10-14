@@ -28,9 +28,9 @@
 #'   statements are ignored. Otherwise `Substitute` statements
 #'   are executed as backsolves and `Omit` statements make the
 #'   omitted variables exogenous where the closure does not
-#'   already. The solver automatically drops
-#'   unshocked exogenous variables from the solve, and their zero
-#'   results remain in the outputs.
+#'   already. The solver automatically drops unshocked exogenous
+#'   variables from the solve, and their zero results remain in
+#'   the outputs.
 #' @param ... A named pairlist assigning values to model
 #'   coefficients. Name must match a coefficient declared in the
 #'   model file. Value may be a length-1 numeric, a data frame or
@@ -45,8 +45,9 @@
 #'   Inputs are subject to structure checks against the set
 #'   aggregations specified in [`ems_data()`] and all tuples must
 #'   be present.
-#' @seealso [`ems_example()`] for writing teems example models and scripts to file. [`ems_deploy()`] for loading the output of this
-#'   function as well as conducting closure swaps.
+#' @seealso [`ems_example()`] for writing teems example models
+#'   and scripts to file. [`ems_deploy()`] for loading the output
+#'   of this function as well as conducting closure swaps.
 #' @examples
 #' # Simple static model without condensation retrieval and load
 #' GTAPv7 <- ems_example("GTAPv7", tempdir())

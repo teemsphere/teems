@@ -41,29 +41,30 @@
 #' # The following examples require input data. See
 #' # https://teemsphere.github.io/ to get started.
 #'
-#' # Uniform shock applied to full variable with value 1
-#' shock <- ems_uniform_shock("qfd", value = 1)
+#' # Uniform shock: 1% real GDP growth in every region
+#' shock <- ems_uniform_shock("qgdp", value = 1)
 #'
-#' # Full variable swap, qfd for tfd
+#' # Full variable swap, qgdp for aoreg (GDP target, endogenous
+#' # productivity)
 #' cmf_path <- ems_deploy(
 #'   .data = dat,
 #'   model = model,
 #'   shock = shock,
-#'   swap_in = "qfd",
-#'   swap_out = "tfd"
+#'   swap_in = "qgdp",
+#'   swap_out = "aoreg"
 #' )
 #'
 #' # Partial variable swap (element "row" of set REG with index r)
 #' yp_row <- ems_swap("yp", REGr = "row")
 #' dppriv_row <- ems_swap("dppriv", REGr = "row")
 #'
-#' # Swap part of yp for part of dppriv; qfd for tfd
+#' # Swap part of yp for part of dppriv; qgdp for aoreg
 #' cmf_path <- ems_deploy(
 #'  .data = dat,
 #'  model = model,
 #'  shock = shock,
-#'  swap_in = list(yp_row, "qfd"),
-#'  swap_out = list(dppriv_row, "tfd")
+#'  swap_in = list(yp_row, "qgdp"),
+#'  swap_out = list(dppriv_row, "aoreg")
 #' )
 #' }
 ems_deploy <- function(.data,

@@ -65,6 +65,18 @@ test_that("ems_uniform_shock examples run", {
   }
 })
 
+test_that("ems_custom_shock examples run", {
+  env <- example_env()
+  vals <- run_examples(example_exprs("ems_custom_shock"), env)
+  shocks <- vals[names(vals) == "ems_custom_shock"]
+  expect_length(shocks, 2L)
+  for (s in shocks) {
+    expect_s3_class(s[[1]], "custom")
+  }
+  expect_identical(nrow(env$aoall_data), 5L * 5L * 8L)
+  expect_identical(env$pop_data$Year, 2023:2030)
+})
+
 test_that("ems_model examples run", {
   env <- example_env()
   vals <- run_examples(example_exprs("ems_model"), env)

@@ -154,21 +154,6 @@ test_that("ems_compose errors when cmf_path does not exist", {
   expect_snapshot_error(ems_compose(cmf_path = file.path("not_a_path")))
 })
 
-test_that("ems_compose examples run", {
-  # The following examples require that a model run has taken
-  # place. See https://teemsphere.github.io/ to get started.
-
-  # Return specific variables and/or coefficients by name
-  outputs <- ems_compose(cmf_path)
-  
-  # Specific variables and/or coefficients by name
-  outputs <- ems_compose(cmf_path, c("qfd", "EVFP"))
-  expect_equal(nrow(outputs), 2)
-  expect_equal(ncol(outputs), 4)
-  expect_equal(names(outputs), c("name", "label", "type", "dat"))
-  expect_equal(names(outputs$dat), c("qfd", "EVFP"))
-})
-
 test_that("time steps read from the deploy metadata match the solver's timestep coefficient", {
   paths <- .get_output_paths(cmf_path = cmf_path)
   from_metadata <- .get_timesteps(

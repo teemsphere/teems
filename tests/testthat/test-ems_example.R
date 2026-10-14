@@ -97,47 +97,4 @@ test_that("ems_example generates every script of a model", {
   }
 })
 
-test_that("ems_example examples run without error", {
-  # The following examples require input data. See
-  # https://teemsphere.github.io/ to get started.
-
-  # Generate GTAPv7 example scripts
-  expect_type(ems_example(
-    model = "GTAPv7",
-    path = write_dir,
-    type = "scripts",
-    dat_input = Sys.getenv("GTAP12_dat"),
-    par_input = Sys.getenv("GTAP12_par"),
-    set_input = Sys.getenv("GTAP12_set")
-  ), "character")
-
-  # Generate GTAP-RE example scripts
-  expect_type(ems_example(
-    model = "GTAP-RE",
-    path = write_dir,
-    type = "scripts",
-    dat_input = Sys.getenv("GTAP12_dat"),
-    par_input = Sys.getenv("GTAP12_par"),
-    set_input = Sys.getenv("GTAP12_set")
-  ), "character")
-
-  # Generate GTAPv6 example scripts from a v7 format database
-  converted <- GTAP_convert(
-    dat_har = Sys.getenv("GTAP12_dat"),
-    par_har = Sys.getenv("GTAP12_par"),
-    set_har = Sys.getenv("GTAP12_set"),
-    target = "GTAPv6"
-  )
-
-  expect_type(converted, "list")
-  expect_type(ems_example(
-    model = "GTAPv6",
-    path = write_dir,
-    type = "scripts",
-    dat_input = converted$dat,
-    par_input = converted$par,
-    set_input = converted$set
-  ), "character")
-})
-
 unlink(write_dir, recursive = TRUE)

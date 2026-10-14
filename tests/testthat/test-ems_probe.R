@@ -19,9 +19,9 @@ test_that("healthy probe report parses", {
   expect_identical(sum(healthy$statements$rows), healthy$vecsize)
   expect_gt(nrow(healthy$incidence), 0L)
   expect_identical(nrow(healthy$defects), 0L)
-  # fine decomposition
-  expect_identical(healthy$cores$largest, 4341L)
-  expect_identical(healthy$cores$top$eqs[[1]]$name[[1]], "e_qfa")
+  # simultaneous components
+  expect_identical(healthy$components$largest, 4341L)
+  expect_identical(healthy$components$top$eqs[[1]]$name[[1]], "e_qfa")
   # stats.json companion
   expect_identical(healthy$structure$vecsize, healthy$vecsize)
 })
@@ -68,7 +68,7 @@ test_that("probe plots render on a null device", {
   grDevices::pdf(NULL)
   withr::defer(grDevices::dev.off())
   expect_invisible(plot(healthy, type = "incidence"))
-  expect_invisible(plot(healthy, type = "cores"))
+  expect_invisible(plot(healthy, type = "components"))
   expect_invisible(plot(broken, type = "dm"))
   expect_invisible(plot(broken, type = "incidence"))
 })
@@ -85,10 +85,10 @@ test_that("dm plot errors on a structurally valid probe", {
   expect_snapshot_error(plot(healthy, type = "dm"))
 })
 
-test_that("cores plot errors without fine data", {
-  no_fine <- healthy
-  no_fine$cores <- NULL
-  expect_snapshot_error(plot(no_fine, type = "cores"))
+test_that("components plot errors without component data", {
+  no_components <- healthy
+  no_components$components <- NULL
+  expect_snapshot_error(plot(no_components, type = "components"))
 })
 
 test_that("probe report errors when the report is absent", {
@@ -103,8 +103,8 @@ test_that("ems_probe errors when cmf_path is missing", {
   expect_snapshot_error(ems_probe())
 })
 
-test_that("ems_probe errors when fine is not a logical scalar", {
-  expect_snapshot_error(ems_probe(cmf_path = "some.cmf", fine = "yes"))
+test_that("ems_probe errors when components is not a logical scalar", {
+  expect_snapshot_error(ems_probe(cmf_path = "some.cmf", components = "yes"))
 })
 
 # probe-informed condensation advice (roadmap 6.2 via 6.10): the verdict
@@ -342,7 +342,7 @@ test_that("the probe runs against its own CMF copy and output stem", {
   expect_identical(paths$docker_diag_out, "/opt/teems/out/probe/solver_out_probe.txt")
   expect_identical(paths$diag_out, file.path(normalizePath(run_dir, "/"), "out", "probe", "solver_out_probe.txt"))
   local_mocked_bindings(.solver_uses_random = function(...) FALSE)
-  cmd <- .construct_probe_cmd(paths, "x", fine = TRUE)
+  cmd <- .construct_probe_cmd(paths, "x", components = TRUE)
   expect_match(cmd, "tee /opt/teems/out/probe/solver_out_probe.txt", fixed = TRUE)
   expect_match(cmd, "set -o pipefail;", fixed = TRUE)
   expect_identical(paths$sol_prefix, file.path(normalizePath(run_dir, "/"), "out", "probe", "sol"))

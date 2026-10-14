@@ -33,7 +33,7 @@
       defects = .probe_defects(probe),
       statements = statements,
       incidence = incidence,
-      cores = .probe_cores(probe$fine),
+      components = .probe_components(probe$fine),
       structure = .probe_stats(stats),
       condense = .probe_cndns(
         stats = .probe_stats(stats),

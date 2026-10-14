@@ -4,8 +4,8 @@
       print(healthy)
     Message
       -- Structural probe ---------------------------------------- 10,524 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
       i `summary(x)` for the full report
 
 ---
@@ -31,10 +31,10 @@
       v Structural rank: 10,524 of 10,524
       v Rank at base data: 10,524 of 10,524
       * Structure: no time chain; no block partition
-      * Simultaneous cores: 28 of 6,049 strongly connected components have more than
-        one element; the largest has 4,341 rows
-      * Largest core by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225, e_pfa ×225,
-        e_pfd ×225, e_pfm ×225, and 44 more
+      * Simultaneous components: 28 of 6,049 components have more than one element;
+        the largest has 4,341 rows
+      * Largest component by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225,
+        e_pfa ×225, e_pfd ×225, e_pfm ×225, and 44 more
       * Statements: 247 equation statements, 856 statement-variable incidences
       -- Heaviest statement-variable incidences --------------------------------------
     Output
@@ -69,10 +69,10 @@
         Under-determined by variable: dprobeb ×3
         Over-constrained by equation: e_dprobe2 ×3
         Dulmage-Mendelsohn blocks: under 0 × 3, well 10,524 × 10,524, over 6 × 3
-      * Simultaneous cores: 28 of 6,049 strongly connected components have more than
-        one element; the largest has 4,341 rows
-      * Largest core by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225, e_pfa ×225,
-        e_pfd ×225, e_pfm ×225, and 44 more
+      * Simultaneous components: 28 of 6,049 components have more than one element;
+        the largest has 4,341 rows
+      * Largest component by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225,
+        e_pfa ×225, e_pfd ×225, e_pfm ×225, and 44 more
       * Statements: 249 equation statements, 858 statement-variable incidences
       -- Defect elements (capped upstream at 200 per list) ---------------------------
     Output
@@ -114,21 +114,21 @@
 
 # dm plot errors on a structurally valid probe
 
-    x No Dulmage-Mendelsohn localization to plot: the system has full structural rank on both patterns.
+    x Nothing to plot: the system is not singular, structurally or at base data.
     x The "dm" plot only applies to structurally singular systems; see `plot(x, type = "incidence")` for the system structure.
 
-# cores plot errors without fine data
+# components plot errors without component data
 
-    x This probe carries no fine-decomposition (core) data.
-    x Rerun with `ems_probe(cmf_path, fine = TRUE)`.
+    x This probe carries no component data.
+    x Rerun with `ems_probe(cmf_path, components = TRUE)`.
 
 # ems_probe errors when cmf_path is missing
 
     x argument `cmf_path` is missing, with no default
 
-# ems_probe errors when fine is not a logical scalar
+# ems_probe errors when components is not a logical scalar
 
-    x `fine` must be a logical of length 1.
+    x `components` must be a logical of length 1.
 
 # probe prints each condensation verdict
 
@@ -145,12 +145,12 @@
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 1% of the uncondensed system (202,000 to
         200,000 equations)
-      ! "REG" partitions the system into 35 blocks (400 border variables), which the
-        bordered methods exploit and substitution densifies; backsolving likely slows
+      ! "REG" splits the system into 35 blocks (400 border variables) for the
+        parallel methods, and substitution densifies them; backsolving likely slows
         the solve
-      i Try redeploying without `backsolve` and solving with a bordered method:
-        measured on GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and
-        condensed "DBBD" stopped gaining from extra tasks
+      i Try redeploying without `backsolve` and solving with a parallel method: on
+        GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and condensed
+        "DBBD" stopped gaining from extra tasks
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
@@ -159,20 +159,20 @@
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
-      v No block partition, so the system is likely "LU"-bound, where condensation
-        tends to speed the solve
+      v No block partition: the system is "LU"-bound, and condensation tends to speed
+        an "LU" solve
       -- Condensation ----------------------------------------------------------------
       * 68 backsolved variables remove 16% of the uncondensed system (12,524 to
         10,524 equations)
-      ! "alltime" partitions the system into 12 blocks (0 border variables), which
-        the bordered methods exploit and substitution densifies; backsolving likely
-        slows the solve
-      i Try redeploying without `backsolve` and solving with a bordered method:
-        measured on GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and
-        condensed "DBBD" stopped gaining from extra tasks
+      ! "alltime" splits the system into 12 blocks (0 border variables) for the
+        parallel methods, and substitution densifies them; backsolving likely slows
+        the solve
+      i Try redeploying without `backsolve` and solving with a parallel method: on
+        GTAP-RE, condensation made "SBBD" runs 69% to 393% slower, and condensed
+        "DBBD" stopped gaining from extra tasks
       -- Condensation ----------------------------------------------------------------
-      i No condensation and no block partition: a "LU"-bound system this large is a
-        candidate for `backsolve` in `ems_model()`
+      i Uncondensed and "LU"-bound at this size: `backsolve` in `ems_model()` would
+        shrink it
 
 # the probe prints its recommendation
 
@@ -180,8 +180,8 @@
       print(probe)
     Message
       -- Structural probe ------------------------------------- 1,500,000 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
       > Recommended for the machine given (8 cores, 12.0 GB): "DBBD", 2 tasks × 4
         threads
         `ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2, n_threads = 4)`
@@ -198,10 +198,10 @@
       v Rank at base data: 1,500,000 of 1,500,000
       * Structure: no time chain; block partition by "reg" (3 blocks, 74 border
         variables)
-      * Simultaneous cores: 28 of 6,049 strongly connected components have more than
-        one element; the largest has 4,341 rows
-      * Largest core by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225, e_pfa ×225,
-        e_pfd ×225, e_pfm ×225, and 44 more
+      * Simultaneous components: 28 of 6,049 components have more than one element;
+        the largest has 4,341 rows
+      * Largest component by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225,
+        e_pfa ×225, e_pfd ×225, e_pfm ×225, and 44 more
       * Statements: 247 equation statements, 856 statement-variable incidences
       -- Heaviest statement-variable incidences --------------------------------------
     Output
@@ -235,8 +235,8 @@
       print(probe)
     Message
       -- Structural probe ------------------------------------- 1,500,000 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
       x No solve recommendation: the container's cores could not be read; pass
         `cores` and `memory` to `ems_probe()`
       i `summary(x)` for the full report
@@ -247,8 +247,8 @@
       print(probe)
     Message
       -- Structural probe ------------------------------------- 1,500,000 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
       > Recommended for 8 cores as given, memory unknown: "DBBD", 2 tasks × 4 threads
         `ems_solve(cmf_path, matrix_method = "DBBD", n_tasks = 2, n_threads = 4)`
       i `summary(x)` for the full report
@@ -259,8 +259,8 @@
       print(probe)
     Message
       -- Structural probe ------------------------------------ 12,500,000 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
       ! Memory is tight: about 11.2 GB estimated of 12.0 GB available
       > Recommended for the machine given (8 cores, 12.0 GB): "LU", 1 task × 1 thread
         `ems_solve(cmf_path, matrix_method = "LU")`
@@ -277,10 +277,10 @@
       v Rank at base data: 12,500,000 of 12,500,000
       * Structure: no time chain; block partition by "reg" (3 blocks, 74 border
         variables)
-      * Simultaneous cores: 28 of 6,049 strongly connected components have more than
-        one element; the largest has 4,341 rows
-      * Largest core by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225, e_pfa ×225,
-        e_pfd ×225, e_pfm ×225, and 44 more
+      * Simultaneous components: 28 of 6,049 components have more than one element;
+        the largest has 4,341 rows
+      * Largest component by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225,
+        e_pfa ×225, e_pfd ×225, e_pfm ×225, and 44 more
       * Statements: 247 equation statements, 856 statement-variable incidences
       -- Heaviest statement-variable incidences --------------------------------------
     Output
@@ -314,10 +314,11 @@
       print(probe)
     Message
       -- Structural probe ------------------------------------ 40,000,000 equations --
-      v Closure valid: every variable is determined and no equation is redundant, at
-        base data too
-      x No solve recommendation: nothing fits in 12.0 GB; "LU" needs about 36.0 GB.
-        More memory for the container, a coarser aggregation or condensation
+      v Closure valid: every variable is determined and no equation is redundant,
+        structurally and at base data
+      x No solve recommendation: no method fits in 12.0 GB; the smallest, "LU", needs
+        about 36.0 GB. Give the container more memory, aggregate more coarsely or
+        condense
       i `summary(x)` for the full report
 
 ---
@@ -331,10 +332,10 @@
       v Rank at base data: 40,000,000 of 40,000,000
       * Structure: no time chain; block partition by "reg" (3 blocks, 74 border
         variables)
-      * Simultaneous cores: 28 of 6,049 strongly connected components have more than
-        one element; the largest has 4,341 rows
-      * Largest core by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225, e_pfa ×225,
-        e_pfd ×225, e_pfm ×225, and 44 more
+      * Simultaneous components: 28 of 6,049 components have more than one element;
+        the largest has 4,341 rows
+      * Largest component by equation: e_qfa ×225, e_qfd ×225, e_qfm ×225,
+        e_pfa ×225, e_pfd ×225, e_pfm ×225, and 44 more
       * Statements: 247 equation statements, 856 statement-variable incidences
       -- Heaviest statement-variable incidences --------------------------------------
     Output
@@ -353,8 +354,9 @@
       10 e_qo      pfa      225    45
     Message
       -- Recommendation --------------------------------------------------------------
-      x No solve recommendation: nothing fits in 12.0 GB; "LU" needs about 36.0 GB.
-        More memory for the container, a coarser aggregation or condensation
+      x No solve recommendation: no method fits in 12.0 GB; the smallest, "LU", needs
+        about 36.0 GB. Give the container more memory, aggregate more coarsely or
+        condense
 
 ---
 

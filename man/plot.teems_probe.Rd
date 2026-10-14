@@ -4,13 +4,13 @@
 \alias{plot.teems_probe}
 \title{Plot a structural probe}
 \usage{
-\method{plot}{teems_probe}(x, type = c("incidence", "dm", "cores"), max_labels = 60L, ...)
+\method{plot}{teems_probe}(x, type = c("incidence", "dm", "components"), max_labels = 60L, ...)
 }
 \arguments{
 \item{x}{A \code{teems_probe} object from \code{\link[=ems_probe]{ems_probe()}}.}
 
 \item{type}{Character length 1: \code{"incidence"} (default), \code{"dm"}, or
-\code{"cores"}.}
+\code{"components"}.}
 
 \item{max_labels}{Integer length 1 (default \code{60L}). Axis labels are
 dropped when a dimension exceeds this count.}
@@ -19,7 +19,7 @@ dropped when a dimension exceeds this count.}
 }
 \value{
 The input, invisibly. Base-graphics side effects; the
-underlying tibbles (\code{x$incidence}, \code{x$cores}, pattern blocks) are
+underlying tibbles (\code{x$incidence}, \code{x$components}, pattern blocks) are
 exposed for custom plotting.
 }
 \description{
@@ -33,8 +33,9 @@ element-level incidence weight.
 structurally singular system — the under-, well- and
 over-determined blocks to scale (only available when the probe
 found defects).
-\item \code{"cores"}: the fine-decomposition core structure — sizes of the
-irreducible simultaneous cores and the composition of the largest
-core by equation statement (requires \code{fine = TRUE}).
+\item \code{"components"}: the simultaneous components of the system,
+the groups of equations that must be solved together: their
+sizes, and the equation statements of the largest (requires
+\code{components = TRUE}).
 }
 }

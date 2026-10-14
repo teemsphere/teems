@@ -1,7 +1,7 @@
 #' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
-.probe_cores <- function(fine) {
+.probe_components <- function(fine) {
   if (is.null(fine)) {
     return(NULL)
   }
@@ -15,21 +15,21 @@
   }
   top <- fine$top_cores
   top_tbl <- if (is.null(top) || !NROW(top)) {
-    tibble::tibble(core = integer(), size = integer(), eqs = list(), vars = list())
+    tibble::tibble(component = integer(), size = integer(), eqs = list(), vars = list())
   } else {
     tibble::tibble(
-      core = seq_len(NROW(top)),
+      component = seq_len(NROW(top)),
       size = as.integer(top$size),
       eqs = lapply(top$eqs, .probe_agg_tbl),
       vars = lapply(top$vars, .probe_agg_tbl)
     )
   }
-  cores <- list(
+  components <- list(
     sq_comps = fine$sq_comps %|||% NA_integer_,
-    cores_gt1 = fine$cores_gt1 %|||% NA_integer_,
+    simultaneous = fine$cores_gt1 %|||% NA_integer_,
     largest = fine$largest_core %|||% NA_integer_,
     sizes = sizes,
     top = top_tbl
   )
-  return(cores)
+  return(components)
 }

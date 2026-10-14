@@ -20,7 +20,7 @@
   probe_cmd <- .construct_probe_cmd(
     paths = paths,
     timeID = paste0(timeID, "_probe"),
-    fine = v$fine,
+    components = v$components,
     extra = v$solver_extras
   )
   verbose <- .o_verbose()

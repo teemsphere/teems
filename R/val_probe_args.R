@@ -21,8 +21,8 @@
   }
   .validate_solver_extras(a = xtr_args, call = call)
   a$solver_extras <- xtr_args
-  if (!rlang::is_logical(a$fine, n = 1) || is.na(a$fine)) {
-    arg <- "fine"
+  if (!rlang::is_logical(a$components, n = 1) || is.na(a$components)) {
+    arg <- "components"
     .cli_action(probe_err$x_logical,
       action = "abort",
       call = call

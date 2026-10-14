@@ -76,27 +76,28 @@ summary.teems_probe <- function(object, ...) {
 #'   structurally singular system — the under-, well- and
 #'   over-determined blocks to scale (only available when the probe
 #'   found defects).
-#'   * `"cores"`: the fine-decomposition core structure — sizes of the
-#'   irreducible simultaneous cores and the composition of the largest
-#'   core by equation statement (requires `fine = TRUE`).
+#'   * `"components"`: the simultaneous components of the system,
+#'   the groups of equations that must be solved together: their
+#'   sizes, and the equation statements of the largest (requires
+#'   `components = TRUE`).
 #' @param x A `teems_probe` object from [`ems_probe()`].
 #' @param type Character length 1: `"incidence"` (default), `"dm"`, or
-#'   `"cores"`.
+#'   `"components"`.
 #' @param max_labels Integer length 1 (default `60L`). Axis labels are
 #'   dropped when a dimension exceeds this count.
 #' @param ... Unused.
 #' @return The input, invisibly. Base-graphics side effects; the
-#'   underlying tibbles (`x$incidence`, `x$cores`, pattern blocks) are
+#'   underlying tibbles (`x$incidence`, `x$components`, pattern blocks) are
 #'   exposed for custom plotting.
 plot.teems_probe <- function(x,
-                             type = c("incidence", "dm", "cores"),
+                             type = c("incidence", "dm", "components"),
                              max_labels = 60L,
                              ...) {
   type <- match.arg(type)
   switch(type,
     "incidence" = .probe_plot_incidence(x, max_labels = max_labels),
     "dm" = .probe_plot_dm(x),
-    "cores" = .probe_plot_cores(x)
+    "components" = .probe_plot_components(x)
   )
   invisible(x)
 }

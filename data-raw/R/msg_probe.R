@@ -1,6 +1,6 @@
 build_probe_err <- function() {
   list(
-    # test-ems_probe.R: "ems_probe errors when fine is not a logical scalar"
+    # test-ems_probe.R: "ems_probe errors when components is not a logical scalar"
     x_logical = "{.arg {arg}} must be a logical of length 1.",
     # test-ems_probe.R: "ems_probe validates the cores and memory overrides"
     x_positive = "{.arg {arg}} must be a positive number of length 1 or {.val NULL}.",
@@ -22,15 +22,15 @@ build_probe_err <- function() {
       Rebuild the teems image (see the teems-solver README) or inspect
       the solver log at {.path {diag_out}}."
     ),
-    # test-ems_probe.R: "cores plot errors without fine data"
-    no_fine = c(
-      "This probe carries no fine-decomposition (core) data.",
-      "Rerun with {.code ems_probe(cmf_path, fine = TRUE)}."
+    # test-ems_probe.R: "components plot errors without component data"
+    no_components = c(
+      "This probe carries no component data.",
+      "Rerun with {.code ems_probe(cmf_path, components = TRUE)}."
     ),
     # test-ems_probe.R: "dm plot errors on a structurally valid probe"
     no_defects_dm = c(
-      "No Dulmage-Mendelsohn localization to plot: the system has full
-      structural rank on both patterns.",
+      "Nothing to plot: the system is not singular, structurally or at
+      base data.",
       "The {.val dm} plot only applies to structurally singular systems;
       see {.code plot(x, type = \"incidence\")} for the system structure."
     ),
@@ -60,7 +60,7 @@ build_probe_info <- function() {
       rule = "Structural probe",
       size = "{n_fmt} equations",
       valid = "Closure valid: every variable is determined and no equation
-      is redundant, at base data too",
+      is redundant, structurally and at base data",
       singular = "Structurally singular: rank {rank_txt} of {n_txt}
       ({p$unmatched_rows} unmatched equation{?s}, {p$unmatched_cols}
       unmatched variable{?s})",
@@ -69,11 +69,11 @@ build_probe_info <- function() {
       under = "Undetermined: {agg}",
       over = "Over-constrained: {agg}",
       dm_hint = "Locate it with {.code plot(x, type = \"dm\")}",
-      candidate = "Large {.val LU}-bound system: {.arg backsolve} in
+      candidate = "Uncondensed and {.val LU}-bound: {.arg backsolve} in
       {.fn ems_model} would shrink it",
       slower = "Backsolving likely slows this system: {.val {set}} splits
-      it into {blocks} blocks, which the bordered methods exploit and
-      substitution densifies; try redeploying without {.arg backsolve}",
+      it into {blocks} blocks for the parallel methods, and substitution
+      densifies them; try redeploying without {.arg backsolve}",
       more = "{.code summary(x)} for the full report"
     ),
     # the full report's structure section
@@ -101,11 +101,11 @@ build_probe_info <- function() {
       block{?s}{border_txt})",
       partition_border = ", {border} border {cli::qty(border_n)}variable{?s}",
       no_partition = "no block partition",
-      fine_dm = "Simultaneous cores: {gt1_txt} of {sq_txt} strongly
-      connected {cli::qty(x$cores$sq_comps)}component{?s} {?has/have} more
+      components = "Simultaneous components: {gt1_txt} of {sq_txt}
+      {cli::qty(x$components$sq_comps)}component{?s} {?has/have} more
       than one element; the largest has {largest_txt} rows",
-      largest_core = "Largest core by equation: {preview}",
-      core_more = "%d more",
+      largest_component = "Largest component by equation: {preview}",
+      component_more = "%d more",
       statements = "Statements: {n_stmt} equation statement{?s},
       {n_inc} statement-variable {cli::qty(NROW(x$incidence))}incidence{?s}",
       files = "Files: report {.path {x$paths$report}}, solver log
@@ -119,21 +119,20 @@ build_probe_info <- function() {
       rule = "Condensation",
       status = "{n_backsolve} backsolved variable{?s} remove {share} of the
       uncondensed system ({uncondensed_fmt} to {n_fmt} equations)",
-      faster = "No block partition, so the system is likely {.val LU}-bound,
-      where condensation tends to speed the solve",
+      faster = "No block partition: the system is {.val LU}-bound, and
+      condensation tends to speed an {.val LU} solve",
       lu_fine = "{.val {set}} partitions the condensed system into {blocks}
       blocks, but below {lu_size} condensed equations threaded {.val LU}
       beats {.val DBBD}",
-      slower = "{.val {set}} partitions the system into {blocks} blocks
-      ({border} border variable{?s}), which the bordered methods exploit
-      and substitution densifies; backsolving likely slows the solve",
+      slower = "{.val {set}} splits the system into {blocks} blocks
+      ({border} border variable{?s}) for the parallel methods, and
+      substitution densifies them; backsolving likely slows the solve",
       slower_advice = "Try redeploying without {.arg backsolve} and solving
-      with a bordered method: measured on GTAP-RE, condensation made
-      {.val SBBD} runs 69% to 393% slower, and condensed {.val DBBD}
-      stopped gaining from extra tasks",
-      candidate = "No condensation and no block partition: a {.val LU}-bound
-      system this large is a candidate for {.arg backsolve} in
-      {.fn ems_model}"
+      with a parallel method: on GTAP-RE, condensation made {.val SBBD}
+      runs 69% to 393% slower, and condensed {.val DBBD} stopped gaining
+      from extra tasks",
+      candidate = "Uncondensed and {.val LU}-bound at this size:
+      {.arg backsolve} in {.fn ems_model} would shrink it"
     ),
     # the recommendation, brief (print) and full (summary)
     # test-ems_probe.R: "the probe prints its recommendation"
@@ -147,9 +146,9 @@ build_probe_info <- function() {
       why_singular = "the closure is structurally singular; fix it first",
       why_no_host = "the container's cores could not be read; pass
       {.arg cores} and {.arg memory} to {.fn ems_probe}",
-      why_wont_fit = "nothing fits in {limit_gb}; {.val {r$matrix_method}}
-      needs about {est_gb}. More memory for the container, a coarser
-      aggregation or condensation",
+      why_wont_fit = "no method fits in {limit_gb}; the smallest,
+      {.val {r$matrix_method}}, needs about {est_gb}. Give the container
+      more memory, aggregate more coarsely or condense",
       where_container = "this container ({cores} core{?s}, {mem})",
       where_given = "the machine given ({cores} core{?s}, {mem})",
       where_cores_given = "{cores} core{?s} as given, {mem} from this
@@ -169,11 +168,11 @@ build_probe_info <- function() {
       johansen = "With {.code solution_method = \"Johansen\"} the method
       would be {.val {r$method_johansen}} instead",
       memory_arm = "{.val SBBD} does not fit the memory ({sbbd_gb}
-      estimated); {.val NDBBD} holds the tables once",
+      estimated); {.val NDBBD} needs less",
       dbbd_blocked = "{.val DBBD} would be faster but its {dbbd_gb} estimate
       does not fit; {.val LU} stays",
       dbbd_blocked_plain = "Without condensation {.val DBBD} would need
-      about {plain_gb} and fit; on the one rig measured at this size the
+      about {plain_gb} and fit; in the one case measured at this size the
       uncondensed deployment solved faster",
       lu_excluded = "{.val LU} excluded: the projected MA48 workspace passes
       the 32-bit ceiling",
@@ -214,14 +213,14 @@ build_probe_info <- function() {
     # base-graphics labels; sprintf templates, not cli ones
     # test-ems_probe.R: "probe plots render on a null device"
     plot = list(
-      cores_xlab = "simultaneous cores",
-      cores_ylab = "core size (rows)",
-      cores_main = "%d cores > 1 element; %d recursive rows",
-      cores_none = "no simultaneous cores: fully recursive system",
-      core_xlab = "rows in the largest core",
-      core_main = "largest core: %d rows",
-      core_other = "(+%d eqs)",
-      core_none = "no core composition recorded",
+      components_xlab = "simultaneous components",
+      components_ylab = "component size (rows)",
+      components_main = "%d components > 1 element; %d recursive rows",
+      components_none = "no simultaneous components: fully recursive system",
+      component_xlab = "rows in the largest component",
+      component_main = "largest component: %d rows",
+      component_other = "(+%d eqs)",
+      component_none = "no component composition recorded",
       dm_main = "Dulmage-Mendelsohn localization (%s pattern): rank %d of %d",
       dm_structural = "structural",
       dm_realized = "realized",

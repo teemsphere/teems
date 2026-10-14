@@ -96,19 +96,19 @@
     partition_txt <- txt$partition_txt
     cli::cli_bullets(c("*" = m$structure))
   }
-  if (!is.null(x$cores)) {
-    sq_txt <- .fmt(x$cores$sq_comps)
-    gt1_txt <- .fmt(x$cores$cores_gt1)
-    largest_txt <- .fmt(x$cores$largest)
-    cli::cli_bullets(c("*" = m$fine_dm))
-    if (NROW(x$cores$top)) {
-      eqs <- x$cores$top$eqs[[1]]
+  if (!is.null(x$components)) {
+    sq_txt <- .fmt(x$components$sq_comps)
+    gt1_txt <- .fmt(x$components$simultaneous)
+    largest_txt <- .fmt(x$components$largest)
+    cli::cli_bullets(c("*" = m$components))
+    if (NROW(x$components$top)) {
+      eqs <- x$components$top$eqs[[1]]
       preview <- utils::head(paste0(eqs$name, "\u00a0\u00d7", .fmt(eqs$count)), 6L)
       n_more <- NROW(eqs) - length(preview)
       if (n_more > 0L) {
-        preview <- c(preview, sprintf(m$core_more, n_more))
+        preview <- c(preview, sprintf(m$component_more, n_more))
       }
-      cli::cli_bullets(c("*" = m$largest_core))
+      cli::cli_bullets(c("*" = m$largest_component))
     }
   }
   if (NROW(x$statements)) {

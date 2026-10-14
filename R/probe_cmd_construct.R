@@ -2,7 +2,7 @@
 #' @noRd
 .construct_probe_cmd <- function(paths,
                                  timeID,
-                                 fine,
+                                 components,
                                  extra = NULL) {
   docker_preamble <- .docker_run_preamble(timeID = timeID, run_dir = paths$run)
   exec_preamble <- paste(
@@ -20,7 +20,7 @@
     "-matsol", 0L,
     "-nsubints", 1L,
     "-solmed", "probe",
-    "-probefine", as.integer(fine),
+    "-probefine", as.integer(components),
     "-maxthreads", 1L,
     "-nowrites", 1L,
     "-cofdump", 0L,

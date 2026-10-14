@@ -289,25 +289,13 @@
   return(out)
 }
 
-#' @importFrom tibble tibble
 #' @keywords internal
 #' @noRd
-.homogeneity_simulate <- function(work_cmf,
-                                  vpq,
-                                  pre,
-                                  var_tbl,
-                                  pinned,
-                                  type,
-                                  solve_args,
-                                  call) {
-  work <- dirname(work_cmf)
-  cmf <- readLines(work_cmf)
-  shock_line <- grep("^shock ", cmf, value = TRUE)
-  cls_line <- grep("^closure ", cmf, value = TRUE)
-  shf <- file.path(work, basename(sub('^shock "([^"]*)";.*$', "\\1", shock_line)))
-  cls <- file.path(work, basename(sub('^closure "([^"]*)";.*$', "\\1", cls_line)))
-  entries <- trimws(gsub(";", "", readLines(cls)))
-  entries <- entries[nzchar(entries) & !tolower(entries) %in% c("exogenous", "rest endogenous")]
+.homogeneity_shocks <- function(entries,
+                                vpq,
+                                pre,
+                                var_tbl,
+                                type) {
   change <- var_tbl$change_real
   names(change) <- var_tbl$cofname
   unshocked <- character(0)
@@ -334,6 +322,34 @@
     }
     shocks <- c(shocks, sprintf("Shock %s = uniform %s;", entry, format(size, digits = 15)))
   }
+  built <- list(shocks = shocks, unshocked = unshocked)
+  return(built)
+}
+
+#' @importFrom tibble tibble
+#' @keywords internal
+#' @noRd
+.homogeneity_simulate <- function(work_cmf,
+                                  vpq,
+                                  pre,
+                                  var_tbl,
+                                  pinned,
+                                  type,
+                                  solve_args,
+                                  call) {
+  work <- dirname(work_cmf)
+  cmf <- readLines(work_cmf)
+  shock_line <- grep("^shock ", cmf, value = TRUE)
+  cls_line <- grep("^closure ", cmf, value = TRUE)
+  shf <- file.path(work, basename(sub('^shock "([^"]*)";.*$', "\\1", shock_line)))
+  cls <- file.path(work, basename(sub('^closure "([^"]*)";.*$', "\\1", cls_line)))
+  entries <- trimws(gsub(";", "", readLines(cls)))
+  entries <- entries[nzchar(entries) & !tolower(entries) %in% c("exogenous", "rest endogenous")]
+  change <- var_tbl$change_real
+  names(change) <- var_tbl$cofname
+  built <- .homogeneity_shocks(entries, vpq, pre, var_tbl, type)
+  shocks <- built$shocks
+  unshocked <- built$unshocked
   writeLines(if (length(shocks) > 0L) shocks else "Shock ;", shf)
   solve_args$solution_method <- "Johansen"
   out <- .implement_solve(

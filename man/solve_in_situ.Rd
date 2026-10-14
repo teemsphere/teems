@@ -16,10 +16,6 @@ solve_in_situ(
   matrix_method = c("LU", "DBBD", "SBBD", "NDBBD"),
   n_subintervals = 1L,
   steps = NULL,
-  adaptive = c("no", "yes", "accuracy-only"),
-  eps_tolerance = 0.01,
-  max_retries = 3L,
-  retry_adjust = 0.5,
   n_tasks = 1L,
   n_threads = 1L,
   precision = c("single", "double"),
@@ -27,6 +23,7 @@ solve_in_situ(
   suppress_outputs = FALSE,
   terminal_run = FALSE,
   complementarity = NULL,
+  accuracy_vars = NULL,
   solver_args = NULL
 )
 }
@@ -62,34 +59,31 @@ file.}
 \item{ignore_condense}{Logical length 1 (default is \code{FALSE}).
 If \code{TRUE}, \code{Substitute} and \code{Backsolve} statements found in
 the model file are ignored, as for \code{\link[=ems_model]{ems_model()}} (in-TAB
-\code{Omit} statements are always ignored). Set this to match the \code{ems_model()} call
-that produced the closure and shock files.}
+\code{Omit} statements are always ignored). Set this to match the
+\code{ems_model()} call that produced the closure and shock
+files.}
 
 \item{solution_method}{The solution method to be used, default
 is \code{"Gragg"} with \code{steps = c(2L, 4L, 6L)}. Choices:
 \itemize{
 \item \code{"Gragg"}: Gragg's method (the smoothed modified midpoint
 method; Pearson 1991). The shock is applied over a sequence
-of linearized steps — a Euler first step, midpoint
-"leapfrog" steps, and a terminal smoothing pass — and the
-sequence is repeated for each of the three step counts in
-\code{steps}. The three solutions are then combined by Richardson
+of linearized steps (a Euler first step, midpoint "leapfrog"
+steps, and a terminal smoothing pass) and the sequence is
+repeated for each of the three step counts in \code{steps}. The
+three solutions are then combined by Richardson
 extrapolation, giving rapid error decay as steps increase
 plus an accuracy estimate from the agreement between levels.
-See also:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd3.12.2}{GEMPACK
-solution methods}
 \item \code{"Johansen"}: The one-step Johansen method is fast however it
-should only be used as a rough approximation due to handling of
-nonlinear equations. See:
-\href{https://www.copsmodels.com/gpmanual.htm#gpd1.2.13}{Johansen}
+should only be used as a rough approximation due to handling
+of nonlinear equations.
 \item \code{"Euler"}: The forward Euler method, computed for each of
 the three step counts in \code{steps} and combined by Richardson
 extrapolation. Converges more slowly than \code{"Gragg"} (its
 truncation error shrinks linearly in the step size, so the
-extrapolated accuracy gains one order per solution instead of
-two) but it is the most robust of the multistep methods: each
-step uses only the current state, so it tolerates
+extrapolated accuracy gains one order per solution instead
+of two) but it is the most robust of the multistep methods:
+each step uses only the current state, so it tolerates
 near-asymptote levels and severe shocks — including exact
 \verb{-100\%} shocks — where the midpoint family can become
 unstable. Any strictly increasing step counts are permitted.
@@ -98,13 +92,13 @@ the terminal smoothing pass (N passes for N steps), combined
 by Richardson extrapolation over \code{steps} like \code{"Gragg"}. It
 never takes the exogenous variables past their end point, so
 it suits shocks of exactly \verb{-100\%}, which Gragg's final pass
-cannot take (GEMPACK manual 30.2).
+cannot take.
 \item \code{"RK2"}, \code{"Heun"}, \code{"RK4"}: Explicit Runge-Kutta methods (the
 midpoint rule, the explicit trapezoid rule and the classic
-fourth-order method; Schiffmann 2022). A single solution
-is computed with the one step count in \code{steps} — no Richardson
-extrapolation — with each step built from 2 (\code{"RK2"}, \code{"Heun"})
-or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
+fourth-order method; Schiffmann 2022). A single solution is
+computed with the one step count in \code{steps} — no Richardson
+extrapolation — with each step built from 2 (\code{"RK2"},
+\code{"Heun"}) or 4 (\code{"RK4"}) staged linear solves. \code{"RK4"}
 reaches a given accuracy in far fewer steps than the
 extrapolating methods.
 \item \code{"BoSha32"}, \code{"DoPri54"}: Embedded Runge-Kutta pairs
@@ -129,11 +123,11 @@ for static models partitioned by their regional set.
 \item \code{"SBBD"}: Singly bordered block diagonal, parallel solution
 for intertemporal models partitioned along the time chain.
 \item \code{"NDBBD"}: Nested doubly bordered block diagonal, for
-intertemporal models whose \code{"SBBD"} host copy does not fit the
-memory available.
-\code{\link[=ems_probe]{ems_probe()}} (experimental) suggests the method and the
-tasks and threads to run it with for a deployment and a machine,
-and prints the call to paste (see Details).
+intertemporal models whose \code{"SBBD"} host copy does not fit
+the memory available. \code{\link[=ems_probe]{ems_probe()}} (experimental)
+suggests the method and the tasks and threads to run it with
+for a deployment and a machine, and prints the call to paste
+(see Details).
 }}
 
 \item{n_subintervals}{Integer length 1 (default is \code{1L}),
@@ -146,65 +140,47 @@ only there.}
 
 \item{steps}{Integer (default is \code{NULL}, resolved per method:
 \code{c(2L, 4L, 6L)} for the extrapolating methods, \code{4L} for the
-Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"} and
-\code{"Euler"} take a vector of length 3: the three counts must
-increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and must be
-all even or all odd for \code{"Gragg"} and \code{"Midpoint"} (even counts
-are recommended). \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"} also
-take a single count, a single multi-step run
-without Richardson extrapolation (GEMPACK's single Euler
-N-step run, as used by recursive-dynamic models), or two
-increasing counts, extrapolated from two solutions (GEMPACK's
-\verb{steps = 2 4;}); no extrapolation accuracy estimate is then
-available.
-\code{"RK2"}, \code{"Heun"}, \code{"RK4"}, \code{"BoSha32"} and \code{"DoPri54"} take a
-single count of 1 or more. A larger number of steps may
-improve accuracy for some model runs.}
-
-\item{adaptive}{Character length 1, adaptive step-size control
-for the embedded Runge-Kutta methods (\code{"BoSha32"},
-\code{"DoPri54"}); default is \code{"no"}. See \code{\link[=ems_RK]{ems_RK()}} for the
-choices.}
-
-\item{eps_tolerance}{Numeric length 1 (default is \code{0.01}), the
-per-step error-metric bound targeted by \code{adaptive} control.
-Ignored when \code{adaptive = "no"}. On large shocks, \code{0.01} reaches
-four correct digits on most elements. See \code{\link[=ems_RK]{ems_RK()}}.}
-
-\item{max_retries}{Integer length 1 (default \code{3L}),
-\code{adaptive = "yes"} only: retries of a step
-failing a step check. See \code{\link[=ems_RK]{ems_RK()}}.}
-
-\item{retry_adjust}{Numeric length 1 in (0, 1) (default \code{0.5}), adaptive control only: the step-length
-multiplier applied on each retry. See \code{\link[=ems_RK]{ems_RK()}}.}
+Runge-Kutta methods). \code{"Gragg"}, \code{"Midpoint"}, \code{"Johansen"}
+and \code{"Euler"} take a vector of length 3: the three counts
+must increase for \code{"Gragg"}, \code{"Midpoint"} and \code{"Euler"}, and
+must be all even or all odd for \code{"Gragg"} and \code{"Midpoint"}
+(even counts are recommended). \code{"Gragg"}, \code{"Midpoint"} and
+\code{"Euler"} also take a single count, a single multi-step run
+without Richardson extrapolation, or two increasing counts,
+extrapolated from two solutions; no extrapolation accuracy
+estimate is then available. \code{"RK2"}, \code{"Heun"}, \code{"RK4"},
+\code{"BoSha32"} and \code{"DoPri54"} take a single count of 1 or
+more. A larger number of steps may improve accuracy for some
+model runs.}
 
 \item{n_tasks}{Integer length 1 (default is \code{1L}), number of
 tasks to run in parallel. Must be \code{1L} if \code{"matrix_method"}
 == "LU".}
 
-\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP threads
-per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give byte-identical
-results at any thread count; \code{"DBBD"} with more than one thread
-agrees only to rounding (see the
-\href{https://teemsphere.github.io/solve.html}{solving} chapter
-of the user manual).}
+\item{n_threads}{Integer length 1 (default \code{1L}), OpenMP
+threads per MPI task. \code{"LU"}, \code{"SBBD"} and \code{"NDBBD"} give
+byte-identical results at any thread count; \code{"DBBD"} with
+more than one thread agrees only to rounding (see the
+\href{https://teemsphere.github.io/solve.html}{solving}
+chapter of the user manual).}
 
 \item{precision}{Character length 1, \code{"single"} (default) or
-\code{"double"}: floating-point precision of the solver's coefficient
-storage. \code{"single"} halves memory traffic and suffices for
-ordinary step counts. \code{"double"} selects the double-precision
-solver binary shipped in the same image, removing the
-single-precision update-rounding floor that deep extrapolation
-ladders and many-step large-shock runs otherwise converge onto
-(per-pass rounding accumulates with step count, so beyond the
-floor extra steps stop helping). Roughly doubles
-coefficient-array memory. The effective precision is recorded in
-\code{sol.stats.json} and the model diagnostics solve record.}
+\code{"double"}: floating-point precision of the solver's
+coefficient storage. \code{"single"} halves memory traffic and
+suffices for ordinary step counts. \code{"double"} selects the
+double-precision solver binary shipped in the same image,
+removing the single-precision update-rounding floor that
+deep extrapolation ladders and many-step large-shock runs
+otherwise converge onto (per-pass rounding accumulates with
+step count, so beyond the floor extra steps stop helping).
+Roughly doubles coefficient-array memory. The effective
+precision is recorded in \code{sol.stats.json} and the model
+diagnostics solve record.}
 
 \item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
-Solver log detail: \code{0} restricts output to errors, warnings, and
-the accuracy summary; \code{1} adds phase progress and timings;
-\code{2} adds per-rank and per-block debug detail.}
+Solver log detail: \code{0} restricts output to errors, warnings,
+and the accuracy summary; \code{1} adds phase progress and
+timings; \code{2} adds per-rank and per-block debug detail.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted
@@ -217,21 +193,35 @@ programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 
-\item{complementarity}{A \code{teems_complementarity} object built by
-\code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run controls for
-models with active \code{Complementarity} statements (see GEMPACK manual
-ch. 51). \code{NULL} applies the solver defaults; ignored by the
-solver when the model has no active complementarity component.}
+\item{complementarity}{A \code{teems_complementarity} object built
+by \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run
+controls for models with active \code{Complementarity} statements
+(see GEMPACK manual ch. 51). \code{NULL} applies the solver
+defaults; ignored by the solver when the model has no active
+complementarity component.}
 
-\item{solver_args}{Named list (default \code{NULL}). The additional
-named solver arguments \code{\link[=ems_solve]{ems_solve()}} accepts through \code{...} —
-the MA48 workspace initial guesses (\code{laA}, \code{laD}, \code{laDi}) and
-the expert solver flags (\code{fastrefac}, \code{nsbbdblocks}, \code{withmc66},
-\code{smllthreads}, \code{nowrites}, \code{ma48_cntl2},
-\code{ma48_cntl4}) — passed as a list because the in-situ \code{...} carries
-the input files. The Runge-Kutta step controls are formal
-arguments here. See the \code{\link[=ems_solve]{ems_solve()}} \code{...} documentation for
-each argument's meaning.}
+\item{accuracy_vars}{Character vector of variable names
+(default \code{NULL}). When given, the accuracy summary of a
+three-solution \code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run
+covers just these variables, exogenous ones included,
+instead of every endogenous result. Under the \code{"solution"}
+and \code{"both"} accuracy criteria (see \code{\link[=ems_option_set]{ems_option_set()}})
+the warning then judges only them, so a run can be held to
+the results it is about.}
+
+\item{solver_args}{Named list (default \code{NULL}). The named
+solver arguments \code{\link[=ems_solve]{ems_solve()}} accepts through \code{...},
+passed as a list because the in-situ \code{...} carries the
+input files: the MA48 workspace initial guesses (\code{laA},
+\code{laD}, \code{laDi}), the expert solver flags (\code{postsim},
+\code{inmemory}, \code{fastrefac}, \code{nsbbdblocks}, \code{withmc66},
+\code{smllthreads}, \code{nowrites}, \code{condest}, \code{jacdump},
+\code{ma48_cntl2}, \code{ma48_cntl4}) and the Runge-Kutta run controls
+(\code{rk_chart}, \code{rk_norm}, \code{rk_controller}, \code{rk_scope},
+\code{rk_h0}, \code{rk_guard}) and the Runge-Kutta step controls
+(\code{adaptive}, \code{eps_tolerance}, \code{max_retries}, \code{retry_adjust};
+see \code{\link[=ems_RK]{ems_RK()}}). See the \code{\link[=ems_solve]{ems_solve()}} \code{...}
+documentation for each argument's meaning.}
 }
 \value{
 A tibble containing model output variables and

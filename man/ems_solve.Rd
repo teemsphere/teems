@@ -255,13 +255,13 @@ Runs singularity, accuracy, and error checks on the results
 and structures outputs with \code{\link[=ems_compose]{ems_compose()}}.
 }
 \section{Solving}{
-
-The model is written in linearized (percentage-change) form, and the shock is
-applied as a path from the base data, which is the initial
-solution, to the post-shock equilibrium (Pearson 1991). Each
-step along the path solves one or more linear systems in the
-model's Jacobian (a Gragg run of N steps makes N + 1 passes,
-a \code{"DoPri54"} step 7 stages) and then updates the data.
+ The model is written in linearized
+(percentage-change) form, and the shock is applied as a path
+from the base data, which is the initial solution, to the
+post-shock equilibrium (Pearson 1991). Each step along the
+path solves one or more linear systems in the model's
+Jacobian (a Gragg run of N steps makes N + 1 passes, a
+\code{"DoPri54"} step 7 stages) and then updates the data.
 \code{"Johansen"} takes that path in a single step, so its error
 grows with the size of the shock. The multistep methods
 divide the path into smaller steps, so the linearization
@@ -269,12 +269,13 @@ error shrinks as the number of steps rises, and the
 extrapolating methods then remove most of the error that
 remains. Computing time grows with the total number of
 steps, and with \code{n_subintervals}, since each subinterval
-repeats the full solve on its share of the shock. A run can be reproduced from its record in \code{sol.stats.json}.
+repeats the full solve on its share of the shock. A run can
+be reproduced from its record in \code{sol.stats.json}.
 }
 
 \section{Accuracy}{
-
-The extrapolating methods solve at three step counts, and the agreement between the three solutions
+ The extrapolating methods solve at three
+step counts, and the agreement between the three solutions
 gives an accuracy summary over the endogenous results, and
 another over the values read from data files and updated. By
 default the measure is the share of nonzero results whose
@@ -301,23 +302,22 @@ has reached the rounding limit of single precision, and
 }
 
 \section{Solution method}{
-
-The default \code{"Gragg"} with \code{c(2L, 4L, 6L)} suits most static policy shocks. \code{"Johansen"} is a quick
-check that a new model and closure run, but its results
-should not be reported. Shocks that drive a CES or CET share
-close to zero, or a variable close to \verb{-100\%}, can make the
-midpoint methods unstable (Schiffmann 2022). In those cases
-use \code{"Euler"}, which may still converge slowly, or adaptive
-\code{"DoPri54"} or \code{"BoSha32"}, whose robustness exceeds Euler's
-(Schiffmann 2022); a shock of exactly \verb{-100\%} needs
-\code{"Midpoint"} or \code{"Euler"}. A single step count, without
-extrapolation, suits models whose updates must follow the
-steps themselves.
+ The default \code{"Gragg"} with \code{c(2L, 4L, 6L)} suits most static policy shocks. \code{"Johansen"} is a
+quick check that a new model and closure run, but its
+results should not be reported. Shocks that drive a CES or
+CET share close to zero, or a variable close to \verb{-100\%}, can
+make the midpoint methods unstable (Schiffmann 2022). In
+those cases use \code{"Euler"}, which may still converge slowly,
+or adaptive \code{"DoPri54"} or \code{"BoSha32"}, whose robustness
+exceeds Euler's (Schiffmann 2022); a shock of exactly
+\verb{-100\%} needs \code{"Midpoint"} or \code{"Euler"}. A single step
+count, without extrapolation, suits models whose updates
+must follow the steps themselves.
 }
 
 \section{Size, matrix method and resources}{
-
-The linear system has one row for each endogenous variable element left after
+ The linear system
+has one row for each endogenous variable element left after
 condensation. Its size grows with the number of regions
 times the number of commodities, and for intertemporal
 models it also grows with the number of periods. \code{"LU"}

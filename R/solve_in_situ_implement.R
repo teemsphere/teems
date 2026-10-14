@@ -1,61 +1,25 @@
 #' @keywords internal
 #' @noRd
-.implement_solve_in_situ <- function(model_dir,
-                                     model_file,
-                                     closure_file,
-                                     input_files,
-                                     shock_file,
-                                     ignore_condense,
-                                     solution_method,
-                                     matrix_method,
-                                     n_subintervals,
-                                     steps,
-                                     adaptive,
-                                     eps_tolerance,
-                                     max_retries,
-                                     retry_adjust,
-                                     n_tasks,
-                                     n_threads,
-                                     precision,
-                                     verbosity,
-                                     suppress_outputs,
-                                     terminal_run,
-                                     complementarity,
-                                     solver_args,
+.implement_solve_in_situ <- function(args_list,
                                      call) {
-  cmf_path <- .in_situ_cmf(
-    input_files = input_files,
-    model_file = model_file,
-    closure_file = closure_file,
-    shock_file = shock_file,
-    model_dir = model_dir,
-    ignore_condense = ignore_condense,
+  v <- .validate_in_situ_args(
+    a = args_list,
     call = call
   )
-  
+  cmf_path <- .in_situ_cmf(
+    input_files = v$input_files,
+    model_file = v$model_file,
+    closure_file = v$closure_file,
+    shock_file = v$shock_file,
+    model_dir = v$model_dir,
+    ignore_condense = v$ignore_condense,
+    call = call
+  )
+  solve_args <- v[setdiff(names(formals(ems_solve)), c("cmf_path", "..."))]
   sol <- do.call(ems_solve, c(
-    list(
-      cmf_path = cmf_path,
-      solution_method = solution_method,
-      matrix_method = matrix_method,
-      n_subintervals = n_subintervals,
-      steps = steps,
-      adaptive = adaptive,
-      eps_tolerance = eps_tolerance,
-      max_retries = max_retries,
-      retry_adjust = retry_adjust,
-      n_tasks = n_tasks,
-      n_threads = n_threads,
-      precision = precision,
-      verbosity = verbosity,
-      suppress_outputs = suppress_outputs,
-      terminal_run = terminal_run,
-      complementarity = complementarity
-    ),
-    solver_args
+    list(cmf_path = cmf_path),
+    solve_args,
+    v$solver_args
   ))
-  if (is.null(sol) || is.character(sol)) {
-    return(invisible(sol))
-  }
   return(sol)
 }

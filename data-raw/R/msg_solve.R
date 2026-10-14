@@ -163,11 +163,12 @@ build_solve_err <- function() {
       ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
       {.arg nsbbdblocks}, {.arg withmc66}, {.arg smllthreads},
       {.arg nowrites}, {.arg condest}, {.arg jacdump},
-      {.arg ma48_cntl2}, {.arg ma48_cntl4}) and the Runge-Kutta run controls
-      ({.arg rk_chart}, {.arg rk_norm}, {.arg rk_controller},
-      {.arg rk_scope}, {.arg rk_h0}, {.arg rk_guard}). The
-      Runge-Kutta step controls are formal arguments of
-      {.fun solve_in_situ}."
+      {.arg ma48_cntl2}, {.arg ma48_cntl4}), the Runge-Kutta run
+      controls ({.arg rk_chart}, {.arg rk_norm},
+      {.arg rk_controller}, {.arg rk_scope}, {.arg rk_h0},
+      {.arg rk_guard}) and the Runge-Kutta step controls
+      ({.arg adaptive}, {.arg eps_tolerance}, {.arg max_retries},
+      {.arg retry_adjust})."
     ),
     # test-ems_solve.R: "ems_solve errors when steps are not increasing"
     step_increasing = c(

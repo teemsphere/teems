@@ -317,6 +317,15 @@ test_that("the in-situ CMF copies refreshed inputs over the previous copies", {
   expect_identical(readLines(file.path(insitu_dir, "GTAPSETS.txt")), "IN PLACE")
 })
 
+test_that("solve_in_situ mirrors the ems_solve signature", {
+  solve_formals <- setdiff(names(formals(ems_solve)), c("cmf_path", "..."))
+  own <- c("...", "model_dir", "model_file", "closure_file", "shock_file", "ignore_condense", "solver_args")
+  expect_setequal(setdiff(names(formals(solve_in_situ)), own), solve_formals)
+  for (nm in solve_formals) {
+    expect_identical(formals(solve_in_situ)[[nm]], formals(ems_solve)[[nm]], label = nm)
+  }
+})
+
 test_that("solve_in_situ errors when no input files are given", {
   expect_snapshot_error(solve_in_situ(
     model_file = model_files[["model_file"]],

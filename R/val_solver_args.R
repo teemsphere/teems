@@ -4,6 +4,7 @@
                                   paths,
                                   call,
                                   timeID = NULL) {
+  a <- .resolve_solver_dots(a, call = call)
   a <- .validate_solver_methods(a, call = call)
   a <- .validate_solver_scalars(a, call = call)
   .validate_solver_steps(a, paths = paths, call = call)

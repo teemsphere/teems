@@ -201,13 +201,13 @@
 #'   * `laA`: `"LU"`/`"SBBD"` and the diagonal blocks.
 #'   * `laD`: the `"DBBD"`/`"NDBBD"` interface systems.
 #'   * `laDi`: `"NDBBD"` intermediate interfaces.
-#' @section Solving:
-#'   The model is written in linearized (percentage-change) form, and the shock is
-#'   applied as a path from the base data, which is the initial
-#'   solution, to the post-shock equilibrium (Pearson 1991). Each
-#'   step along the path solves one or more linear systems in the
-#'   model's Jacobian (a Gragg run of N steps makes N + 1 passes,
-#'   a `"DoPri54"` step 7 stages) and then updates the data.
+#' @section Solving: The model is written in linearized
+#'   (percentage-change) form, and the shock is applied as a path
+#'   from the base data, which is the initial solution, to the
+#'   post-shock equilibrium (Pearson 1991). Each step along the
+#'   path solves one or more linear systems in the model's
+#'   Jacobian (a Gragg run of N steps makes N + 1 passes, a
+#'   `"DoPri54"` step 7 stages) and then updates the data.
 #'   `"Johansen"` takes that path in a single step, so its error
 #'   grows with the size of the shock. The multistep methods
 #'   divide the path into smaller steps, so the linearization
@@ -215,9 +215,10 @@
 #'   extrapolating methods then remove most of the error that
 #'   remains. Computing time grows with the total number of
 #'   steps, and with `n_subintervals`, since each subinterval
-#'   repeats the full solve on its share of the shock. A run can be reproduced from its record in `sol.stats.json`.
-#' @section Accuracy:
-#'   The extrapolating methods solve at three step counts, and the agreement between the three solutions
+#'   repeats the full solve on its share of the shock. A run can
+#'   be reproduced from its record in `sol.stats.json`.
+#' @section Accuracy: The extrapolating methods solve at three
+#'   step counts, and the agreement between the three solutions
 #'   gives an accuracy summary over the endogenous results, and
 #'   another over the values read from data files and updated. By
 #'   default the measure is the share of nonzero results whose
@@ -242,20 +243,20 @@
 #'   estimate. If adding steps stops improving accuracy, the run
 #'   has reached the rounding limit of single precision, and
 #'   `precision = "double"` is the remedy.
-#' @section Solution method:
-#'   The default `"Gragg"` with `c(2L, 4L, 6L)` suits most static policy shocks. `"Johansen"` is a quick
-#'   check that a new model and closure run, but its results
-#'   should not be reported. Shocks that drive a CES or CET share
-#'   close to zero, or a variable close to `-100%`, can make the
-#'   midpoint methods unstable (Schiffmann 2022). In those cases
-#'   use `"Euler"`, which may still converge slowly, or adaptive
-#'   `"DoPri54"` or `"BoSha32"`, whose robustness exceeds Euler's
-#'   (Schiffmann 2022); a shock of exactly `-100%` needs
-#'   `"Midpoint"` or `"Euler"`. A single step count, without
-#'   extrapolation, suits models whose updates must follow the
-#'   steps themselves.
-#' @section Size, matrix method and resources:
-#'   The linear system has one row for each endogenous variable element left after
+#' @section Solution method: The default `"Gragg"` with `c(2L,
+#'   4L, 6L)` suits most static policy shocks. `"Johansen"` is a
+#'   quick check that a new model and closure run, but its
+#'   results should not be reported. Shocks that drive a CES or
+#'   CET share close to zero, or a variable close to `-100%`, can
+#'   make the midpoint methods unstable (Schiffmann 2022). In
+#'   those cases use `"Euler"`, which may still converge slowly,
+#'   or adaptive `"DoPri54"` or `"BoSha32"`, whose robustness
+#'   exceeds Euler's (Schiffmann 2022); a shock of exactly
+#'   `-100%` needs `"Midpoint"` or `"Euler"`. A single step
+#'   count, without extrapolation, suits models whose updates
+#'   must follow the steps themselves.
+#' @section Size, matrix method and resources: The linear system
+#'   has one row for each endogenous variable element left after
 #'   condensation. Its size grows with the number of regions
 #'   times the number of commodities, and for intertemporal
 #'   models it also grows with the number of periods. `"LU"`
@@ -352,38 +353,9 @@ ems_solve <- function(cmf_path,
 if (missing(cmf_path)) {
   .cli_missing(cmf_path)
 }
+args_list <- mget(setdiff(names(formals()), "..."))
+args_list$solver_extras <- list(...)
 call <- match.call()
-# Named extras ride through the dots: the Runge-Kutta step controls
-# (ems_RK() is the documented wrapper), the MA48 workspace initial
-# guesses and the expert solver flags. Anything else here is an
-# error, never silently ignored.
-rk_args <- list(
-  adaptive = c("no", "yes", "accuracy-only"),
-  eps_tolerance = 0.01,
-  max_retries = 3L,
-  retry_adjust = 0.5
-)
-xtr_args <- .solver_extra_args()
-dots <- list(...)
-unknown_args <- setdiff(names(dots), c(names(rk_args), names(xtr_args)))
-if (length(dots) &&
-  (is.null(names(dots)) || !all(nzchar(names(dots))) || length(unknown_args))) {
-  if (!length(unknown_args)) {
-    unknown_args <- "<unnamed>"
-  }
-  .cli_action(solve_err$solver_dots,
-    action = c("abort", "inform"),
-    call = call
-  )
-}
-for (nm in names(dots)) {
-  if (nm %in% names(rk_args)) {
-    rk_args[nm] <- dots[nm]
-  } else {
-    xtr_args[nm] <- dots[nm]
-  }
-}
-args_list <- c(mget(setdiff(names(formals()), "...")), rk_args, xtr_args)
 output <- .implement_solve(
   args_list = args_list,
   call = call

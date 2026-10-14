@@ -200,13 +200,13 @@ test_that("dot-passed extras are validated", {
 })
 
 test_that("solve_in_situ solver_args must be a fully named allowlisted list", {
-  expect_snapshot_error(solve_in_situ(solver_args = list(300L)))
-  expect_snapshot_error(solve_in_situ(solver_args = list(bogus = 1)))
-  expect_error(
-    solve_in_situ(solver_args = list(adaptive = "yes")),
-    "adaptive",
-    class = "rlang_error"
-  )
+  in_situ <- function(solver_args) {
+    solve_in_situ(GTAPDATA = "d.txt", model_dir = "run", model_file = "m.tab",
+                  closure_file = "m.cls", shock_file = "m.shf", solver_args = solver_args)
+  }
+  expect_snapshot_error(in_situ(list(300L)))
+  expect_snapshot_error(in_situ(list(bogus = 1)))
+  expect_error(in_situ(list(adaptive = "yes")), "model_dir", class = "rlang_error")
 })
 
 test_that("ems_probe rejects unknown dot arguments", {

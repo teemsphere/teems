@@ -37,7 +37,8 @@ check <- all(unlist(lapply(
 )))
 
 n_var <- nrow(model[which(model$type == "Variable"), ])
-n_coeff <- nrow(model[which(model$type == "Coefficient"), ])
+# condensation helpers (backsolve product/pivot) are dump-only and not returned
+n_coeff <- nrow(model[which(model$type == "Coefficient" & !grepl("^backsolve (product|pivot)", model$label)), ])
 
 var_check <- isTRUE(all.equal(n_var, nrow(outputs[which(outputs$type == "variable"), ])))
 # PostSim report coefficients return with their own output type

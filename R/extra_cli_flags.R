@@ -31,6 +31,9 @@
       paste("-smllthreads", as.integer(a$smllthreads))
     },
     "-tempdir /tmp",
+    if (!is.null(a$accuracy_vars)) {
+      paste("-xacvars", paste(a$accuracy_vars, collapse = ","))
+    },
     if (!is.null(a$nowrites)) {
       paste("-nowrites", .as01(a$nowrites))
     },

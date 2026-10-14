@@ -98,6 +98,13 @@ build_solve_err <- function() {
     ),
     # test-solver_switches.R: "numeric-knob validation aborts"
     invalid_length = "{.arg {arg}} must be an integer-like numeric of length 1.",
+    # test-ems_solve.R: "accuracy_vars selects the variables of the accuracy summary"
+    accuracy_vars_names = "{.arg accuracy_vars} must be a character vector of distinct variable names (letters, digits, {.code _} and {.code @}, starting with a letter).",
+    # test-ems_solve.R: "accuracy_vars selects the variables of the accuracy summary"
+    accuracy_vars_method = c(
+      "{.arg accuracy_vars} selects the variables of the accuracy summary, which only a three-solution run of {.val Gragg}, {.val Midpoint} or {.val Euler} has.",
+      "Give {.arg steps} three step counts, or drop {.arg accuracy_vars}."
+    ),
     # test-ems_solve.R: "ems_solve errors when Gragg steps mix parity", "the midpoint method solves and extrapolates"
     step_parity = c(
       "{.arg steps} must be all even or all odd when {.arg solution_method} is {.val {solution_method}}.",
@@ -472,8 +479,10 @@ build_solve_info <- function() {
     # test-inform_messages.R: "the accuracy criterion picks the summary judged, and a run without updated data falls back to the solution"
     accuracy_covers = list(
       solution = "endogenous results (their levels values)",
+      solution_selected = "results of the selected variables (their levels values)",
       data = "updated data values",
-      both = "endogenous results (their levels values) and updated data values"
+      both = "endogenous results (their levels values) and updated data values",
+      both_selected = "results of the selected variables (their levels values) and updated data values"
     ),
     # test-inform_messages.R: "a finished run reports its elapsed time and accuracy"
     elapsed_time = "Elapsed time: {elapsed_time}"

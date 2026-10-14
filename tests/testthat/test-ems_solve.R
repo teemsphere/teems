@@ -296,6 +296,31 @@ test_that("the convergence rule reports each element by its convergence code (GE
   expect_equal(avg$on, avg$average, tolerance = 1e-12)
 })
 
+test_that("accuracy_vars selects the variables of the accuracy summary", {
+  nest_temp("solve_accuracy_vars", write_dir)
+  cmf_path <- ems_deploy(static_data, static_model, ems_uniform_shock("aoall", 3))
+  expect_snapshot_error(ems_solve(cmf_path, accuracy_vars = c("qgdp", "QGDP")))
+  expect_snapshot_error(ems_solve(cmf_path, accuracy_vars = "q gdp"))
+  expect_snapshot_error(ems_solve(cmf_path, solution_method = "Johansen", accuracy_vars = "qgdp"))
+  expect_error(ems_solve(cmf_path, steps = c(2L, 4L), accuracy_vars = "qgdp"), "accuracy_vars")
+  expect_match(.extra_cli_flags(list(accuracy_vars = c("qgdp", "aoall"))), "-xacvars qgdp,aoall", fixed = TRUE)
+
+  ems_solve(cmf_path, steps = c(2L, 4L, 6L), accuracy_vars = c("qgdp", "aoall"), suppress_outputs = TRUE)
+  record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
+  n_sel <- sub("^Results summarised: ([0-9]+) .*", "\\1", grep("^Results summarised:", record, value = TRUE))
+  expect_true(any(grepl("^Results summarised: [0-9]+ \\(variables qgdp, aoall\\)$", record)))
+  out <- ems_compose(cmf_path, c("qgdp", "aoall", "qo"), passes = TRUE)
+  expect_true(all(out$dat$qgdp$Summarised))
+  expect_true(all(out$dat$aoall$Summarised))
+  expect_false(any(out$dat$qo$Summarised))
+  expect_identical(as.integer(n_sel), nrow(out$dat$qgdp) + nrow(out$dat$aoall))
+
+  expect_error(
+    ems_solve(cmf_path, steps = c(2L, 4L, 6L), accuracy_vars = "nosuch", suppress_outputs = TRUE),
+    "nosuch named by -xacvars is not a variable"
+  )
+})
+
 test_that("ems_solve errors when steps are not increasing", {
   nest_temp("solve_err_increasing", write_dir)
   cmf_path <- ems_deploy(static_data, static_model)

@@ -41,6 +41,19 @@
     x `steps` must be all even or all odd when `solution_method` is "Midpoint".
     i Richardson extrapolation of Gragg and midpoint solutions needs step counts of one parity (e.g. 2, 4, 6 or 3, 5, 7); even counts are recommended.
 
+# accuracy_vars selects the variables of the accuracy summary
+
+    x `accuracy_vars` must be a character vector of distinct variable names (letters, digits, `_` and `@`, starting with a letter).
+
+---
+
+    x `accuracy_vars` must be a character vector of distinct variable names (letters, digits, `_` and `@`, starting with a letter).
+
+---
+
+    x `accuracy_vars` selects the variables of the accuracy summary, which only a three-solution run of "Gragg", "Midpoint" or "Euler" has.
+    i Give `steps` three step counts, or drop `accuracy_vars`.
+
 # ems_solve errors when steps are not increasing
 
     x `steps` must be strictly increasing for `solution_method` "Gragg".

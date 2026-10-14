@@ -50,7 +50,8 @@
   )
   accurate_share <- if (counted[2] > 0) counted[1] / counted[2] else 1
   accuracy <- sprintf("%.0f%%", accurate_share * 100)
-  covers <- solve_info$accuracy_covers[[judged]]
+  selected <- acc$covers %=% "xac-retained"
+  covers <- solve_info$accuracy_covers[[if (selected && judged != "data") paste0(judged, "_selected") else judged]]
   a_threshold <- .o_accuracy_threshold()
   elapsed_time_raw <- elapsed_time[[3]]
 
@@ -91,7 +92,7 @@
     sprintf("Accuracy (%s, %d figures): %s\n", judged, figures, accuracy),
     sprintf("Accuracy criterion: %s\n", criterion_note),
     sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
-    sprintf("Results summarised: %.0f (endogenous and backsolved)\n", summarised),
+    sprintf("Results summarised: %.0f (%s)\n", summarised, if (selected) paste("variables", paste(unlist(acc$variables), collapse = ", ")) else "endogenous and backsolved"),
     sprintf("Subintervals:       %.0f\n", as.numeric(acc$subintervals)),
     "figures  results  levels values\n",
     paste0(figures_table, "\n"),

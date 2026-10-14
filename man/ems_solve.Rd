@@ -18,6 +18,7 @@ ems_solve(
   suppress_outputs = FALSE,
   terminal_run = FALSE,
   complementarity = NULL,
+  accuracy_vars = NULL,
   ...
 )
 }
@@ -162,6 +163,15 @@ structured data with \code{\link[=ems_compose]{ems_compose()}}.}
 models with active \code{Complementarity} statements (see GEMPACK manual
 ch. 51). \code{NULL} applies the solver defaults; ignored by the
 solver when the model has no active complementarity component.}
+
+\item{accuracy_vars}{Character vector of variable names (default
+\code{NULL}). When given, the accuracy summary of a three-solution
+\code{"Gragg"}, \code{"Midpoint"} or \code{"Euler"} run covers just these
+variables, exogenous ones included, instead of every endogenous
+result (GEMPACK's \code{XAC-retained}, GEMPACK manual 26.2.6). Under
+the \code{"solution"} and \code{"both"} accuracy criteria (see
+\code{\link[=ems_option_set]{ems_option_set()}}) the warning then judges only them, so a run
+can be held to the results it is about.}
 
 \item{...}{Additional named solver arguments; anything else is an
 error, never a silently ignored flag. Effective values of recorded

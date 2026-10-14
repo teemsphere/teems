@@ -130,6 +130,14 @@
 #'   models with active `Complementarity` statements (see GEMPACK manual
 #'   ch. 51). `NULL` applies the solver defaults; ignored by the
 #'   solver when the model has no active complementarity component.
+#' @param accuracy_vars Character vector of variable names (default
+#'   `NULL`). When given, the accuracy summary of a three-solution
+#'   `"Gragg"`, `"Midpoint"` or `"Euler"` run covers just these
+#'   variables, exogenous ones included, instead of every endogenous
+#'   result (GEMPACK's `XAC-retained`, GEMPACK manual 26.2.6). Under
+#'   the `"solution"` and `"both"` accuracy criteria (see
+#'   [`ems_option_set()`]) the warning then judges only them, so a run
+#'   can be held to the results it is about.
 #' @param ... Additional named solver arguments; anything else is an
 #'   error, never a silently ignored flag. Effective values of recorded
 #'   flags land in `sol.stats.json` regardless of how they were passed.
@@ -335,6 +343,7 @@ ems_solve <- function(cmf_path,
                       suppress_outputs = FALSE,
                       terminal_run = FALSE,
                       complementarity = NULL,
+                      accuracy_vars = NULL,
                       ...
 ) {
 if (missing(cmf_path)) {

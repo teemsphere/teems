@@ -183,3 +183,26 @@ test_that("the accuracy criterion picks the summary judged, and a run without up
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
   expect_true(any(grepl("^Accuracy criterion: data \\(no updated data; judged on the solution\\)$", record)))
 })
+
+test_that("a summary of selected variables says so in the warning and the run summary", {
+  withr::defer(ems_option_reset())
+  ems_option_set(verbose = FALSE)
+  run_dir <- withr::local_tempdir()
+  bin_dir <- file.path(run_dir, "out", "variables", "bin")
+  dir.create(bin_dir, recursive = TRUE)
+  stats <- list(accuracy = list(
+    covers = "xac-retained",
+    variables = c("qgdp", "aoall"),
+    summarised = 18L,
+    subintervals = 1L,
+    linear = list(figures = c(0, 0, 10, 0, 0, 0, 8), judged_zero = 0),
+    levels = list(figures = c(0, 0, 10, 0, 0, 0, 8))
+  ))
+  jsonlite::write_json(stats, file.path(bin_dir, "sol.stats.json"), auto_unbox = TRUE)
+  expect_warning(
+    .inform_diagnostics(elapsed_time = c(0, 0, 1), model_log = "solver log", run_dir = run_dir, call = NULL),
+    "of results of the selected variables \\(their levels values\\) accurate"
+  )
+  record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
+  expect_true(any(grepl("^Results summarised: 18 \\(variables qgdp, aoall\\)$", record)))
+})

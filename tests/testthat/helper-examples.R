@@ -17,7 +17,7 @@ example_exprs <- function(topic, subs = character(0)) {
     if (!any(grepl(from, code, fixed = TRUE))) {
       stop("Placeholder not in the ", topic, " examples: ", from)
     }
-    code <- gsub(from, subs[[from]], code, fixed = TRUE)
+    code <- gsub(from, gsub("\\", "/", subs[[from]], fixed = TRUE), code, fixed = TRUE)
   }
   if (any(grepl("path/to/", code, fixed = TRUE))) {
     stop("Unsubstituted placeholder path in the ", topic, " examples")

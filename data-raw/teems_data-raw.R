@@ -26,6 +26,14 @@ dir <- list.dirs(
 # ORANI-G stays in teems-models but is not shipped for ems_example()
 dir <- dir[!basename(dir) %in% c(".git", "ORANI-G")]
 file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
+# the .tab files are shipped gzipped (R reads them transparently; ems_example
+# writes them out plain), which keeps the installed package under CRAN's 5 MB
+for (tab in list.files("./inst/models", "\\.tab$", recursive = TRUE, full.names = TRUE)) {
+  con <- gzfile(paste0(tab, ".gz"), "wb", compression = 9)
+  writeLines(readLines(tab), con)
+  close(con)
+  unlink(tab)
+}
 
 # model layers (definitions in data-raw/R/layer_spec.R) ---------------
 # the .tab a layer targets is the authority for the headers the layer

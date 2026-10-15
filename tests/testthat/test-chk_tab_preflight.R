@@ -422,11 +422,8 @@ test_that("PostSim formulas assigning ordinary coefficients abort", {
 # regression: the shipped models pass the pre-flight unchanged
 
 test_that("internal models pass the pre-flight", {
-  tabs <- c(
-    system.file("models/GTAPv7/GTAPv7.tab", package = "teems"),
-    system.file("models/GTAP-RE/GTAP-RE.tab", package = "teems")
-  )
-  for (tab in tabs[nzchar(tabs)]) {
+  for (model in c("GTAPv7", "GTAP-RE")) {
+    tab <- ems_example(model, withr::local_tempdir())[["model_file"]]
     expect_no_error(
       .process_tablo(tab_file = tab, quiet = TRUE, call = NULL)
     )

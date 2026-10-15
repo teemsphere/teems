@@ -37,7 +37,7 @@
   }
   default <- par_weights[!nzchar(nm)]
   if (length(default) %=% 0L) {
-    default <- "share"
+    default <- "value"
   }
   methods <- stats::setNames(rep(unname(default), length(weighted)), weighted)
   methods[names(named)] <- unname(named)

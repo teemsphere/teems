@@ -9,7 +9,7 @@ ems_data(
   par_input = NULL,
   set_input = NULL,
   time_steps = NULL,
-  par_weights = "share",
+  par_weights = "value",
   ...
 )
 }
@@ -39,25 +39,27 @@ format is either chronological years of steps including
 initial reference year corresponding to the database
 employed or steps from t0 with initial value 0.}
 
-\item{par_weights}{Character vector (default is \code{"share"}),
+\item{par_weights}{Character vector (default is \code{"value"}),
 the weights with which parameters are averaged when their
 sets are aggregated.
 \itemize{
+\item \code{"value"}: each member is weighted by the value of its
+nest, the GTAP aggregation rule; the Armington,
+intermediate-input and value-added elasticities are weighted
+with world totals and take one value in every region.
 \item \code{"share"}: each member is weighted by the value of its
 CES or CET nest times one minus the sum of its squared input
 shares, so that the aggregate elasticity reproduces the
 members' response to a small relative price change. Members
 whose input shares cannot move (for example a commodity that
-is never imported) carry no weight.
-\item \code{"value"}: each member is weighted by the value of its
-nest; the Armington, intermediate-input and value-added
-elasticities are weighted with world totals and take one
-value in every region.
+is never imported) carry no weight, which can leave an
+aggregate far below the value-weighted elasticity where
+those members dominate it.
 }
 
 An unnamed element sets the method for every weighted
 parameter; elements named after a parameter header (e.g.
-\code{c("share", ESBM = "value")}) override it for that
+\code{c("value", ESBM = "share")}) override it for that
 parameter. The CDE parameters (INCP, SUBP) are weighted by
 value under either method. Has no effect when only dat_input
 is given, since that route does not aggregate.}
@@ -146,7 +148,7 @@ v7_value <- ems_data("v7_data/gsdfdat.har",
                      REG = "AR5",
                      ACTS = "food",
                      ENDW = "labor_diff",
-                     par_weights = c(ESBM = "value"))
+                     par_weights = c(ESBM = "share"))
 
 # Data for an intertemporal model with explicit time steps
 int_data <- ems_data("v7_data/gsdfdat.har",

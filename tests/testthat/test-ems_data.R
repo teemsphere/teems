@@ -547,14 +547,14 @@ test_that("ems_data rejects a par_weights parameter the format does not weight",
 })
 
 test_that("par_weights selects the share or value weights per parameter", {
-  value_data <- ems_data(
+  share_data <- ems_data(
     dat_input = dat_input,
     par_input = par_input,
     set_input = set_input,
     REG = "big3",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
-    par_weights = "value"
+    par_weights = "share"
   )
   mixed_data <- ems_data(
     dat_input = dat_input,
@@ -563,30 +563,32 @@ test_that("par_weights selects the share or value weights per parameter", {
     REG = "big3",
     ACTS = "macro_sector",
     ENDW = "labor_agg",
-    par_weights = c(ESBM = "value")
+    par_weights = c(ESBM = "share")
   )
-  share_w <- attr(agg_data, "metadata")$par_weights
+  # the default is value weighted throughout
+  value_w <- attr(agg_data, "metadata")$par_weights
+  expect_true(all(value_w == "value"))
+  expect_true(all(names(value_w) %in% names(agg_data)))
+  share_w <- attr(share_data, "metadata")$par_weights
   # the CDE parameters have no share nest and are recorded as value weighted
   expect_true(all(share_w[c("INCP", "SUBP")] == "value"))
   expect_true(all(share_w[setdiff(names(share_w), c("INCP", "SUBP"))] == "share"))
-  expect_true(all(names(share_w) %in% names(agg_data)))
-  expect_true(all(attr(value_data, "metadata")$par_weights == "value"))
-  expect_equal(unname(attr(mixed_data, "metadata")$par_weights["ESBM"]), "value")
+  expect_equal(unname(attr(mixed_data, "metadata")$par_weights["ESBM"]), "share")
   # China's livestock imports are half wool (ESBM 12.9), nearly all from
   # one aggregated source: its sourcing can barely shift, so share
   # weights keep wool from dominating the aggregate. Value weights are
   # FlexAgg's: world import totals, one value for every region
   livestock <- \(d, h, r = "chn") d[[h]][COMM == "livestock" & REG == r, Value]
-  expect_equal(livestock(agg_data, "ESBM"), 3.010618, tolerance = 1e-5)
-  expect_equal(livestock(value_data, "ESBM"), 3.980415, tolerance = 1e-5)
-  expect_equal(livestock(value_data, "ESBM", "usa"), 3.980415, tolerance = 1e-5)
+  expect_equal(livestock(share_data, "ESBM"), 3.010618, tolerance = 1e-5)
+  expect_equal(livestock(agg_data, "ESBM"), 3.980415, tolerance = 1e-5)
+  expect_equal(livestock(agg_data, "ESBM", "usa"), 3.980415, tolerance = 1e-5)
   # ESBD pools one domestic/imported nest per agent
-  expect_equal(livestock(agg_data, "ESBD"), 2.451707, tolerance = 1e-5)
-  expect_equal(livestock(value_data, "ESBD"), 2.115725, tolerance = 1e-5)
-  expect_equal(mixed_data$ESBM, value_data$ESBM)
+  expect_equal(livestock(share_data, "ESBD"), 2.451707, tolerance = 1e-5)
+  expect_equal(livestock(agg_data, "ESBD"), 2.115725, tolerance = 1e-5)
+  expect_equal(mixed_data$ESBM, share_data$ESBM)
   expect_equal(mixed_data$ESBD, agg_data$ESBD)
   # the CDE parameters are value weighted under either method
-  expect_equal(agg_data$SUBP, value_data$SUBP)
+  expect_equal(agg_data$SUBP, share_data$SUBP)
 })
 
 unlink(write_dir, recursive = TRUE)

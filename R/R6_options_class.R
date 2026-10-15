@@ -12,7 +12,6 @@ options_class <- R6::R6Class(
     tempdir = NULL,
     verbose = NULL,
     ndigits = NULL,
-    zero_below = NULL,
     accuracy_threshold = NULL,
     accuracy_figures = NULL,
     accuracy_criterion = NULL,
@@ -32,7 +31,6 @@ options_class <- R6::R6Class(
     initialize = function(tempdir = NULL,
                           verbose = NULL,
                           ndigits = NULL,
-                          zero_below = NULL,
                           accuracy_threshold = NULL,
                           accuracy_figures = NULL,
                           accuracy_criterion = NULL,
@@ -51,7 +49,6 @@ options_class <- R6::R6Class(
       self$tempdir <- tempdir
       self$verbose <- verbose
       self$ndigits <- ndigits
-      self$zero_below <- zero_below
       self$accuracy_threshold <- accuracy_threshold
       self$accuracy_figures <- accuracy_figures
       self$accuracy_criterion <- accuracy_criterion
@@ -74,7 +71,6 @@ options_class <- R6::R6Class(
         tempdir = self$get_tempdir(),
         verbose = self$get_verbose(),
         ndigits = self$get_ndigits(),
-        zero_below = self$get_zero_below(),
         accuracy_threshold = self$get_accuracy_threshold(),
         accuracy_figures = self$get_accuracy_figures(),
         accuracy_criterion = self$get_accuracy_criterion(),
@@ -97,7 +93,6 @@ options_class <- R6::R6Class(
       self$set_tempdir(list$tempdir)
       self$set_verbose(list$verbose)
       self$set_ndigits(list$ndigits)
-      self$set_zero_below(list$zero_below)
       self$set_accuracy_threshold(list$accuracy_threshold)
       self$set_accuracy_figures(list$accuracy_figures)
       self$set_accuracy_criterion(list$accuracy_criterion)
@@ -119,7 +114,6 @@ options_class <- R6::R6Class(
       self$tempdir <- NULL
       self$verbose <- NULL
       self$ndigits <- NULL
-      self$zero_below <- NULL
       self$accuracy_threshold <- NULL
       self$accuracy_figures <- NULL
       self$accuracy_criterion <- NULL
@@ -147,10 +141,6 @@ options_class <- R6::R6Class(
 
     get_ndigits = function() {
       self$ndigits %|||% 6L
-    },
-
-    get_zero_below = function() {
-      self$zero_below %|||% 1e-6
     },
 
     get_random_seed = function() {
@@ -226,11 +216,6 @@ options_class <- R6::R6Class(
     set_ndigits = function(ndigits, call = rlang::caller_env()) {
       self$validate_ndigits(ndigits, call = call)
       self$ndigits <- ndigits
-    },
-
-    set_zero_below = function(zero_below, call = rlang::caller_env()) {
-      self$validate_zero_below(zero_below, call = call)
-      self$zero_below <- as.numeric(zero_below)
     },
 
     set_random_seed = function(random_seed, call = rlang::caller_env()) {
@@ -331,13 +316,6 @@ options_class <- R6::R6Class(
     validate_ndigits = function(ndigits, call = rlang::caller_env()) {
       if (!rlang::is_integerish(ndigits)) {
         cli::cli_abort(gen_err$opt_ndigits, call = call)
-      }
-    },
-
-    validate_zero_below = function(zero_below, call = rlang::caller_env()) {
-      if (!is.numeric(zero_below) || length(zero_below) != 1L ||
-        !is.finite(zero_below) || zero_below < 0) {
-        cli::cli_abort(gen_err$opt_zero_below, call = call)
       }
     },
 
@@ -442,7 +420,6 @@ options_class <- R6::R6Class(
       self$validate_verbose(self$get_verbose())
       self$validate_tempdir(self$get_tempdir())
       self$validate_ndigits(self$get_ndigits())
-      self$validate_zero_below(self$get_zero_below())
       self$validate_accuracy_threshold(self$get_accuracy_threshold())
       self$validate_accuracy_figures(self$get_accuracy_figures())
       self$validate_accuracy_criterion(self$get_accuracy_criterion())

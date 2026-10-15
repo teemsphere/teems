@@ -1,6 +1,6 @@
 # ems_option_get errors on invalid name
 
-    `name` must be one of "tempdir", "verbose", "ndigits", "zero_below", "accuracy_threshold", "accuracy_figures", "accuracy_criterion", "required_figures", "full_exclude", "check_shock_status", "timestep_header", "n_timestep_header", "docker_tag", "assertions", "range_test_initial", "range_test_updated", "random_seed", "refine", and "converge", not "not_an_option".
+    `name` must be one of "tempdir", "verbose", "ndigits", "accuracy_threshold", "accuracy_figures", "accuracy_criterion", "required_figures", "full_exclude", "check_shock_status", "timestep_header", "n_timestep_header", "docker_tag", "assertions", "range_test_initial", "range_test_updated", "random_seed", "refine", and "converge", not "not_an_option".
 
 # ems_option errors when write_dir does not exist
 
@@ -9,14 +9,6 @@
     Condition
       Error in `ems_option_set()`:
       ! 'testthat/does_not_exist' does not exist.
-
-# zero_below is validated, stored, applied to written values and reset
-
-    `zero_below` must be a single non-negative finite number.
-
----
-
-    `zero_below` must be a single non-negative finite number.
 
 # ems_option_set rejects invalid values
 

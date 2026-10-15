@@ -12,6 +12,5 @@
     return(x)
   }
   typed <- .round_digits(x, ndigits)
-  typed[abs(typed) < .o_zero_below()] <- 0
   return(typed)
 }

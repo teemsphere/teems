@@ -2,6 +2,9 @@ skip_on_cran()
 
 withr::defer(ems_option_reset(), teardown_env())
 
+# the image under test, read before any test resets the options
+local_image <- paste0("teems:", .o_docker_tag())
+
 reset_cache <- function() {
   rm(list = ls(.solver_version_cache), envir = .solver_version_cache)
 }
@@ -11,6 +14,24 @@ test_that("the version core drops pre-release and development suffixes", {
   expect_equal(.solver_version_core("1.0.0.9000"), numeric_version("1.0.0"))
   expect_equal(.solver_version_core("2.3.1"), numeric_version("2.3.1"))
   expect_true(is.na(.solver_version_core("garbage")))
+})
+
+test_that("the version key orders a development build below its release and dev builds by number", {
+  expect_true(.solver_version_key("1.1.0-dev.4") < .solver_version_key("1.1.0-dev.5"))
+  expect_true(.solver_version_key("1.1.0-dev.9") < .solver_version_key("1.1.0"))
+  expect_false(.solver_version_key("1.1.0") < .solver_version_key("1.1.0"))
+  expect_true(.solver_version_key("1.1.0") < .solver_version_key("1.1.1-dev.1"))
+  expect_true(is.na(.solver_version_key("garbage")))
+})
+
+test_that("a development build of the floor release aborts by name", {
+  reset_cache()
+  ems_option_reset()
+  local_mocked_bindings(.solver_version_query = function(image) "1.1.0-dev.4")
+  expect_error(
+    .check_solver_version("teems:devbuild", call = NULL),
+    "requires 1\\.1\\.0 or later"
+  )
 })
 
 test_that("a silent image (pre-1.1) aborts by name", {
@@ -51,17 +72,17 @@ test_that("a conforming image passes, is cached, and is asked once", {
   rec$calls <- 0L
   local_mocked_bindings(.solver_version_query = function(image) {
     rec$calls <- rec$calls + 1L
-    "1.1.0-dev.4"
+    "1.1.0"
   })
-  expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0-dev.4")
-  expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0-dev.4")
+  expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0")
+  expect_identical(.check_solver_version("teems:ok", call = NULL), "1.1.0")
   expect_identical(rec$calls, 1L)
-  expect_identical(get("teems:ok", envir = .solver_version_cache), "1.1.0-dev.4")
+  expect_identical(get("teems:ok", envir = .solver_version_cache), "1.1.0")
 })
 
 test_that("the local solve image answers -version with a semantic version", {
   skip_if_not(nzchar(Sys.which("docker")))
-  image <- paste0("teems:", .o_docker_tag())
+  image <- local_image
   v <- .solver_version_query(image)
   expect_match(v, "^[0-9]+\\.[0-9]+\\.[0-9]+")
   reset_cache()

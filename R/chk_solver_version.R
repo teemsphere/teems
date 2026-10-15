@@ -34,7 +34,7 @@
         action = action,
         call = call
       )
-    } else if (solver_core < numeric_version(min_version)) {
+    } else if (.solver_version_key(solver_version) < .solver_version_key(min_version)) {
       .cli_action(solve_err$solver_version_floor,
         action = action,
         call = call

@@ -8,52 +8,70 @@
 #include <cstdint>
 #include <algorithm>
 
-// Constants matching teems-solver/teems-parser/export_solution.c
+// Constants, typedefs and record layouts matching teems-solver/src/teems_solver.h
+// (set_def, set_element, array_def: the locked .set/.sel/.var/.cof records;
+// the solution values are solve_real)
 #define NAMESIZE 256
 #define TABREADLINE 20000
 #define HEADERSIZE 5
 #define MAXVARDIM 10
 #define MAXSUPSET 12
 
-typedef int uvdim;
-typedef int64_t uvadd;
-typedef double forreal;
-typedef float ha_floattype;
+typedef int dim_t;
+typedef int64_t offset_t;
+typedef double solve_real;
 
-// Struct definitions matching the solver binary format exactly
+// Record layouts as structure_files_write() in main.c writes them
 
-struct ha_cgeset {
+struct set_def {
   char header[HEADERSIZE];
   int fileid;
   char setname[NAMESIZE];
   char readele[TABREADLINE];
-  uvadd begadd;
-  uvdim size;
-  uvdim subsetid[MAXSUPSET];
+  offset_t offset;
+  dim_t size;
+  dim_t subsetid[MAXSUPSET];
   bool intertemp;
   int intsup;
   bool regional;
   int regsup;
 };
 
-struct ha_cgesetele {
+struct set_element {
   char setele[NAMESIZE];
-  uvdim setsh[MAXSUPSET];
+  dim_t superset_pos[MAXSUPSET];
 };
 
-struct hcge_cof {
+struct array_def {
   char cofname[NAMESIZE];
-  uvadd begadd;
-  uvdim size;
-  uvadd setid[MAXVARDIM];
-  uvadd antidims[MAXVARDIM];
-  uvadd matsize;
+  offset_t offset;
+  dim_t size;
+  offset_t setid[MAXVARDIM];
+  offset_t strides[MAXVARDIM];
+  offset_t nelem;
   bool level_par;
   bool change_real;
   bool suplval;
   int gltype;
-  ha_floattype glval;
+  // the solver's store_real: float in the f32 binary, double in the f64
+  // one; the record is 456 bytes either way (the float is padded), so the
+  // bytes are read as whatever sol.stats.json says the run stored
+  union { float f32; double f64; } glval;
 };
+
+// true when the run next to path_prefix stored coefficients in double
+// (teems-solver-f64): sol.stats.json carries "store_precision": "double"
+static bool store_is_double(const std::string& path_prefix) {
+  std::ifstream f(path_prefix + "stats.json");
+  if (!f) return false;
+  std::string s((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+  return s.find("\"store_precision\": \"double\"") != std::string::npos;
+}
+
+static double glval_of(const array_def& a, bool store_double) {
+  double v = store_double ? a.glval.f64 : static_cast<double>(a.glval.f32);
+  return v;
+}
 
 // Returns the number of active (non-zero) entries from the front of a
 // fixed-length integer array, trimming trailing zeros.
@@ -91,7 +109,7 @@ static void read_exact(std::ifstream& file, void* buf, std::streamsize n,
 
 // A record count read from a header must be non-negative before it sizes
 // an allocation.
-static void check_count(uvadd n, const char* what, const std::string& path) {
+static void check_count(offset_t n, const char* what, const std::string& path) {
   if (n < 0) {
     cpp11::stop("Invalid %s count %lld in %s", what,
                 static_cast<long long>(n), path.c_str());
@@ -102,6 +120,7 @@ static void check_count(uvadd n, const char* what, const std::string& path) {
 
 [[cpp11::register]]
 cpp11::list parse_solution_meta(std::string path_prefix) {
+  const bool store_double = store_is_double(path_prefix);
 
   // --- Read .mds file: 4 long ints ---
   std::string mds_path = path_prefix + "mds";
@@ -109,25 +128,25 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
   if (!mds_file.is_open()) {
     cpp11::stop("Cannot open .mds file: %s", mds_path.c_str());
   }
-  uvadd modeldes[4] = {0, 0, 0, 0};
-  read_exact(mds_file, modeldes, sizeof(uvadd) * 4, ".mds", mds_path);
+  offset_t modeldes[4] = {0, 0, 0, 0};
+  read_exact(mds_file, modeldes, sizeof(offset_t) * 4, ".mds", mds_path);
   mds_file.close();
 
-  uvadd nsetspace = modeldes[0];
-  uvadd nvar      = modeldes[1];
-  uvadd nset      = modeldes[3];
+  offset_t nsetspace = modeldes[0];
+  offset_t nvar      = modeldes[1];
+  offset_t nset      = modeldes[3];
   check_count(nsetspace, "set element", mds_path);
   check_count(nvar, "variable", mds_path);
   check_count(nset, "set", mds_path);
 
-  // --- Read .var file: nvar hcge_cof structs ---
+  // --- Read .var file: nvar array_def structs ---
   std::string var_path = path_prefix + "var";
   std::ifstream var_file(var_path, std::ios::binary);
   if (!var_file.is_open()) {
     cpp11::stop("Cannot open .var file: %s", var_path.c_str());
   }
-  std::vector<hcge_cof> var_structs(nvar);
-  read_exact(var_file, var_structs.data(), sizeof(hcge_cof) * nvar, ".var", var_path);
+  std::vector<array_def> var_structs(nvar);
+  read_exact(var_file, var_structs.data(), sizeof(array_def) * nvar, ".var", var_path);
   var_file.close();
 
   using namespace cpp11::literals;
@@ -146,18 +165,18 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
 
   for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nvar); i++) {
     var_cofname[i] = std::string(var_structs[i].cofname);
-    var_begadd[i]  = static_cast<double>(var_structs[i].begadd);
+    var_begadd[i]  = static_cast<double>(var_structs[i].offset);
     var_size[i]    = var_structs[i].size;
-    var_matsize[i] = static_cast<double>(var_structs[i].matsize);
+    var_matsize[i] = static_cast<double>(var_structs[i].nelem);
     var_level_par[i]   = static_cast<int>(var_structs[i].level_par);
     var_change_real[i] = static_cast<int>(var_structs[i].change_real);
     var_suplval[i]     = static_cast<int>(var_structs[i].suplval);
     var_gltype[i]      = var_structs[i].gltype;
-    var_glval[i]       = static_cast<double>(var_structs[i].glval);
+    var_glval[i]       = glval_of(var_structs[i], store_double);
 
-    int ndim = active_count(var_structs[i].antidims);
+    int ndim = active_count(var_structs[i].strides);
     var_setid[i]    = pack_n(var_structs[i].setid,    ndim);
-    var_antidims[i] = pack_n(var_structs[i].antidims, ndim);
+    var_antidims[i] = pack_n(var_structs[i].strides, ndim);
   }
 
   cpp11::writable::list var_list(
@@ -174,14 +193,14 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
      "glval"_nm = (SEXP)var_glval}
   );
 
-  // --- Read .sel file: nsetspace ha_cgesetele structs ---
+  // --- Read .sel file: nsetspace set_element structs ---
   std::string sel_path = path_prefix + "sel";
   std::ifstream sel_file(sel_path, std::ios::binary);
   if (!sel_file.is_open()) {
     cpp11::stop("Cannot open .sel file: %s", sel_path.c_str());
   }
-  std::vector<ha_cgesetele> sel_structs(nsetspace);
-  read_exact(sel_file, sel_structs.data(), sizeof(ha_cgesetele) * nsetspace, ".sel", sel_path);
+  std::vector<set_element> sel_structs(nsetspace);
+  read_exact(sel_file, sel_structs.data(), sizeof(set_element) * nsetspace, ".sel", sel_path);
   sel_file.close();
 
   cpp11::writable::strings sel_setele(static_cast<R_xlen_t>(nsetspace));
@@ -189,7 +208,7 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
 
   for (R_xlen_t i = 0; i < static_cast<R_xlen_t>(nsetspace); i++) {
     sel_setele[i] = std::string(sel_structs[i].setele);
-    sel_setsh[i] = pack_n(sel_structs[i].setsh, active_count(sel_structs[i].setsh));
+    sel_setsh[i] = pack_n(sel_structs[i].superset_pos, active_count(sel_structs[i].superset_pos));
   }
 
   cpp11::writable::list sel_list(
@@ -197,14 +216,14 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
      "setsh"_nm = (SEXP)sel_setsh}
   );
 
-  // --- Read .set file: nset ha_cgeset structs ---
+  // --- Read .set file: nset set_def structs ---
   std::string set_path = path_prefix + "set";
   std::ifstream set_file(set_path, std::ios::binary);
   if (!set_file.is_open()) {
     cpp11::stop("Cannot open .set file: %s", set_path.c_str());
   }
-  std::vector<ha_cgeset> set_structs(nset);
-  read_exact(set_file, set_structs.data(), sizeof(ha_cgeset) * nset, ".set", set_path);
+  std::vector<set_def> set_structs(nset);
+  read_exact(set_file, set_structs.data(), sizeof(set_def) * nset, ".set", set_path);
   set_file.close();
 
   cpp11::writable::strings set_header(static_cast<R_xlen_t>(nset));
@@ -224,7 +243,7 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
     set_fileid[i]    = set_structs[i].fileid;
     set_setname[i]   = std::string(set_structs[i].setname);
     set_readele[i]   = std::string(set_structs[i].readele);
-    set_begadd[i]    = static_cast<double>(set_structs[i].begadd);
+    set_begadd[i]    = static_cast<double>(set_structs[i].offset);
     set_size[i]      = set_structs[i].size;
     set_intertemp[i] = static_cast<int>(set_structs[i].intertemp);
     set_intsup[i]    = set_structs[i].intsup;
@@ -263,6 +282,7 @@ cpp11::list parse_solution_meta(std::string path_prefix) {
 
 [[cpp11::register]]
 cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_filter) {
+  const bool store_double = store_is_double(path_prefix);
 
   // --- Read .mds ---
   std::string mds_path = path_prefix + "mds";
@@ -270,12 +290,12 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
   if (!mds_file.is_open()) {
     cpp11::stop("Cannot open .mds file: %s", mds_path.c_str());
   }
-  uvadd modeldes[4] = {0, 0, 0, 0};
-  read_exact(mds_file, modeldes, sizeof(uvadd) * 4, ".mds", mds_path);
+  offset_t modeldes[4] = {0, 0, 0, 0};
+  read_exact(mds_file, modeldes, sizeof(offset_t) * 4, ".mds", mds_path);
   mds_file.close();
 
-  uvadd nvar    = modeldes[1];
-  uvadd nvarele = modeldes[2];
+  offset_t nvar    = modeldes[1];
+  offset_t nvarele = modeldes[2];
   check_count(nvar, "variable", mds_path);
   check_count(nvarele, "variable element", mds_path);
 
@@ -285,8 +305,8 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
   if (!var_file.is_open()) {
     cpp11::stop("Cannot open .var file: %s", var_path.c_str());
   }
-  std::vector<hcge_cof> var_structs(nvar);
-  read_exact(var_file, var_structs.data(), sizeof(hcge_cof) * nvar, ".var", var_path);
+  std::vector<array_def> var_structs(nvar);
+  read_exact(var_file, var_structs.data(), sizeof(array_def) * nvar, ".var", var_path);
   var_file.close();
 
   // --- Determine selection ---
@@ -309,8 +329,8 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
   }
 
   // --- Read .bin selectively ---
-  uvadd total_ele = 0;
-  for (auto i : sel_idx) total_ele += var_structs[i].matsize;
+  offset_t total_ele = 0;
+  for (auto i : sel_idx) total_ele += var_structs[i].nelem;
   if (!filter && total_ele != nvarele) {
     cpp11::stop("Element count mismatch: .mds declares %lld, .var sums to %lld: %s",
                 static_cast<long long>(nvarele),
@@ -328,17 +348,17 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
   if (filter) {
     R_xlen_t write_pos = 0;
     for (auto i : sel_idx) {
-      uvadd beg = var_structs[i].begadd;
-      uvadd mat = var_structs[i].matsize;
-      bin_file.seekg(static_cast<std::streamoff>(beg) * sizeof(forreal),
+      offset_t beg = var_structs[i].offset;
+      offset_t mat = var_structs[i].nelem;
+      bin_file.seekg(static_cast<std::streamoff>(beg) * sizeof(solve_real),
                      std::ios::beg);
       bin_file.read(reinterpret_cast<char*>(REAL(bin_vec) + write_pos),
-                    sizeof(forreal) * mat);
+                    sizeof(solve_real) * mat);
       write_pos += static_cast<R_xlen_t>(mat);
     }
   } else {
     bin_file.read(reinterpret_cast<char*>(REAL(bin_vec)),
-                  sizeof(forreal) * nvarele);
+                  sizeof(solve_real) * nvarele);
   }
   if (total_ele > 0 && !bin_file) {
     // an empty .bin is what a probe run (-solmed probe) leaves behind
@@ -367,18 +387,18 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
   for (R_xlen_t j = 0; j < nsel; j++) {
     R_xlen_t i = sel_idx[j];
     var_cofname[j] = std::string(var_structs[i].cofname);
-    var_begadd[j]  = static_cast<double>(var_structs[i].begadd);
+    var_begadd[j]  = static_cast<double>(var_structs[i].offset);
     var_size[j]    = var_structs[i].size;
-    var_matsize[j] = static_cast<double>(var_structs[i].matsize);
+    var_matsize[j] = static_cast<double>(var_structs[i].nelem);
     var_level_par[j]   = static_cast<int>(var_structs[i].level_par);
     var_change_real[j] = static_cast<int>(var_structs[i].change_real);
     var_suplval[j]     = static_cast<int>(var_structs[i].suplval);
     var_gltype[j]      = var_structs[i].gltype;
-    var_glval[j]       = static_cast<double>(var_structs[i].glval);
+    var_glval[j]       = glval_of(var_structs[i], store_double);
 
-    int ndim = active_count(var_structs[i].antidims);
+    int ndim = active_count(var_structs[i].strides);
     var_setid[j]    = pack_n(var_structs[i].setid,    ndim);
-    var_antidims[j] = pack_n(var_structs[i].antidims, ndim);
+    var_antidims[j] = pack_n(var_structs[i].strides, ndim);
   }
 
   cpp11::writable::list var_list(
@@ -410,17 +430,17 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
     if (filter) {
       R_xlen_t write_pos = 0;
       for (auto i : sel_idx) {
-        uvadd beg = var_structs[i].begadd;
-        uvadd mat = var_structs[i].matsize;
-        acc_file.seekg(static_cast<std::streamoff>(beg) * sizeof(forreal),
+        offset_t beg = var_structs[i].offset;
+        offset_t mat = var_structs[i].nelem;
+        acc_file.seekg(static_cast<std::streamoff>(beg) * sizeof(solve_real),
                        std::ios::beg);
         acc_file.read(reinterpret_cast<char*>(REAL(acc_vec) + write_pos),
-                      sizeof(forreal) * mat);
+                      sizeof(solve_real) * mat);
         write_pos += static_cast<R_xlen_t>(mat);
       }
     } else {
       acc_file.read(reinterpret_cast<char*>(REAL(acc_vec)),
-                    sizeof(forreal) * nvarele);
+                    sizeof(solve_real) * nvarele);
     }
     if (total_ele > 0 && !acc_file) {
       cpp11::stop("Truncated error-estimate file: %s", acc_path.c_str());
@@ -440,7 +460,7 @@ cpp11::list parse_solution_bins(std::string path_prefix, cpp11::strings names_fi
 
 // --- parse_coefficients: reads .cof + .cbin (the coefficient twins of
 //     .var + .bin, ROADMAP 6.13). .cof = int64 header {version, ncof,
-//     ncofele, reserved} + ncof x hcge_cof + ncof x uint8 kind (bit 0
+//     ncofele, reserved} + ncof x array_def + ncof x uint8 kind (bit 0
 //     PostSim, bit 1 parameter); .cbin = ncofele x double in begadd order.
 // names_filter: coefficient names (solver casing) to extract; empty
 // reads all. Values are read only when read_values is true; presim
@@ -456,19 +476,19 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
   if (!cof_file.is_open()) {
     cpp11::stop("Cannot open .cof file: %s", cof_path.c_str());
   }
-  uvadd hdr[4] = {0, 0, 0, 0};
-  read_exact(cof_file, hdr, sizeof(uvadd) * 4, ".cof", cof_path);
+  offset_t hdr[4] = {0, 0, 0, 0};
+  read_exact(cof_file, hdr, sizeof(offset_t) * 4, ".cof", cof_path);
   if (hdr[0] != 1) {
     cpp11::stop("Unsupported .cof version %lld in %s",
                 static_cast<long long>(hdr[0]), cof_path.c_str());
   }
-  uvadd ncof    = hdr[1];
-  uvadd ncofele = hdr[2];
+  offset_t ncof    = hdr[1];
+  offset_t ncofele = hdr[2];
   check_count(ncof, "coefficient", cof_path);
   check_count(ncofele, "coefficient element", cof_path);
 
-  std::vector<hcge_cof> cof_structs(ncof);
-  read_exact(cof_file, cof_structs.data(), sizeof(hcge_cof) * ncof, ".cof", cof_path);
+  std::vector<array_def> cof_structs(ncof);
+  read_exact(cof_file, cof_structs.data(), sizeof(array_def) * ncof, ".cof", cof_path);
   std::vector<unsigned char> kind(ncof);
   read_exact(cof_file, kind.data(), ncof, ".cof", cof_path);
   cof_file.close();
@@ -502,19 +522,19 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
   cpp11::writable::logicals cof_postsim(nsel);
   cpp11::writable::logicals cof_parameter(nsel);
 
-  uvadd total_ele = 0;
+  offset_t total_ele = 0;
   for (R_xlen_t j = 0; j < nsel; j++) {
     R_xlen_t i = sel_idx[j];
     cof_cofname[j] = std::string(cof_structs[i].cofname);
-    cof_begadd[j]  = static_cast<double>(cof_structs[i].begadd);
+    cof_begadd[j]  = static_cast<double>(cof_structs[i].offset);
     cof_size[j]    = cof_structs[i].size;
-    cof_matsize[j] = static_cast<double>(cof_structs[i].matsize);
-    int ndim = active_count(cof_structs[i].antidims);
+    cof_matsize[j] = static_cast<double>(cof_structs[i].nelem);
+    int ndim = active_count(cof_structs[i].strides);
     cof_setid[j]    = pack_n(cof_structs[i].setid,    ndim);
-    cof_antidims[j] = pack_n(cof_structs[i].antidims, ndim);
+    cof_antidims[j] = pack_n(cof_structs[i].strides, ndim);
     cof_postsim[j]   = (kind[i] & 1u) != 0;
     cof_parameter[j] = (kind[i] & 2u) != 0;
-    total_ele += cof_structs[i].matsize;
+    total_ele += cof_structs[i].nelem;
   }
   if (!filter && total_ele != ncofele) {
     cpp11::stop("Element count mismatch: .cof header declares %lld, records sum to %lld: %s",
@@ -542,30 +562,30 @@ cpp11::list parse_coefficients(std::string path_prefix, cpp11::strings names_fil
     }
     std::streamoff base = 0;
     if (presim) {
-      uvadd vhdr[4];
-      bin_file.read(reinterpret_cast<char*>(vhdr), sizeof(uvadd) * 4);
+      offset_t vhdr[4];
+      bin_file.read(reinterpret_cast<char*>(vhdr), sizeof(offset_t) * 4);
       if (!bin_file || vhdr[0] != 1 || vhdr[1] != ncof ||
           vhdr[2] != ncofele || vhdr[3] != 0) {
         cpp11::stop("Unsupported or mismatched .cbin0 header in %s",
                     bin_path.c_str());
       }
-      base = static_cast<std::streamoff>(sizeof(uvadd) * 4);
+      base = static_cast<std::streamoff>(sizeof(offset_t) * 4);
     }
     cpp11::writable::doubles bin_vec(static_cast<R_xlen_t>(total_ele));
     if (filter) {
       R_xlen_t write_pos = 0;
       for (auto i : sel_idx) {
-        uvadd beg = cof_structs[i].begadd;
-        uvadd mat = cof_structs[i].matsize;
-        bin_file.seekg(base + static_cast<std::streamoff>(beg) * sizeof(forreal),
+        offset_t beg = cof_structs[i].offset;
+        offset_t mat = cof_structs[i].nelem;
+        bin_file.seekg(base + static_cast<std::streamoff>(beg) * sizeof(solve_real),
                        std::ios::beg);
         bin_file.read(reinterpret_cast<char*>(REAL(bin_vec) + write_pos),
-                      sizeof(forreal) * mat);
+                      sizeof(solve_real) * mat);
         write_pos += static_cast<R_xlen_t>(mat);
       }
     } else {
       bin_file.read(reinterpret_cast<char*>(REAL(bin_vec)),
-                    sizeof(forreal) * ncofele);
+                    sizeof(solve_real) * ncofele);
     }
     if (!bin_file) {
       cpp11::stop("Truncated coefficient values file: %s", bin_path.c_str());

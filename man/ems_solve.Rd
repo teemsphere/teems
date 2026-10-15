@@ -365,17 +365,17 @@ Studies, Victoria University, Melbourne (14 April).
 Van Ha, P. and Kompas, T. (2016), "Solving intertemporal CGE
 models in parallel using a singly bordered block diagonal
 ordering technique", Economic Modelling, vol. 52, pp. 3-12.
-\url{https://doi.org/10.1016/j.econmod.2015.07.011}
+\doi{10.1016/j.econmod.2015.07.011}
 
 Van Ha, P., Kompas, T., Nguyen, H.T.M. and Long, C.H. (2017),
 "Building a better trade model to determine local effects: A
 regional and intertemporal GTAP model", Economic Modelling,
-vol. 67, pp. 102-113. \url{https://doi.org/10.1016/j.econmod.2016.10.015}
+vol. 67, pp. 102-113. \doi{10.1016/j.econmod.2016.10.015}
 
 Kompas, T. and Van Ha, P. (2019), "The 'curse of dimensionality'
 resolved: The effects of climate change and trade barriers in
 large dimensional modelling", Economic Modelling, vol. 80,
-pp. 103-110. \url{https://doi.org/10.1016/j.econmod.2018.08.011}
+pp. 103-110. \doi{10.1016/j.econmod.2018.08.011}
 
 HSL (2026), A collection of Fortran codes for large scale
 scientific computation. \url{https://www.hsl.rl.ac.uk/}

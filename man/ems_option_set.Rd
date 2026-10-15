@@ -8,7 +8,6 @@ ems_option_set(
   tempdir = NULL,
   verbose = NULL,
   ndigits = NULL,
-  zero_below = NULL,
   accuracy_threshold = NULL,
   accuracy_figures = NULL,
   accuracy_criterion = NULL,
@@ -39,23 +38,7 @@ the model run takes place (via Docker bind mount).}
 the right of the decimal point kept when numeric type double
 data are written to file. Values smaller than 0.1 in
 magnitude keep \code{ndigits} significant digits instead, so
-small nonzero data are not rounded to zero unless they fall
-below \code{zero_below}.}
-
-\item{zero_below}{Numeric length 1 (default is \code{1e-6}). Data
-values whose magnitude is below it are written as exact
-zeros. GTAP databases hold flows in millions of dollars as
-single-precision numbers, and their balancing leaves residue
-far below one dollar in cells that are economically zero; a
-solver treats such a cell as a live flow that a large shock can
-drive negative, where an exact zero stays zero. A flow is zeroed
-across its valuation chain (for GTAP data the basic, FOB, CIF
-and purchaser values of one cell, and the margins on it), so a
-ratio between them never meets a zero under a nonzero; headers
-outside the known chains are floored on their own. Set it to
-\code{0} for a database whose tiny values are deliberate (an ORANI-G
-or TERM database carrying \code{1e-10} placeholders to keep rows
-non-singular).}
+small nonzero data are never rounded to zero.}
 
 \item{accuracy_threshold}{Numeric length 1 (default \code{0.8}).
 The share of results that must be accurate to at least

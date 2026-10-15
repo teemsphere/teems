@@ -13,22 +13,7 @@
 #'   the right of the decimal point kept when numeric type double
 #'   data are written to file. Values smaller than 0.1 in
 #'   magnitude keep `ndigits` significant digits instead, so
-#'   small nonzero data are not rounded to zero unless they fall
-#'   below `zero_below`.
-#' @param zero_below Numeric length 1 (default is `1e-6`). Data
-#'   values whose magnitude is below it are written as exact
-#'   zeros. GTAP databases hold flows in millions of dollars as
-#'   single-precision numbers, and their balancing leaves residue
-#'   far below one dollar in cells that are economically zero; a
-#'   solver treats such a cell as a live flow that a large shock can
-#'   drive negative, where an exact zero stays zero. A flow is zeroed
-#'   across its valuation chain (for GTAP data the basic, FOB, CIF
-#'   and purchaser values of one cell, and the margins on it), so a
-#'   ratio between them never meets a zero under a nonzero; headers
-#'   outside the known chains are floored on their own. Set it to
-#'   `0` for a database whose tiny values are deliberate (an ORANI-G
-#'   or TERM database carrying `1e-10` placeholders to keep rows
-#'   non-singular).
+#'   small nonzero data are never rounded to zero.
 #' @param accuracy_threshold Numeric length 1 (default `0.8`).
 #'   The share of results that must be accurate to at least
 #'   `accuracy_figures` significant figures under
@@ -117,7 +102,6 @@
 ems_option_set <- function(tempdir = NULL,
                            verbose = NULL,
                            ndigits = NULL,
-                           zero_below = NULL,
                            accuracy_threshold = NULL,
                            accuracy_figures = NULL,
                            accuracy_criterion = NULL,
@@ -142,9 +126,6 @@ ems_option_set <- function(tempdir = NULL,
   }
   if (!is.null(ndigits)) {
     ems_options$set_ndigits(ndigits, call = call)
-  }
-  if (!is.null(zero_below)) {
-    ems_options$set_zero_below(zero_below, call = call)
   }
   if (!is.null(accuracy_threshold)) {
     ems_options$set_accuracy_threshold(accuracy_threshold, call = call)
@@ -211,9 +192,6 @@ ems_option_set <- function(tempdir = NULL,
 #'   * `"ndigits"` Integer. Number of digits to the right of
 #'     the decimal point written to file for numeric type double
 #'     (at least `ndigits` significant digits for small values).
-#'   * `"zero_below"` Numeric. Data values below this magnitude are
-#'     written as exact zeros (the default is `1e-6`; see
-#'     [`ems_option_set()`]).
 #'   * `"accuracy_threshold"` Numeric. Share of results that must
 #'     be accurate to at least `accuracy_figures` figures.
 #'   * `"accuracy_figures"` Integer. Significant figures a result
@@ -273,7 +251,6 @@ ems_option_get <- function(name = NULL) {
          tempdir            = ems_options$get_tempdir(),
          verbose            = ems_options$get_verbose(),
          ndigits            = ems_options$get_ndigits(),
-         zero_below         = ems_options$get_zero_below(),
          accuracy_threshold = ems_options$get_accuracy_threshold(),
          accuracy_figures   = ems_options$get_accuracy_figures(),
          accuracy_criterion = ems_options$get_accuracy_criterion(),

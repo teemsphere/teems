@@ -130,6 +130,8 @@
     }
   )
 
+  .data <- .zero_families(.data, .o_zero_below())
+
   model_sets <- model[model$type == "Set" & !is.na(model$file), "name"][[1]]
   sets <- sets[sets$name %in% model_sets, "ele"][[1]]
   r_idx <- match(names(sets), model$name)

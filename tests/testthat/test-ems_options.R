@@ -110,6 +110,20 @@ test_that("ems_option_reset restores default verbose", {
   expect_true(ems_option_get("verbose"))
 })
 
+test_that("zero_below is validated, stored, applied to written values and reset", {
+  withr::defer(ems_option_reset())
+  expect_identical(ems_option_get("zero_below"), 1e-6)
+  ems_option_set(zero_below = 1e-3)
+  expect_identical(ems_option_get("zero_below"), 1e-3)
+  expect_identical(.typed_values(c(0.5, 2e-4, -2e-4, 0), "Real", 6L), c(0.5, 0, 0, 0))
+  ems_option_set(zero_below = 0)
+  expect_identical(.typed_values(c(0.5, 2e-4, 3.5e-7), "Real", 6L), c(0.5, 2e-4, 3.5e-7))
+  ems_option_reset()
+  expect_identical(.typed_values(c(0.5, 2e-4, 3.5e-7, -4e-45), "Real", 6L), c(0.5, 2e-4, 0, 0))
+  expect_snapshot_error(ems_option_set(zero_below = -1))
+  expect_snapshot_error(ems_option_set(zero_below = c(1, 2)))
+})
+
 test_that("ems_option_reset restores default ndigits", {
   ems_option_set(ndigits = 10)
   ems_option_reset()

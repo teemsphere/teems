@@ -18,6 +18,9 @@ diagnostics are silenced.
 \item \code{"ndigits"} Integer. Number of digits to the right of
 the decimal point written to file for numeric type double
 (at least \code{ndigits} significant digits for small values).
+\item \code{"zero_below"} Numeric. Data values below this magnitude are
+written as exact zeros (the default is \code{1e-6}; see
+\code{\link[=ems_option_set]{ems_option_set()}}).
 \item \code{"accuracy_threshold"} Numeric. Share of results that must
 be accurate to at least \code{accuracy_figures} figures.
 \item \code{"accuracy_figures"} Integer. Significant figures a result

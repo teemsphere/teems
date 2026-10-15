@@ -421,7 +421,34 @@ solve_wrn <- build_solve_wrn()
 swap_err <- build_swap_err()
 solver_error_map <- build_solver_error_map()
 
+# valuation chains the zero floor (ems_option_set zero_below) applies by cell:
+# a zero in any member zeroes the cell in every member and in the slaves
+# (margins on a trade cell), so no tax or share formula divides a nonzero
+# by a zero. GTAP v7 names first, GTAP v6 names second.
+zero_families <- list(
+  list(members = c("VXSB", "VFOB", "VCIF", "VMSB"), slaves = "VTWR"),
+  list(members = c("VDFB", "VDFP"), slaves = character(0)),
+  list(members = c("VMFB", "VMFP"), slaves = character(0)),
+  list(members = c("VDGB", "VDGP"), slaves = character(0)),
+  list(members = c("VMGB", "VMGP"), slaves = character(0)),
+  list(members = c("VDIB", "VDIP"), slaves = character(0)),
+  list(members = c("VMIB", "VMIP"), slaves = character(0)),
+  list(members = c("VDPB", "VDPP"), slaves = character(0)),
+  list(members = c("VMPB", "VMPP"), slaves = character(0)),
+  list(members = c("EVFB", "EVFP", "EVOS"), slaves = character(0)),
+  list(members = c("MAKB", "MAKS"), slaves = character(0)),
+  list(members = c("VXMD", "VXWD", "VIWS", "VIMS"), slaves = "VTWR"),
+  list(members = c("VDFM", "VDFA"), slaves = character(0)),
+  list(members = c("VIFM", "VIFA"), slaves = character(0)),
+  list(members = c("VDGM", "VDGA"), slaves = character(0)),
+  list(members = c("VIGM", "VIGA"), slaves = character(0)),
+  list(members = c("VDPM", "VDPA"), slaves = character(0)),
+  list(members = c("VIPM", "VIPA"), slaves = character(0)),
+  list(members = c("VFM", "EVFA", "EVOA"), slaves = character(0))
+)
+
 usethis::use_data(
+  zero_families,
   vetted_db_versions,
   mappings,
   supported_state,

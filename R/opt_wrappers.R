@@ -19,6 +19,13 @@
   return(ndigits)
 }
 
+#' @keywords internal
+#' @noRd
+.o_zero_below <- function() {
+  zero_below <- ems_option_get("zero_below")
+  return(zero_below)
+}
+
 #' @noRd
 #' @keywords internal
 .o_accuracy_threshold <- function() {

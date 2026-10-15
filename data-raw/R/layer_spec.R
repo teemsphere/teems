@@ -10,7 +10,7 @@
 # The .tab is the authority here -- .prepare_aez()/.prepare_e()/
 # .prepare_ep() exist only to synthesise the headers the model reads --
 # so check_layer_spec() re-derives the inventory from
-# inst/models/<model>/<model>.tab and refuses to write sysdata when the
+# inst/models/<model>/<model>.tab.gz and refuses to write sysdata when the
 # two disagree. The .cli_action() messages that name these headers are
 # generated from the same entries (build_data_err, build_data_info), so
 # the spec, the code and the prose cannot drift apart.
@@ -210,7 +210,7 @@ expand_layer_headers <- function(spec) {
 # build instead of silently going unprepared.
 check_layer_spec <- function(layer_spec, models_dir = "./inst/models") {
   for (spec in layer_spec) {
-    tab <- file.path(models_dir, spec$model, paste0(spec$model, ".tab"))
+    tab <- file.path(models_dir, spec$model, paste0(spec$model, ".tab.gz"))
     if (!file.exists(tab)) {
       stop("layer_spec: no .tab for model ", spec$model, call. = FALSE)
     }

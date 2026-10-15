@@ -63,7 +63,6 @@
     assertions = .o_assertions(),
     range_test_initial = .o_range_test_initial(),
     range_test_updated = .o_range_test_updated(),
-    complementarity = v$complementarity,
     laA = v$laA,
     laD = v$laD,
     laDi = v$laDi,

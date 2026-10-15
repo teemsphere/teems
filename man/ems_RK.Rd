@@ -19,7 +19,6 @@ ems_RK(
   suppress_outputs = FALSE,
   terminal_run = FALSE,
   accuracy_vars = NULL,
-  complementarity = NULL,
   max_retries = 3L,
   retry_adjust = 0.5,
   chart = c("log", "percent"),
@@ -147,13 +146,6 @@ instead of every endogenous result. Under the \code{"solution"}
 and \code{"both"} accuracy criteria (see \code{\link[=ems_option_set]{ems_option_set()}})
 the warning then judges only them, so a run can be held to
 the results it is about.}
-
-\item{complementarity}{A \code{teems_complementarity} object built
-by \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run
-controls for models with active \code{Complementarity} statements
-(see GEMPACK manual ch. 51). \code{NULL} applies the solver
-defaults; ignored by the solver when the model has no active
-complementarity component.}
 
 \item{max_retries}{Integer length 1 (default \code{3L}). How many
 times a step that fails a step check is retried shorter

@@ -17,7 +17,6 @@ ems_solve(
   verbosity = 1L,
   suppress_outputs = FALSE,
   terminal_run = FALSE,
-  complementarity = NULL,
   accuracy_vars = NULL,
   ...
 )
@@ -155,13 +154,6 @@ solver. This allows the user to close any R IDE or other
 programs prior to running from the terminal. When \code{TRUE}
 solver outputs are not automatically converted into
 structured data with \code{\link[=ems_compose]{ems_compose()}}.}
-
-\item{complementarity}{A \code{teems_complementarity} object built
-by \code{\link[=ems_complementarity]{ems_complementarity()}} (default is \code{NULL}), run
-controls for models with active \code{Complementarity} statements
-(see GEMPACK manual ch. 51). \code{NULL} applies the solver
-defaults; ignored by the solver when the model has no active
-complementarity component.}
 
 \item{accuracy_vars}{Character vector of variable names
 (default \code{NULL}). When given, the accuracy summary of a

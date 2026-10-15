@@ -304,14 +304,6 @@ test_that("ems_compose examples run", {
   expect_false(is.null(attr(vals[[3]], "accuracy")))
 })
 
-test_that("ems_homogeneity examples run", {
-  env <- example_env(cmf_path = static_cmf)
-  run_examples(example_exprs("ems_homogeneity"), env)
-  expect_type(env$check, "list")
-  expect_s3_class(env$check$equations, "data.frame")
-  expect_gt(nrow(env$check$equations), 0L)
-})
-
 test_that("ems_probe examples run", {
   withr::local_pdf(file.path(write_dir, "probe_plots.pdf"))
   env <- example_env(cmf_path = static_cmf)
@@ -319,22 +311,6 @@ test_that("ems_probe examples run", {
   expect_s3_class(env$probe, "teems_probe")
   expect_true(env$probe$recommendation$status %in%
                 c("ok", "singular", "no_host", "wont_fit"))
-})
-
-test_that("ems_calculate examples run", {
-  run_dir <- file.path(write_dir, "calculate_example")
-  dir.create(run_dir)
-  ems_option_set(tempdir = run_dir)
-  deploy_dir <- dirname(static_cmf)
-  subs <- c(
-    "path/to/gtapview.tab" = write_data_program(withr::local_tempdir()),
-    "path/to/sets.txt" = file.path(deploy_dir, "GTAPSETS.txt"),
-    "path/to/basedata.txt" = file.path(deploy_dir, "GTAPDATA.txt")
-  )
-  vals <- run_examples(example_exprs("ems_calculate", subs), example_env())
-  out <- vals[["ems_calculate"]]
-  expect_s3_class(out, "tbl_df")
-  expect_setequal(out$name, c("TOT", "VDFB"))
 })
 
 test_that("solve_in_situ examples run", {

@@ -123,12 +123,6 @@
 #'   programs prior to running from the terminal. When `TRUE`
 #'   solver outputs are not automatically converted into
 #'   structured data with [`ems_compose()`].
-#' @param complementarity A `teems_complementarity` object built
-#'   by [`ems_complementarity()`] (default is `NULL`), run
-#'   controls for models with active `Complementarity` statements
-#'   (see GEMPACK manual ch. 51). `NULL` applies the solver
-#'   defaults; ignored by the solver when the model has no active
-#'   complementarity component.
 #' @param accuracy_vars Character vector of variable names
 #'   (default `NULL`). When given, the accuracy summary of a
 #'   three-solution `"Gragg"`, `"Midpoint"` or `"Euler"` run
@@ -346,7 +340,6 @@ ems_solve <- function(cmf_path,
                       verbosity = 1L,
                       suppress_outputs = FALSE,
                       terminal_run = FALSE,
-                      complementarity = NULL,
                       accuracy_vars = NULL,
                       ...
 ) {

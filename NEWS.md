@@ -11,8 +11,6 @@
 ## New functions
 * `ems_probe()`: structural probe of a deployed model; recommends a matrix method and resources and gives a condensation verdict
 * `ems_RK()`: Runge-Kutta solution methods (RK2, Heun, RK4, BoSha32, DoPri54) with adaptive step control
-* `ems_complementarity()`: run controls for models with `Complementarity` statements
-* `ems_calculate()`: runs a TAB's formulas without a simulation (e.g., data file)
 
 ## New models and data handling
 * Vetted models: GTAPv7.1 (updated from GTAPv7.0), GTAP-AEZ, GTAP-E, GTAP-EP (GTAP-Power), ORANI-G
@@ -23,7 +21,7 @@
 ## Solving
 * `solution_method` gains `"Euler"` and the Runge-Kutta family; Euler and Gragg accept a single step count (no extrapolation), and Gragg accepts all-odd counts
 * Condensation: in-TAB `Substitute`/`Backsolve` statements and `ems_model(backsolve = , ignore_condense = )`
-* `ems_solve()` gains `n_threads`, `precision = "double"`, `verbosity` and `complementarity`
+* `ems_solve()` gains `n_threads`, `precision = "double"` and `verbosity`
 * Run-mode switches (assertions, range tests) are set with `ems_option_set()`
 * Coefficients are read from the solver's binary dump at full precision (previously CSVs with six fixed decimals); `ems_deploy(write_coefficients = TRUE)` restores the CSVs
 * Solver failures are reported by class (resource, size, model specification, interface) instead of a generic exit status

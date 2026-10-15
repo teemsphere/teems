@@ -69,8 +69,12 @@ build_auto_thresholds <- function() {
     # and grows 0.115 kB/eq (high-water sum over ranks) / 0.137 (container
     # peak, pairs 0.098-0.175); 0.20 = the worst pair + ~15 %. The
     # post-solve resident increase (0.35 on the 1.41M aoall+20 rig, 0.47
-    # here) is not the peak. Workstation Gragg cell still to confirm
-    # (wrapup_plan 4.6)
+    # here) is not the peak. Confirmed 2026-10-15 on the 16 GB Linux box
+    # (teems-dev/Linux_16GB/report_s90p_2026-10-15, same rig, DBBD 2 ranks
+    # x 2 threads): Johansen +0.86 GB high-water sum and container peak
+    # (0.112 kB/eq), Gragg 2-4-8 +0.73 GB sum / +0.43 GB container (0.095;
+    # to the abort at the end of the 4-step pass, which the peak precedes).
+    # Every measurement on three machines sits under 0.20; kept.
     mem_dbbd_refine = 0.20,
     # SBBD: (0.36 + 0.02 x ranks) kB/eq at >= 4.5M; extrapolates to
     # I-long-big 21.9M within 15 %

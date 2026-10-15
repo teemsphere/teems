@@ -329,7 +329,7 @@ build_solve_err <- function() {
     # test-chk_solver_version.R: "a silent image (pre-1.1) aborts by name"
     solver_version_none = c(
       "The {.val {image}} image gives no answer to {.code teems-solver -version}: its solver predates the versioned interface, and teems {pkg_version} requires teems-solver {min_version} or later.",
-      "Pull or rebuild a current image (see the teems-solver repository)."
+      "Rebuild the image from the current teems-solver repository: {.code git pull}, then the expedited {.code docker build --pull} with your libHSL tarball (README section \"Updating an Existing Installation\", manual page {.url https://teemsphere.github.io/dependencies.html}). Then restart R: the solver version seen for an image tag is kept for the session."
     ),
     # test-chk_solver_version.R: "a major-version mismatch aborts by name"
     solver_version_major = c(
@@ -339,7 +339,7 @@ build_solve_err <- function() {
     # test-chk_solver_version.R: "a solver below the package floor aborts by name"
     solver_version_floor = c(
       "The {.val {image}} image carries teems-solver {solver_version}; teems {pkg_version} requires {min_version} or later.",
-      "Pull or rebuild a current image."
+      "Rebuild the image from the current teems-solver repository: {.code git pull}, then the expedited {.code docker build --pull} with your libHSL tarball (README section \"Updating an Existing Installation\", manual page {.url https://teemsphere.github.io/dependencies.html}). Then restart R: the solver version seen for an image tag is kept for the session."
     )
   )
 }

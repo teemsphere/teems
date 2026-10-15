@@ -27,7 +27,7 @@
   linear <- as.numeric(acc$linear$figures)
   levels <- as.numeric(acc$levels$figures)
   judged_zero <- as.numeric(acc$linear$judged_zero)
-  summarised <- as.numeric(acc$summarised)
+  summarized <- as.numeric(acc$summarized)
   data_acc <- acc$data
   has_data <- isTRUE(as.numeric(data_acc$all$values) > 0)
 
@@ -35,7 +35,7 @@
   criterion <- .o_accuracy_criterion()
   judged <- if (!has_data) "solution" else criterion
   above <- seq.int(figures + 1L, 7L)
-  solution_count <- c(sum(levels[above]), summarised)
+  solution_count <- c(sum(levels[above]), summarized)
   data_count <- if (has_data) {
     c(
       sum(as.numeric(data_acc$all$figures)[above]) + as.numeric(data_acc$all$judged_zero),
@@ -103,7 +103,7 @@
     sprintf("Accuracy (%s, %d figures): %s\n", judged, figures, accuracy),
     sprintf("Accuracy criterion: %s\n", criterion_note),
     sprintf("Accuracy threshold: %s\n", a_threshold_fmt),
-    sprintf("Results summarised: %.0f (%s)\n", summarised, if (selected) paste("variables", paste(unlist(acc$variables), collapse = ", ")) else "endogenous and backsolved"),
+    sprintf("Results summarized: %.0f (%s)\n", summarized, if (selected) paste("variables", paste(unlist(acc$variables), collapse = ", ")) else "endogenous and backsolved"),
     sprintf("Subintervals:       %.0f\n", as.numeric(acc$subintervals)),
     "figures  results  levels values\n",
     paste0(figures_table, "\n"),

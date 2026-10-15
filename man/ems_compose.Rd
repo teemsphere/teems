@@ -66,7 +66,7 @@ extrapolations agree (0 to 6, \code{NA} when both are below
 \item \code{error}: the difference between the two extrapolations.
 \item \code{code}: the convergence code, best \code{"XMA"} to worst
 \code{"OD!"}; see GEMPACK manual 26.2.3.
-\item \code{summarised}: whether the element counts in the run's
+\item \code{summarized}: whether the element counts in the run's
 accuracy summary: \code{TRUE} for endogenous and backsolved
 results (of the \code{accuracy_vars} variables when those are
 given), \code{FALSE} for exogenous elements, whose values the
@@ -78,7 +78,7 @@ lowest over the subintervals and \code{code} the worst; \code{pass1}
 to \code{pass3} and \code{error} come from the last subinterval alone,
 each pass compounded onto the extrapolated result of the
 subintervals before it. The per-variable summary,
-\code{attr(output, "accuracy")}, has \code{elements}, \code{summarised},
+\code{attr(output, "accuracy")}, has \code{elements}, \code{summarized},
 \code{min_figures}, \code{min_levels_figures} (a zero result counts as
 6), \code{share_figures}, \code{share_levels_figures} (share at
 \code{accuracy_figures} or more, see \code{\link[=ems_option_set]{ems_option_set()}}),

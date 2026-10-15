@@ -320,7 +320,7 @@ build_solve_err <- function() {
     # test-ems_solve.R: "ems_solve errors when verbosity is invalid"
     verbosity_range = "{.arg verbosity} must be 0, 1, or 2.",
     # test-chk_solver_log.R: "a non-zero exit status aborts even with a clean log"
-    solver_exit = "The solver exited with status {status} without a recognised error in its log. See {.path {paths$diag_out}}.",
+    solver_exit = "The solver exited with status {status} without a recognized error in its log. See {.path {paths$diag_out}}.",
     # test-chk_solver_log.R: "an interrupted solve aborts by name and clears the solution files"
     solver_interrupted = c(
       "The solve was interrupted (solver exit status {status}); its partial solution files were removed.",

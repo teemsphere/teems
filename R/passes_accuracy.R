@@ -16,7 +16,7 @@
     row <- data.table::data.table(
       Variable = output$name[i],
       elements = nrow(d),
-      summarised = sum(d$summarised %in% TRUE),
+      summarized = sum(d$summarized %in% TRUE),
       min_figures = if (nrow(d) > 0L) min(fig) else NA_integer_,
       min_levels_figures = if (nrow(d) > 0L) min(d$levels_figures) else NA_integer_,
       share_figures = mean(fig >= figures),

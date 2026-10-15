@@ -97,7 +97,7 @@ build_layer_spec <- function() {
       # COMM-level ones as FlexAgg's aggpar_e.tab does: the energy node
       # is the private-consumption-weighted mean over the energy
       # commodities. The database's own TOPP headers (a plain mean in
-      # 12a, un-normalised in 11c) are dropped
+      # 12a, un-normalized in 11c) are dropped
       cde = list(
         dim = "TOPP",
         weight = c("VDPP", "VMPP"),

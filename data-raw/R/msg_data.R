@@ -104,7 +104,7 @@ build_data_err <- function(layer_spec) {
     # test-ems_data.R: "ems_data rejects more than one default par_weights method"
     par_weights_default = c(
       "{.arg par_weights} takes at most one unnamed method, the default for every weighted parameter; {.val {e_method}} were given.",
-      "Name the others after the parameters they apply to, e.g. {.code c(\"share\", ESBM = \"value\")}."
+      "Name the others after the parameters they apply to, e.g. {.code c(\"value\", ESBM = \"share\")}."
     ),
     # test-ems_data.R: "ems_data rejects a par_weights parameter the format does not weight"
     par_weights_header = c(

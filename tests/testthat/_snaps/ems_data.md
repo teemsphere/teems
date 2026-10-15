@@ -86,7 +86,7 @@
 # ems_data rejects more than one default par_weights method
 
     x `par_weights` takes at most one unnamed method, the default for every weighted parameter; "share" and "value" were given.
-    i Name the others after the parameters they apply to, e.g. `c("share", ESBM = "value")`.
+    i Name the others after the parameters they apply to, e.g. `c("value", ESBM = "share")`.
 
 # ems_data rejects a par_weights parameter the format does not weight
 

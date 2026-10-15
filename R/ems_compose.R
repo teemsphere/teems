@@ -49,7 +49,7 @@
 #'   * `error`: the difference between the two extrapolations.
 #'   * `code`: the convergence code, best `"XMA"` to worst
 #'   `"OD!"`; see GEMPACK manual 26.2.3.
-#'   * `summarised`: whether the element counts in the run's
+#'   * `summarized`: whether the element counts in the run's
 #'     accuracy summary: `TRUE` for endogenous and backsolved
 #'     results (of the `accuracy_vars` variables when those are
 #'     given), `FALSE` for exogenous elements, whose values the
@@ -60,7 +60,7 @@
 #'   to `pass3` and `error` come from the last subinterval alone,
 #'   each pass compounded onto the extrapolated result of the
 #'   subintervals before it. The per-variable summary,
-#'   `attr(output, "accuracy")`, has `elements`, `summarised`,
+#'   `attr(output, "accuracy")`, has `elements`, `summarized`,
 #'   `min_figures`, `min_levels_figures` (a zero result counts as
 #'   6), `share_figures`, `share_levels_figures` (share at
 #'   `accuracy_figures` or more, see [`ems_option_set()`]),

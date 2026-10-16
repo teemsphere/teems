@@ -26,11 +26,11 @@ dir <- list.dirs(
 # ORANI-G stays in teems-models but is not shipped for ems_example()
 dir <- dir[!basename(dir) %in% c(".git", "ORANI-G")]
 file.copy(dir, "./inst/models/", overwrite = TRUE, recursive = TRUE)
-# the .tab files are shipped gzipped (R reads them transparently; ems_example
-# writes them out plain), which keeps the installed package under CRAN's 5 MB
+# the .tab files are shipped gzipped byte for byte (CRLF line endings included;
+# ems_example writes them out plain), which keeps the installed package under CRAN's 5 MB
 for (tab in list.files("./inst/models", "\\.tab$", recursive = TRUE, full.names = TRUE)) {
   con <- gzfile(paste0(tab, ".gz"), "wb", compression = 9)
-  writeLines(readLines(tab), con)
+  writeBin(readBin(tab, "raw", n = file.size(tab)), con)
   close(con)
   unlink(tab)
 }

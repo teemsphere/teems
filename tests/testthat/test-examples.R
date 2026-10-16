@@ -139,6 +139,7 @@ test_that("ems_example examples run", {
       expect_gt(length(out), 0L)
       dat <- expected_dat[[n_scripts]]
       if (!is.na(dat)) {
+        dat <- normalizePath(dat, "/", FALSE)
         script <- readLines(out[[1]])
         expect_true(any(grepl(dat, script, fixed = TRUE)))
       }

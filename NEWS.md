@@ -6,7 +6,7 @@
 * `ems_model(var_omit = )` is removed; in-TAB `Omit` statements are ignored with a message
 * GTAP-INT is removed; GTAP-RE is replaced by version 2 on the GTAPv7.1 core
 * Element names are case-insensitive on input and lowercase in all outputs
-* teems checks the solver image version and aborts on a major-version mismatch or an image below 1.1.0 (`ems_option_set(version_check = )`)
+* teems checks the solver image version before solving and aborts on a missing version, a major-version mismatch or an image below 1.1.0
 
 ## New functions
 * `ems_probe()`: structural probe of a deployed model; recommends a matrix method and resources and gives a condensation verdict
@@ -15,10 +15,11 @@
 * `ems_calculate()`: runs a TAB's formulas without a simulation (e.g., data file)
 
 ## New models and data handling
-* Vetted models: GTAPv7.1 (updated from GTAPv7.0), GTAP-AEZ, GTAP-E, GTAP-EP (GTAP-Power), ORANI-G
+* Vetted models: GTAPv7.1 (updated from GTAPv7.0), GTAP-AEZ, GTAP-E, GTAP-EP (GTAP-Power)
 * `ems_data()` loads a single-HAR database (`par_input`/`set_input` optional)
-* `ems_data(par_weights = )`: `"share"` (default) or `"value"` (the FlexAgg rule) weights for parameter aggregation, overridable per parameter
+* `ems_data(par_weights = )`: `"value"` (default, the FlexAgg rule) or `"share"` weights for parameter aggregation, overridable per parameter
 * Closure swaps were applied ins-before-outs, rejecting valid sequences; two swaps in on one tuple wrote duplicate closure entries
+* `ems_scenario_shock(partial = TRUE)`: a scenario may cover only some of the aggregated tuples; the uncovered ones keep a zero change, and an aggregated tuple covered in part stops the deployment by name
 
 ## Solving
 * `solution_method` gains `"Euler"` and the Runge-Kutta family; Euler and Gragg accept a single step count (no extrapolation), and Gragg accepts all-odd counts
@@ -35,7 +36,7 @@
 ## Bug fixes affecting results
 * `ems_uniform_shock()` on a one-index variable restricted to an element or subset shocked the wrong elements (element 0 / the first n elements of the full set) (solver 1.1.0)
 * DPSM (all GTAP models) was summed over aggregated regions, so an aggregated region held the number of subsumed original GTAP regions instead of 1
-* GTAPv7: the scalar `pxwwld` was dropped from `E_c1_cr`, `E_cnttotr` and `E_cntpinv` because the solver did not recognise a variable followed by a closing bracket (solver 1.1.0)
+* GTAPv7: the scalar `pxwwld` was dropped from `E_c1_cr`, `E_cnttotr` and `E_cntpinv` because the solver did not recognize a variable followed by a closing bracket (solver 1.1.0)
 * DBBD solves left residuals that multi-step runs accumulated; every DBBD solve now takes one refinement step (solver 1.1.0)
 * Data rounding used fixed decimals, writing small values (below 5e-7) as 0; values now keep `ndigits` significant digits
 * Whole-valued Real data at or above 2^31 was written as empty fields
@@ -50,7 +51,7 @@
 * On Linux the solver container runs as the calling user (previously failed for users other than uid 1000)
 * Deploy paths containing spaces work
 * A deploy directory accepts one solve at a time
-* The Docker image tag is chosen from the host CPU
+* Ctrl-C stops a running solve: the solver container is removed and the run is reported as interrupted (previously the solve ran on and was reported as a failure)
 
 # teems 0.1.1
 * `ems_example()` example typo fixed

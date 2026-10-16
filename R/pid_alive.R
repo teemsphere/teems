@@ -12,6 +12,8 @@
       error = \(e) character()
     )
     alive <- any(grepl(paste0("\\b", pid, "\\b"), out))
+  } else if (sysname %=% "Linux" && dir.exists("/proc")) {
+    alive <- dir.exists(file.path("/proc", pid))
   } else {
     status <- tryCatch(
       suppressWarnings(system2("ps", c("-p", pid), stdout = FALSE, stderr = FALSE)),

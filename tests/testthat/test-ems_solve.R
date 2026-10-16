@@ -307,12 +307,12 @@ test_that("accuracy_vars selects the variables of the accuracy summary", {
 
   ems_solve(cmf_path, steps = c(2L, 4L, 6L), accuracy_vars = c("qgdp", "aoall"), suppress_outputs = TRUE)
   record <- readLines(file.path(dirname(cmf_path), "model_diagnostics.txt"))
-  n_sel <- sub("^Results summarised: ([0-9]+) .*", "\\1", grep("^Results summarised:", record, value = TRUE))
-  expect_true(any(grepl("^Results summarised: [0-9]+ \\(variables qgdp, aoall\\)$", record)))
+  n_sel <- sub("^Results summarized: ([0-9]+) .*", "\\1", grep("^Results summarized:", record, value = TRUE))
+  expect_true(any(grepl("^Results summarized: [0-9]+ \\(variables qgdp, aoall\\)$", record)))
   out <- ems_compose(cmf_path, c("qgdp", "aoall", "qo"), passes = TRUE)
-  expect_true(all(out$dat$qgdp$summarised))
-  expect_true(all(out$dat$aoall$summarised))
-  expect_false(any(out$dat$qo$summarised))
+  expect_true(all(out$dat$qgdp$summarized))
+  expect_true(all(out$dat$aoall$summarized))
+  expect_false(any(out$dat$qo$summarized))
   expect_identical(as.integer(n_sel), nrow(out$dat$qgdp) + nrow(out$dat$aoall))
 
   expect_error(

@@ -27,7 +27,7 @@
   linear <- as.numeric(acc$linear$figures)
   levels <- as.numeric(acc$levels$figures)
   judged_zero <- as.numeric(acc$linear$judged_zero)
-  summarized <- as.numeric(acc$summarized)
+  summarized <- as.numeric(acc$summarised)
   data_acc <- acc$data
   has_data <- isTRUE(as.numeric(data_acc$all$values) > 0)
 

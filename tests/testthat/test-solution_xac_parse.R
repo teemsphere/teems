@@ -44,7 +44,7 @@ test_that("pass solutions and accuracy columns are read for every variable in .b
   xac <- .parse_solution_xac(prefix, vars)
   expect_identical(
     names(xac),
-    c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarised")
+    c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarized")
   )
   expect_identical(xac$pass1, xac_passes[, 1])
   expect_identical(xac$pass3, xac_passes[, 3])
@@ -52,7 +52,7 @@ test_that("pass solutions and accuracy columns are read for every variable in .b
   expect_identical(xac$figures, c(6L, 5L, NA, 3L, 0L))
   expect_identical(xac$levels_figures, xac_levels)
   expect_identical(xac$code, c("XMA", "CX", "C0", NA, "OD!"))
-  expect_identical(xac$summarised, c(TRUE, TRUE, TRUE, FALSE, TRUE))
+  expect_identical(xac$summarized, c(TRUE, TRUE, TRUE, FALSE, TRUE))
 })
 
 test_that("a version 1 pass file from an older solver is still read", {

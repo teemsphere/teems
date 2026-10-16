@@ -204,7 +204,7 @@ test_that("a summary of selected variables says so in the warning and the run su
     "of results of the selected variables \\(their levels values\\) accurate"
   )
   record <- readLines(file.path(run_dir, "model_diagnostics.txt"))
-  expect_true(any(grepl("^Results summarised: 18 \\(variables qgdp, aoall\\)$", record)))
+  expect_true(any(grepl("^Results summarized: 18 \\(variables qgdp, aoall\\)$", record)))
 })
 
 test_that("the least accurate results follow a low-accuracy warning", {

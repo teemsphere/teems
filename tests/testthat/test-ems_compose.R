@@ -228,11 +228,11 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
   w <- vapply(1:3, \(i) prod(x[-i] / (x[-i] - x[i])), numeric(1))
   for (nm in c("qgdp", "qfd")) {
     d <- out$dat[[nm]]
-    expect_true(all(c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarised") %in% names(d)), label = nm)
+    expect_true(all(c("pass1", "pass2", "pass3", "error", "figures", "levels_figures", "code", "summarized") %in% names(d)), label = nm)
     expect_true(all(d$code %in% c("XMA", "XRA", "C0", "FC0", "CX", "FCX", "MVC", "MN0", "OVC", "ON0", "MC?", "OC?", "MD?", "OD?", "MD!", "OD!")), label = nm)
     expect_true(all(d$figures %in% c(0:6, NA)), label = nm)
     expect_true(all(d$levels_figures >= d$figures | is.na(d$figures)), label = nm)
-    expect_true(all(d$summarised), label = nm)
+    expect_true(all(d$summarized), label = nm)
     expect_true(all(d$error >= 0), label = nm)
     expect_true(any(d$pass1 != d$Value), label = nm)
     extrapolated <- w[1] * d$pass1 + w[2] * d$pass2 + w[3] * d$pass3
@@ -240,7 +240,7 @@ test_that("passes = TRUE adds the three separate solutions, which extrapolate to
   }
   acc <- attr(out, "accuracy")
   expect_setequal(acc$Variable, c("qgdp", "qfd"))
-  expect_true(all(c("elements", "summarised", "min_figures", "min_levels_figures", "share_figures",
+  expect_true(all(c("elements", "summarized", "min_figures", "min_levels_figures", "share_figures",
     "share_levels_figures", "worst_code", "max_error") %in% names(acc)))
   qfd <- out$dat[[match("qfd", out$name)]]
   row <- acc[acc$Variable == "qfd", ]

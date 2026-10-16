@@ -49,15 +49,15 @@
 #'   and scripts to file. [`ems_deploy()`] for loading the output
 #'   of this function as well as conducting closure swaps.
 #' @examples
-#' # Simple static model without condensation retrieval and load
+#' # Retrieve the static and the intertemporal example models
 #' GTAPv7 <- ems_example("GTAPv7", tempdir())
+#' GTAP_RE <- ems_example("GTAP-RE", tempdir())
+#' \donttest{
+#' # Simple static model without condensation
 #' ems_model(GTAPv7[["model_file"]],
 #'           GTAPv7[["closure_file"]],
 #'           ignore_condense = TRUE)
 #'
-#' # Retrieve intertemporal model
-#' GTAP_RE <- ems_example("GTAP-RE", tempdir())
-#' \donttest{
 #' # Construct data frame
 #' sectors <- c("crops", "food", "livestock", "mnfcs", "svces")
 #' regions <- c("usa", "chn", "row")

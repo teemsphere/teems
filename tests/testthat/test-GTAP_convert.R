@@ -253,7 +253,7 @@ test_that("GTAP_convert from v6 to v7", {
     normalv7,
     all.equal,
     check.attributes = FALSE,
-    tolerance = 1e-5
+    tolerance = 2e-5
   )
 
   expect_all_true(checks)

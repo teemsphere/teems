@@ -69,8 +69,6 @@
     laDi = v$laDi,
     extra_flags = paste(c(.extra_cli_flags(v), extra_flags), collapse = " ")
   )
-  .clear_solution_files(run_dir = paths$run)
-
   if (isFALSE(cmds)) {
     .solve_lock_release(lock_path)
     return(invisible(NULL))

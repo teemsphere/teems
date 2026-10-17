@@ -141,7 +141,7 @@
       ems_solve(cmf_path, terminal_run = TRUE)
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_info_terminal,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; rm -f /opt/teems/out/variables/bin/sol{.bin,.est,.acc,.var,.sel,.set,.mds,.cof,.cbin,.stats.json,.cbin0,.xac,.cols,.cols.json,.jac,.jac.json,.outputs.json,.outputs.json.tmp,.probe.json,.probe.pattern} /opt/teems/out/{sets,coefficients}/*.csv; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 0 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill
@@ -173,7 +173,7 @@
       i Condensation pays under "LU"; deploy without `backsolve` for bordered runs.
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -refine 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_advice,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; rm -f /opt/teems/out/variables/bin/sol{.bin,.est,.acc,.var,.sel,.set,.mds,.cof,.cbin,.stats.json,.cbin0,.xac,.cols,.cols.json,.jac,.jac.json,.outputs.json,.outputs.json.tmp,.probe.json,.probe.pattern} /opt/teems/out/{sets,coefficients}/*.csv; /opt/teems-solver/lib/mpi/bin/mpiexec -n 2 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAPv7.cmf -matsol 2 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -refine 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill
@@ -198,7 +198,7 @@
       i The memory estimate does not cover condensed "SBBD" runs: measured peaks reach several times the estimate, so the memory fit check cannot be relied on for this run.
     Message
       i `terminal_run` activated. To solve and compose outputs:
-      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
+      docker run --rm --pull never --init -e TINI_KILL_PROCESS_GROUP=1 --name teems_ID --mount type=bind,src=<cache>/solve/solve_condense_inter,dst=/opt/teems teems:TAG /bin/bash -c "set -o pipefail; rm -f /opt/teems/out/variables/bin/sol{.bin,.est,.acc,.var,.sel,.set,.mds,.cof,.cbin,.stats.json,.cbin0,.xac,.cols,.cols.json,.jac,.jac.json,.outputs.json,.outputs.json.tmp,.probe.json,.probe.pattern} /opt/teems/out/{sets,coefficients}/*.csv; /opt/teems-solver/lib/mpi/bin/mpiexec -n 1 /opt/teems-solver/solver/teems-solver -cmdfile /opt/teems/GTAP-RE.cmf -matsol 1 -step1 2 -step2 4 -step3 6   -nsubints 1 -solmed Gragg -laA 300 -laDi 500 -laD 200 -verbosity 1 -maxthreads 1 -nox -assertions 2 -range_test_initial 2 -range_test_updated 1 -tempdir /tmp 2>&1 | tee /opt/teems/out/solver_out_HHMM.txt"
       
       1. Run the above command in your OS terminal.
       2. To stop the run early, press Ctrl-C in that terminal, or run `docker kill

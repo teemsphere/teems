@@ -2,8 +2,8 @@
 #' @noRd
 .probe_paths <- function(paths) {
   probe_dir <- file.path(paths$run, "out", "probe")
-  unlink(probe_dir, recursive = TRUE)
-  dir.create(probe_dir, recursive = TRUE)
+  unlink(list.files(probe_dir, all.files = TRUE, no.. = TRUE, full.names = TRUE), recursive = TRUE)
+  dir.create(probe_dir, recursive = TRUE, showWarnings = FALSE)
   docker_probe_dir <- file.path(paths$docker_run, "out", "probe")
   soldata <- sprintf('soldata "SolFiles" "%s";', file.path(docker_probe_dir, "sol"))
   cmf <- readLines(paths$cmf)

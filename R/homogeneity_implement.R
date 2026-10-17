@@ -109,8 +109,8 @@
 .homogeneity_workspace <- function(cmf_path) {
   run_dir <- dirname(cmf_path)
   work <- file.path(run_dir, "out", "homogeneity")
-  unlink(work, recursive = TRUE)
-  dir.create(work, recursive = TRUE)
+  unlink(list.files(work, all.files = TRUE, no.. = TRUE, full.names = TRUE), recursive = TRUE)
+  dir.create(work, recursive = TRUE, showWarnings = FALSE)
   files <- list.files(run_dir, full.names = TRUE)
   files <- files[!dir.exists(files) & !startsWith(basename(files), "_temp_")]
   file.copy(files, work)

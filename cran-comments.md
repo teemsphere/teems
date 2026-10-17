@@ -8,4 +8,4 @@ All tests here (except revdep) have been conducted (https://github.com/ThinkR-op
 
 ## Solver
 
-The solver runs in a locally built Docker image (teems-solver 1.1.0, built from the user's own HSL license), so tests and examples that solve a model skip on CRAN. They are run before each release on Linux and Windows machines with the image installed.
+The solver runs in a locally built Docker image (teems-solver 1.1.0, built from the user's own HSL license), so tests and examples that solve a model skip on CRAN. They are run before each release on Linux, Windows and macOS machines with the image installed.

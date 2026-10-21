@@ -140,9 +140,13 @@ precision is recorded in \code{sol.stats.json} and the model
 diagnostics solve record.}
 
 \item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
-Solver log detail: \code{0} restricts output to errors, warnings,
-and the accuracy summary; \code{1} adds phase progress and
-timings; \code{2} adds per-rank and per-block debug detail.}
+Console detail while the solver runs: \code{0} shows errors,
+warnings and the accuracy figures; \code{1} adds phase progress
+and timings; \code{2} shows every solver line and adds per-rank
+and per-block debug detail. The full solver log, including
+the per-subinterval and updated-data accuracy summaries, the
+convergence codes and every Zerodivide warning, is always
+written to \code{model_diagnostics.txt} in the run directory.}
 
 \item{suppress_outputs}{Logical length 1 (default is \code{FALSE}).
 When \code{TRUE} solver outputs are not automatically converted

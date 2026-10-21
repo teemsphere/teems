@@ -77,23 +77,12 @@
   on.exit(if (!completed) .container_remove(timeID), add = TRUE, after = FALSE)
 
   status <- 0L
-  if (Sys.info()[["sysname"]] == "Windows") {
-    captured <- character(0)
-    elapsed_time <- system.time(
-      captured <- suppressWarnings(system(cmds$solve, intern = TRUE))
+  elapsed_time <- system.time(
+    status <- .relay_solver_cmd(cmds$solve,
+      verbosity = as.integer(v$verbosity),
+      timeID = timeID
     )
-    if (.o_verbose()) {
-      cat(captured, sep = "\n")
-    }
-    status <- attr(captured, "status") %|||% 0L
-  } else if (.o_verbose()) {
-    elapsed_time <- system.time(status <- system(cmds$solve))
-  } else {
-    elapsed_time <- system.time(status <- system(cmds$solve,
-      ignore.stdout = TRUE,
-      ignore.stderr = TRUE
-    ))
-  }
+  )
   completed <- TRUE
 
   .check_solver_log(

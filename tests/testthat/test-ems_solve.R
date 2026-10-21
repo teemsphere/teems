@@ -396,7 +396,9 @@ test_that("inmemory and verbosity reach the solver command", {
   )
   cmd <- readLines(file.path(run_dir, "model_exec.txt"), warn = FALSE)
   expect_match(paste(cmd, collapse = " "), "-inmemory 0", fixed = TRUE)
-  expect_match(paste(cmd, collapse = " "), "-verbosity 0", fixed = TRUE)
+  # verbosity 0 is a console filter; the solver always writes the
+  # level-1 log so model_diagnostics.txt carries the full record
+  expect_match(paste(cmd, collapse = " "), "-verbosity 1", fixed = TRUE)
 
   # defaults: inmemory is the solver's per-method choice and stays off
   # the command; verbosity has a literal default and is always recorded

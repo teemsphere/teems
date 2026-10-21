@@ -90,7 +90,7 @@
     "-laA", la$laA,
     "-laDi", la$laDi,
     "-laD", la$laD,
-    paste("-verbosity", as.integer(verbosity)),
+    paste("-verbosity", max(1L, as.integer(verbosity))),
     paste("-maxthreads", as.integer(n_threads)),
     "-nox"
   )

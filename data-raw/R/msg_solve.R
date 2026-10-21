@@ -481,6 +481,8 @@ build_solve_info <- function() {
     accuracy = "{.emph {accuracy}} of {covers} accurate to at least {figures} significant figures.",
     # test-inform_messages.R: "the least accurate results follow a low-accuracy warning"
     accuracy_least = "Least accurate: {least}. The full list and the convergence codes are in {.file model_diagnostics.txt}.",
+    # test-inform_messages.R: "Zerodivide substitutions are reported once, pointing at the diagnostics file"
+    zerodivide = "The Zerodivide default was substituted in {n_zdiv} statement{?s} (GEMPACK manual 10.11); each is listed in {.path {diagnostic_file}}.",
     # test-inform_messages.R: "the accuracy criterion picks the summary judged, and a run without updated data falls back to the solution"
     accuracy_covers = list(
       solution = "endogenous results (their levels values)",

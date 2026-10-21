@@ -10,7 +10,14 @@
 
   cat("\n", append = TRUE, file = diagnostic_file)
   cat("-- Solver log --\n\n", append = TRUE, file = diagnostic_file)
-  cat(paste(model_log, collapse = "\n"), "\n", append = TRUE, file = diagnostic_file)
+  cat(paste(.solver_log_format(model_log), collapse = "\n"), "\n", append = TRUE, file = diagnostic_file)
+
+  n_zdiv <- sum(grepl("took the Zerodivide default", model_log, fixed = TRUE))
+  if (n_zdiv > 0L) {
+    .cli_action(solve_info$zerodivide,
+      action = "inform"
+    )
+  }
 
   stats_path <- file.path(run_dir, "out", "variables", "bin", "sol.stats.json")
   stats <- if (file.exists(stats_path)) {

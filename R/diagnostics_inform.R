@@ -139,7 +139,7 @@
   if (length(codes) > 0L) {
     code_rows <- vapply(names(codes), \(nm) {
       lowest <- as.numeric(unlist(codes[[nm]]$lowest_figures))
-      lowest_txt <- if (length(lowest) == 0L || is.na(lowest[1])) "" else sprintf("%14.0f", lowest[1])
+      lowest_txt <- if (length(lowest) == 0L || is.na(lowest[1])) sprintf("%14s", "-") else sprintf("%14.0f", lowest[1])
       row <- sprintf("%-4s  %7.0f  %s", nm, as.numeric(codes[[nm]]$results), lowest_txt)
       return(trimws(row, which = "right"))
     }, character(1))

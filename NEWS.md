@@ -1,3 +1,10 @@
+# teems 1.0.1
+
+* `ems_solve()`: `verbosity` sets the console detail only; the full solver log always goes to `model_diagnostics.txt`. The default console shows the phase lines and the accuracy figures table; per-step timings, memory probes, convergence codes, the per-subinterval and updated-data accuracy summaries and the Zerodivide warnings stay in the log, and Zerodivide substitutions are reported once with a count
+* The run summary shows `-` for a convergence code without a lowest-figures value (judged-zero results), not an empty cell
+* Stale solution files are removed inside the solver container; on macOS (Docker Desktop) two runs into the same folder within about a second could fail with "cannot open sol.var"
+* Example scripts: the full uniform population shock object is `pop_shk` (it was misnamed `numeraire`)
+
 # teems 1.0.0
 
 ## Breaking changes

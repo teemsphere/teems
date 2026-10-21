@@ -1,10 +1,16 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+* checking CRAN incoming feasibility ... NOTE: Days since last update: 4. See "This update" below.
 
 ## General testing
 
 All tests here (except revdep) have been conducted (https://github.com/ThinkR-open/prepare-for-cran).
+
+## This update
+
+1.0.1 has been submitted shortly after 1.0.0 to fix a bug on macOS systems related to Docker: in 1.0.0, a second model run into the same folder within a second of the previous one fails with "cannot open sol.var". This error is hit when using very small models and running the solver in a loop.
 
 ## Solver
 

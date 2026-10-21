@@ -43,7 +43,7 @@ Docker-based solving --- all from R.
 install.packages("teems")
 ```
 
-teems 1.0.0 requires teems-solver 1.1.0 or later and checks the image's version before every solve. If you built the solver image for an earlier release, rebuild it (see "Updating an Existing Installation" in the [teems-solver](https://github.com/teemsphere/teems-solver) README) and restart R.
+teems 1.0.0 and later require teems-solver 1.1.0 or later and check the image's version before every solve. If you built the solver image for an earlier release, rebuild it (see "Updating an Existing Installation" in the [teems-solver](https://github.com/teemsphere/teems-solver) README) and restart R.
 
 If the installation fails citing a missing package, install that package first
 and retry.

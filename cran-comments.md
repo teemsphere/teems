@@ -10,7 +10,7 @@ All tests here (except revdep) have been conducted (https://github.com/ThinkR-op
 
 ## This update
 
-1.0.1 follows 1.0.0 (2026-10-17) after a short interval to fix a bug on macOS (Docker Desktop): in 1.0.0, a second model run into the same folder within a second of the previous one fails with "cannot open sol.var".
+1.0.1 has been submitted shortly after 1.0.0 to fix a bug on macOS systems related to Docker: in 1.0.0, a second model run into the same folder within a second of the previous one fails with "cannot open sol.var". This error is hit when using very small models and running the solver in a loop.
 
 ## Solver
 

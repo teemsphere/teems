@@ -80,7 +80,7 @@ test_that("a finished run reports its elapsed time and accuracy", {
   expect_true(any(grepl("^ +3 +2 +2$", record)))
   expect_true(any(grepl("^Required figures \\(XRA\\): 3$", record)))
   expect_true(any(grepl("^XMA +90 +6$", record)))
-  expect_true(any(grepl("^FC0 +2$", record)))
+  expect_true(any(grepl("^FC0 +2 +-$", record)))
   expect_true(any(grepl("^MD! +1 +0$", record)))
 })
 

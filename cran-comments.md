@@ -10,7 +10,7 @@ All tests here (except revdep) have been conducted (https://github.com/ThinkR-op
 
 ## This update
 
-1.0.1 follows 1.0.0 (2026-10-17) after a short interval: it fixes a failure on macOS (Docker Desktop), where a second model run into the same folder within about a second of the previous one could not open its solution files, and quiets the default console output of `ems_solve()` while keeping the full solver log on file. No API change.
+1.0.1 follows 1.0.0 (2026-10-17) after a short interval to fix a bug on macOS (Docker Desktop): in 1.0.0, a second model run into the same folder within a second of the previous one fails with "cannot open sol.var".
 
 ## Solver
 

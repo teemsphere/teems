@@ -17,7 +17,7 @@ model <- ems_model(
 )
 
 # define a uniform percentage change shock across all pop elements
-numeraire <- ems_uniform_shock(
+pop_shk <- ems_uniform_shock(
   var = "pop",
   value = 1
 )
@@ -26,7 +26,7 @@ numeraire <- ems_uniform_shock(
 cmf_path <- ems_deploy(
   .data = dat,
   model = model,
-  shock = numeraire
+  shock = pop_shk
 )
 
 # run the Docker-based solver and parse results

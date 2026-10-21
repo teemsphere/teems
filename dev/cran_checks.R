@@ -154,10 +154,10 @@ if (want_suite) {
   })
 } else cat("skip full test suite with the solver (run with --suite)\n")
 
-## 5. remote builders (opt-in; results arrive by e-mail / on GitHub) ------------------
+## 5. remote builders (opt-in; results by e-mail / mac-builder URL / on GitHub) ------
 if (want_remote) {
   step("win-builder R-devel and R-release submitted", { devtools::check_win_devel(pkg, quiet = TRUE); devtools::check_win_release(pkg, quiet = TRUE); "submitted, results by e-mail" })
-  step("mac-builder submitted", { devtools::check_mac_release(pkg, quiet = TRUE); "submitted, results by e-mail" })
+  step("mac-builder submitted", { u <- devtools::check_mac_release(pkg, quiet = TRUE); paste("results (no e-mail):", u) })
   step("R-hub (GitHub Actions) launched", { rhub::rhub_check(platforms = c("linux", "windows", "macos", "clang-asan", "gcc-asan")); "launched on GitHub Actions" })
 } else cat("skip remote builders (run with --remote): win-builder devel/release, mac-builder, R-hub linux/windows/macos/asan\n")
 cat("skip reverse dependencies: none on CRAN yet\n")

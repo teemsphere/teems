@@ -79,12 +79,35 @@ test_that("strong comment helper counts depth and keeps stray closes", {
 })
 
 test_that("PHILGEM nested block is fully commented out (A5)", {
-  philgem <- file.path(
-    "/home/mpc/src/teems/teems_tabs/potential_models/tabs",
-    "PHILGEM_tpec0109.tab"
+  # a corpus shape: a strong comment holding weak comments, statements
+  # and a nested strong comment whose close follows a statement on the
+  # same line
+  txt <- paste0(
+    "!**************************** End of PHILGEM  *********************************!\n",
+    "\n",
+    "![[!\n",
+    "!*********************** Beginning of Modification ****************************!\n",
+    "!Dynamic Extension!\n",
+    "!This year, capital grows by amount equal\n",
+    " to last year's investment!\n",
+    "Coefficient\n",
+    " (all,i,IND) CAPSTOK(i) #Current capstok measured in current prices#;\n",
+    "Read\n",
+    " CAPSTOK from file BASEDATA header \"STOK\";\n",
+    "Write\n",
+    " CAPSTOK to file SUMMARY header \"STOK\"; !for aggregation weights!\n",
+    "Update (change)(all,i,IND) GRETEXP(i) = delgretexp(i);\n",
+    "\n",
+    "![[! following alternative system calculates GRETEXP\n",
+    "! next part avoids error from raising negative number to a power !\n",
+    "Coefficient (all,i,IND) DENOM(i) # denominator in GRETEXP formula #;\n",
+    "Formula (all,i,IND) GRETEXP(i)=RNORMAL(i)*\n",
+    "([QRATIO(i)-1.0]/DENOM(i))^[1.0/ALPHA(i)]; !]]!\n",
+    "\n",
+    "Coefficient (all,i,IND) GROMAX(i);\n",
+    "!************************** End of Modification *******************************!\n",
+    "!]]! \n"
   )
-  skip_if_not(file.exists(philgem))
-  txt <- .tab_to_utf8(readChar(philgem, file.info(philgem)$size, useBytes = TRUE))
   out <- .strip_strong_comments(txt, call = NULL)
   expect_false(grepl("![[!", out, fixed = TRUE))
   expect_false(grepl("!]]!", out, fixed = TRUE))

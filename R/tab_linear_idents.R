@@ -18,6 +18,6 @@
     gregexpr("\"[^\"]*\"|[A-Za-z_][A-Za-z0-9_@]*", text, perl = TRUE)
   )[[1]]
   tokens <- tokens[!grepl("^\"", tokens)]
-  assign(text, tokens, envir = .expr_idents_cache)
+  .expr_idents_cache[[text]] <- tokens
   return(tokens)
 }

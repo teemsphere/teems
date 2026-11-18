@@ -41,6 +41,6 @@
       )
     }
   }
-  assign(image, solver_version, envir = .solver_version_cache)
+  .solver_version_cache[[image]] <- solver_version
   return(invisible(solver_version))
 }

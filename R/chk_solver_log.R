@@ -54,7 +54,7 @@
   err_lines <- err_lines[not_singular]
   mapped <- mapped[not_singular, , drop = FALSE]
   if (length(err_lines) > 0L) {
-    sel <- intersect(c("interface", "system", "method", "tab", "closure", "subtotal", "data", "numeric", "resource", "size"), mapped$class)
+    sel <- intersect(c("interface", "system", "method", "tab", "closure", "subtotal", "data", "numeric", "resource", "size", "budget"), mapped$class)
 
     n_err <- length(err_lines)
     preview <- utils::head(err_lines, 10L)
@@ -76,8 +76,15 @@
         data = "solver_data",
         numeric = "solver_numeric",
         resource = "solver_resource",
-        size = "solver_size"
+        size = "solver_size",
+        budget = "solver_step_budget"
       )
+      if (sel == "budget") {
+        budget_fact <- err_lines[mapped$class %in% "budget"][1]
+        budget_fact <- sub("\\. Either the budget.*$", ".", budget_fact)
+        budget_fact <- sub("^depleted step budget: ", "", budget_fact)
+        budget_fact <- sub(" (-stepbudget)", "", budget_fact, fixed = TRUE)
+      }
       msg <- solve_err[[msg_name]]
       action <- c("abort", rep("inform", length(msg) - 1L))
       if (sel %in% c("tab", "numeric") && length(manual_secs) == 0L) {

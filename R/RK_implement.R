@@ -21,6 +21,7 @@
       rk_scope = a$scope,
       rk_h0 = a$h_init,
       rk_guard = a$guard,
+      step_budget = a$step_budget,
       matrix_method = a$matrix_method,
       n_subintervals = a$n_subintervals,
       n_tasks = a$n_tasks,

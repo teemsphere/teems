@@ -43,7 +43,7 @@
 #'   `smllthreads`, `nowrites`, `condest`, `jacdump`,
 #'   `ma48_cntl2`, `ma48_cntl4`) and the Runge-Kutta run controls
 #'   (`rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`,
-#'   `rk_h0`, `rk_guard`) and the Runge-Kutta step controls
+#'   `rk_h0`, `rk_guard`, `step_budget`) and the Runge-Kutta step controls
 #'   (`adaptive`, `eps_tolerance`, `max_retries`, `retry_adjust`;
 #'   see [`ems_RK()`]). See the [`ems_solve()`] `...`
 #'   documentation for each argument's meaning.

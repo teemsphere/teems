@@ -66,6 +66,9 @@
     },
     if (!is.null(a$rk_guard)) {
       paste("-rkguard", format(a$rk_guard, digits = 15))
+    },
+    if (!is.null(a$step_budget)) {
+      paste("-stepbudget", format(a$step_budget, scientific = FALSE, trim = TRUE))
     }
   )
   if (is.null(flags)) {

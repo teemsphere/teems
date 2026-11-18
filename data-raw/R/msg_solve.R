@@ -150,7 +150,7 @@ build_solve_err <- function() {
       ({.arg adaptive}, {.arg eps_tolerance}, {.arg max_retries},
       {.arg retry_adjust}, {.arg rk_chart}, {.arg rk_norm},
       {.arg rk_controller}, {.arg rk_scope}, {.arg rk_h0},
-      {.arg rk_guard}; see
+      {.arg rk_guard}, {.arg step_budget}; see
       {.fun ems_RK}), the MA48 workspace initial guesses
       ({.arg laA}, {.arg laD}, {.arg laDi}) and the expert solver
       flags ({.arg postsim}, {.arg inmemory}, {.arg fastrefac},
@@ -176,7 +176,7 @@ build_solve_err <- function() {
       {.arg ma48_cntl2}, {.arg ma48_cntl4}), the Runge-Kutta run
       controls ({.arg rk_chart}, {.arg rk_norm},
       {.arg rk_controller}, {.arg rk_scope}, {.arg rk_h0},
-      {.arg rk_guard}) and the Runge-Kutta step controls
+      {.arg rk_guard}, {.arg step_budget}) and the Runge-Kutta step controls
       ({.arg adaptive}, {.arg eps_tolerance}, {.arg max_retries},
       {.arg retry_adjust})."
     ),
@@ -249,7 +249,16 @@ build_solve_err <- function() {
       "See GEMPACK manual section{?s} {.val {manual_secs}}.",
       "Full log: {.path {diag_out}}."
     ),
-    # test-chk_solver_log.R: "workspace exhaustion maps to the resource abort"
+    # test-chk_solver_log.R: "a depleted step budget maps to the step-budget abort"
+    # line 2 is the solver's own account up to the worst element, filled
+    # by .check_solver_log; the advice is restated in argument names
+    solver_step_budget = c(
+      "The adaptive run ended with a depleted step budget:",
+      "{budget_fact}",
+      "Either {.arg step_budget} is too low for this run or the solution does not exist beyond this point for this shock.",
+      "Solve the same shock with {.code solution_method = \"Gragg\"} in {.fun teems::ems_solve} to tell the two apart: if its results converge, raise {.arg step_budget} in {.fun teems::ems_RK}; if they are reported as oscillating or diverging, the solution breaks down near this point and a smaller shock is needed.",
+      "Full log: {.path {diag_out}}."
+    ),
     # a solver-side resource limit, not a fault in the model, closure or
     # data: the remedies are all about how the system is factorized
     solver_resource = c(

@@ -213,6 +213,20 @@ test_that("fatals added after the 10-05 audit map to their classes", {
   expect_identical(mapped$manual[4:12], c("11.9.1", "11.9.2", "11.9.2", "10.13.1", "11.9.6", "11.5.6", "16.4", "10.1", "10.1"))
 })
 
+test_that("a depleted step budget maps to the step-budget abort", {
+  paths <- local_solver_log(
+    "Error: depleted step budget: the adaptive DoPri54 run reached t = 0.55545 after 51 step attempts and needs about 1.22e+04 more at the recent step size, over the budget of 500 (-stepbudget); worst element qxs(ppp,syr,irq). Either the budget is too low for this run or the solution does not exist beyond this point for this shock. A Gragg run of the same shock (-solmed Gragg) tells the two apart: if its results converge, raise -stepbudget; if they are reported as oscillating or diverging, the solution breaks down near this point and a smaller shock is needed"
+  )
+  expect_error(check_log(paths), "depleted step budget")
+  msg <- conditionMessage(tryCatch(check_log(paths), error = identity))
+  expect_match(msg, "reached t = 0.55545 after 51 step attempts", fixed = TRUE)
+  expect_match(msg, "worst element qxs(ppp,syr,irq).", fixed = TRUE)
+  expect_match(msg, "step_budget", fixed = TRUE)
+  expect_match(msg, "solution_method = \"Gragg\"", fixed = TRUE)
+  expect_no_match(msg, "-stepbudget", fixed = TRUE)
+  expect_no_match(msg, "-solmed", fixed = TRUE)
+})
+
 test_that("a matrix method the model cannot take routes to the method abort", {
   paths <- local_solver_log(
     "Error: DBBD (-matsol 2) found no partition set and its chain blocks over ALLTIME hold only 10 of 100 equations (border 90.0%); use -matsol 1 (SBBD) or -matsol 0 (LU)"

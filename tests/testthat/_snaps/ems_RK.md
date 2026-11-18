@@ -14,5 +14,9 @@
 # unknown dot arguments abort
 
     x Unknown argument `bogus_argument` passed to `...`.
-    i `...` accepts the Runge-Kutta step controls (`adaptive`, `eps_tolerance`, `max_retries`, `retry_adjust`, `rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`, `rk_h0`, `rk_guard`; see `ems_RK()`), the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and the expert solver flags (`postsim`, `inmemory`, `fastrefac`, `nsbbdblocks`, `withmc66`, `smllthreads`, `nowrites`, `condest`, `jacdump`, `ma48_cntl2`, `ma48_cntl4`).
+    i `...` accepts the Runge-Kutta step controls (`adaptive`, `eps_tolerance`, `max_retries`, `retry_adjust`, `rk_chart`, `rk_norm`, `rk_controller`, `rk_scope`, `rk_h0`, `rk_guard`, `step_budget`; see `ems_RK()`), the MA48 workspace initial guesses (`laA`, `laD`, `laDi`) and the expert solver flags (`postsim`, `inmemory`, `fastrefac`, `nsbbdblocks`, `withmc66`, `smllthreads`, `nowrites`, `condest`, `jacdump`, `ma48_cntl2`, `ma48_cntl4`).
+
+# ems_RK sends the step budget only when it is set
+
+    x `step_budget` must be a positive integer-like numeric of length 1.
 

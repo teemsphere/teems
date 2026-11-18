@@ -152,6 +152,7 @@ test_that("ems_RK forwards the chart, norm, controller, initial step and guard",
   expect_match(cmd, "-rkscope pct", fixed = TRUE)
   expect_no_match(cmd, "-rk_h0", fixed = TRUE)
   expect_no_match(cmd, "-rkguard", fixed = TRUE)
+  expect_no_match(cmd, "-stepbudget", fixed = TRUE)
   suppressMessages(ems_RK(cmf,
     terminal_run = TRUE, chart = "percent", error_norm = "rms",
     controller = "pi", scope = "all", h_init = 0.25, guard = 1e6
@@ -167,6 +168,23 @@ test_that("ems_RK forwards the chart, norm, controller, initial step and guard",
   expect_error(ems_solve(cmf, solution_method = "DoPri54", steps = 4L, rk_h0 = 2))
   expect_error(ems_solve(cmf, solution_method = "DoPri54", steps = 4L, rk_guard = 0.5))
   expect_error(ems_solve(cmf, solution_method = "DoPri54", steps = 4L, rk_norm = "l1"))
+})
+
+test_that("ems_RK sends the step budget only when it is set", {
+  d <- local_run_dir()
+  cmf <- mk_cmf(d)
+  suppressMessages(ems_RK(cmf, terminal_run = TRUE, step_budget = 200000))
+  cmd <- exec_cmd(d)
+  expect_match(cmd, "-stepbudget 200000", fixed = TRUE)
+  suppressMessages(ems_solve(cmf,
+    solution_method = "DoPri54", steps = 4L, terminal_run = TRUE,
+    step_budget = 300L
+  ))
+  cmd <- exec_cmd(d)
+  expect_match(cmd, "-stepbudget 300", fixed = TRUE)
+  expect_snapshot_error(ems_RK(cmf, step_budget = 0))
+  expect_error(ems_RK(cmf, step_budget = 2.5))
+  expect_error(ems_RK(cmf, step_budget = c(10, 20)))
 })
 
 test_that("Heun is accepted as a fixed-step Runge-Kutta flavor", {

@@ -223,7 +223,7 @@ input files: the MA48 workspace initial guesses (\code{laA},
 \code{smllthreads}, \code{nowrites}, \code{condest}, \code{jacdump},
 \code{ma48_cntl2}, \code{ma48_cntl4}) and the Runge-Kutta run controls
 (\code{rk_chart}, \code{rk_norm}, \code{rk_controller}, \code{rk_scope},
-\code{rk_h0}, \code{rk_guard}) and the Runge-Kutta step controls
+\code{rk_h0}, \code{rk_guard}, \code{step_budget}) and the Runge-Kutta step controls
 (\code{adaptive}, \code{eps_tolerance}, \code{max_retries}, \code{retry_adjust};
 see \code{\link[=ems_RK]{ems_RK()}}). See the \code{\link[=ems_solve]{ems_solve()}} \code{...}
 documentation for each argument's meaning.}

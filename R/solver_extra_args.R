@@ -21,7 +21,8 @@
     rk_controller = NULL,
     rk_scope = NULL,
     rk_h0 = NULL,
-    rk_guard = NULL
+    rk_guard = NULL,
+    step_budget = NULL
   )
   return(defaults)
 }

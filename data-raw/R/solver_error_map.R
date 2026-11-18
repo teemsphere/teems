@@ -97,6 +97,9 @@ build_solver_error_map <- function() {
     # MA48 rank deficiency (hsl_kernels.f90 teems_ma48_fail): handled by
     # the singular abort in .check_solver_log, not by a class message
     c("the system matrix is (structurally|numerically) singular", "singular", NA),
+    # an adaptive run that used up its step budget (solve_rk.c): its
+    # own message, since the remedy depends on a second run
+    c("^depleted step budget", "budget", NA),
     # runtime numeric evaluation
     c("linear solve gave a value that is not finite", "numeric", "34.1"),
     c("not finite", "numeric", "34.3"),

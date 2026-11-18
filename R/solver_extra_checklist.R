@@ -21,7 +21,8 @@
     rk_controller = c("NULL", "character"),
     rk_scope = c("NULL", "character"),
     rk_h0 = c("NULL", "numeric", "integer"),
-    rk_guard = c("NULL", "numeric", "integer")
+    rk_guard = c("NULL", "numeric", "integer"),
+    step_budget = c("NULL", "numeric", "integer")
   )
   return(checklist)
 }

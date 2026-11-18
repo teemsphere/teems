@@ -28,6 +28,7 @@ ems_RK(
   scope = c("pct", "all"),
   h_init = NULL,
   guard = NULL,
+  step_budget = NULL,
   ...
 )
 }
@@ -200,6 +201,15 @@ initial gradient.}
 \item{guard}{Numeric length 1 greater than 1 (default \code{NULL},
 no guard), \code{chart = "log"} only: the level ratio beyond
 which a stage is rejected and the step retried.}
+
+\item{step_budget}{Integer length 1, at least 1 (default
+\code{NULL}, the solver's own budget of 500), adaptive runs
+only. The run aborts once the step attempts already made
+plus the steps still needed at the recent step length
+exceed it. This is not a count of accepted steps: a run
+whose steps have become too short to finish is stopped long
+before it has made that many attempts. Raise it for a run
+that is known to need a long sequence of short steps.}
 
 \item{...}{Named extras, as \code{...} of \code{\link[=ems_solve]{ems_solve()}}: the MA48
 workspace guesses (\code{laA}, \code{laD}, \code{laDi}) and the expert

@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @noRd
 .validate_solver_extras <- function(a, call) {
-  for (nme in c("laA", "laD", "laDi", "nsbbdblocks", "smllthreads")) {
+  for (nme in c("laA", "laD", "laDi", "nsbbdblocks", "smllthreads", "step_budget")) {
     x <- a[[nme]]
     if (!is.null(x) &&
       (!rlang::is_integerish(x) || length(x) != 1L || is.na(x) || x < 1)) {

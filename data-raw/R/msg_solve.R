@@ -63,8 +63,15 @@ build_solve_err <- function() {
     # test-auto_method.R: "the memory fit check refuses a run past the error band"
     wont_fit = c(
       "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} exceeds the container's {mem_gb} GB.",
-      "The estimate is {kb_per_eq} kB per equation over {plain_size} plain-equivalent equations (measured 2026-09 on whole containers; conservative by up to a quarter), so the run would be killed by the memory limit, not fail cleanly.",
-      "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+      "The estimate is {kb_per_eq} kB per equation over {plain_size} plain-equivalent equations (measured 2026-09 on whole containers; conservative by up to a quarter), so the run would be killed by the memory limit, not fail cleanly."
+    ),
+    # test-auto_method.R: "the memory fit check targets its remedies by model type"
+    # the last line of wont_fit and of the memory_tight warning, picked
+    # by .memory_fit_check: a static model has no time chain to split
+    # and an intertemporal one has no use for fewer DBBD tasks
+    fit_remedies = list(
+      static = "Remedies for a static model: a coarser aggregation, fewer tasks under {.val DBBD}, a higher Docker Desktop memory limit, or a larger host.",
+      intertemporal = "Remedies for an intertemporal model: fewer time steps, a coarser aggregation, {.val NDBBD} at one task, a higher Docker Desktop memory limit, or a larger host."
     ),
     # test-solve_in_situ.R: "solve_in_situ errors when no input files are given"
     # test-ems_calculate.R: "ems_calculate requires its input files"
@@ -372,8 +379,7 @@ build_solve_wrn <- function() {
     ),
     # test-auto_method.R: "the memory fit check refuses a run past the error band and warns inside it"
     memory_tight = c(
-      "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit.",
-      "Remedies: a coarser aggregation, condensation ({.arg backsolve} in {.fun teems::ems_model}), a higher Docker Desktop memory limit, fewer tasks under {.val DBBD}, {.val NDBBD} at one task for an intertemporal model, or a larger host."
+      "Estimated peak memory {est_gb} GB for {.val {method}} at {n_tasks} task{?s} is {share} of the container's {mem_gb} GB; the run may not fit."
     ),
     # test-ems_solve.R: "condensed deployments are warned against bordered methods (roadmap 6.2)"
     condense_bordered = c(

@@ -284,6 +284,23 @@ test_that("the memory fit check refuses a run past the error band and warns insi
   expect_identical(.memory_fit_check("DBBD", 4L, 7.69e6)$verdict, "unknown")
 })
 
+test_that("the memory fit check targets its remedies by model type", {
+  box <- list(cores = 32L, mem_gb = 33.6)
+  expect_snapshot_error(
+    .memory_fit_check("SBBD", 8L, 111100277, host = box, enable_time = TRUE)
+  )
+  static <- conditionMessage(tryCatch(
+    .memory_fit_check("DBBD", 4L, 7.69e6, host = list(cores = 8L, mem_gb = 12), refine = FALSE),
+    error = identity
+  ))
+  expect_match(static, "Remedies for a static model", fixed = TRUE)
+  expect_no_match(static, "NDBBD", fixed = TRUE)
+  expect_warning(
+    .memory_fit_check("SBBD", 8L, 6.1e7, host = box, enable_time = TRUE),
+    "Remedies for an intertemporal model"
+  )
+})
+
 test_that("evidence and record lines render every input", {
   d <- .auto_decide(FALSE, 2L, 2.5e6, structure = static_stats)
   expect_match(.auto_evidence(d), "^2,500,000 equations, no time chain, partition reg \\(3 blocks, border 6.4% of the system by equations\\), assessed at 2 tasks$")

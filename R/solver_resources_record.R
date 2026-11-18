@@ -39,7 +39,8 @@
     host = host,
     th = th,
     call = call,
-    refine = isTRUE(refine$on)
+    refine = isTRUE(refine$on),
+    enable_time = isTRUE(a$enable_time)
   )
   a$resources_record <- resources_record
   if (!is.null(metadata)) {

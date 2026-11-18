@@ -15,7 +15,8 @@
                               th = .auto_thresholds(),
                               call = NULL,
                               report_only = FALSE,
-                              refine = isTRUE(.o_refine())) {
+                              refine = isTRUE(.o_refine()),
+                              enable_time = FALSE) {
   est_gb <- .auto_memory_gb(method, n_tasks, plain_size, condensed, th, refine = refine)
   limit <- host$mem_gb %|||% NA_real_
   rec <- list(
@@ -32,6 +33,11 @@
     return(rec)
   }
   rec$share <- est_gb / limit
+  remedies <- if (isTRUE(enable_time)) {
+    solve_err$fit_remedies$intertemporal
+  } else {
+    solve_err$fit_remedies$static
+  }
   if (rec$share > th$mem_abort_ratio) {
     rec$verdict <- "exceeds"
     if (isTRUE(report_only)) {
@@ -41,7 +47,7 @@
     mem_gb <- .memory_fit_gb(limit)
     kb_per_eq <- format(round(1e6 * rec$est_gb / plain_size, 2), nsmall = 2, trim = TRUE)
     plain_size <- format(round(plain_size), big.mark = ",", scientific = FALSE, trim = TRUE)
-    .cli_action(solve_err$wont_fit,
+    .cli_action(c(solve_err$wont_fit, remedies),
       action = c("abort", "inform", "inform"),
       call = call
     )
@@ -54,7 +60,7 @@
     est_gb <- .memory_fit_gb(est_gb)
     mem_gb <- .memory_fit_gb(limit)
     share <- paste0(round(100 * rec$share), "%")
-    .cli_action(solve_wrn$memory_tight,
+    .cli_action(c(solve_wrn$memory_tight, remedies),
       action = c("warn", "inform"),
       call = call
     )

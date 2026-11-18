@@ -399,6 +399,16 @@ build_solve_info <- function() {
     coefficients as they are read and/or calculated in the model file.
     Any significant deviation under these conditions would indicate an error
     in the loading of input files or parsing of model outputs.",
+    # test-solver_release_notice.R: "a newer release of the same major version points to the rebuild"
+    solver_release_newer = c(
+      "teems-solver {latest} is available at {.url {release_url}}; the {.val {image}} image carries {installed}.",
+      "Rebuild the image from the current teems-solver repository: {.code git pull}, then the expedited {.code docker build --pull} with your libHSL tarball ({.url {rebuild_url}}). Then restart R."
+    ),
+    # test-solver_release_notice.R: "a newer release of the next major version asks for the package first"
+    solver_release_major = c(
+      "teems-solver {latest} is available at {.url {release_url}}; the {.val {image}} image carries {installed}.",
+      "That release is a {latest_major}.x interface and this teems version drives {pkg_major}.x: update the teems package first, then rebuild the image ({.url {rebuild_url}})."
+    ),
     # test-ems_solve.R: "matrix_method has no auto: the run is what is given, and the record says what ran"
     # test-solver_switches.R: "switches reach the solver and the run records them (e2e)"
     # test-chk_solver_log.R: "the solve record names the BLAS kernel family the run dispatched"

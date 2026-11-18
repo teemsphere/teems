@@ -39,8 +39,13 @@
     )
   }
 
-  .check_solver_version(
+  solver_version <- .check_solver_version(
     image = image,
+    call = call
+  )
+  .solver_release_notice(
+    image = image,
+    installed = solver_version,
     call = call
   )
 

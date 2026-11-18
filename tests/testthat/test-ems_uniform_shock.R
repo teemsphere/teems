@@ -206,6 +206,45 @@ test_that("uniform shock set, index and element names match case-insensitively",
   expect_identical(mixed, canon)
 })
 
+test_that("the shock file is named after the shocked variables, not their components", {
+  shf <- function(shk, name) {
+    nest_temp(name, write_dir)
+    cmf <- ems_deploy(dat, model, shock = shk)
+    list.files(dirname(cmf), pattern = "\\.shf$")
+  }
+  one <- shf(ems_uniform_shock("pop", 1, REGr = "row"), "uni_name_one")
+  four <- shf(list(
+    ems_uniform_shock("pop", 1, REGr = "row"),
+    ems_uniform_shock("pop", 1, REGr = "usa"),
+    ems_uniform_shock("pop", 1, REGr = "chn"),
+    ems_uniform_shock("afeall", 1, REGr = "row")
+  ), "uni_name_four")
+  expect_identical(one, "pop.shf")
+  expect_identical(four, "pop_afeall.shf")
+})
+
+test_that("a uniform shock over more than 255 components deploys", {
+  static_files <- ems_example("GTAPv7", write_dir)
+  static_dat <- ems_data(
+    dat_input = dat_input,
+    par_input = par_input,
+    set_input = set_input,
+    REG = "full",
+    ACTS = "macro_sector",
+    ENDW = "labor_agg"
+  )
+  static_model <- ems_model(static_files[["model_file"]], static_files[["closure_file"]])
+  comm <- unique(static_dat[["COMM"]][["mapping"]])
+  reg <- unique(static_dat[["REG"]][["mapping"]])
+  wide <- ems_uniform_shock("tms", 10, COMMc = comm, REGs = reg, REGd = "usa")
+  nest_temp("uni_name_wide", write_dir)
+  cmf <- ems_deploy(static_dat, static_model, wide)
+  shf <- list.files(dirname(cmf), pattern = "\\.shf$", full.names = TRUE)
+  expect_identical(basename(shf), "tms.shf")
+  expect_identical(length(grep("^Shock tms", readLines(shf))), length(comm) * length(reg))
+  expect_gt(length(comm) * length(reg), 255L)
+})
+
 unlink(write_dir, recursive = TRUE)
 test_that("a uniform shock value must be a single finite number", {
   expect_snapshot_error(ems_uniform_shock("pop", NA_real_))

@@ -28,21 +28,8 @@
   .chk_shk_repeat(shocks = shocks, tuples = tuples)
 
   final_shocks <- unlist(x = final_shocks, recursive = FALSE)
-  shock_names <- purrr::map_chr(.x = shocks, .f = "var")
-
-  if (length(x = final_shocks) < 4) {
-    shock_id <- paste(substring(
-      text = shock_names,
-      first = 1,
-      last = 2
-    ), collapse = "_")
-  } else {
-    shock_id <- paste(substring(
-      text = shock_names,
-      first = 1,
-      last = 1
-    ), collapse = "")
-  }
+  shock_names <- unique(x = purrr::map_chr(.x = shocks, .f = "var"))
+  shock_id <- strtrim(x = paste(shock_names, collapse = "_"), width = 60)
 
   file <- paste0(shock_id, ".shf")
   attr(final_shocks, "file") <- file

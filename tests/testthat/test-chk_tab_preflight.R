@@ -153,6 +153,35 @@ test_that("duplicate bounds abort", {
   )
 })
 
+test_that("a bound on a linear variable aborts", {
+  expect_preflight_error("Variable (ge 0) (all,r,REG) blin(r);")
+  expect_preflight_error(paste(
+    "Variable (default=levels);",
+    "Variable (default=linear);",
+    "Variable (change, LE 3.5) bscal;",
+    sep = "\n"
+  ))
+})
+
+test_that("a bound on a levels variable parses", {
+  model <- .process_tablo(
+    tab_file = mutate_tab(paste(
+      "Variable (levels, ge 0, le 5) BLA;",
+      "Formula (initial) BLA = 1;",
+      "Variable (levels, ge 0, linear_name=blbp) BLB;",
+      "Formula (initial) BLB = 1;",
+      "Variable (default=levels);",
+      "Variable (gt 0) BLC;",
+      "Formula (initial) BLC = 1;",
+      "Variable (default=linear);",
+      sep = "\n"
+    )),
+    quiet = TRUE,
+    call = NULL
+  )
+  expect_true(all(c("BLA", "BLB", "BLC") %in% model$name))
+})
+
 # Default statements (GEMPACK manual 10.19; solver tab_defaults_validate)
 
 test_that("invalid Default statements abort", {

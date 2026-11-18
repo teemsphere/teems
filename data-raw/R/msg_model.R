@@ -113,6 +113,14 @@ build_model_err <- function() {
       ({.code le}/{.code lt}) bound are allowed per declaration (GEMPACK
       manual 10.19.1)."
     ),
+    # test-chk_tab_preflight.R: "a bound on a linear variable aborts"
+    bound_linear_var = c(
+      "{cli::qty(bad_names)}Range qualifier on the linear variable{?s} {.val {bad_names}}.",
+      "A range qualifier ({.code ge}, {.code gt}, {.code le} or
+      {.code lt}) restricts a levels value, so it applies to
+      coefficients and levels variables only. Remove it or declare the
+      {cli::qty(bad_names)}variable{?s} {.code (levels)}."
+    ),
     # test-chk_tab_preflight.R: "invalid Default statements abort"
     default_bound = "Coefficient bound defaults are not supported
     (GEMPACK manual 10.19): {.val {bad_stmt}}",

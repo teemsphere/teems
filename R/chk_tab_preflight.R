@@ -3,6 +3,7 @@
 .check_tab_preflight <- function(model,
                                  call) {
   .chk_tab_names(model, call = call)
+  .chk_tab_var_bounds(model, call = call)
   .chk_tab_reads(model, call = call)
   .chk_tab_setbuilders(model, call = call)
   .chk_tab_postsim(model, call = call)

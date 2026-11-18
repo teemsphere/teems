@@ -55,6 +55,16 @@
     x Duplicate lower bound in declaration: "Coefficient (ge 0, ge 1) (all,r,REG) BNDP(r)"
     i One lower (`ge`/`gt`) and one upper (`le`/`lt`) bound are allowed per declaration (GEMPACK manual 10.19.1).
 
+# a bound on a linear variable aborts
+
+    x Range qualifier on the linear variable "blin".
+    i A range qualifier (`ge`, `gt`, `le` or `lt`) restricts a levels value, so it applies to coefficients and levels variables only. Remove it or declare the variable `(levels)`.
+
+---
+
+    x Range qualifier on the linear variable "bscal".
+    i A range qualifier (`ge`, `gt`, `le` or `lt`) restricts a levels value, so it applies to coefficients and levels variables only. Remove it or declare the variable `(levels)`.
+
 # invalid Default statements abort
 
     x Coefficient bound defaults are not supported (GEMPACK manual 10.19): "Coefficient (default=lower_bound ge 0)"

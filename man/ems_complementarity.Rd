@@ -38,7 +38,8 @@ change is caught by the post-run verification.}
 
 \item{do_acc_run}{Logical length 1 (default \code{NULL}, solver default
 \code{TRUE}). \code{FALSE} stops after the approximate run and keeps its
-(Euler-accurate) solution as the simulation result.}
+(Euler-accurate) solution as the simulation result. The run
+then takes one subinterval only (\code{n_subintervals = 1}).}
 
 \item{state_bound_error}{Character length 1, \code{"fatal"} or \code{"warn"}
 (default \code{NULL}, solver default \code{"fatal"}). Severity of the

@@ -131,6 +131,16 @@ build_solve_err <- function() {
       "{.arg n_subintervals} must be 1 when {.arg solution_method} is {.val {solution_method}}, except in a complementarity run with an accurate run.",
       "Elsewhere subintervals restart the integrator and only benefit the extrapolating methods; increase {.arg steps} (or use {.arg adaptive}) instead. In a complementarity run each subinterval re-predicts the states (an approximate and an accurate run), with {.arg steps} steps in each."
     ),
+    # test-val_solver_steps.R: "Johansen takes one subinterval"
+    johansen_subintervals = c(
+      "{.arg n_subintervals} must be 1 when {.arg solution_method} is {.val Johansen}.",
+      "Johansen is a single linear solve of the whole shock. For several updated steps use {.code solution_method = \"Euler\"} with one {.arg steps} count."
+    ),
+    # test-val_solver_steps.R: "a complementarity run without the accurate run takes one subinterval"
+    comp_acc_off_subintervals = c(
+      "{.arg n_subintervals} must be 1 when the complementarity accurate run is switched off ({.code do_acc_run = FALSE}).",
+      "Each subinterval pairs an approximate run with an accurate run; the approximate run on its own covers the whole shock in one pass. Raise {.arg steps_approx_run} in {.fun ems_complementarity} or keep the accurate run."
+    ),
     # test-ems_solve.R: "ems_solve errors on invalid Runge-Kutta arguments"
     epstol_range = "{.arg eps_tolerance} must be a positive numeric of length 1.",
     # test-ems_RK.R: "unknown dot arguments abort"

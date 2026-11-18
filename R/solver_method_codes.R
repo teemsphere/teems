@@ -23,7 +23,6 @@
     a$solmed <- a$solution_method
   } else {
     a$solmed <- "Johansen"
-    a$n_subintervals <- 1
   }
   return(a)
 }

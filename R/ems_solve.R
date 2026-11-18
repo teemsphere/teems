@@ -74,7 +74,8 @@
 #'   large shock magnitudes. In a model with active
 #'   complementarities each subinterval runs its own approximate
 #'   and accurate run; the Runge-Kutta methods take subintervals
-#'   only there.
+#'   only there. `"Johansen"`, a single linear solve, takes one
+#'   subinterval only.
 #' @param steps Integer (default is `NULL`, resolved per method:
 #'   `c(2L, 4L, 6L)` for the extrapolating methods, `4L` for the
 #'   Runge-Kutta methods). `"Gragg"`, `"Midpoint"`, `"Johansen"`

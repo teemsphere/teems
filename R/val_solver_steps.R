@@ -56,6 +56,23 @@
         call = call
       )
     }
+    if (a$n_subintervals != 1) {
+      if (a$solution_method %=% "Johansen") {
+        .cli_action(solve_err$johansen_subintervals,
+          action = c("abort", "inform"),
+          call = call
+        )
+      }
+      if (isFALSE(a$complementarity$do_acc_run)) {
+        n_comp_active <- .deploy_metadata(cmf_path = paths$cmf)$n_comp_active %|||% 0
+        if (n_comp_active > 0) {
+          .cli_action(solve_err$comp_acc_off_subintervals,
+            action = c("abort", "inform"),
+            call = call
+          )
+        }
+      }
+    }
     if (!isTRUE(all(
       is.numeric(a$steps), length(a$steps) %in% c(1L, 2L, 3L), !anyNA(a$steps),
       rlang::is_integerish(a$steps), a$steps >= 1

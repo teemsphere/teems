@@ -121,7 +121,8 @@ subintervals may alleviate accuracy issues stemming from
 large shock magnitudes. In a model with active
 complementarities each subinterval runs its own approximate
 and accurate run; the Runge-Kutta methods take subintervals
-only there.}
+only there. \code{"Johansen"}, a single linear solve, takes one
+subinterval only.}
 
 \item{verbosity}{Integer length 1, \code{0}, \code{1} (default) or \code{2}.
 Console detail while the solver runs: \code{0} shows errors,

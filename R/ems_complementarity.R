@@ -48,7 +48,8 @@
 #'   change is caught by the post-run verification.
 #' @param do_acc_run Logical length 1 (default `NULL`, solver default
 #'   `TRUE`). `FALSE` stops after the approximate run and keeps its
-#'   (Euler-accurate) solution as the simulation result.
+#'   (Euler-accurate) solution as the simulation result. The run
+#'   then takes one subinterval only (`n_subintervals = 1`).
 #' @param state_bound_error Character length 1, `"fatal"` or `"warn"`
 #'   (default `NULL`, solver default `"fatal"`). Severity of the
 #'   post-accurate-run checks that every component sits in its

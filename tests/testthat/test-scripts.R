@@ -1,4 +1,5 @@
 skip_on_cran()
+skip_if(!all(nzchar(Sys.getenv(c("GTAP10A_dat", "GTAP11c_dat", "GTAP12_dat")))), "GTAP data not available")
 
 # Every example script under inst/scripts is solved once per model and
 # database: the GTAPv7-format models (GTAPv7, GTAP-RE) on v11 and v12

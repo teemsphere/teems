@@ -1,4 +1,5 @@
 skip_on_cran()
+skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
 
 write_dir <- file.path(tools::R_user_dir("teems", "cache"), "model")
 temp_dir <- file.path(write_dir, "tmp")

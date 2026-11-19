@@ -1,4 +1,5 @@
 skip_on_cran()
+skip_if(!nzchar(Sys.getenv("GTAP12_dat")), "GTAP data not available")
 
 dat_input <- Sys.getenv("GTAP12_dat")
 par_input <- Sys.getenv("GTAP12_par")

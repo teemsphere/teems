@@ -29,19 +29,14 @@ bibentry(
       comment = c(ORCID = "0000-0003-3729-1764")
     ),
     person(
-      given   = "Tom",
-      family  = "Kompas",
-      comment = c(ORCID = "0000-0002-0665-0966")
-    ),
-    person(
-      given   = c("Ha", "Van"),
-      family  = "Pham",
-      comment = c(ORCID = "0000-0002-5927-6568")
-    ),
-    person(
       given   = "Martin",
       family  = "Ingram",
       comment = c(ORCID = "0000-0001-6269-8342")
+    ),
+    person(
+      given   = "Tom",
+      family  = "Kompas",
+      comment = c(ORCID = "0000-0002-0665-0966")
     )
   ),
   year     = year,
@@ -49,7 +44,7 @@ bibentry(
   url      = "https://CRAN.R-project.org/package=teems",
   doi      = "10.32614/CRAN.package.teems",
   textVersion = paste0(
-    "Cantele, M., Kompas, T., Pham, H. V., & Ingram, M. (", year, "). ",
+    "Cantele, M., Ingram, M., & Kompas, T. (", year, "). ",
     "teems: Trade and Environment Equilibrium Modeling System. ",
     "R package version ", version, ". ",
     "https://CRAN.R-project.org/package=teems. ",

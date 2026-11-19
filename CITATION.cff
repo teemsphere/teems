@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "teems: Trade and Environment Equilibrium Modeling System"
+abstract: >-
+  Equilibrium models are frequently employed to examine the potential
+  impacts of economic, energy, and trade policies as well as form the
+  foundation of most integrated assessment models. The teems package
+  handles all aspects of running equilibrium models while facilitating
+  transparent and reproducible workflows.
+authors:
+  - family-names: Cantele
+    given-names: Matthew
+    email: matthew.cantele@protonmail.com
+    orcid: "https://orcid.org/0000-0003-3729-1764"
+    affiliation: University of Melbourne
+  - family-names: Ingram
+    given-names: Martin
+    orcid: "https://orcid.org/0000-0001-6269-8342"
+    affiliation: University of Melbourne
+  - family-names: Kompas
+    given-names: Tom
+    orcid: "https://orcid.org/0000-0002-0665-0966"
+    affiliation: University of Melbourne
+version: 1.0.1
+date-released: "2026-10-21"
+doi: 10.32614/CRAN.package.teems
+url: https://teemsphere.github.io/
+repository-code: https://github.com/teemsphere/teems
+repository: https://CRAN.R-project.org/package=teems
+license: AGPL-3.0-or-later
+keywords:
+  - computable general equilibrium
+  - CGE
+  - GTAP
+  - economic modeling
+  - trade policy
+  - climate policy
+  - reproducibility
+  - R

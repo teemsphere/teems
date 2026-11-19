@@ -84,6 +84,28 @@ step("DESCRIPTION fields CRAN reads", {
   if (grepl(" (in|with) R\\b", desc[1, "Title"])) stop("Title says 'in R'")
   paste("version", version)
 })
+step("CITATION.cff version, date and authors match DESCRIPTION", {
+  cff <- readLines(file.path(pkg, "CITATION.cff"))
+  cff_version <- sub("^version:\\s*\"?([^\"]*)\"?\\s*$", "\\1", grep("^version:", cff, value = TRUE))
+  dev_version <- length(strsplit(version, ".", fixed = TRUE)[[1]]) > 3L
+  if (!identical(cff_version, version)) {
+    msg <- paste0("CITATION.cff says ", cff_version, ", DESCRIPTION ", version)
+    if (dev_version) {
+      return(paste0("NOTE: ", msg, " (dev version; set both at release)"))
+    }
+    stop(msg)
+  }
+  if (!any(grepl("^date-released:\\s*\"?[0-9]{4}-[0-9]{2}-[0-9]{2}", cff))) {
+    stop("no date-released in CITATION.cff")
+  }
+  cff_authors <- trimws(sub("^.*family-names:\\s*", "", grep("family-names:", cff, value = TRUE)))
+  desc_authors <- vapply(eval(parse(text = desc[1, "Authors@R"])), function(p) p$family, "")
+  extra <- setdiff(cff_authors, desc_authors)
+  if (length(extra) > 0L) {
+    stop("CITATION.cff author(s) not in DESCRIPTION: ", paste(extra, collapse = ", "))
+  }
+  paste("version", version, "and", length(cff_authors), "authors")
+})
 
 ## 3. the package under CRAN's conditions ---------------------------------------------
 cran_env <- function() {

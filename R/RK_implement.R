@@ -30,7 +30,6 @@
       verbosity = a$verbosity,
       suppress_outputs = a$suppress_outputs,
       terminal_run = a$terminal_run,
-      complementarity = a$complementarity,
       accuracy_vars = a$accuracy_vars
     ),
     a$solve_args

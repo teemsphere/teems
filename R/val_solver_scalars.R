@@ -4,13 +4,6 @@
 .validate_solver_scalars <- function(a,
                                      call) {
   checklist <- .solver_arg_checklist()
-  if (!is.null(a$complementarity) &&
-    !inherits(a$complementarity, "teems_complementarity")) {
-    .cli_action(solve_err$comp_spec_class,
-      action = c("abort", "inform"),
-      call = call
-    )
-  }
   if (!rlang::is_integerish(a$n_threads) || length(a$n_threads) != 1L ||
     a$n_threads < 1) {
     bad_arg <- "n_threads"

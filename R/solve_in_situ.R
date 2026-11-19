@@ -80,7 +80,6 @@ solve_in_situ <- function(...,
                           verbosity = 1L,
                           suppress_outputs = FALSE,
                           terminal_run = FALSE,
-                          complementarity = NULL,
                           accuracy_vars = NULL,
                           solver_args = NULL
 ) {

@@ -14,7 +14,6 @@
       verbosity = c("numeric", "integer"),
       suppress_outputs = "logical",
       terminal_run = "logical",
-      complementarity = c("NULL", "teems_complementarity"),
       accuracy_vars = c("NULL", "character"),
       adaptive = "character",
       eps_tolerance = c("numeric", "integer"),

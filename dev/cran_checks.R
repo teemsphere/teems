@@ -88,7 +88,7 @@ step("CITATION.cff version, date and authors match DESCRIPTION", {
   cff <- readLines(file.path(pkg, "CITATION.cff"))
   cff_version <- sub("^version:\\s*\"?([^\"]*)\"?\\s*$", "\\1", grep("^version:", cff, value = TRUE))
   dev_version <- length(strsplit(version, ".", fixed = TRUE)[[1]]) > 3L
-  if (!identical(cff_version, version)) {
+  if (!isTRUE(cff_version == version)) {
     msg <- paste0("CITATION.cff says ", cff_version, ", DESCRIPTION ", version)
     if (dev_version) {
       return(paste0("NOTE: ", msg, " (dev version; set both at release)"))

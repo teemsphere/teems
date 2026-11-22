@@ -180,7 +180,27 @@ if (want_suite) {
 if (want_remote) {
   step("win-builder R-devel and R-release submitted", { devtools::check_win_devel(pkg, quiet = TRUE); devtools::check_win_release(pkg, quiet = TRUE); "submitted, results by e-mail" })
   step("mac-builder submitted", { u <- devtools::check_mac_release(pkg, quiet = TRUE); paste("results (no e-mail):", u) })
-  step("R-hub (GitHub Actions) launched", { rhub::rhub_check(platforms = c("linux", "windows", "macos", "clang-asan", "gcc-asan")); "launched on GitHub Actions" })
+  step("R-hub (GitHub Actions) launched", {
+    # rhub_check() derives the repository from the local .git and the PAT
+    # from the git credential store, neither of which a worktree or a
+    # non-interactive run has: the GitHub URL comes from DESCRIPTION, the
+    # branch from git, the PAT from GITHUB_PAT (gitcreds reads it first)
+    gh_url <- grep("^https://github\\.com/", trimws(strsplit(desc[1, "URL"], ",")[[1]]), value = TRUE)
+    if (length(gh_url) == 0L) {
+      stop("no https://github.com URL in DESCRIPTION's URL field")
+    }
+    gh_url <- sub("/$", "", gh_url[1])
+    branch <- system2("git", c("-C", shQuote(pkg), "rev-parse", "--abbrev-ref", "HEAD"), stdout = TRUE)
+    if (!nzchar(Sys.getenv("GITHUB_PAT")) && !nzchar(Sys.getenv("GITHUB_TOKEN"))) {
+      has_pat <- !inherits(tryCatch(gitcreds::gitcreds_get("https://github.com"), error = function(e) e), "error")
+      if (!has_pat) {
+        stop("no GitHub PAT: set GITHUB_PAT in ~/.Renviron (usethis::create_github_token()) or gitcreds::gitcreds_set()")
+      }
+    }
+    utils::capture.output(rhub::rhub_check(gh_url = gh_url, branch = branch,
+                                           platforms = c("linux", "windows", "macos", "clang-asan", "gcc-asan")), type = "message")
+    paste0("launched on ", branch, " -> ", gh_url, "/actions")
+  })
 } else cat("skip remote builders (run with --remote): win-builder devel/release, mac-builder, R-hub linux/windows/macos/asan\n")
 cat("skip reverse dependencies: none on CRAN yet\n")
 

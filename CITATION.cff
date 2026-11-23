@@ -22,8 +22,8 @@ authors:
     given-names: Tom
     orcid: "https://orcid.org/0000-0002-0665-0966"
     affiliation: University of Melbourne
-version: 1.0.1
-date-released: "2026-10-21"
+version: 1.1.0
+date-released: "2026-11-23"
 doi: 10.32614/CRAN.package.teems
 url: https://teemsphere.github.io/
 repository-code: https://github.com/teemsphere/teems

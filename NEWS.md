@@ -1,3 +1,15 @@
+# teems 1.1.0
+
+## New
+* `ems_RK(step_budget = )`, also through `ems_solve()`'s `...` and `solve_in_situ()`'s `solver_args`: an adaptive Runge-Kutta run that stops advancing aborts once its step attempts exceed the budget (solver default 500) instead of running without end. Set `step_budget = 500L` explicitly for compatibility with future solver versions, where it becomes the package default
+* `ems_solve()` says once per session when a newer teems-solver release exists for a compatible image, with the rebuild instructions
+
+## Changes
+* `ems_solve(solution_method = "Johansen", n_subintervals = S)` with `S` above 1 is an error; before, the subintervals were silently reset to 1 while the run reported `S`
+* A range qualifier (`ge`, `gt`, `le`, `lt`) on a linear variable aborts at model load; before, it was accepted and bounded nothing
+* The memory fit check's remedies follow the model type (static or intertemporal)
+* The shock file is named after the shocked variables (`pop_tms.shf`); before, its name carried one character per shocked component, and a uniform shock over a few hundred components exceeded the file-name limit so `ems_deploy()` failed
+
 # teems 1.0.1
 
 ## Bug fix
